@@ -24,6 +24,8 @@ The model is the EdgeLabel V12 wedge (57 × 27 × 4.5 mm): full height on the le
 4. *(Optional)* Import a **CSV / TXT** file to create many labels at once (one label's text per row).
 5. Click **Download .3mf**.
 
+Your work is **auto-saved in the browser**, so it's still there when you come back. Use **Save / Load → Export** to download your labels + settings as a `.json` file (for backup or moving to another computer), and **Upload** to load one back.
+
 ---
 
 ## Printing in two colors

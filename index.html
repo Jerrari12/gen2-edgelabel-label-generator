@@ -40,6 +40,41 @@
   .row input[type="text"]:focus { outline: none; border-color: var(--accent-dim); }
   .row .remove { width: 26px; height: 26px; background: transparent; border: 1px solid transparent; color: var(--muted); border-radius: 4px; cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
   .row .remove:hover { color: var(--danger); border-color: var(--danger); }
+  .row .row-sel { width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; accent-color: var(--accent); margin: 0; }
+  .row .idx { cursor: grab; user-select: none; touch-action: none; }
+  .row .idx:hover { color: var(--text); }
+  .row.dragging .idx, .row .idx:active { cursor: grabbing; }
+  .row.dragging { opacity: 0.45; }
+  /* Bulk selection bar + actions */
+  .labels-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .labels-bar .sel-all { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .labels-bar .sel-all input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+  .bulk-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .bulk-actions[hidden] { display: none; }
+  .bulk-actions button { padding: 5px 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 11px; font-family: inherit; transition: all 0.15s; }
+  .bulk-actions button:hover { border-color: var(--accent-dim); color: var(--accent); }
+  .bulk-actions button.danger:hover { border-color: #c0392b; color: #e74c3c; }
+  /* Add-label + sort tools row, and preset dropdown */
+  .row-tools { display: flex; gap: 6px; align-items: stretch; margin-top: 4px; }
+  .row-tools .add { margin-top: 0; flex: 1; }
+  button.tool-btn { padding: 7px 12px; background: transparent; border: 1px dashed var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+  button.tool-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+  .preset-row { margin-top: 8px; }
+  .preset-row select { width: 140px; }
+  /* Predicted-icon toggle + the dashed cue that marks an auto-predicted badge */
+  .opt-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 8px; cursor: pointer; user-select: none; }
+  .opt-toggle input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; margin: 0; }
+  .row .badge-btn.predicted { border-style: dashed; }
+  /* Inline prefix/suffix panel (bulk) */
+  .affix-panel { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 8px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; }
+  .affix-panel[hidden] { display: none; }
+  .affix-panel input { flex: 1 1 80px; min-width: 0; padding: 6px 8px; background: #0a0b0e; border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
+  .affix-panel input:focus { outline: none; border-color: var(--accent-dim); }
+  .affix-panel button { flex: 0 0 auto; }
+  #affix-apply { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
+  #affix-apply:hover { background: var(--accent-hover); color: #1a1a1c; border-color: var(--accent-hover); }
+  /* All-caps rendering cue in the label inputs */
+  #labels.caps .label-text { text-transform: uppercase; }
   button.add { padding: 7px 10px; background: transparent; border: 1px dashed var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%; margin-top: 4px; }
   button.add:hover { color: var(--accent); border-color: var(--accent-dim); }
   button.primary { width: 100%; padding: 13px; background: var(--accent); color: #1a1a1c; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 14px; letter-spacing: 0.3px; transition: background 0.15s; box-shadow: 0 2px 8px rgba(238, 122, 48, 0.25); }
@@ -54,6 +89,12 @@
   .csv-zone.drag-over { border-color: var(--accent); background: rgba(238, 122, 48, 0.06); }
   .csv-zone strong { color: var(--accent); }
   #csv-input { display: none; }
+  /* Save / load project controls */
+  .proj-actions { display: flex; gap: 6px; margin-bottom: 6px; }
+  button.btn-sm { flex: 1; padding: 8px 8px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.15s; }
+  button.btn-sm:hover { border-color: var(--accent-dim); color: var(--accent); }
+  button.btn-sm:active { transform: translateY(1px); background: var(--border); }
+  #proj-import { display: none; }
   #status { padding: 8px 10px; background: var(--panel-2); border-radius: 5px; font-size: 11px; color: var(--muted); margin-top: 10px; min-height: 14px; line-height: 1.4; }
   #status.ok { color: var(--info); }
   #status.err { color: var(--danger); }
@@ -110,6 +151,13 @@
       height: 34px;
       font-size: 22px;
     }
+    .row .row-sel { width: 20px; height: 20px; }
+    .row .idx { width: 22px; font-size: 13px; }
+    .labels-bar .sel-all input { width: 20px; height: 20px; }
+    .opt-toggle input { width: 20px; height: 20px; }
+    .bulk-actions button { padding: 8px 11px; font-size: 12px; }
+    .affix-panel input { flex-basis: 100%; font-size: 16px; padding: 9px 10px; }
+    .affix-panel button { flex: 1; padding: 9px; font-size: 13px; }
     button.add { padding: 10px; font-size: 13px; }
     button.primary { padding: 14px; font-size: 15px; }
     .setting { padding: 4px 0; }
@@ -181,8 +229,33 @@
     <!-- LOGO END -->
 
     <h2>Labels</h2>
+    <div class="labels-bar">
+      <label class="sel-all"><input type="checkbox" id="sel-all"><span id="sel-count">Select all</span></label>
+      <div class="bulk-actions" id="bulk-actions" hidden>
+        <button id="bulk-icon" title="Pick one icon and apply it to the selected labels">Set icon</button>
+        <button id="bulk-clear" title="Remove the icon/badge from the selected labels">Clear icon</button>
+        <button id="bulk-affix" title="Add text before/after every selected label">Prefix/Suffix…</button>
+        <button id="bulk-delete" class="danger" title="Delete the selected labels">Delete</button>
+      </div>
+    </div>
+    <div class="affix-panel" id="affix-panel" hidden>
+      <input type="text" id="affix-pre" maxlength="24" placeholder="Prefix (before)">
+      <input type="text" id="affix-suf" maxlength="24" placeholder="Suffix (after)">
+      <button class="btn-sm" id="affix-apply">Apply</button>
+      <button class="btn-sm" id="affix-cancel">Cancel</button>
+    </div>
+    <label class="opt-toggle" title="Automatically suggest an icon based on each label's text. Icons you choose yourself are never changed.">
+      <input type="checkbox" id="predict-icons" checked> Predict icons from text
+    </label>
     <div id="labels"></div>
-    <button class="add" id="add-label">+ Add label</button>
+    <div class="row-tools">
+      <button class="add" id="add-label">+ Add label</button>
+      <button class="tool-btn" id="sort-labels" title="Sort rows in natural order (M3×6 before M3×10)">Sort</button>
+    </div>
+    <div class="setting preset-row">
+      <span>Preset collection</span>
+      <select id="preset-select"></select>
+    </div>
 
     <!-- Shared badge picker popover -->
     <div id="badge-popover" class="badge-popover" hidden>
@@ -206,6 +279,13 @@
     </div>
     <input type="file" id="csv-input" accept=".csv,.txt,text/csv,text/plain">
 
+    <h2>Save / Load</h2>
+    <div class="proj-actions">
+      <button class="btn-sm" id="proj-export" title="Download your labels + settings as a .json file">Export</button>
+      <button class="btn-sm" id="proj-upload-btn" title="Load labels + settings from a .json file you exported earlier">Upload</button>
+      <input type="file" id="proj-import" accept=".json,application/json">
+    </div>
+
     <h2>Label Settings</h2>
     <div class="setting">
       <span>Text height (cap)</span>
@@ -222,6 +302,10 @@
     <div class="setting">
       <span>Bold text</span>
       <span><input type="checkbox" id="bold-text"></span>
+    </div>
+    <div class="setting">
+      <span>All caps</span>
+      <span><input type="checkbox" id="all-caps" checked></span>
     </div>
 
     <h2>Build Plate</h2>
@@ -292,7 +376,7 @@
       <strong>GEN2 EdgeLabel</strong> · 57 × 27 × 4.5 mm<br>
       <span id="label-count">0 labels</span><span class="hint-desktop"> · Scroll to zoom · Drag to rotate</span><span class="hint-mobile"> · Pinch / drag to navigate</span>
     </div>
-    <span class="brand">JERRARI DESIGN · EdgeLabel v1.01</span>
+    <span class="brand">JERRARI DESIGN · EdgeLabel v1.02</span>
   </div>
 </div>
 
@@ -467,9 +551,12 @@ function init() {
   setupThree();
   setupUI();
   loadFont().then(() => {
-    setStatus('Ready. Type labels and click Download.', 'ok');
     document.getElementById('download').disabled = false;
     rebuild();
+    // rebuild() sets its own status; override it only when it didn't warn.
+    if (!document.getElementById('status').classList.contains('err')) {
+      setStatus(restoredFromAutosave ? 'Restored your previous session.' : 'Ready. Type labels and click Download.', 'ok');
+    }
   }).catch(err => {
     setStatus('Font load failed: ' + err.message, 'err');
   });
@@ -501,7 +588,7 @@ function setupThree() {
   dir2.position.set(-30, -20, 40);
   scene.add(dir2);
 
-  // The build-plate outline is drawn dynamically in updateBedOutline().
+  // The build-plate outline is drawn dynamically in updateBedOutlines().
 
   baseMaterial = new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.6, metalness: 0.05 });
   textMaterial = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, metalness: 0.05 });
@@ -936,6 +1023,13 @@ function getBold() {
   return !!(el && el.checked);
 }
 
+// All-caps render switch (the "All caps" checkbox). Applied at output time only,
+// so the typed text is preserved — toggling off restores the original casing.
+function capsOn() {
+  const el = document.getElementById('all-caps');
+  return !!(el && el.checked);
+}
+
 // Read every label row into { text, badge } objects.
 function getLabelData() {
   const rows = document.querySelectorAll('#labels .row');
@@ -945,21 +1039,19 @@ function getLabelData() {
     const text = input ? input.value : '';
     const bt = row.dataset.badgeType || 'none';
     const badge = { type: bt };
-    if (bt === 'char') badge.value = row.dataset.badgeValue || '';
+    if (bt === 'char') {
+      const cv = row.dataset.badgeValue || '';
+      badge.value = capsOn() ? cv.toUpperCase() : cv;   // match the all-caps label text
+    }
     else if (bt === 'icon') {
       if (row.dataset.badgeIcon) badge.value = row.dataset.badgeIcon;
       if (row._badgeSvg) badge.svg = row._badgeSvg;
     }
     const hasBadge = (bt === 'char' && (badge.value || '').trim()) ||
                      (bt === 'icon' && (badge.value || badge.svg));
-    if ((text && text.trim()) || hasBadge) out.push({ text, badge });
+    if ((text && text.trim()) || hasBadge) out.push({ text: capsOn() ? text.toUpperCase() : text, badge });
   });
   return out;
-}
-
-// Text-only list (used for filename + count).
-function getCurrentLabels() {
-  return getLabelData().map(d => (d.text || '').trim()).filter(s => s.length > 0);
 }
 
 function getBedSize() {
@@ -1067,6 +1159,7 @@ function updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge) {
 }
 
 function rebuild() {
+  if (!font) return;   // font loads async; init() calls rebuild() once it's ready
   if (labelGroup) {
     labelGroup.traverse(o => {
       if (o.geometry) o.geometry.dispose();
@@ -1141,6 +1234,8 @@ function rebuild() {
     camera.position.set(0, -dist * 0.28, dist * 0.95);
     controls.setTarget(new THREE.Vector3(0, 0, 0));
   }
+
+  scheduleAutosave();
 }
 
 //============================================================
@@ -1405,6 +1500,8 @@ function setStatus(msg, kind) {
 }
 
 let activeBadgeRow = null;
+let bulkBadgeMode = false;   // when true the badge picker applies to all selected rows
+let draggingRow = null;      // row currently being drag-reordered
 
 function addLabelRow(value = '', badge = null) {
   const container = document.getElementById('labels');
@@ -1412,7 +1509,8 @@ function addLabelRow(value = '', badge = null) {
   row.className = 'row';
   row.dataset.badgeType = 'none';
   row.innerHTML =
-    `<span class="idx"></span>` +
+    `<input class="row-sel" type="checkbox" title="Select for bulk actions">` +
+    `<span class="idx" title="Drag to reorder"></span>` +
     `<button class="badge-btn" title="Add icon or letter (optional)">+</button>` +
     `<input class="label-text" type="text" maxlength="48" placeholder="Label text" value="${value.replace(/"/g, '&quot;')}">` +
     `<button class="remove" title="Remove">×</button>`;
@@ -1420,11 +1518,12 @@ function addLabelRow(value = '', badge = null) {
   renumberRows();
 
   const input = row.querySelector('input.label-text');
-  input.addEventListener('input', debounce(rebuild, 300));
+  input.addEventListener('input', debounce(() => { autoAssignIcon(row); rebuild(); }, 300));
   row.querySelector('.remove').addEventListener('click', () => {
     if (activeBadgeRow === row) closeBadgePopover();
     row.remove();
     renumberRows();
+    updateBulkBar();
     rebuild();
   });
   row.querySelector('.badge-btn').addEventListener('click', (e) => {
@@ -1432,9 +1531,14 @@ function addLabelRow(value = '', badge = null) {
     e.stopPropagation();
     openBadgePopover(row);
   });
+  row.querySelector('.row-sel').addEventListener('change', updateBulkBar);
+
+  // Drag-to-reorder via the index handle — pointer events work on mouse + touch
+  row.querySelector('.idx').addEventListener('pointerdown', (e) => startRowDrag(e, row));
 
   if (badge) applyBadge(row, badge);
   updateBadgeBtn(row);
+  updateBulkBar();
   return input;
 }
 
@@ -1442,7 +1546,12 @@ function addLabelRow(value = '', badge = null) {
 function updateBadgeBtn(row) {
   const btn = row.querySelector('.badge-btn');
   const t = row.dataset.badgeType;
+  const predicted = t === 'icon' && row.dataset.badgeManual !== '1';
   btn.classList.toggle('set', !!t && t !== 'none');
+  btn.classList.toggle('predicted', predicted);
+  btn.title = predicted ? 'Auto-suggested from the label text (dashed) — click to choose your own'
+            : (t && t !== 'none') ? 'Click to change the icon or letter'
+            : 'Add an icon or letter (optional)';
   if (t === 'char') {
     btn.textContent = (row.dataset.badgeValue || '+').slice(0, 2);
   } else if (t === 'icon') {
@@ -1472,18 +1581,98 @@ function applyBadge(row, badge) {
 }
 
 function setActiveRowBadge(type, value, svg) {
+  if (bulkBadgeMode) {
+    const rows = selectedRows();
+    if (!rows.length) { bulkBadgeMode = false; setStatus('No labels selected.', 'err'); return; }
+    rows.forEach(r => { r.dataset.badgeManual = '1'; applyBadge(r, { type, value, svg }); });
+    rebuild();
+    setStatus(`Applied to ${rows.length} selected label${rows.length === 1 ? '' : 's'}.`, 'ok');
+    return;
+  }
   if (!activeBadgeRow) return;
+  activeBadgeRow.dataset.badgeManual = '1';   // a manual pick stops auto-assigning for this row
   applyBadge(activeBadgeRow, { type, value, svg });
   rebuild();
 }
 
-function openBadgePopover(row) {
-  activeBadgeRow = row;
+/* Keyword → icon auto-match. Scans the label text and assigns a matching icon;
+   first match wins, so list specific terms before generic ones. Skips rows the
+   user has set manually. Easy to extend — just add keywords to this list. */
+const KEYWORD_ICONS = [
+  [['torx'], 'screw-torx-head'],
+  [['phillips', 'philips', 'cross-head', 'crosshead'], 'screw-phillips-head'],
+  [['slotted', 'flathead', 'flat-head'], 'screw-slotted-head'],
+  [['hex socket', 'socket head', 'socket-head', 'allen', 'shcs', 'cap screw'], 'screw-hex-socket'],
+  [['bolt', 'bolts', 'hex bolt', 'hex head'], 'bolt-hex-head'],
+  // Generic "screw" / "m3" etc. intentionally has NO mapping — a phillips icon
+  // would be wrong as often as right. Add a generic-screw icon to ICON_LIBRARY
+  // later, then map it here so plain "screws" gets a head-agnostic icon.
+  [['nut', 'nuts', 'nyloc', 'locknut', 'lock nut'], 'nut'],
+  [['washer', 'washers'], 'washer'],
+  [['wrench', 'wrenches', 'spanner', 'spanners', 'sae', 'allen key', 'hex key'], 'wrench-a'],
+  [['screwdriver', 'screw driver', 'driver', 'drivers'], 'screw-driver'],
+  [['cutter', 'cutters', 'snips', 'flush', 'side cutter'], 'flush-cutter'],
+  [['drill', 'drills', 'drill bit', 'bits'], 'drill-bit'],
+  [['nozzle', 'nozzles', 'hotend'], 'nozzle'],
+  [['resistor', 'resistors', 'ohm', 'ohms'], 'resistor'],
+  [['capacitor', 'capacitors', 'caps', 'farad'], 'capacitor'],
+  [['diode', 'diodes', 'led', 'leds'], 'diode'],
+  [['ic', 'chip', 'chips', 'mcu', 'microcontroller', 'transistor', 'transistors'], 'ic-chip'],
+  [['battery', 'batteries', 'cell', 'cells', 'aa', 'aaa', '18650', 'lipo', 'li-po'], 'battery'],
+  [['sd', 'sd card', 'microsd', 'micro sd', 'memory card', 'tf card'], 'sd-card'],
+  [['gear', 'gears', 'cog', 'cogs'], 'gear'],
+  [['power', 'electrical', 'volt', 'volts', 'amp', 'amps', 'fuse', 'fuses'], 'lightning'],
+  [['favorite', 'favourite', 'important', 'star'], 'star'],
+];
+function guessIconId(text) {
+  if (!text) return null;
+  for (const [keys, id] of KEYWORD_ICONS) {
+    if (!ICON_LIBRARY.some(i => i.id === id)) continue;   // skip if this build lacks the icon
+    for (const k of keys) {
+      const re = new RegExp('(^|[^a-z0-9])' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)', 'i');
+      if (re.test(text)) return id;
+    }
+  }
+  return null;
+}
+// Predicted-icon master switch (the "Predict icons from text" checkbox).
+function predictionsOn() {
+  const el = document.getElementById('predict-icons');
+  return !el || el.checked;
+}
+function autoAssignIcon(row) {
+  if (!row || row.dataset.badgeManual === '1') return;   // never override a manual choice
+  if (!predictionsOn()) return;                          // predictions toggled off
+  const id = guessIconId(row.querySelector('input.label-text').value);
+  if (id) applyBadge(row, { type: 'icon', value: id });
+  else if (row.dataset.badgeType === 'icon') applyBadge(row, { type: 'none' });  // clear a stale auto-icon
+}
+
+// Toggle handler: re-predict every non-manual row when turned on; strip the
+// predicted icons (but never the manually-chosen ones) when turned off.
+function applyPredictToggle() {
+  const on = predictionsOn();
+  document.querySelectorAll('#labels .row').forEach(row => {
+    if (row.dataset.badgeManual === '1') return;          // leave manual icons untouched
+    if (on) autoAssignIcon(row);
+    else if (row.dataset.badgeType === 'icon') applyBadge(row, { type: 'none' });
+  });
+  rebuild();
+}
+
+// All-caps toggle: re-render (getLabelData uppercases) and mirror it in the
+// input boxes via a CSS class. The stored text is never modified.
+function applyCapsToggle() {
+  document.getElementById('labels').classList.toggle('caps', capsOn());
+  rebuild();
+}
+
+function positionPopover(anchorEl, charPrefill) {
   const pop = document.getElementById('badge-popover');
   const charInput = document.getElementById('bp-char');
-  charInput.value = row.dataset.badgeType === 'char' ? (row.dataset.badgeValue || '') : '';
+  charInput.value = charPrefill;
   pop.hidden = false;
-  const r = row.querySelector('.badge-btn').getBoundingClientRect();
+  const r = anchorEl.getBoundingClientRect();
   const top = Math.min(window.innerHeight - pop.offsetHeight - 8, r.bottom + 6);
   const left = Math.min(window.innerWidth - pop.offsetWidth - 8, Math.max(8, r.left));
   pop.style.top = Math.max(8, top) + 'px';
@@ -1491,9 +1680,23 @@ function openBadgePopover(row) {
   charInput.focus();
 }
 
+function openBadgePopover(row) {
+  bulkBadgeMode = false;
+  activeBadgeRow = row;
+  positionPopover(row.querySelector('.badge-btn'), row.dataset.badgeType === 'char' ? (row.dataset.badgeValue || '') : '');
+}
+
+// Open the same picker but apply the choice to every selected row.
+function openBulkBadgePopover(anchorEl) {
+  bulkBadgeMode = true;
+  activeBadgeRow = null;
+  positionPopover(anchorEl, '');
+}
+
 function closeBadgePopover() {
   document.getElementById('badge-popover').hidden = true;
   activeBadgeRow = null;
+  bulkBadgeMode = false;
 }
 
 function setupBadgePicker() {
@@ -1568,10 +1771,374 @@ function clearLabelRows() {
   document.getElementById('labels').innerHTML = '';
 }
 
-function setupUI() {
-  // Default: 3 empty label rows
-  for (let i = 0; i < 3; i++) addLabelRow('');
+//============================================================
+// Bulk selection, drag-reorder, sort & preset collections
+//============================================================
+function selectedRows() {
+  return [...document.querySelectorAll('#labels .row')].filter(r => {
+    const cb = r.querySelector('.row-sel');
+    return cb && cb.checked;
+  });
+}
 
+// Reflect current selection in the bulk bar (count, master checkbox, actions).
+function updateBulkBar() {
+  const master = document.getElementById('sel-all');
+  if (!master) return;
+  const boxes = [...document.querySelectorAll('#labels .row-sel')];
+  const sel = boxes.filter(b => b.checked).length;
+  const total = boxes.length;
+  master.checked = total > 0 && sel === total;
+  master.indeterminate = sel > 0 && sel < total;
+  master.disabled = total === 0;
+  document.getElementById('sel-count').textContent = sel ? `${sel} selected` : 'Select all';
+  document.getElementById('bulk-actions').hidden = sel === 0;
+  if (sel === 0) { const ap = document.getElementById('affix-panel'); if (ap) ap.hidden = true; }
+}
+
+// Drag-reorder helper: the first row whose midpoint sits below the cursor.
+function rowAfterPointer(container, y) {
+  const rows = [...container.querySelectorAll('.row:not(.dragging)')];
+  for (const r of rows) {
+    const b = r.getBoundingClientRect();
+    if (y < b.top + b.height / 2) return r;
+  }
+  return null;
+}
+
+function sortLabels() {
+  const c = document.getElementById('labels');
+  const rows = [...c.querySelectorAll('.row')];
+  if (rows.length < 2) return;
+  rows.sort((a, b) => a.querySelector('.label-text').value
+    .localeCompare(b.querySelector('.label-text').value, undefined, { numeric: true, sensitivity: 'base' }));
+  rows.forEach(r => c.appendChild(r));
+  renumberRows();
+  rebuild();
+  setStatus('Sorted labels in natural order.', 'ok');
+}
+
+// ----- Predesigned label collections (metric fasteners) -----
+const SCREW_LENGTHS = {
+  M2: [4, 6, 8, 10, 12, 16, 20],
+  M3: [5, 6, 8, 10, 12, 16, 20, 25, 30, 35, 40],
+  M4: [6, 8, 10, 12, 16, 20, 25, 30, 35, 40],
+  M5: [8, 10, 12, 16, 20, 25, 30, 35, 40, 45, 50],
+  M6: [10, 12, 16, 20, 25, 30, 35, 40, 45, 50],
+};
+const LABEL_PRESETS = [];
+['M2', 'M3', 'M4', 'M5', 'M6'].forEach(m => {
+  LABEL_PRESETS.push({
+    id: 'socket-' + m, group: 'Socket-head cap screws', name: m + ' Socket Screws',
+    items: SCREW_LENGTHS[m].map(l => ({ text: m + '×' + l, icon: 'screw-hex-socket' })),
+  });
+});
+LABEL_PRESETS.push({ id: 'hex-nuts', group: 'Other fasteners', name: 'Hex Nuts (M2–M8)',
+  items: ['M2', 'M3', 'M4', 'M5', 'M6', 'M8'].map(m => ({ text: m, icon: 'nut' })) });
+LABEL_PRESETS.push({ id: 'washers', group: 'Other fasteners', name: 'Washers (M2–M8)',
+  items: ['M2', 'M3', 'M4', 'M5', 'M6', 'M8'].map(m => ({ text: m, icon: 'washer' })) });
+
+function populatePresetSelect() {
+  const sel = document.getElementById('preset-select');
+  if (!sel) return;
+  sel.innerHTML = '';
+  const ph = document.createElement('option');
+  ph.value = ''; ph.textContent = 'Load a collection…';
+  sel.appendChild(ph);
+  const groups = {};
+  LABEL_PRESETS.forEach(p => { (groups[p.group] = groups[p.group] || []).push(p); });
+  Object.keys(groups).forEach(g => {
+    const og = document.createElement('optgroup');
+    og.label = g;
+    groups[g].forEach(p => {
+      const o = document.createElement('option');
+      o.value = p.id; o.textContent = p.name;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+}
+
+function loadPreset(id) {
+  const p = LABEL_PRESETS.find(x => x.id === id);
+  if (!p) return;
+  // Replace the rows only if they're all blank; otherwise append to the list.
+  const rows = [...document.querySelectorAll('#labels .row')];
+  const allBlank = rows.every(r =>
+    !r.querySelector('.label-text').value.trim() && (r.dataset.badgeType || 'none') === 'none');
+  if (allBlank) clearLabelRows();
+  p.items.forEach(it => {
+    const row = addLabelRow(it.text, it.icon ? { type: 'icon', value: it.icon } : null).closest('.row');
+    if (it.icon) row.dataset.badgeManual = '1';
+  });
+  updateBulkBar();
+  rebuild();
+  setStatus(`Loaded “${p.name}” — ${p.items.length} labels. Edit, add, or remove as needed.`, 'ok');
+}
+
+function setupBulkControls() {
+  populatePresetSelect();
+
+  // Select-all / deselect-all master checkbox
+  const master = document.getElementById('sel-all');
+  master.addEventListener('change', () => {
+    document.querySelectorAll('#labels .row-sel').forEach(cb => { cb.checked = master.checked; });
+    updateBulkBar();
+  });
+
+  // Bulk: set one icon on all selected rows (opens the shared picker in bulk mode)
+  document.getElementById('bulk-icon').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selectedRows().length) { setStatus('Select some labels first.', 'err'); return; }
+    openBulkBadgePopover(e.currentTarget);
+  });
+
+  // Bulk: clear icon/badge from selected rows
+  document.getElementById('bulk-clear').addEventListener('click', () => {
+    const rows = selectedRows();
+    if (!rows.length) { setStatus('Select some labels first.', 'err'); return; }
+    rows.forEach(r => { r.dataset.badgeManual = '1'; applyBadge(r, { type: 'none' }); });
+    rebuild();
+    setStatus(`Cleared icon on ${rows.length} label${rows.length === 1 ? '' : 's'}.`, 'ok');
+  });
+
+  // Bulk: add a prefix / suffix to selected rows — inline panel (no fragile prompts)
+  const affixPanel = document.getElementById('affix-panel');
+  const affixPre = document.getElementById('affix-pre');
+  const affixSuf = document.getElementById('affix-suf');
+  const closeAffix = () => { affixPanel.hidden = true; affixPre.value = ''; affixSuf.value = ''; };
+  const applyAffix = () => {
+    const rows = selectedRows();
+    if (!rows.length) { setStatus('Select some labels first.', 'err'); closeAffix(); return; }
+    const pre = affixPre.value, suf = affixSuf.value;
+    if (!pre && !suf) { setStatus('Enter a prefix or suffix first.', 'err'); affixPre.focus(); return; }
+    rows.forEach(r => {
+      const inp = r.querySelector('.label-text');
+      inp.value = (pre + inp.value + suf).slice(0, 48);
+      autoAssignIcon(r);
+    });
+    closeAffix();
+    rebuild();
+    setStatus(`Updated ${rows.length} label${rows.length === 1 ? '' : 's'}.`, 'ok');
+  };
+  document.getElementById('bulk-affix').addEventListener('click', () => {
+    if (!selectedRows().length) { setStatus('Select some labels first.', 'err'); return; }
+    affixPanel.hidden = !affixPanel.hidden;
+    if (!affixPanel.hidden) affixPre.focus();
+  });
+  document.getElementById('affix-apply').addEventListener('click', applyAffix);
+  document.getElementById('affix-cancel').addEventListener('click', closeAffix);
+  [affixPre, affixSuf].forEach(el => el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); applyAffix(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeAffix(); }
+  }));
+
+  // Bulk: delete selected rows
+  document.getElementById('bulk-delete').addEventListener('click', () => {
+    const rows = selectedRows();
+    if (!rows.length) { setStatus('Select some labels first.', 'err'); return; }
+    if (!confirm(`Delete ${rows.length} selected label${rows.length === 1 ? '' : 's'}?`)) return;
+    rows.forEach(r => { if (activeBadgeRow === r) closeBadgePopover(); r.remove(); });
+    renumberRows();
+    updateBulkBar();
+    rebuild();
+  });
+
+  // Sort rows in natural order
+  document.getElementById('sort-labels').addEventListener('click', sortLabels);
+
+  // Predicted-icon toggle
+  document.getElementById('predict-icons').addEventListener('change', applyPredictToggle);
+
+  // Preset collection loader
+  const presetSel = document.getElementById('preset-select');
+  presetSel.addEventListener('change', () => {
+    if (presetSel.value) loadPreset(presetSel.value);
+    presetSel.value = '';
+  });
+}
+
+// Pointer-based drag-reorder: live-repositions the row as the pointer moves;
+// uses pointer capture so it keeps tracking over other rows, and works on touch.
+function startRowDrag(e, row) {
+  if (e.button != null && e.button > 0) return;   // ignore right / middle click
+  e.preventDefault();
+  const handle = e.currentTarget;
+  const c = document.getElementById('labels');
+  draggingRow = row;
+  row.classList.add('dragging');
+  try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+  const onMove = (ev) => {
+    const after = rowAfterPointer(c, ev.clientY);
+    if (!after) c.appendChild(row);
+    else if (after !== row) c.insertBefore(row, after);
+  };
+  const onUp = () => {
+    handle.removeEventListener('pointermove', onMove);
+    handle.removeEventListener('pointerup', onUp);
+    handle.removeEventListener('pointercancel', onUp);
+    row.classList.remove('dragging');
+    draggingRow = null;
+    renumberRows();
+    rebuild();
+  };
+  handle.addEventListener('pointermove', onMove);
+  handle.addEventListener('pointerup', onUp);
+  handle.addEventListener('pointercancel', onUp);
+}
+
+// Labels handed off from the GEN2 Planner: #labels=<base64 JSON array of strings>.
+function importedLabelsFromUrl() {
+  try {
+    const m = (location.hash || '').match(/labels=([^&]+)/);
+    if (!m) return [];
+    const arr = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    return Array.isArray(arr) ? arr.filter(s => typeof s === 'string' && s.length) : [];
+  } catch (e) { return []; }
+}
+
+//============================================================
+// Save / Load projects (labels + settings)
+//   - autosave: the last session is restored automatically on load
+//   - Export / Upload: portable .json snapshots for backup or transfer
+//============================================================
+const LS_AUTOSAVE = 'edgelabel.autosave.v1';
+const PROJECT_FMT = 'edgelabel-set';
+let restoredFromAutosave = false;   // set on boot so init() can report it
+
+// Inputs whose values make up a "set". Checkboxes captured as booleans.
+const SETTING_IDS = [
+  'font-size', 'text-depth', 'badge-size', 'bold-text', 'predict-icons', 'all-caps',
+  'bed-preset', 'bed-w', 'bed-l', 'export-format',
+  'reserve-purge', 'purge-w', 'purge-l',
+  'color-base', 'color-text'
+];
+
+// Every row (including blank ones) so a restored set matches what was on screen.
+function captureLabels() {
+  const out = [];
+  document.querySelectorAll('#labels .row').forEach(row => {
+    const input = row.querySelector('input.label-text');
+    const bt = row.dataset.badgeType || 'none';
+    const badge = { type: bt };
+    if (bt === 'char') badge.value = row.dataset.badgeValue || '';
+    else if (bt === 'icon') {
+      if (row.dataset.badgeIcon) badge.value = row.dataset.badgeIcon;
+      if (row._badgeSvg) badge.svg = row._badgeSvg;
+    }
+    out.push({ text: input ? input.value : '', badge, manual: row.dataset.badgeManual === '1' });
+  });
+  return out;
+}
+
+function captureSettings() {
+  const s = {};
+  SETTING_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    s[id] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  return s;
+}
+
+function captureProject() {
+  return { fmt: PROJECT_FMT, v: 1, savedAt: new Date().toISOString(),
+           labels: captureLabels(), settings: captureSettings() };
+}
+
+function applyLabels(labels) {
+  clearLabelRows();
+  if (!labels || !labels.length) { for (let i = 0; i < 3; i++) addLabelRow(''); return; }
+  labels.forEach(l => {
+    const b = l.badge;
+    const badge = (b && b.type && b.type !== 'none') ? b : null;
+    const row = addLabelRow(l.text || '', badge).closest('.row');
+    if (l.manual) row.dataset.badgeManual = '1';
+    else if (!badge) autoAssignIcon(row);
+  });
+}
+
+function applySettings(s) {
+  if (!s) return;
+  SETTING_IDS.forEach(id => {
+    if (!(id in s)) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!s[id];
+    else el.value = s[id];
+  });
+  // Fire the handlers that keep dependent UI in sync (bed dims, purge row,
+  // download-button label, swatch dots + live material colors).
+  ['bed-preset', 'export-format', 'reserve-purge', 'predict-icons', 'all-caps'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.dispatchEvent(new Event('change'));
+  });
+  ['color-base', 'color-text'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.dispatchEvent(new Event('input'));
+  });
+}
+
+// Apply during boot too (font may not be loaded yet — rebuild() no-ops until it is).
+function applyProject(p) {
+  if (!p || !Array.isArray(p.labels)) return false;
+  applyLabels(p.labels);
+  applySettings(p.settings);
+  rebuild();
+  return true;
+}
+
+function autosave() {
+  try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify(captureProject())); } catch (e) {}
+}
+const scheduleAutosave = debounce(autosave, 800);
+
+function restoreAutosave() {
+  let snap;
+  try { snap = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) { return false; }
+  if (!snap || !Array.isArray(snap.labels) || !snap.labels.length) return false;
+  applyLabels(snap.labels);
+  applySettings(snap.settings);   // rebuild() runs after the font loads, in init()
+  return true;
+}
+
+function sanitizeFilename(name) {
+  return (name || 'edgelabel-set').replace(/[^a-z0-9_\-]+/gi, '_').replace(/^_+|_+$/g, '') || 'edgelabel-set';
+}
+
+function setupProjectControls() {
+  // Export — download the current labels + settings as a portable .json file.
+  document.getElementById('proj-export').addEventListener('click', () => {
+    const stamp = new Date().toISOString().slice(0, 10);
+    const fname = sanitizeFilename('edgelabel-set-' + stamp) + '.json';
+    const blob = new Blob([JSON.stringify(captureProject(), null, 2)], { type: 'application/json' });
+    downloadBlob(blob, fname);
+    setStatus('Exported ' + fname, 'ok');
+  });
+
+  // Upload — load a previously exported .json file.
+  const importInput = document.getElementById('proj-import');
+  document.getElementById('proj-upload-btn').addEventListener('click', () => importInput.click());
+  importInput.addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    e.target.value = '';   // allow re-uploading the same file
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      let p;
+      try { p = JSON.parse(ev.target.result); } catch (err) { setStatus('Not a valid set file.', 'err'); return; }
+      if (!p || !Array.isArray(p.labels)) { setStatus('That file isn’t an EdgeLabel set.', 'err'); return; }
+      applyProject(p);
+      const n = p.labels.length;
+      setStatus(`Loaded ${n} label${n === 1 ? '' : 's'} from ${f.name}.`, 'ok');
+    };
+    reader.onerror = () => setStatus('Failed to read file.', 'err');
+    reader.readAsText(f);
+  });
+}
+
+function setupUI() {
   document.getElementById('add-label').addEventListener('click', () => {
     const input = addLabelRow('');
     input.focus();
@@ -1591,6 +2158,8 @@ function setupUI() {
   document.getElementById('text-depth').addEventListener('input', debounce(rebuild, 200));
   document.getElementById('badge-size').addEventListener('input', debounce(rebuild, 200));
   document.getElementById('bold-text').addEventListener('change', rebuild);
+  document.getElementById('all-caps').addEventListener('change', applyCapsToggle);
+  document.getElementById('labels').classList.toggle('caps', capsOn());   // initial all-caps state
 
   // Build plate preset + custom dimensions
   const bedPreset = document.getElementById('bed-preset');
@@ -1616,6 +2185,8 @@ function setupUI() {
   updatePurgeRow();
 
   setupBadgePicker();
+  setupProjectControls();
+  setupBulkControls();
 
   // Color swatches
   const colorBase = document.getElementById('color-base');
@@ -1678,6 +2249,20 @@ function setupUI() {
       'to clean the nozzle between filament changes.'
     );
   });
+
+  // Populate label rows LAST — after every settings/colour/bed/purge listener
+  // above is registered — so the sync events dispatched by restoreAutosave()'s
+  // applySettings() actually reach their handlers (otherwise a restored
+  // session's colours never make it to the 3D preview). Priority:
+  // planner URL #labels > autosaved session > 3 blank rows.
+  const imported = importedLabelsFromUrl();
+  if (imported.length) {
+    imported.forEach(v => autoAssignIcon(addLabelRow(v).closest('.row')));
+  } else if (restoreAutosave()) {
+    restoredFromAutosave = true;
+  } else {
+    for (let i = 0; i < 3; i++) addLabelRow('');
+  }
 }
 
 function handleCsv(file) {
@@ -1702,7 +2287,7 @@ function handleCsv(file) {
         return;
       }
       clearLabelRows();
-      values.forEach(v => addLabelRow(v));
+      values.forEach(v => autoAssignIcon(addLabelRow(v).closest('.row')));
       rebuild();
       setStatus(`Loaded ${values.length} label${values.length === 1 ? '' : 's'} from ${file.name}.`, 'ok');
     } catch (err) {
