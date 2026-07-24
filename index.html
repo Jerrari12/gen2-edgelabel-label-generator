@@ -330,7 +330,7 @@
     </div>
     <div class="setting">
       <span>Plate W × L (mm)</span>
-      <span><input type="number" id="bed-w" value="250" min="20" max="1000" step="1" style="width:46px"> × <input type="number" id="bed-l" value="220" min="20" max="1000" step="1" style="width:46px"></span>
+      <span><input type="number" id="bed-w" value="250" min="20" max="1000" step="1" style="width:68px"> × <input type="number" id="bed-l" value="220" min="20" max="1000" step="1" style="width:68px"></span>
     </div>
     <div class="setting">
       <span>Export format</span>
@@ -345,7 +345,7 @@
     </div>
     <div class="setting" id="purge-size-row">
       <span>Purge W × L (mm)</span>
-      <span><input type="number" id="purge-w" value="80" min="5" max="400" step="1" style="width:46px"> × <input type="number" id="purge-l" value="80" min="5" max="400" step="1" style="width:46px"></span>
+      <span><input type="number" id="purge-w" value="80" min="5" max="400" step="1" style="width:68px"> × <input type="number" id="purge-l" value="80" min="5" max="400" step="1" style="width:68px"></span>
     </div>
 
     <h2>Preview Colors</h2>
@@ -381,10 +381,16 @@
 </div>
 
 <!-- Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/loaders/SVGLoader.js"></script>
+<!-- Vendored locally, NOT from a CDN (2026-07-24). A user on Firefox got a dead
+     page - no label inputs, status stuck on "Loading..." - because jsdelivr was
+     blocked for them (DoH / tracking protection / an extension) while Chrome was
+     fine. One unreachable script killed the whole app. Same reasoning as the GEN2
+     viewer's vendored three.js: works offline, no version drift, no third party in
+     the load path. Versions: three 0.146.0, opentype.js 1.3.4, JSZip 3.10.1. -->
+<script src="vendor/three.min.js"></script>
+<script src="vendor/opentype.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/SVGLoader.js"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
 class MiniOrbit {
@@ -548,8 +554,22 @@ let bedOutline = null;
 // Init
 //============================================================
 function init() {
-  setupThree();
+  // setupUI() FIRST. It builds the label inputs, and it used to run AFTER
+  // setupThree() - so any library or WebGL failure left a dead-looking page:
+  // no inputs at all, and the status stuck on "Loading..." forever (the Firefox
+  // report, 2026-07-24; reproduced exactly by making the scripts unreachable).
   setupUI();
+  const missing = ['THREE', 'opentype', 'JSZip'].filter(n => typeof window[n] === 'undefined');
+  if (missing.length) {
+    setStatus('Could not load ' + missing.join(', ') + '. Try a reload; if it keeps happening, an extension or network filter is blocking the page scripts.', 'err');
+    return; // download stays disabled - nothing can be built without them
+  }
+  try {
+    setupThree();
+  } catch (e) {
+    setStatus('Could not start the 3D preview: ' + e.message, 'err');
+    return;
+  }
   loadFont().then(() => {
     document.getElementById('download').disabled = false;
     rebuild();
