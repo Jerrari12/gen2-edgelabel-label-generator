@@ -36,7 +36,17 @@ The exported `.3mf` assigns the **base** to filament 1 and the **text + badge** 
 
 ## Run it locally
 
-No server needed. Download `index.html` and open it in any modern browser. (It loads three.js, opentype.js, and JSZip from a CDN, so an internet connection is required the first time.)
+No server needed, and no internet connection required. Download the repo (or clone it) and open `index.html` in any modern browser — the 3D libraries live in `vendor/`, so everything runs from local files.
+
+---
+
+## Development notes
+
+**Third-party libraries are vendored, not loaded from a CDN.** `vendor/` holds three.js 0.146.0, opentype.js 1.3.4, JSZip 3.10.1, and three.js's `SVGLoader`. Older versions pulled these from jsdelivr, which made the tool depend on a third-party host at load time. A user reported it coming up completely blank in Firefox — no label rows, the status frozen on "Loading…" — while it worked in Chrome: their browser was blocking the CDN (DNS-over-HTTPS, tracking protection, or an extension). Serving the libraries from the same origin removes that failure mode entirely; they can't be blocked without blocking the page itself. `.gitattributes` marks `vendor/**` as binary so Git leaves the minified files byte-for-byte.
+
+**Startup fails safe.** `init()` builds the label form *before* initialising three.js, then verifies each library actually loaded and names any that didn't. A missing library or a WebGL failure now leaves a working form with a clear message instead of a dead page; the Download button stays disabled because nothing can be exported without three.js.
+
+**Build-plate fields fit four digits.** They were previously narrow enough to clip a three-digit value, so a 250 mm plate showed as "25" — easily misread as centimetres. This affected every printer preset at or above 100 mm.
 
 ---
 
