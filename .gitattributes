@@ -3,3 +3,7 @@
 # files, which churns diffs and makes them impossible to compare against
 # upstream.
 vendor/** -text -diff linguist-vendored
+
+# Site icons are binary — autocrlf must never rewrite them.
+*.ico binary
+*.png binary
