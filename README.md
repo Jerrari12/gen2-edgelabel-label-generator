@@ -46,6 +46,8 @@ No server needed, and no internet connection required. Download the repo (or clo
 
 **Startup fails safe.** `init()` builds the label form *before* initialising three.js, then verifies each library actually loaded and names any that didn't. A missing library or a WebGL failure now leaves a working form with a clear message instead of a dead page; the Download button stays disabled because nothing can be exported without three.js.
 
+**The label itself lives in `label-core.js`.** Everything that decides what ONE label looks like - its dimensions and text area, the word wrap against the slanted edge, the auto-shrink to the 3 mm floor, the left badge and the room it takes, the icon library and the icon prediction - is in that one file; `index.html` keeps the page, the form and the printer layout. The GEN2 3D Build Studio vendors `label-core.js` byte-for-byte (and pins its hash), so a drawer label previewed there is the label printed here. Change the label here, then copy the file to the viewer. The split was checked by building 135 labels, 23 icons and a full STL plate before and after it: byte-identical.
+
 **Build-plate fields fit four digits.** They were previously narrow enough to clip a three-digit value, so a 250 mm plate showed as "25" — easily misread as centimetres. This affected every printer preset at or above 100 mm.
 
 ---
