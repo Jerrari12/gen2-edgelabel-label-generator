@@ -341,7 +341,8 @@
     <div class="setting">
       <span>Export format</span>
       <select id="export-format">
-        <option value="3mf">3MF · 2-color (text + base)</option>
+        <option value="3mf-prusa" selected>3MF · 2-color · PrusaSlicer</option>
+        <option value="3mf-bambu">3MF · 2-color · Bambu Studio / OrcaSlicer</option>
         <option value="stl">STL · single color</option>
       </select>
     </div>
@@ -1272,6 +1273,16 @@ function escapeXml(s) {
 }
 
 function geometryToMeshXml(geom) {
+  const { verts, tris } = geometryToVertsTris(geom);
+  const vertsXml = verts.map(v =>
+    `<vertex x="${v[0].toFixed(4)}" y="${v[1].toFixed(4)}" z="${v[2].toFixed(4)}"/>`).join('');
+  const trisXml = tris.map(t =>
+    `<triangle v1="${t[0]}" v2="${t[1]}" v3="${t[2]}"/>`).join('');
+
+  return `<mesh><vertices>${vertsXml}</vertices><triangles>${trisXml}</triangles></mesh>`;
+}
+
+function geometryToVertsTris(geom) {
   // geom can be a BufferGeometry. Extract vertices + triangles.
   const pos = geom.getAttribute('position');
   const idx = geom.getIndex();
@@ -1317,12 +1328,7 @@ function geometryToMeshXml(geom) {
     }
   }
 
-  const vertsXml = verts.map(v =>
-    `<vertex x="${v[0].toFixed(4)}" y="${v[1].toFixed(4)}" z="${v[2].toFixed(4)}"/>`).join('');
-  const trisXml = tris.map(t =>
-    `<triangle v1="${t[0]}" v2="${t[1]}" v3="${t[2]}"/>`).join('');
-
-  return `<mesh><vertices>${vertsXml}</vertices><triangles>${trisXml}</triangles></mesh>`;
+  return { verts, tris };
 }
 
 function buildBasePlateGeometry() {
@@ -1422,6 +1428,82 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
   return zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
 }
 
+// The same plate in PrusaSlicer's own 3MF layout (2026-10-02). PrusaSlicer turns every
+// <component> of buildPlate3MF's assemblies into a separate object with no extruder: the
+// label loads as base + text + badge objects, all on filament 1, and the text is dropped
+// to the bed inside the base - a one-colour label with no raised text. PrusaSlicer only
+// makes a multi-part object from ONE mesh whose parts are triangle ranges listed in
+// Metadata/Slic3r_PE_model.config, and Bambu Studio / OrcaSlicer's own importer never
+// splits a mesh by triangle ranges - so one file cannot carry both layouts, and the
+// user picks one. Here: one mesh object per label, its parts as triangle ranges with their
+// extruders, an identity build item and the bed position written into the vertices
+// (with no slic3rpe:Version3mf PrusaSlicer bakes a build transform into the FIRST part
+// only). The Application name contains "PrusaSlicer" because that is the string Bambu
+// Studio and OrcaSlicer look for to read a file through their PrusaSlicer importer.
+async function buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) {
+  const base = geometryToVertsTris(buildBasePlateGeometry());
+  let resources = '', builds = '', oid = 0;
+  let config = `<?xml version="1.0" encoding="UTF-8"?>\n<config>\n`;
+
+  slice.forEach((data, i) => {
+    const { textGeo, badgeGeo } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+    if (!textGeo && !badgeGeo) return;
+    const name = (data.text && data.text.trim()) ? data.text.trim()
+      : (data.badge && data.badge.value ? String(data.badge.value) : 'icon');
+    const pos = lay.positions[i] || { x: 0, y: 0 };
+    const px = pos.x + bedW / 2, py = pos.y + bedL / 2;
+    const parts = [{ name: 'Base', mesh: base, z: 0, extruder: 1 }];
+    if (textGeo) parts.push({ name: `${name} text`, mesh: geometryToVertsTris(textGeo), z: LABEL_HT, extruder: 2 });
+    if (badgeGeo) parts.push({ name: `${name} badge`, mesh: geometryToVertsTris(badgeGeo), z: LABEL_HT, extruder: 2 });
+
+    oid++;
+    const vx = [], tx = [];
+    let vOff = 0, tOff = 0;
+    config += ` <object id="${oid}" instances_count="1">\n` +
+      `  <metadata type="object" key="name" value="${escapeXml(name)}"/>\n`;
+    parts.forEach(p => {
+      p.mesh.verts.forEach(v => vx.push(
+        `<vertex x="${(v[0] + px).toFixed(4)}" y="${(v[1] + py).toFixed(4)}" z="${(v[2] + p.z).toFixed(4)}"/>`));
+      p.mesh.tris.forEach(t => tx.push(
+        `<triangle v1="${t[0] + vOff}" v2="${t[1] + vOff}" v3="${t[2] + vOff}"/>`));
+      config += `  <volume firstid="${tOff}" lastid="${tOff + p.mesh.tris.length - 1}">\n` +
+        `   <metadata type="volume" key="name" value="${escapeXml(p.name)}"/>\n` +
+        `   <metadata type="volume" key="volume_type" value="ModelPart"/>\n` +
+        `   <metadata type="volume" key="extruder" value="${p.extruder}"/>\n` +
+        `  </volume>\n`;
+      vOff += p.mesh.verts.length;
+      tOff += p.mesh.tris.length;
+    });
+    config += ` </object>\n`;
+    resources += `<object id="${oid}" type="model"><mesh><vertices>${vx.join('')}</vertices>` +
+      `<triangles>${tx.join('')}</triangles></mesh></object>`;
+    builds += `<item objectid="${oid}"/>`;
+  });
+  config += `</config>\n`;
+
+  const modelXml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">` +
+    `<metadata name="Application">GEN2 EdgeLabel Label Generator (PrusaSlicer 3MF)</metadata>` +
+    `<metadata name="Designer">Jerrari3D</metadata>` +
+    `<metadata name="CreationDate">${new Date().toISOString().slice(0,10)}</metadata>` +
+    `<resources>${resources}</resources><build>${builds}</build></model>`;
+  const contentTypes =
+    `<?xml version="1.0" encoding="UTF-8"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
+    `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
+    `<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>`;
+  const rels =
+    `<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+    `<Relationship Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/></Relationships>`;
+
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml', contentTypes);
+  zip.folder('_rels').file('.rels', rels);
+  zip.folder('3D').file('3dmodel.model', modelXml);
+  zip.folder('Metadata').file('Slic3r_PE_model.config', config);
+  return zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+}
+
 // ---- STL (single color): collect world-space triangles and write binary STL ----
 function pushGeomTris(geom, dx, dy, dz, out) {
   const pos = geom.getAttribute('position'), idx = geom.getIndex();
@@ -1478,7 +1560,8 @@ function downloadBlob(blob, filename) {
 async function doExport() {
   const labels = getLabelData();
   if (!labels.length) { setStatus('Add at least one label.', 'err'); return; }
-  const fmt = (document.getElementById('export-format') || {}).value || '3mf';
+  const fmtVal = (document.getElementById('export-format') || {}).value || '3mf-prusa';
+  const fmt = fmtVal === 'stl' ? 'stl' : '3mf';
   setStatus(`Generating ${fmt.toUpperCase()}…`);
   await new Promise(r => setTimeout(r, 10));
 
@@ -1498,8 +1581,10 @@ async function doExport() {
     const suffix = nPlates > 1 ? `_plate${p + 1}of${nPlates}` : '';
     if (fmt === 'stl') {
       files.push({ name: `edgelabels${suffix}.stl`, blob: buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
-    } else {
+    } else if (fmtVal === '3mf-bambu') {
       files.push({ name: `edgelabels${suffix}.3mf`, blob: await buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
+    } else {
+      files.push({ name: `edgelabels${suffix}.3mf`, blob: await buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
     }
   }
 
@@ -2085,6 +2170,16 @@ function applyLabels(labels) {
   });
 }
 
+// The 3MF layout that suits the chosen printer's usual slicer, or null when the
+// printer doesn't say (Snapmaker, Creality, Voron, custom).
+function threeMfForPrinter() {
+  const opt = document.getElementById('bed-preset').selectedOptions[0];
+  const name = opt ? opt.text : '';
+  if (/^Prusa\b/.test(name)) return '3mf-prusa';
+  if (/^Bambu\b/.test(name)) return '3mf-bambu';
+  return null;
+}
+
 function applySettings(s) {
   if (!s) return;
   SETTING_IDS.forEach(id => {
@@ -2094,6 +2189,11 @@ function applySettings(s) {
     if (el.type === 'checkbox') el.checked = !!s[id];
     else el.value = s[id];
   });
+  // Sets saved before 2026-10-02 had a single '3mf' choice (the Bambu/Orca layout,
+  // which PrusaSlicer loads as one-colour objects). Pick the layout for the saved printer.
+  if (s['export-format'] === '3mf') {
+    document.getElementById('export-format').value = threeMfForPrinter() || '3mf-bambu';
+  }
   // Fire the handlers that keep dependent UI in sync (bed dims, purge row,
   // download-button label, swatch dots + live material colors).
   ['bed-preset', 'export-format', 'reserve-purge', 'predict-icons', 'all-caps'].forEach(id => {
@@ -2191,10 +2291,17 @@ function setupUI() {
   const bedPreset = document.getElementById('bed-preset');
   const bedWEl = document.getElementById('bed-w');
   const bedLEl = document.getElementById('bed-l');
-  bedPreset.addEventListener('change', () => {
+  bedPreset.addEventListener('change', (e) => {
     if (bedPreset.value !== 'custom') {
       const m = bedPreset.value.split('x');
       bedWEl.value = m[0]; bedLEl.value = m[1];
+    }
+    // A printer picked by hand also picks the 3MF layout for its slicer (not on a
+    // restore, which dispatches this event itself and keeps the saved format).
+    const want = threeMfForPrinter();
+    if (e.isTrusted && want && fmtSel.value !== 'stl' && fmtSel.value !== want) {
+      fmtSel.value = want;
+      updateDlLabel();
     }
     rebuild();
   });
@@ -2267,7 +2374,8 @@ function setupUI() {
     e.preventDefault();
     alert(
       'Two-color print instructions:\n\n' +
-      '1. Open the .3mf in OrcaSlicer, Bambu Studio, or PrusaSlicer.\n' +
+      '1. Pick the export format for your slicer (PrusaSlicer, or Bambu Studio / ' +
+      'OrcaSlicer), then open the .3mf in it.\n' +
       '2. The base and text are pre-assigned to filaments 1 and 2.\n' +
       '3. If your slicer doesn\'t auto-detect, right-click each part and ' +
       'manually set the filament: base = white/light, text = black/dark.\n\n' +
