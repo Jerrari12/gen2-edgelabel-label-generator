@@ -289,6 +289,7 @@
     <div class="proj-actions">
       <button class="btn-sm" id="proj-export" title="Download your labels + settings as a .json file">Export</button>
       <button class="btn-sm" id="proj-upload-btn" title="Load labels + settings from a .json file you exported earlier">Upload</button>
+      <button class="btn-sm" id="proj-restore" style="display:none" title="Swap back to the labels and settings you had before the last GEN2 Planner import (click again to swap back)">Previous set</button>
       <input type="file" id="proj-import" accept=".json,application/json">
     </div>
 
@@ -578,7 +579,10 @@ function init() {
     rebuild();
     // rebuild() sets its own status; override it only when it didn't warn.
     if (!document.getElementById('status').classList.contains('err')) {
-      setStatus(restoredFromAutosave ? 'Restored your previous session.' : 'Ready. Type labels and click Download.', 'ok');
+      const n = importedFromPlanner;
+      setStatus(n ? `Loaded ${n} label${n === 1 ? '' : 's'} from the GEN2 Planner.` +
+                    (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '')
+        : restoredFromAutosave ? 'Restored your previous session.' : 'Ready. Type labels and click Download.', 'ok');
     }
   }).catch(err => {
     setStatus('Font load failed: ' + err.message, 'err');
@@ -1813,6 +1817,35 @@ function restoreAutosave() {
   return true;
 }
 
+// A Planner hand-off (#labels=) must not cost the work already here. The session it replaces is kept
+// under LS_BEFORE_IMPORT ("Previous set" in Save / Load swaps back), the set-wide settings carry over
+// (the Planner sends label words only), and the hash is cleared so a reload restores this session
+// instead of importing over it again.
+const LS_BEFORE_IMPORT = LS_AUTOSAVE + '.before-import';
+let importedFromPlanner = 0, importKeptPrevious = false;   // read by init() for the status line
+
+function importFromPlanner(labels) {
+  let prev = null;
+  try { prev = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) {}
+  if (!prev || !Array.isArray(prev.labels)) prev = null;
+  // Only a set with something in it is worth keeping: three blank rows must not replace an older backup.
+  if (prev && prev.labels.some(l => (l.text || '').trim() || (l.badge && l.badge.type && l.badge.type !== 'none'))) {
+    try { localStorage.setItem(LS_BEFORE_IMPORT, JSON.stringify(prev)); importKeptPrevious = true; } catch (e) {}
+  }
+  if (prev) applySettings(prev.settings);   // first, so icon prediction follows the saved toggle
+  labels.forEach(v => autoAssignIcon(addLabelRow(v).closest('.row')));
+  importedFromPlanner = labels.length;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  syncRestoreButton();
+}
+
+function syncRestoreButton() {
+  const btn = document.getElementById('proj-restore');
+  let has = false;
+  try { has = !!localStorage.getItem(LS_BEFORE_IMPORT); } catch (e) {}
+  if (btn) btn.style.display = has ? '' : 'none';
+}
+
 function sanitizeFilename(name) {
   return (name || 'edgelabel-set').replace(/[^a-z0-9_\-]+/gi, '_').replace(/^_+|_+$/g, '') || 'edgelabel-set';
 }
@@ -1826,6 +1859,19 @@ function setupProjectControls() {
     downloadBlob(blob, fname);
     setStatus('Exported ' + fname, 'ok');
   });
+
+  // Previous set — swap with the session the last Planner import replaced (importFromPlanner).
+  document.getElementById('proj-restore').addEventListener('click', () => {
+    let prev = null;
+    try { prev = JSON.parse(localStorage.getItem(LS_BEFORE_IMPORT)); } catch (e) {}
+    if (!prev || !Array.isArray(prev.labels)) { syncRestoreButton(); setStatus('No previous set to restore.', 'err'); return; }
+    try { localStorage.setItem(LS_BEFORE_IMPORT, JSON.stringify(captureProject())); } catch (e) {}
+    applyProject(prev);
+    autosave();
+    const n = prev.labels.length;
+    setStatus(`Restored the previous set (${n} label${n === 1 ? '' : 's'}). Click Previous set again to swap back.`, 'ok');
+  });
+  syncRestoreButton();
 
   // Upload — load a previously exported .json file.
   const importInput = document.getElementById('proj-import');
@@ -1975,7 +2021,7 @@ function setupUI() {
   // planner URL #labels > autosaved session > 3 blank rows.
   const imported = importedLabelsFromUrl();
   if (imported.length) {
-    imported.forEach(v => autoAssignIcon(addLabelRow(v).closest('.row')));
+    importFromPlanner(imported);
   } else if (restoreAutosave()) {
     restoredFromAutosave = true;
   } else {
