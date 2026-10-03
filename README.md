@@ -52,7 +52,7 @@ No server needed, and no internet connection required. Download the repo (or clo
 
 **The embedded font is Liberation Sans Narrow Bold 1.07.4** (© 2010 Oracle and/or its affiliates), stored as base64 in `<script id="font-data" type="text/plain">` so the page needs no font request. It is under the [Liberation Fonts license](https://fedoraproject.org/wiki/Licensing/LiberationFontLicense) (GPLv2 with the font exception), not the SIL OFL an older comment claimed, and not this repository's MIT license, which covers the code only. The `type` keeps the browser from trying to run the blob as JavaScript (it used to log a harmless `SyntaxError` on every load).
 
-**A Planner hand-off keeps your previous set.** Opening the generator from the GEN2 Planner (`#labels=…`) used to replace the autosaved session outright. Now the set it replaces is kept (**Save / Load › Previous set** swaps back, and again to return), your printer, sizes and colours carry over because the Planner sends label words only, and the `#labels=` hash is cleared so a reload restores your session instead of importing over it again.
+**A Planner hand-off keeps your previous set.** Opening the generator from the GEN2 Planner (`#labels=…`) used to replace the autosaved session outright. Now the set it replaces is kept as the previous set (**Save / Load › Previous set** swaps it with the current one, and again to swap back), your printer, sizes and colours carry over because the Planner sends label words only, and the `#labels=` hash is cleared so a reload restores your session instead of importing over it again. Only one previous set is kept - the next Planner import replaces it - so use **Export** to keep a set for good.
 
 ---
 
