@@ -615,6 +615,10 @@ function setupThree() {
 
   baseMaterial = new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.6, metalness: 0.05 });
   textMaterial = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, metalness: 0.05 });
+  // setupUI() runs first and may already have restored a session's colours into the pickers; the
+  // picker handlers could not reach materials that did not exist yet, so take the pickers' values now.
+  baseMaterial.color.set(document.getElementById('color-base').value);
+  textMaterial.color.set(document.getElementById('color-text').value);
 
   window.addEventListener('resize', onResize);
   animate();
@@ -1905,11 +1909,11 @@ function setupUI() {
   const colorBase = document.getElementById('color-base');
   const colorText = document.getElementById('color-text');
   colorBase.addEventListener('input', () => {
-    baseMaterial.color.set(colorBase.value);
+    if (baseMaterial) baseMaterial.color.set(colorBase.value);   // null while setupUI() restores a session (before setupThree)
     document.getElementById('dot-base').style.background = colorBase.value;
   });
   colorText.addEventListener('input', () => {
-    textMaterial.color.set(colorText.value);
+    if (textMaterial) textMaterial.color.set(colorText.value);
     document.getElementById('dot-text').style.background = colorText.value;
   });
 
