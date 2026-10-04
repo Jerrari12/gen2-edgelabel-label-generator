@@ -16,13 +16,15 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/ja
 export const CHROME = process.env.CHROME_EXE || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/* `root` is a folder path, or an object { dir } whose dir can change while the server runs (the compatibility harness serves "the
+   planner" from one port and swaps which version it is; tabs already open keep the code they loaded). */
 export function serve(root, port, { log } = {}) {
   const server = createServer(async (req, res) => {
     try {
       const u = new URL(req.url, 'http://localhost');
       if (log) log.push(u.pathname);
       const rel = normalize(decodeURIComponent(u.pathname)).replace(/^([/\\])+/, '');
-      const file = join(root, rel === '' ? 'index.html' : rel);
+      const file = join(typeof root === 'string' ? root : root.dir, rel === '' ? 'index.html' : rel);
       const body = await readFile(file);
       res.writeHead(200, { 'Content-Type': TYPES[extname(file).toLowerCase()] ?? 'application/octet-stream', 'Cache-Control': 'no-store' }).end(body);
     } catch { res.writeHead(404).end(); }

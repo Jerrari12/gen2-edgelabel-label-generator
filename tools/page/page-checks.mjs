@@ -605,6 +605,20 @@ try {
     check('G-misc-1: a reload WITH unsaved work triggers the browser\'s leave-page warning', g.dialogs.filter((d) => d.type === 'beforeunload').length >= 1, JSON.stringify(g.dialogs));
   });
 
+  await scenario('G-auth-5', async (S) => {
+    // the job names ONE origin; the page that actually opened this tab is served from ANOTHER (127.0.0.1 vs localhost). Every post must
+    // carry the job's origin as its targetOrigin, so the browser itself refuses to deliver: a "*" would hand the planner's data to it.
+    const job = mkJob([{ t: 'One' }]);
+    const stub2 = await b.newPage(`http://127.0.0.1:${SP}/stub-planner.html`, S.ctx);
+    await stub2.ev(`window.__auto = { ack: true }; openGen(${JSON.stringify(jobUrl(job))}, 'gen-x')`);
+    const g = await b.popupOf(stub2);
+    await g.waitFor(`!document.getElementById('download').disabled`, { timeoutMs: 20000 });
+    await g.waitFor(`/Not connected to a planner tab/.test(document.getElementById('link-bar').textContent)`, { timeoutMs: 12000 });
+    const log = await stub2.ev('window.__log');
+    check("G-auth-5: nothing the generator posts reaches a window that is not on the job's origin (targetOrigin is exact, never *)", log.length === 0, JSON.stringify(log.map((x) => x.d.gen2label)));
+    await g.close(); await stub2.close();
+  });
+
   console.log(`\n${results.filter((r) => r.ok).length}/${results.length} passed`);
   if (results.some((r) => !r.ok)) exitCode = 1;
 } catch (e) {
