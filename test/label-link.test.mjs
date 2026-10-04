@@ -410,6 +410,18 @@ test('G-unsaved-1: a changed linked row (words or badge) is unsaved; an unsuppli
   assert.equal(L.isUnsaved(linkOf(job), [{ ...base[0], svg: true, type: 'icon', value: undefined }, base[1]], style(), { iconIds: ICONS }).rows, false, 'a custom upload is the generator\'s own');
   assert.equal(L.isUnsaved(linkOf(job), [base[0], { ...base[1], text: ' Two ' }], style(), { iconIds: ICONS }).rows, false, 'whitespace is not a change: the Planner trims');
 });
+test('G-unsaved-1b: an icon-only label or a custom upload exists ONLY in this tab, so a replacement job must not discard it silently', () => {
+  const job = mkJob([{ t: 'One' }, { t: '' }]);
+  const base = [snap({ u: 1, text: 'One' }), snap({ u: 2, text: '' })];
+  assert.equal(L.isUnsaved(linkOf(job), base, style(), { iconIds: ICONS }).localOnly, 0);
+  const iconOnly = [base[0], snap({ u: 2, text: '', type: 'char', value: 'Z', manual: true })];
+  const u = L.isUnsaved(linkOf(job), iconOnly, style(), { iconIds: ICONS });
+  assert.equal(u.localOnly, 1, 'the icon-only label is counted');
+  assert.equal(u.rows, false, 'it is still not a row the Planner could be sent');
+  assert.equal(u.any, true, 'but it is local work: the tab must warn and a replacement must ask');
+  const custom = [snap({ u: 1, text: 'One', svg: true, type: 'icon', value: undefined, manual: true }), base[1]];
+  assert.equal(L.isUnsaved(linkOf(job), custom, style(), { iconIds: ICONS }).localOnly, 1, 'a custom upload too');
+});
 
 test('G-unsaved-2: extras alone are unsaved (counted); blank extras are not; style changes are', () => {
   const job = mkJob([{ t: 'One' }]);

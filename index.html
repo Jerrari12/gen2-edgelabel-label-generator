@@ -2543,7 +2543,7 @@ async function incomingJob(job) {
   }
   const un = LINK.isUnsaved(link, allSnaps(), currentStyle(), { iconIds: iconIds() });
   const same = job.buildId === link.job.buildId;
-  if (!un.rows && !un.pending && !un.style && (same || un.extras === 0)) { loadNewJob(job, { keepExtras: same }); return; }
+  if (!un.rows && !un.pending && !un.style && !un.localOnly && (same || un.extras === 0)) { loadNewJob(job, { keepExtras: same }); return; }
   const c = await askModal({ title: 'Your planner sent a newer set',
     body: "You have changes here that the planner doesn't have yet. Send them first, replace them with the planner's set (your current labels are kept as the Previous set), or keep what you have.",
     buttons: [{ id: 'send', label: 'Send mine first', primary: true }, { id: 'replace', label: "Replace with the planner's" }, { id: 'cancel', label: 'Cancel' }] });
