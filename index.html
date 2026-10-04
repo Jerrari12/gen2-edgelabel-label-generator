@@ -215,6 +215,7 @@
   #link-send:hover:not(:disabled) { background: var(--accent-hover); color: #1a1a1c; }
   .row .utag { flex-shrink: 0; font-size: 10px; line-height: 1; color: var(--info); border: 1px solid var(--info-dark); border-radius: 3px; padding: 2px 3px; }
   .row.has-note { flex-wrap: wrap; }
+  .row.has-note input.label-text { min-width: 0; }   /* a row with a note wraps its note onto a second line, not its remove button */
   .row .row-note { flex: 1 0 100%; font-size: 11px; color: var(--muted); padding-left: 24px; }
   .row input.label-text.over { border-color: var(--danger); }
   .row.has-note input.label-text.over ~ .row-note { color: var(--danger); }
