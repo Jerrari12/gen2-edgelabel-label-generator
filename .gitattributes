@@ -11,3 +11,7 @@ vendor/** -text -diff linguist-vendored
 # label-core.js is vendored byte-for-byte into the GEN2 3D Build Studio and hash-pinned there:
 # a fixed LF keeps the served file, the checkout and the viewer's copy the same bytes on every OS.
 label-core.js text eol=lf
+
+# label-link.js is copied byte-for-byte into the GEN2 Planner repo (test/vendor/) and sha-pinned there:
+# a fixed LF keeps the checkout and that copy the same bytes on every OS.
+label-link.js text eol=lf

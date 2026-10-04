@@ -28,6 +28,15 @@ Your work is **auto-saved in the browser**, so it's still there when you come ba
 
 ---
 
+## Linked from the GEN2 Planner
+
+Open this page from the Planner's **Design your EdgeLabel labels** button and it is *linked* to your build: each row is tagged with its
+Planner drawer (`#1`, `#2`...), and **Send to planner** sends your edits (words, icons, the label settings) back. Nothing changes in
+the Planner until you review a per-drawer change list there and press Apply; the Planner then tells this page what it holds. While
+linked, this tab keeps its own session (it survives a reload) and never touches your ordinary saved labels; **Keep these labels here
+only** unlinks and keeps them. A middle-click on the Planner's button, or a plain `#labels=` link, opens the ordinary one-way page
+exactly as before. Run the tests with `node --test` (no dependencies).
+
 ## Printing in two colors
 
 The exported `.3mf` assigns the **base** to filament 1 and the **text + badge** to filament 2. Pick the **Export format** for your slicer: **PrusaSlicer**, or **Bambu Studio / OrcaSlicer** (the two slicers read multi-part 3MF files differently, so one file can't serve both; choosing a printer preset picks the matching format for you). If your slicer doesn't auto-detect, set the base to a light filament and the text/badge to a dark one. 0.2 mm layer height works well.

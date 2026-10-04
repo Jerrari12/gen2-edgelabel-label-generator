@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>stub planner</title>
+<!-- A stand-in for the GEN2 Planner, on its OWN origin (another port), for the generator's page checks: it opens the generator
+     with window.open (so the generator has a real opener), logs every gen2label message it receives with the origin and the
+     window it came from, and answers when told to. Nothing here is the Planner's code. -->
+<body>
+<pre id="log"></pre>
+<script>
+window.__log = [];
+window.__auto = { ack: true, received: false };   // what it answers by itself
+window.__gen = null;
+window.__genOrigin = null;
+window.openGen = function (url, name) {
+  window.__genOrigin = new URL(url).origin;
+  window.__gen = window.open(url, name || 'gen');
+  return !!window.__gen;
+};
+window.say = function (msg) { window.__gen.postMessage(msg, window.__genOrigin); };
+window.addEventListener('message', function (e) {
+  var d = e.data;
+  if (!d || !d.gen2label) return;
+  window.__log.push({ t: Date.now(), origin: e.origin, fromGen: e.source === window.__gen, d: d });
+  document.getElementById('log').textContent = window.__log.map(function (x) { return x.d.gen2label; }).join(' ');
+  if (!e.source || e.source !== window.__gen) return;
+  if (d.gen2label === 'hello' && window.__auto.ack) {
+    window.say({ gen2label: 'ack', v: 1, jobId: d.jobId, baseRev: d.baseRev, drawers: window.__auto.drawers || 0, review: window.__auto.review || 'normal' });
+  }
+  if (d.gen2label === 'return' && window.__auto.received) {
+    window.say({ gen2label: 'received', v: 1, jobId: d.jobId, returnId: d.returnId });
+  }
+});
+</script>

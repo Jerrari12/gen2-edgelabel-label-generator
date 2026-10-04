@@ -201,6 +201,33 @@
   .bp-icon { aspect-ratio: 1 / 1; background: #0a0b0e; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
   .bp-icon:hover { border-color: var(--accent); color: var(--accent); }
   .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
+  /* === Planner link (Step 3) === */
+  .link-bar { margin: 0 0 14px; padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; line-height: 1.45; }
+  .link-bar[hidden] { display: none; }
+  .link-bar.linked { border-color: var(--info-dark); }
+  .link-bar.warn { border-color: var(--accent-dim); }
+  .link-bar .lb-sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .link-bar .lb-sub:empty { display: none; }
+  .link-bar .lb-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .link-bar .lb-actions button[hidden] { display: none; }
+  .link-bar .lb-actions button:disabled { opacity: 0.45; cursor: not-allowed; }
+  #link-send { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
+  #link-send:hover:not(:disabled) { background: var(--accent-hover); color: #1a1a1c; }
+  .row .utag { flex-shrink: 0; font-size: 10px; line-height: 1; color: var(--info); border: 1px solid var(--info-dark); border-radius: 3px; padding: 2px 3px; }
+  .row.has-note { flex-wrap: wrap; }
+  .row .row-note { flex: 1 0 100%; font-size: 11px; color: var(--muted); padding-left: 24px; }
+  .row input.label-text.over { border-color: var(--danger); }
+  .row.has-note input.label-text.over ~ .row-note { color: var(--danger); }
+  .row .badge-btn.held { border-style: dashed; color: var(--info); }
+  .veil { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(10, 11, 14, 0.62); padding: 16px; }
+  .veil[hidden] { display: none; }
+  #gen-modal { z-index: 95; }
+  .veil-card { width: min(380px, 100%); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
+  .veil-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .veil-sub { font-size: 12px; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .veil-sub:empty { display: none; }
+  .veil-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+  button.btn-sm.primary-sm { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -233,6 +260,17 @@
       </div>
     </div>
     <!-- LOGO END -->
+
+    <div class="link-bar" id="link-bar" role="status" aria-live="polite" hidden>
+      <div class="lb-text" id="lb-text"></div>
+      <div class="lb-sub" id="lb-sub"></div>
+      <div class="lb-actions">
+        <button class="btn-sm" id="link-send" title="Send these labels to the planner. Nothing changes there until you review it in the planner and press Apply.">Send to planner</button>
+        <button class="btn-sm" id="link-retry" hidden>Try connecting again</button>
+        <button class="btn-sm" id="link-resume" hidden>Resume the planner link</button>
+        <button class="btn-sm" id="link-unlink" title="Stop linking this tab to the planner: these labels stay here as your ordinary labels.">Keep these labels here only</button>
+      </div>
+    </div>
 
     <h2>Labels</h2>
     <div class="labels-bar">
@@ -388,6 +426,21 @@
   </div>
 </div>
 
+<div id="send-veil" class="veil" hidden>
+  <div class="veil-card" role="alertdialog" aria-labelledby="veil-text">
+    <div class="veil-title" id="veil-text"></div>
+    <div class="veil-sub" id="veil-sub"></div>
+    <button class="btn-sm" id="veil-stop">Stop waiting</button>
+  </div>
+</div>
+<div id="gen-modal" class="veil" hidden>
+  <div class="veil-card" role="dialog" aria-modal="true" aria-labelledby="gm-title">
+    <div class="veil-title" id="gm-title"></div>
+    <div class="veil-sub" id="gm-body"></div>
+    <div class="veil-buttons" id="gm-buttons"></div>
+  </div>
+</div>
+
 <!-- Libraries -->
 <!-- Vendored locally, NOT from a CDN (2026-07-24). A user on Firefox got a dead
      page - no label inputs, status stuck on "Loading..." - because jsdelivr was
@@ -400,6 +453,7 @@
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/SVGLoader.js"></script>
 <script src="label-core.js"></script>
+<script src="label-link.js"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
 class MiniOrbit {
@@ -580,9 +634,9 @@ function init() {
     // rebuild() sets its own status; override it only when it didn't warn.
     if (!document.getElementById('status').classList.contains('err')) {
       const n = importedFromPlanner;
-      setStatus(n ? `Loaded ${n} label${n === 1 ? '' : 's'} from the GEN2 Planner.` +
+      setStatus(linkBootStatus || ((n ? `Loaded ${n} label${n === 1 ? '' : 's'} from the GEN2 Planner.` +
                     (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '')
-        : restoredFromAutosave ? 'Restored your previous session.' : 'Ready. Type labels and click Download.', 'ok');
+        : restoredFromAutosave ? 'Restored your previous session.' : 'Ready. Type labels and click Download.') + (linkBootExtra ? ' ' + linkBootExtra : '')), 'ok');
     }
   }).catch(err => {
     setStatus('Font load failed: ' + err.message, 'err');
@@ -814,6 +868,7 @@ function updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge) {
 }
 
 function rebuild() {
+  if (LINK) { updateRowFlags(); renderLinkBar(); }
   if (!font) return;   // font loads async; init() calls rebuild() once it's ready
   if (labelGroup) {
     labelGroup.traverse(o => {
@@ -890,7 +945,7 @@ function rebuild() {
     controls.setTarget(new THREE.Vector3(0, 0, 0));
   }
 
-  scheduleAutosave();
+  scheduleSave();   // the ordinary autosave - or, while linked, the linked session (never the ordinary one)
 }
 
 //============================================================
@@ -1242,7 +1297,7 @@ let activeBadgeRow = null;
 let bulkBadgeMode = false;   // when true the badge picker applies to all selected rows
 let draggingRow = null;      // row currently being drag-reordered
 
-function addLabelRow(value = '', badge = null) {
+function addLabelRow(value = '', badge = null, opts = {}) {
   const container = document.getElementById('labels');
   const row = document.createElement('div');
   row.className = 'row';
@@ -1251,14 +1306,29 @@ function addLabelRow(value = '', badge = null) {
     `<input class="row-sel" type="checkbox" title="Select for bulk actions">` +
     `<span class="idx" title="Drag to reorder"></span>` +
     `<button class="badge-btn" title="Add icon or letter (optional)">+</button>` +
-    `<input class="label-text" type="text" maxlength="48" placeholder="Label text" value="${value.replace(/"/g, '&quot;')}">` +
+    `<input class="label-text" type="text" maxlength="48" placeholder="Label text">` +
     `<button class="remove" title="Remove">×</button>`;
   container.appendChild(row);
+  // The text goes in as a PROPERTY, never through the markup above: through innerHTML (escaping only `"`) a typed `A &amp; B`
+  // came back as `A & B`, and `&#34;` as `"` - on every import, restore and upload (Step 3 section 7.11).
+  row.querySelector('input.label-text').value = value;
+  if (opts.u !== undefined && opts.u !== null) setRowLink(row, opts.u, opts.n, opts.textMax);
   renumberRows();
 
   const input = row.querySelector('input.label-text');
-  input.addEventListener('input', debounce(() => { autoAssignIcon(row); rebuild(); }, 300));
-  row.querySelector('.remove').addEventListener('click', () => {
+  input.addEventListener('input', debounce(() => {
+    // clearing a linked row's words clears the badge picked for them: the Planner keeps a badge only with words
+    if (link && row.dataset.unit && !input.value.trim()) resetRowBadge(row);
+    autoAssignIcon(row);
+    rebuild();
+  }, 300));
+  row.querySelector('.remove').addEventListener('click', async () => {
+    // a linked row is a PLANNER drawer: ask whether to leave its label in the planner or clear it there too (section 7.6)
+    if (link && row.dataset.unit) {
+      const c = await askDeleteLinked(1);
+      if (c === 'cancel') return;
+      if (c === 'clear') { clearRowLabel(row); rebuild(); return; }
+    }
     if (activeBadgeRow === row) closeBadgePopover();
     row.remove();
     renumberRows();
@@ -1285,6 +1355,15 @@ function addLabelRow(value = '', badge = null) {
 function updateBadgeBtn(row) {
   const btn = row.querySelector('.badge-btn');
   const t = row.dataset.badgeType;
+  if (row.dataset.badgeHeld) {   // a badge from the Planner this generator cannot show: held, returned unchanged (Step 3 section 7.3)
+    const h = parseHeld(row);
+    btn.classList.add('set', 'held');
+    btn.classList.remove('predicted');
+    btn.textContent = '?';
+    btn.title = `Icon '${h && h.value}' from the planner isn't in this generator version. It prints without an icon here and stays unchanged in the planner until you pick another.`;
+    return;
+  }
+  btn.classList.remove('held');
   const predicted = t === 'icon' && row.dataset.badgeManual !== '1';
   btn.classList.toggle('set', !!t && t !== 'none');
   btn.classList.toggle('predicted', predicted);
@@ -1306,6 +1385,7 @@ function updateBadgeBtn(row) {
 }
 
 function applyBadge(row, badge) {
+  delete row.dataset.badgeHeld;   // picking any badge on a row ends a hold (setHeld sets it again afterwards)
   row.dataset.badgeType = badge.type || 'none';
   delete row.dataset.badgeValue;
   delete row.dataset.badgeIcon;
@@ -1558,13 +1638,14 @@ function populatePresetSelect() {
   });
 }
 
-function loadPreset(id) {
+async function loadPreset(id) {
   const p = LABEL_PRESETS.find(x => x.id === id);
   if (!p) return;
   // Replace the rows only if they're all blank; otherwise append to the list.
   const rows = [...document.querySelectorAll('#labels .row')];
   const allBlank = rows.every(r =>
     !r.querySelector('.label-text').value.trim() && (r.dataset.badgeType || 'none') === 'none');
+  if (allBlank && link && !(await confirmReplace())) return;   // replacing the list would drop the planner's drawers
   if (allBlank) clearLabelRows();
   p.items.forEach(it => {
     const row = addLabelRow(it.text, it.icon ? { type: 'icon', value: it.icon } : null).closest('.row');
@@ -1634,10 +1715,21 @@ function setupBulkControls() {
   }));
 
   // Bulk: delete selected rows
-  document.getElementById('bulk-delete').addEventListener('click', () => {
+  document.getElementById('bulk-delete').addEventListener('click', async () => {
     const rows = selectedRows();
     if (!rows.length) { setStatus('Select some labels first.', 'err'); return; }
-    if (!confirm(`Delete ${rows.length} selected label${rows.length === 1 ? '' : 's'}?`)) return;
+    const linkedRows = link ? rows.filter(r => r.dataset.unit) : [];
+    if (linkedRows.length) {
+      // planner drawers among them: ONE question for all of them (section 7.6)
+      const c = await askDeleteLinked(linkedRows.length);
+      if (c === 'cancel') return;
+      if (c === 'clear') {
+        linkedRows.forEach(clearRowLabel);
+        rows.filter(r => !r.dataset.unit).forEach(r => { if (activeBadgeRow === r) closeBadgePopover(); r.remove(); });
+        renumberRows(); updateBulkBar(); rebuild();
+        return;
+      }
+    } else if (!confirm(`Delete ${rows.length} selected label${rows.length === 1 ? '' : 's'}?`)) return;
     rows.forEach(r => { if (activeBadgeRow === r) closeBadgePopover(); r.remove(); });
     renumberRows();
     updateBulkBar();
@@ -1715,7 +1807,7 @@ const SETTING_IDS = [
 ];
 
 // Every row (including blank ones) so a restored set matches what was on screen.
-function captureLabels() {
+function captureLabels(linked) {
   const out = [];
   document.querySelectorAll('#labels .row').forEach(row => {
     const input = row.querySelector('input.label-text');
@@ -1726,7 +1818,11 @@ function captureLabels() {
       if (row.dataset.badgeIcon) badge.value = row.dataset.badgeIcon;
       if (row._badgeSvg) badge.svg = row._badgeSvg;
     }
-    out.push({ text: input ? input.value : '', badge, manual: row.dataset.badgeManual === '1' });
+    const held = parseHeld(row);
+    const o = { text: input ? input.value : '', badge: held || badge, manual: row.dataset.badgeManual === '1' };
+    if (linked && row.dataset.unit) { o.u = Number(row.dataset.unit); o.n = Number(row.dataset.unitN) || null; }
+    if (linked && held) o.held = true;
+    out.push(o);
   });
   return out;
 }
@@ -1741,9 +1837,9 @@ function captureSettings() {
   return s;
 }
 
-function captureProject() {
+function captureProject(opts) {
   return { fmt: PROJECT_FMT, v: 1, savedAt: new Date().toISOString(),
-           labels: captureLabels(), settings: captureSettings() };
+           labels: captureLabels(!!(opts && opts.linked)), settings: captureSettings() };
 }
 
 function applyLabels(labels) {
@@ -1804,6 +1900,7 @@ function applyProject(p) {
 }
 
 function autosave() {
+  if (typeof link !== 'undefined' && link) return;   // linked mode NEVER writes the ordinary autosave (Step 3 section 4.8)
   try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify(captureProject())); } catch (e) {}
 }
 const scheduleAutosave = debounce(autosave, 800);
@@ -1875,10 +1972,10 @@ function importFromPlanner(labels) {
   try { prev = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) {}
   if (!prev || !Array.isArray(prev.labels)) prev = null;
   importKeptPrevious = keepPreviousSet(prev);
-  // The Planner sends label words only, so every saved setting carries over - applied first, so icon
-  // prediction follows the saved toggle. Step 3 (decided 2026-10-03): label styles the Planner supplies
-  // explicitly take precedence over saved label styles; printer preferences (printer/bed, format,
-  // purge area) stay local and are never taken from the Planner.
+  // The Planner sends label words only here, so every saved setting carries over - applied first, so icon
+  // prediction follows the saved toggle. (Decided 2026-10-03, implemented in startLinked() below for a LINKED
+  // hand-off: label styles the Planner supplies explicitly take precedence over saved label styles; printer
+  // preferences - printer/bed, format, purge area - stay local and are never taken from the Planner.)
   if (prev) applySettings(prev.settings);
   labels.forEach(v => autoAssignIcon(addLabelRow(v).closest('.row')));
   importedFromPlanner = labels.length;
@@ -1901,7 +1998,8 @@ function setupProjectControls() {
   });
 
   // Previous set — swap the on-screen set with the one kept slot (swapPreviousSet).
-  document.getElementById('proj-restore').addEventListener('click', () => {
+  document.getElementById('proj-restore').addEventListener('click', async () => {
+    if (!(await confirmReplace())) return;
     const prev = swapPreviousSet();
     if (!prev) { setStatus('There is no previous set.', 'err'); return; }
     const n = prev.labels.length;
@@ -1917,16 +2015,618 @@ function setupProjectControls() {
     e.target.value = '';   // allow re-uploading the same file
     if (!f) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       let p;
       try { p = JSON.parse(ev.target.result); } catch (err) { setStatus('Not a valid set file.', 'err'); return; }
       if (!p || !Array.isArray(p.labels)) { setStatus('That file isn’t an EdgeLabel set.', 'err'); return; }
+      if (!(await confirmReplace())) return;
       applyProject(p);
       const n = p.labels.length;
       setStatus(`Loaded ${n} label${n === 1 ? '' : 's'} from ${f.name}.`, 'ok');
     };
     reader.onerror = () => setStatus('Failed to read file.', 'err');
     reader.readAsText(f);
+  });
+}
+
+//============================================================
+// Planner link (Step 3 of the label plan)
+//   label-link.js (GEN2EdgeLabelLink) holds the RULES and is executed by `node --test`; this is the page half: the rows,
+//   the bar, the messages, sessionStorage. Spec: handoffs/label-plan-step3/STEP3-SPEC.md (section numbers below).
+//   A page opened from the Planner's own button is LINKED: it names the Planner drawers (#n), sends its edits back as a
+//   RETURN the Planner reviews line by line, and adopts the Planner's answer. Everything else (a middle-click, a pasted
+//   #labels= link, no hash at all) is the ordinary one-way page it always was.
+//============================================================
+const LINK = window.GEN2EdgeLabelLink || null;
+const LS_LINKED = 'edgelabel.linked.v1';   // sessionStorage: tab-scoped, so two tabs never share a linked session (section 4.8)
+// The window that opened this tab, captured ONCE at load. `window.opener` is not a stable identity: Chrome re-points it at any window that
+// re-targets this one by name (window.open('', name)) - verified, a same-origin helper window took it over and its forged `applied` was
+// accepted. Every check and every post here uses this captured window; a planner tab that reloads is still the same WindowProxy.
+const LINK_OPENER = window.opener;
+const SERVED_LOCAL = ['localhost', '127.0.0.1'].includes(location.hostname);
+const PRINTER_PREFS = ['bed-preset', 'bed-w', 'bed-l', 'export-format', 'reserve-purge', 'purge-w', 'purge-l', 'color-base', 'color-text'];
+let link = null;                // the live linked session, or null
+let pausedSession = null;       // a linked session this tab keeps while it shows a one-way import (Resume brings it back)
+let linkBootStatus = '';        // what init() says once the font is loaded, when the link decided it
+let linkBootExtra = '';         // ...and a sentence added to the one-way import's own status
+const linkTimers = { hello: null, send: null };
+
+const gid = (id) => document.getElementById(id);
+const iconIds = () => ICON_LIBRARY.map(i => i.id);
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+// ---- rows as the rules see them ----
+function parseHeld(row) {
+  try { return row.dataset.badgeHeld ? JSON.parse(row.dataset.badgeHeld) : null; } catch (e) { return null; }
+}
+function rowSnap(row) {
+  const input = row.querySelector('input.label-text');
+  const t = row.dataset.badgeType || 'none';
+  return {
+    u: row.dataset.unit ? Number(row.dataset.unit) : null, n: row.dataset.unitN ? Number(row.dataset.unitN) : null,
+    text: input ? input.value : '', type: t,
+    value: t === 'char' ? (row.dataset.badgeValue || '') : (row.dataset.badgeIcon || undefined),
+    svg: !!row._badgeSvg, manual: row.dataset.badgeManual === '1', held: parseHeld(row),
+  };
+}
+const allSnaps = () => [...document.querySelectorAll('#labels .row')].map(rowSnap);
+const currentStyle = () => LINK.styleFromInputs(gid);
+const linkRows = () => [...document.querySelectorAll('#labels .row')];
+
+// A badge this generator cannot show is HELD: the row prints without it and returns it unchanged until the user picks a badge
+// on that row (applyBadge clears the hold). Prediction never replaces it (it counts as manual). Section 7.3.
+function setHeld(row, b) {
+  applyBadge(row, { type: 'none' });
+  row.dataset.badgeManual = '1';
+  row.dataset.badgeHeld = JSON.stringify(b);
+  updateBadgeBtn(row);
+}
+function setRowLink(row, u, n, textMax) {
+  row.dataset.unit = String(u);
+  row.dataset.unitN = n ? String(n) : '';
+  if (!row.querySelector('.utag')) {
+    const tag = document.createElement('span');
+    tag.className = 'utag';
+    row.querySelector('.idx').after(tag);
+  }
+  const tag = row.querySelector('.utag');
+  tag.textContent = n ? '#' + n : '#';
+  tag.title = n ? `Planner drawer #${n}` : 'A planner drawer';
+  row.querySelector('input.label-text').maxLength = textMax || 40;
+}
+function clearRowLink(row) {
+  delete row.dataset.unit;
+  delete row.dataset.unitN;
+  const tag = row.querySelector('.utag'); if (tag) tag.remove();
+  const note = row.querySelector('.row-note'); if (note) note.remove();
+  row.classList.remove('has-note');
+  const input = row.querySelector('input.label-text');
+  input.maxLength = 48;
+  input.classList.remove('over');
+}
+// Clearing a linked row's words clears the badge picked for them (the Planner keeps a badge only with words).
+function resetRowBadge(row) {
+  delete row.dataset.badgeManual;
+  applyBadge(row, { type: 'none' });
+}
+
+// Persistent, per-row flags: a linked row past the Planner's limit, and an icon-only label (printed here, not saved there).
+function updateRowFlags() {
+  if (!LINK) return;
+  linkRows().forEach(row => {
+    const input = row.querySelector('input.label-text');
+    let note = '', over = false;
+    if (link && row.dataset.unit) {
+      const max = link.job.textMax, len = input.value.trim().length;
+      if (len > max) { note = `${len} / ${max} - the planner keeps the first ${max}`; over = true; }
+      else {
+        const s = rowSnap(row);
+        if (!LINK.hasWords(s) && (s.held || (s.manual && (s.type === 'char' || s.type === 'icon')))) note = 'Icon only - printed here, not saved to the planner';
+      }
+    }
+    input.classList.toggle('over', over);
+    let n = row.querySelector('.row-note');
+    if (note) {
+      if (!n) { n = document.createElement('div'); n.className = 'row-note'; row.appendChild(n); }
+      n.textContent = note;
+    } else if (n) n.remove();
+    row.classList.toggle('has-note', !!note);
+  });
+}
+
+// ---- the stored linked session (section 4.8) ----
+function linkedSession() {
+  return { v: 1, job: link.job, baseRev: link.baseRev, baseline: link.baseline, project: captureProject({ linked: true }),
+           pending: link.pending, paused: false, savedAt: Date.now() };
+}
+function saveLinkedNow() {
+  if (!link) return;
+  try { sessionStorage.setItem(LS_LINKED, JSON.stringify(linkedSession())); } catch (e) { /* the session lives on in the tab; a reload would lose it */ }
+}
+const scheduleSaveLinked = debounce(saveLinkedNow, 800);
+// Linked mode NEVER writes the ordinary autosave - not even the printer preferences (Astra): the ordinary session stays as it was
+// until Unlink. rebuild() calls this where it used to call scheduleAutosave().
+function scheduleSave() { if (link) scheduleSaveLinked(); else scheduleAutosave(); }
+function readStoredSession() {
+  try { return LINK.parseSession(sessionStorage.getItem(LS_LINKED), { servedFromLocalhost: SERVED_LOCAL }); } catch (e) { return null; }
+}
+function storePaused(session) {
+  try { sessionStorage.setItem(LS_LINKED, JSON.stringify({ ...session, paused: true })); } catch (e) {}
+}
+function dropStoredSession() { try { sessionStorage.removeItem(LS_LINKED); } catch (e) {} }
+// a linked project as an ORDINARY set: tags and held markers dropped (a held icon stays as its id)
+function plainProject(p) {
+  return { ...p, labels: p.labels.map(l => { const { u, n, held, ...rest } = l; return rest; }) };
+}
+
+// ---- the bar ----
+function pendingActive() { return !!(link && link.pending && (link.pending.state === 'sending' || link.pending.state === 'reviewing')); }
+function renderLinkBar() {
+  const bar = gid('link-bar');
+  if (!bar) return;
+  const btn = { send: gid('link-send'), retry: gid('link-retry'), resume: gid('link-resume'), unlink: gid('link-unlink') };
+  bar.className = 'link-bar';
+  if (!link && !pausedSession) { bar.hidden = true; return; }
+  bar.hidden = false;
+  if (!link) {
+    bar.classList.add('warn');
+    gid('lb-text').textContent = 'Your planner link in this tab is paused while it shows a one-way import.';
+    gid('lb-sub').textContent = '';
+    btn.send.hidden = btn.retry.hidden = btn.unlink.hidden = true;
+    btn.resume.hidden = false;
+    return;
+  }
+  btn.resume.hidden = true;
+  btn.unlink.hidden = false;
+  btn.send.hidden = false;
+  const s = link.state;
+  let text;
+  if (s === 'confirming') text = 'Connecting to your planner…';
+  else if (s === 'linked') {
+    text = `Linked to your planner build · ${plural(link.drawers, 'drawer', 'drawers')}`;
+    if (link.review === 'full') text += ' · the planner was reloaded or reopened a build, so your next send is reviewed line by line';
+    bar.classList.add('linked');
+  } else if (s === 'other-build') { text = "Your planner now shows a different build. These labels can't be sent to it. Unlink to keep them here."; bar.classList.add('warn'); }
+  else { text = 'Not connected to a planner tab. Your labels are kept in this tab. To link again, open the planner and click Design your EdgeLabel labels; or Unlink to keep these here.'; bar.classList.add('warn'); }
+  gid('lb-text').textContent = text;
+  const sub = [];
+  const un = LINK.isUnsaved(link, allSnaps(), currentStyle(), { iconIds: iconIds() });
+  if (un.extras > 0) sub.push(`${plural(un.extras, 'label exists', 'labels exist')} only in this tab. Unlink to keep ${un.extras === 1 ? 'it' : 'them'} as your ordinary labels.`);
+  const held = allSnaps().filter(x => x.held).length;
+  if (held) sub.push(`${plural(held, 'drawer has', 'drawers have')} an icon from the planner that this generator can't show. ${held === 1 ? 'It prints' : 'They print'} without an icon here and ${held === 1 ? 'stays' : 'stay'} unchanged in the planner until you pick another.`);
+  gid('lb-sub').textContent = sub.join(' ');
+  btn.retry.hidden = s !== 'no-planner';
+  btn.send.disabled = s !== 'linked' || pendingActive();
+}
+
+// ---- the send veil: editing is paused while the Planner reviews ----
+function showVeil(kind) {
+  const v = gid('send-veil');
+  gid('veil-text').textContent = kind === 'reviewing' ? 'Review the changes in your planner tab.' : 'Sending to the planner…';
+  gid('veil-sub').textContent = kind === 'reviewing' ? 'Nothing is applied until you press Apply there. You can take as long as you like.' : '';
+  v.hidden = false;
+  gid('sidebar').inert = true;
+}
+function hideVeil() { gid('send-veil').hidden = true; gid('sidebar').inert = false; }
+
+// ---- talking to the Planner (section 5): its origin from the job, ONLY our opener, never "*" ----
+function postToPlanner(msg) {
+  const o = link && link.job.origin;
+  if (!o || !LINK.originAllowed(o, { servedFromLocalhost: SERVED_LOCAL })) return false;
+  let w = null;
+  try { w = LINK_OPENER; if (!w || w.closed) return false; w.postMessage(msg, o); return true; } catch (e) { return false; }
+}
+function startHello() {
+  clearInterval(linkTimers.hello);
+  link.hellos = 0;
+  link.state = 'confirming';
+  renderLinkBar();
+  const tick = () => {
+    if (!link) { clearInterval(linkTimers.hello); return; }
+    if (link.state !== 'confirming') { clearInterval(linkTimers.hello); return; }
+    if (link.hellos >= 4) { clearInterval(linkTimers.hello); link.state = 'no-planner'; renderLinkBar(); return; }
+    link.hellos++;
+    const ok = postToPlanner({ gen2label: 'hello', v: 1, family: 'edgelabel', jobId: link.job.jobId, buildId: link.job.buildId, baseRev: link.baseRev });
+    if (!ok) { clearInterval(linkTimers.hello); link.state = 'no-planner'; renderLinkBar(); }
+  };
+  tick();
+  if (link && link.state === 'confirming') linkTimers.hello = setInterval(tick, 1000);
+}
+
+// ---- Send (section 5.2 / 5.3) ----
+function doSend() {
+  if (!link || link.state !== 'linked' || pendingActive()) return;
+  const { msg } = LINK.buildReturn({ job: link.job, baseRev: link.baseRev, pending: link.pending }, allSnaps(), currentStyle(), { iconIds: iconIds() });
+  link.pending = { returnId: msg.returnId, payload: msg, state: 'sending' };
+  saveLinkedNow();
+  showVeil('sending');
+  renderLinkBar();
+  sendLoop();
+}
+// `received` is the ONLY timed answer: three sends, two seconds apart; no `received` after the third (six seconds in) abandons.
+// Human review is never timed out. Every send of one payload carries the SAME returnId, so the Planner dedups.
+function sendLoop() {
+  clearTimeout(linkTimers.send);
+  let sends = 0;
+  const step = () => {
+    if (!link || !link.pending || link.pending.state !== 'sending') return;
+    if (sends >= 3) { abandonSend("The planner tab didn't answer. If it was updated or reloaded, reload it, then Send again. Your labels are unchanged here."); return; }
+    sends++;
+    if (!postToPlanner(link.pending.payload)) { link.state = 'no-planner'; abandonSend('The planner tab is closed or not reachable. Your labels are kept in this tab.'); return; }
+    linkTimers.send = setTimeout(step, 2000);
+  };
+  step();
+}
+function abandonSend(message) {
+  clearTimeout(linkTimers.send);
+  if (link && link.pending && (link.pending.state === 'sending' || link.pending.state === 'reviewing')) link.pending.state = 'abandoned';
+  hideVeil();
+  if (link) { link.queuedJob = null; saveLinkedNow(); renderLinkBar(); }
+  if (message) setStatus(message, 'err');
+}
+
+const REFUSED = {
+  'other-build': "Your planner now shows a different build. These labels can't be sent to it. Unlink to keep them here.",
+  'malformed': 'The planner could not read what was sent. Nothing was applied.',
+  'wrong-family': 'The planner did not accept these labels for its current faceplate. Nothing was applied.',
+  'planner-unsupported': "This browser's planner tab can't show the review window, so nothing was applied.",
+};
+
+window.addEventListener('message', (e) => {
+  if (!link) return;
+  const d = e.data;
+  if (!d || typeof d !== 'object' || typeof d.gen2label !== 'string') return;
+  // section 5.1: the Planner's origin from the job, and only the window that opened us (LINK_OPENER)
+  if (e.origin !== link.job.origin || !LINK_OPENER || e.source !== LINK_OPENER) return;
+  const a = LINK.parseAnswer(d);
+  if (!a || a.jobId !== link.job.jobId) return;
+  if (a.gen2label === 'ack') {
+    clearInterval(linkTimers.hello);
+    link.state = 'linked';
+    link.drawers = a.drawers;
+    link.review = (a.review === 'full' || a.baseRev !== link.baseRev) ? 'full' : 'normal';
+    renderLinkBar();
+    return;
+  }
+  const out = LINK.onAnswer({ job: link.job, baseRev: link.baseRev, pending: link.pending }, a,
+    LINK.returnCore(allSnaps(), currentStyle(), link.baseRev, iconIds()));
+  switch (out.effect) {
+    case 'received':
+      clearTimeout(linkTimers.send);
+      link.pending.state = out.pendingState;
+      showVeil('reviewing');
+      try { LINK_OPENER.focus(); } catch (err) { /* a browser may ignore it; the planner's tab title is the reliable signal */ }
+      saveLinkedNow(); renderLinkBar();
+      break;
+    case 'adopt': adoptAnswer(a); break;
+    case 'late-status':
+      clearTimeout(linkTimers.send);
+      link.pending = null;
+      saveLinkedNow(); renderLinkBar();
+      setStatus('The planner applied your earlier send. Your newer edits here are kept and will be reviewed line by line.', 'ok');
+      break;
+    case 'cancelled':
+      finishSend('Not applied. Your labels are unchanged here. Send again when ready.', 'ok');
+      break;
+    case 'refused':
+      if (out.hello) { setStatus(REFUSED[out.reason] || 'The planner refused the link: ' + out.reason, 'err'); break; }
+      if (out.linkState) link.state = out.linkState;
+      finishSend(REFUSED[out.reason] || 'The planner refused this send: ' + out.reason, 'err');
+      break;
+    case 'other-build':
+      clearInterval(linkTimers.hello);
+      link.state = 'other-build';
+      renderLinkBar();
+      break;
+    default: break;   // ignore
+  }
+});
+function finishSend(message, kind) {
+  clearTimeout(linkTimers.send);
+  if (link) { link.pending = null; link.queuedJob = null; saveLinkedNow(); }
+  hideVeil();
+  renderLinkBar();
+  setStatus(message, kind);
+}
+
+// ---- adopting an `applied` answer (section 7.5) ----
+function applyRowAction(row, act) {
+  const input = row.querySelector('input.label-text');
+  if (act.kind === 'detach') { clearRowLink(row); return; }
+  if (act.kind !== 'set') return;
+  if (act.text !== undefined) input.value = act.text;
+  const b = act.badge;
+  if (!b) return;
+  if (b.mode === 'auto') resetRowBadge(row);
+  else if (b.mode === 'held') setHeld(row, b.b);
+  else { row.dataset.badgeManual = '1'; applyBadge(row, b.type === 'none' ? { type: 'none' } : { type: b.type, value: b.value }); }
+}
+function adoptAnswer(a) {
+  clearTimeout(linkTimers.send);
+  const rows = linkRows();
+  const out = LINK.adoptApplied({ job: link.job, baseRev: link.baseRev, pending: link.pending }, allSnaps(), a, iconIds());
+  LINK.inputsFromStyle(out.styleSet, gid);
+  gid('labels').classList.toggle('caps', capsOn());
+  out.actions.forEach(act => { if (rows[act.index]) applyRowAction(rows[act.index], act); });
+  link.baseline = out.baseline;
+  link.baseRev = out.baseRev;
+  link.pending = null;
+  link.review = 'normal';
+  hideVeil();
+  applyPredictToggle();   // re-predicts (or strips) the rows that are not manual, then rebuilds; also schedules the save
+  updateBulkBar();
+  saveLinkedNow();
+  renderLinkBar();
+  const n = Number(a.changes) || 0;
+  setStatus(`Saved to the planner${n ? ` (${plural(n, 'change', 'changes')})` : ''}.` +
+    (out.gone.length ? ` ${plural(out.gone.length, 'drawer is', 'drawers are')} no longer in the planner build - ${out.gone.length === 1 ? 'its label stays' : 'their labels stay'} here as extra labels.` : ''), 'ok');
+  if (link.queuedJob) { const j = link.queuedJob; link.queuedJob = null; loadNewJob(j, { keepExtras: j.buildId === link.job.buildId }); }
+}
+
+// ---- starting, restoring, pausing, unlinking ----
+function addJobRow(r, job) {
+  const row = addLabelRow(r.text, null, { u: r.u, n: r.n, textMax: job.textMax }).closest('.row');
+  if (r.held) setHeld(row, r.held);
+  else if (r.manual) {
+    row.dataset.badgeManual = '1';
+    applyBadge(row, r.type === 'none' ? { type: 'none' } : { type: r.type, value: r.value });
+  } else autoAssignIcon(row);
+  return row;
+}
+// Label style from the job (a style the Planner supplies beats a saved one); printer preferences stay local (from the ordinary
+// autosave when it has them). Applied BEFORE the rows, so prediction follows predictIcons - the small-fixes rule, section 7.3.
+function startLinked(job, o) {
+  let prev = null;
+  try { prev = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) {}
+  if (prev && prev.settings) {
+    const s = {};
+    PRINTER_PREFS.forEach(k => { if (k in prev.settings) s[k] = prev.settings[k]; });
+    applySettings(s);
+  }
+  LINK.inputsFromStyle(job.style, gid);
+  gid('labels').classList.toggle('caps', capsOn());
+  clearLabelRows();
+  LINK.jobToRows(job, iconIds()).forEach(r => addJobRow(r, job));
+  if (o && o.extras) o.extras.forEach(l => addExtraRow(l));
+  link = { job, baseRev: job.baseRev, baseline: { rows: job.rows.map(r => ({ u: r.u, t: r.t, b: r.b })), style: job.style },
+           pending: null, state: 'confirming', review: 'normal', drawers: job.rows.length, hellos: 0, queuedJob: null };
+  pausedSession = null;
+  updateBulkBar();
+  saveLinkedNow();   // the hash is cleared right away: the session must exist before anything can reload the page
+  renderLinkBar();
+  startHello();
+  rebuild();
+}
+function addExtraRow(l) {
+  const b = l.badge;
+  const badge = (b && b.type && b.type !== 'none') ? b : null;
+  const row = addLabelRow(l.text || '', badge).closest('.row');
+  if (l.manual) row.dataset.badgeManual = '1'; else if (!badge) autoAssignIcon(row);
+}
+function applyLinkedLabels(labels, textMax) {
+  clearLabelRows();
+  labels.forEach(l => {
+    const b = l.badge;
+    const badge = (b && b.type && b.type !== 'none' && !l.held) ? b : null;
+    const opts = (l.u !== undefined && l.u !== null) ? { u: l.u, n: l.n, textMax } : {};
+    const row = addLabelRow(l.text || '', badge, opts).closest('.row');
+    if (l.manual) row.dataset.badgeManual = '1';
+    if (l.held) setHeld(row, b);
+    else if (!l.manual && !badge) autoAssignIcon(row);
+  });
+}
+// Restore a linked session completely (section 7.1 step 3): ALL settings first, then rows (tags, held badges, extras), the
+// baseline and any pending send.
+function restoreLinked(session) {
+  applySettings(session.project.settings);
+  gid('labels').classList.toggle('caps', capsOn());
+  applyLinkedLabels(session.project.labels, session.job.textMax);
+  link = { job: session.job, baseRev: session.baseRev, baseline: session.baseline, pending: session.pending, state: 'confirming', review: 'normal',
+           drawers: session.job.rows.length, hellos: 0, queuedJob: null };
+  pausedSession = null;
+  updateBulkBar();
+  renderLinkBar();
+  startHello();
+  // a send that was in flight is resent with its SAME returnId; the Planner answers from what it holds
+  if (link.pending && (link.pending.state === 'sending' || link.pending.state === 'reviewing')) {
+    link.pending.state = 'sending';
+    showVeil('sending');
+    sendLoop();
+  }
+}
+function pauseLink(session) {
+  storePaused(session);
+  pausedSession = { ...session, paused: true };
+}
+function resumeLink() {
+  const s = readStoredSession();
+  if (!s) { pausedSession = null; renderLinkBar(); return; }
+  autosave();   // the one-way set on screen goes into the ordinary autosave first, so switching back loses nothing
+  restoreLinked({ ...s, paused: false });
+  rebuild();
+  setStatus('Back on your planner link.', 'ok');
+}
+// Unlink (section 7.10): the ordinary session is kept as the Previous set; the linked project becomes the ordinary one.
+function unlinkNow(o) {
+  if (!link) return false;
+  let prev = null;
+  try { prev = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) {}
+  const kept = (o && o.keepPrevious === false) ? false : keepPreviousSet(prev && Array.isArray(prev.labels) ? prev : null);
+  clearTimeout(linkTimers.send); clearInterval(linkTimers.hello);
+  const rows = linkRows();
+  rows.forEach(row => {
+    const held = parseHeld(row);
+    clearRowLink(row);
+    if (held) { row.dataset.badgeManual = '1'; applyBadge(row, held); }   // a held icon stays as its id in the ordinary session
+  });
+  link = null;
+  dropStoredSession();
+  hideVeil();
+  autosave();
+  renderLinkBar();
+  updateRowFlags();
+  rebuild();
+  setStatus('Unlinked.' + (kept ? ' Your previous labels are kept: Save / Load › Previous set.' : ''), 'ok');
+  return true;
+}
+
+// ---- a small modal for the questions this page asks (a native confirm() has one answer too few) ----
+function askModal({ title, body, buttons }) {
+  return new Promise(resolve => {
+    const m = gid('gen-modal');
+    gid('gm-title').textContent = title;
+    gid('gm-body').textContent = body;
+    const box = gid('gm-buttons');
+    box.innerHTML = '';
+    const veilWasUp = gid('sidebar').inert;
+    const done = (id) => { m.hidden = true; document.removeEventListener('keydown', onKey, true); gid('sidebar').inert = veilWasUp; resolve(id); };
+    gid('sidebar').inert = true;
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done('cancel'); } };
+    buttons.forEach(b => {
+      const el = document.createElement('button');
+      el.className = 'btn-sm' + (b.primary ? ' primary-sm' : '');
+      el.textContent = b.label;
+      el.addEventListener('click', () => done(b.id));
+      box.appendChild(el);
+    });
+    document.addEventListener('keydown', onKey, true);
+    m.hidden = false;
+    box.querySelector('button').focus();
+  });
+}
+// A list-replacing operation (CSV import, a preset that replaces the list, Upload, Previous set) ends the link first.
+async function confirmReplace() {
+  if (!link) return true;
+  const c = await askModal({ title: 'This ends the planner link', body: "This replaces the planner's drawers in the list and ends the link. Your current labels are kept as the Previous set.",
+    buttons: [{ id: 'continue', label: 'Continue', primary: true }, { id: 'cancel', label: 'Cancel' }] });
+  if (c !== 'continue') return false;
+  unlinkNow();
+  return true;
+}
+// Deleting a linked row is a question about the PLANNER's drawer (section 7.6)
+async function askDeleteLinked(count) {
+  return askModal({ title: count === 1 ? "Leave this drawer's label in the planner?" : "Leave these drawers' labels in the planner?",
+    body: count === 1 ? "Just don't print it here? Or clear its label so the planner's drawer loses it too?" : "Just don't print them here? Or clear their labels so the planner's drawers lose them too?",
+    buttons: [{ id: 'drop', label: count === 1 ? "Don't print it" : "Don't print them", primary: true }, { id: 'clear', label: count === 1 ? 'Clear its label' : 'Clear their labels' }, { id: 'cancel', label: 'Cancel' }] });
+}
+function clearRowLabel(row) {
+  row.querySelector('input.label-text').value = '';
+  resetRowBadge(row);
+}
+
+// ---- a second job into an open tab (section 7.7) ----
+function readExtras() {
+  return allSnaps().map((s, i) => ({ s, i })).filter(x => x.s.u === null && LINK.hasContent(x.s));
+}
+function extrasProject() {
+  const all = captureProject({ linked: true }).labels;
+  return readExtras().map(x => plainProject({ labels: [all[x.i]] }).labels[0]);
+}
+function loadNewJob(job, o) {
+  const extras = o && o.keepExtras ? extrasProject() : null;
+  startLinked(job, { extras });
+  setStatus('Updated from the planner.', 'ok');
+}
+async function incomingJob(job) {
+  if (!link) {
+    // an ordinary (or paused) tab: what is on screen is already in the ordinary autosave - flush it, then link
+    const stored = readStoredSession();
+    if (stored && stored.job.jobId !== job.jobId) {
+      const un = LINK.isUnsaved({ job: stored.job, baseline: stored.baseline, pending: stored.pending }, LINK.snapsFromProject(stored.project), LINK.styleFromProject(stored), { iconIds: iconIds() });
+      if (un.any && keepPreviousSet(plainProject(stored.project))) linkBootExtra = 'Your earlier linked labels were kept: Save / Load › Previous set.';
+    }
+    autosave();
+    startLinked(job);
+    setStatus('Linked to the planner.' + (linkBootExtra ? ' ' + linkBootExtra : ''), 'ok');
+    linkBootExtra = '';
+    return;
+  }
+  const un = LINK.isUnsaved(link, allSnaps(), currentStyle(), { iconIds: iconIds() });
+  const same = job.buildId === link.job.buildId;
+  if (!un.rows && !un.pending && !un.style && (same || un.extras === 0)) { loadNewJob(job, { keepExtras: same }); return; }
+  const c = await askModal({ title: 'Your planner sent a newer set',
+    body: "You have changes here that the planner doesn't have yet. Send them first, replace them with the planner's set (your current labels are kept as the Previous set), or keep what you have.",
+    buttons: [{ id: 'send', label: 'Send mine first', primary: true }, { id: 'replace', label: "Replace with the planner's" }, { id: 'cancel', label: 'Cancel' }] });
+  if (c === 'replace') {
+    keepPreviousSet(plainProject(captureProject({ linked: true })));
+    startLinked(job);
+    setStatus("Replaced with the planner's set. Your earlier labels are kept: Save / Load › Previous set.", 'ok');
+  } else if (c === 'send') {
+    if (link.state !== 'linked' || pendingActive()) { setStatus("Can't send right now. Kept your current labels. Click the planner's button again to reload them.", 'err'); return; }
+    link.queuedJob = job;
+    doSend();
+  } else setStatus("Kept your current labels. Click the planner's button again to reload them.", 'ok');
+}
+function clearHash() { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+window.addEventListener('hashchange', () => {
+  if (!LINK || !location.hash) return;
+  const hash = location.hash;
+  const jr = LINK.hasJobParam(hash) ? LINK.parseJob(hash, { servedFromLocalhost: SERVED_LOCAL }) : null;
+  clearHash();
+  if (jr && jr.ok) { incomingJob(jr.job); return; }
+  const labels = LINK.importedLabelsFromHash(hash);
+  if (labels.length) {
+    // a one-way link into a linked tab: the link pauses (nothing is lost); into an ordinary tab: the ordinary import
+    if (link) { saveLinkedNow(); pauseLink(linkedSession()); link = null; hideVeil(); clearTimeout(linkTimers.send); clearInterval(linkTimers.hello); }
+    else autosave();
+    clearLabelRows();
+    importFromPlanner(labels);
+    rebuild();
+    renderLinkBar();
+    setStatus(`Loaded ${plural(labels.length, 'label', 'labels')} from the GEN2 Planner.` + (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '') +
+      (pausedSession ? ' Your planner link in this tab is paused: Resume it.' : ''), 'ok');
+  } else if (jr) setStatus("Couldn't read the planner's link (it may have been cut short by the browser).", 'err');
+});
+
+// ---- boot order (section 7.1): an explicit incoming import ALWAYS wins; nothing older silently replaces it ----
+function bootRows() {
+  const ordinary = () => {
+    const imported = importedLabelsFromUrl();
+    if (imported.length) importFromPlanner(imported);
+    else if (restoreAutosave()) restoredFromAutosave = true;
+    else for (let i = 0; i < 3; i++) addLabelRow('');
+  };
+  if (!LINK) { ordinary(); return; }
+  const session = readStoredSession();
+  const plan = LINK.planBoot({ hash: location.hash, session, servedFromLocalhost: SERVED_LOCAL, iconIds: iconIds() });
+  const cutShort = "Couldn't read the planner's link (it may have been cut short by the browser)";
+  switch (plan.action) {
+    case 'linked-import': {
+      let kept = false;
+      if (plan.backup) kept = keepPreviousSet(plainProject(plan.backup.project));
+      clearHash();
+      startLinked(plan.job);
+      const n = plan.job.rows.length;
+      linkBootStatus = `Loaded ${plural(n, 'drawer', 'drawers')} from the GEN2 Planner - linked.` + (kept ? ' Your earlier linked labels were kept: Save / Load › Previous set.' : '');
+      break;
+    }
+    case 'legacy-import':
+      if (plan.pause) { pauseLink(plan.pause); linkBootExtra = 'Your planner link in this tab is paused: Resume it.'; }
+      if (plan.jobError) linkBootExtra = (cutShort + ' - opened as a one-way import. ') + linkBootExtra;
+      importFromPlanner(plan.labels);
+      break;
+    case 'linked-restore':
+      restoreLinked(plan.session);
+      linkBootStatus = 'Restored your linked session.';
+      break;
+    default:   // 'autosave'
+      if (plan.jobError) { clearHash(); linkBootExtra = cutShort + ', so nothing was imported.'; }
+      if (plan.pausedSession) { pausedSession = plan.pausedSession; linkBootExtra = (linkBootExtra + ' Your planner link in this tab is paused: Resume it.').trim(); }
+      ordinary();
+  }
+  renderLinkBar();
+}
+
+function setupLinkControls() {
+  if (!LINK) return;
+  gid('link-send').addEventListener('click', doSend);
+  gid('link-unlink').addEventListener('click', () => unlinkNow());
+  gid('link-resume').addEventListener('click', resumeLink);
+  gid('link-retry').addEventListener('click', () => { if (link) startHello(); });
+  gid('veil-stop').addEventListener('click', () => abandonSend('Stopped waiting. Your labels are unchanged here; send again when ready.'));
+  window.addEventListener('pagehide', saveLinkedNow);
+  window.addEventListener('beforeunload', (e) => {
+    if (link && LINK.isUnsaved(link, allSnaps(), currentStyle(), { iconIds: iconIds() }).any) { e.preventDefault(); e.returnValue = ''; }
   });
 }
 
@@ -2053,22 +2753,16 @@ function setupUI() {
   // Populate label rows LAST — after every settings/colour/bed/purge listener
   // above is registered — so the sync events dispatched by restoreAutosave()'s
   // applySettings() actually reach their handlers (otherwise a restored
-  // session's colours never make it to the 3D preview). Priority:
-  // planner URL #labels > autosaved session > 3 blank rows.
-  const imported = importedLabelsFromUrl();
-  if (imported.length) {
-    importFromPlanner(imported);
-  } else if (restoreAutosave()) {
-    restoredFromAutosave = true;
-  } else {
-    for (let i = 0; i < 3; i++) addLabelRow('');
-  }
+  // session's colours never make it to the 3D preview). Priority (bootRows, Step 3 section 7.1): a planner
+  // #job= link > a legacy #labels= link > this tab's LINKED session > the autosaved session > 3 blank rows.
+  setupLinkControls();
+  bootRows();
 }
 
 function handleCsv(file) {
   if (!file) { setStatus('No file received.', 'err'); return; }
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
       const text = e.target.result;
       // Parse: one label per line. For each line, take first comma-separated field.
@@ -2086,6 +2780,7 @@ function handleCsv(file) {
         setStatus('No labels found in file.', 'err');
         return;
       }
+      if (!(await confirmReplace())) return;
       clearLabelRows();
       values.forEach(v => autoAssignIcon(addLabelRow(v).closest('.row')));
       rebuild();
