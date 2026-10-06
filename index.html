@@ -333,6 +333,7 @@
     <div class="proj-actions">
       <button class="btn-sm" id="proj-export" title="Download your labels + settings as a .json file">Export</button>
       <button class="btn-sm" id="proj-upload-btn" title="Load labels + settings from a .json file you exported earlier">Upload</button>
+      <button class="btn-sm" id="to-planner" title="Open the GEN2 Planner with these labels: they wait in its Labels tray under the board, where you tap a label and then a drawer. Hardware labels keep their part details.">Add to planner build</button>
       <button class="btn-sm" id="proj-restore" style="display:none" title="Swap the current labels and settings with the previous set - the one set kept from before the last GEN2 Planner import. Click again to swap back. Only one previous set is kept: the next Planner import replaces it.">Previous set</button>
       <input type="file" id="proj-import" accept=".json,application/json">
     </div>
@@ -823,9 +824,14 @@ function layOutHardwareRow(row) {
 function layOutPendingHardware() {    // rows added before the font loaded are laid out on the first rebuild after it
   document.querySelectorAll('#labels .row.hw').forEach(row => { if (!row._hw) layOutHardwareRow(row); });
 }
-function addHardwareRow(item) {
-  const input = addLabelRow(item.fields.map(f => HW.printable(f)).join(' '));
+// opts (a planner job's row, label tool step 3): { u, n, textMax, t, b } - the row is LINKED to drawer u and keeps the job's own
+// words and badge (dataset.hwJob), which is what it returns: a hardware row is read-only here, so it always comes back unchanged
+function addHardwareRow(item, opts) {
+  const o = opts || {};
+  const linked = o.u !== undefined && o.u !== null;
+  const input = addLabelRow(item.fields.map(f => HW.printable(f)).join(' '), null, linked ? { u: o.u, n: o.n, textMax: o.textMax } : {});
   const row = input.closest('.row');
+  if (linked) row.dataset.hwJob = JSON.stringify({ t: String(o.t || ''), b: o.b === undefined ? null : o.b });
   row.dataset.hw = '1';
   row.classList.add('hw');
   row._hwItem = item;
@@ -1981,6 +1987,7 @@ function captureLabels(linked) {
     if (row.dataset.hw && row._hwItem) o.hw = row._hwItem;
     if (linked && row.dataset.unit) { o.u = Number(row.dataset.unit); o.n = Number(row.dataset.unitN) || null; }
     if (linked && held) o.held = true;
+    if (linked && row.dataset.unit && row.dataset.hwJob) o.hwJob = parseHwJob(row);
     out.push(o);
   });
   return out;
@@ -2064,7 +2071,13 @@ function autosave() {
   if (typeof link !== 'undefined' && link) return;   // linked mode NEVER writes the ordinary autosave (Step 3 section 4.8)
   try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify(captureProject())); } catch (e) {}
 }
-const scheduleAutosave = debounce(autosave, 800);
+// A save still waiting on the debounce is flushed when the page is hidden (a reload or a closed tab within 800 ms of a change
+// used to lose that change). Only a PENDING save: an unconditional flush could write the empty boot rows over the saved set
+// when the tab closes before the restore has run.
+let autosavePending = false;
+const autosaveLater = debounce(() => { autosavePending = false; autosave(); }, 800);
+const scheduleAutosave = () => { autosavePending = true; autosaveLater(); };
+window.addEventListener('pagehide', () => { if (autosavePending) { autosavePending = false; autosave(); } });
 
 function restoreAutosave() {
   let snap;
@@ -2171,6 +2184,7 @@ function setupProjectControls() {
   // Upload — load a previously exported .json file.
   const importInput = document.getElementById('proj-import');
   document.getElementById('proj-upload-btn').addEventListener('click', () => importInput.click());
+  document.getElementById('to-planner').addEventListener('click', addToPlanner);
   importInput.addEventListener('change', (e) => {
     const f = e.target.files[0];
     e.target.value = '';   // allow re-uploading the same file
@@ -2230,9 +2244,16 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 function parseHeld(row) {
   try { return row.dataset.badgeHeld ? JSON.parse(row.dataset.badgeHeld) : null; } catch (e) { return null; }
 }
+function parseHwJob(row) {
+  try { return row.dataset.hwJob ? JSON.parse(row.dataset.hwJob) : null; } catch (e) { return null; }
+}
 function rowSnap(row) {
   const input = row.querySelector('input.label-text');
   const t = row.dataset.badgeType || 'none';
+  // a planner hardware row (step 3) is the job's row exactly - its words and badge as sent - so the return finds no change
+  const hj = row.dataset.unit ? parseHwJob(row) : null;
+  if (hj) return { u: Number(row.dataset.unit), n: row.dataset.unitN ? Number(row.dataset.unitN) : null, text: hj.t, type: 'none', value: undefined,
+    svg: false, manual: hj.b !== null, held: hj.b && hj.b.type !== 'none' ? hj.b : null };
   return {
     u: row.dataset.unit ? Number(row.dataset.unit) : null, n: row.dataset.unitN ? Number(row.dataset.unitN) : null,
     text: input ? input.value : '', type: t,
@@ -2268,6 +2289,7 @@ function setRowLink(row, u, n, textMax) {
 function clearRowLink(row) {
   delete row.dataset.unit;
   delete row.dataset.unitN;
+  delete row.dataset.hwJob;
   const tag = row.querySelector('.utag'); if (tag) tag.remove();
   const note = row.querySelector('.row-note'); if (note) note.remove();
   row.classList.remove('has-note');
@@ -2287,7 +2309,7 @@ function updateRowFlags() {
   linkRows().forEach(row => {
     const input = row.querySelector('input.label-text');
     let note = '', over = false;
-    if (link && row.dataset.unit) {
+    if (link && row.dataset.unit && !row.dataset.hwJob) {   // a hardware row returns the job's words, never its laid-out ones
       const max = link.job.textMax, len = input.value.trim().length;
       if (len > max) { note = `${len} / ${max} - the planner keeps the first ${max}`; over = true; }
       else {
@@ -2327,14 +2349,66 @@ function storePaused(session) {
 function dropStoredSession() { try { sessionStorage.removeItem(LS_LINKED); } catch (e) {} }
 // a linked project as an ORDINARY set: tags and held markers dropped (a held icon stays as its id)
 function plainProject(p) {
-  return { ...p, labels: p.labels.map(l => { const { u, n, held, ...rest } = l; return rest; }) };
+  return { ...p, labels: p.labels.map(l => { const { u, n, held, hwJob, ...rest } = l; return rest; }) };
 }
 
 // ---- the bar ----
 function pendingActive() { return !!(link && link.pending && (link.pending.state === 'sending' || link.pending.state === 'reviewing')); }
+// ---- Add to planner build (label tool step 3): this set, as a modulith-labels list, into the open planner build's tray ----
+// Every laid-out hardware row (its printed words + its item) and every row with words or a chosen badge; a predicted icon is
+// left out, so the planner predicts it the same way. The list carries a batchId: the planner adds a batch once, however often
+// the link is opened. Too big for a link (uploaded icons are large) -> the same list as a file for the planner's Add labels.
+const PLANNER_URL = (() => {
+  const q = new URLSearchParams(location.search).get('dev_planner');
+  if (SERVED_LOCAL && q && /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}\/?$/.test(q)) return q.replace(/\/?$/, '/');
+  return SERVED_LOCAL ? 'http://localhost:8124/' : 'https://gen2planner.jerrari3d.com/';
+})();
+const PLANNER_LINK_MAX = 1800000;
+function plannerLabelList() {
+  const labels = []; let notReady = 0;
+  document.querySelectorAll('#labels .row').forEach(row => {
+    if (row.dataset.hw) {
+      if (!row._hw || !row._hw.elements) { notReady++; return; }
+      labels.push({ text: hardwareRowText(row._hwItem, row._hw.record).slice(0, 200), hardware: row._hwItem });
+      return;
+    }
+    const text = (row.querySelector('input.label-text').value || '').trim().slice(0, 200);
+    const bt = row.dataset.badgeType || 'none';
+    let badge = null;
+    if (row.dataset.badgeManual === '1') {
+      if (bt === 'char') badge = { type: 'char', value: row.dataset.badgeValue || '' };
+      else if (bt === 'icon') badge = row._badgeSvg ? { type: 'icon', svg: row._badgeSvg } : { type: 'icon', value: row.dataset.badgeIcon };
+      else badge = { type: 'none' };
+    }
+    if (!text && !(badge && badge.type !== 'none')) return;   // an empty row is not a label
+    labels.push(badge ? { text, badge } : { text });
+  });
+  return { labels, notReady };
+}
+function addToPlanner() {
+  const { labels, notReady } = plannerLabelList();
+  const skipped = notReady ? ` ${plural(notReady, 'hardware label', 'hardware labels')} can't print yet and ${notReady === 1 ? 'was' : 'were'} left out (see the red note).` : '';
+  if (!labels.length) { setStatus('There are no labels to add to the planner.' + skipped, 'err'); return; }
+  const doc = { format: 'modulith-labels', version: 1, batchId: LINK.newId(), labels };
+  const json = JSON.stringify(doc);
+  const enc = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  if (enc.length > PLANNER_LINK_MAX) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    a.download = 'planner-labels.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setStatus(`Too much for a link (uploaded icons are large), so the ${plural(labels.length, 'label is', 'labels are')} saved as planner-labels.json. In the planner, use Add labels under the board.` + skipped, 'ok');
+    return;
+  }
+  window.open(PLANNER_URL + '#labels-add=' + enc, '_blank', 'noopener');
+  setStatus(`Opened the planner with ${plural(labels.length, 'label', 'labels')}: they wait in its Labels tray under the board, for the build open there. ` +
+    `If no planner tab opened, allow pop-ups for this site and press it again (the planner adds a set only once).` + skipped, 'ok');
+}
+
 function renderLinkBar() {
   const bar = gid('link-bar');
   if (!bar) return;
+  const tp = gid('to-planner'); if (tp) tp.hidden = !!link;   // linked: the link bar's Send to planner is the way back
   const btn = { send: gid('link-send'), retry: gid('link-retry'), resume: gid('link-resume'), unlink: gid('link-unlink') };
   bar.className = 'link-bar';
   if (!link && !pausedSession) { bar.hidden = true; return; }
@@ -2501,10 +2575,27 @@ function finishSend(message, kind) {
 }
 
 // ---- adopting an `applied` answer (section 7.5) ----
+// a planner hardware row whose drawer the planner has since changed: the part it was laid out from is no longer that drawer's
+// label, so the row becomes an ordinary row and takes the planner's words (it never keeps printing, or returning, the old part)
+function plainRowFromHardware(row) {
+  delete row.dataset.hw; delete row.dataset.hwJob;
+  row.classList.remove('hw');
+  row._hwItem = null; row._hw = null;
+  const note = row.querySelector('.hw-note'); if (note) note.remove();
+  const input = row.querySelector('input.label-text');
+  input.readOnly = false; input.title = '';
+}
 function applyRowAction(row, act) {
   const input = row.querySelector('input.label-text');
   if (act.kind === 'detach') { clearRowLink(row); return; }
   if (act.kind !== 'set') return;
+  if (row.dataset.hwJob) {
+    const hj = parseHwJob(row);
+    const sameText = act.text === undefined || (hj && act.text === hj.t);
+    const sameBadge = !act.badge || (hj && JSON.stringify(act.badge.mode === 'held' ? act.badge.b : act.badge.mode === 'auto' ? null : { type: act.badge.type, value: act.badge.value }) === JSON.stringify(hj.b));
+    if (sameText && sameBadge) return;   // the planner holds what this row was made from: it stays a hardware row
+    plainRowFromHardware(row);
+  }
   if (act.text !== undefined) input.value = act.text;
   const b = act.badge;
   if (!b) return;
@@ -2535,7 +2626,11 @@ function adoptAnswer(a) {
 }
 
 // ---- starting, restoring, pausing, unlinking ----
-function addJobRow(r, job) {
+function addJobRow(r, job, raw) {
+  // a drawer whose planner label is a HARDWARE label (step 3): its item rides the row as `hw`; laid out here, read-only, returned
+  // as sent. An item this page cannot read leaves an ordinary row with the words.
+  const hwItem = raw && raw.hw && raw.t ? hardwareItems(raw.hw) : null;
+  if (hwItem) return addHardwareRow(hwItem[0], { u: r.u, n: r.n, textMax: job.textMax, t: raw.t, b: raw.b });
   const row = addLabelRow(r.text, null, { u: r.u, n: r.n, textMax: job.textMax }).closest('.row');
   if (r.held) setHeld(row, r.held);
   else if (r.manual) {
@@ -2557,7 +2652,7 @@ function startLinked(job, o) {
   LINK.inputsFromStyle(job.style, gid);
   gid('labels').classList.toggle('caps', capsOn());
   clearLabelRows();
-  LINK.jobToRows(job, iconIds()).forEach(r => addJobRow(r, job));
+  LINK.jobToRows(job, iconIds()).forEach((r, i) => addJobRow(r, job, job.rows[i]));
   if (o && o.extras) o.extras.forEach(l => addExtraRow(l));
   link = { job, baseRev: job.baseRev, baseline: { rows: job.rows.map(r => ({ u: r.u, t: r.t, b: r.b })), style: job.style },
            pending: null, state: 'confirming', review: 'normal', drawers: job.rows.length, hellos: 0, queuedJob: null };
@@ -2577,6 +2672,12 @@ function addExtraRow(l) {
 function applyLinkedLabels(labels, textMax) {
   clearLabelRows();
   labels.forEach(l => {
+    const hwItem = l.hw ? hardwareItems(l.hw) : null;
+    if (hwItem) {   // a planner hardware row comes back linked with the job's words and badge; an extra one as a plain hardware row
+      const linked = l.u !== undefined && l.u !== null && l.hwJob && typeof l.hwJob.t === 'string';
+      addHardwareRow(hwItem[0], linked ? { u: l.u, n: l.n, textMax, t: l.hwJob.t, b: l.hwJob.b } : undefined);
+      return;
+    }
     const b = l.badge;
     const badge = (b && b.type && b.type !== 'none' && !l.held) ? b : null;
     const opts = (l.u !== undefined && l.u !== null) ? { u: l.u, n: l.n, textMax } : {};
