@@ -306,3 +306,75 @@ test('LL-22: a custom uploaded icon in a build survives reconciling; older tools
   const picked = L.reconcile([U(1, 0, 0, 'Logo bits', { type: 'icon', value: 'star' }), U(2, 1, 0)], list, assign);
   assert.equal(picked.changes[0].kind, 'edited', 'an older tool picking a built-in icon there is an edit');
 });
+
+/* ---- label tool step 3: hardware labels, the planner's in-place edit, imports ---- */
+const ITEM = { schema: 'part-picker-label-item/1', id: 'rec_m5x20', family: 'screw', fields: ['M5', '× 20'],
+  attributes: [{ path: 'head', text: 'SHCS', meaning: 'Socket head cap' }, { path: 'material.base', text: 'A2' }],
+  pinned: ['head'], optional: ['material.base'], value_missing: [] };
+
+test('LL-23: a hardware label keeps its item verbatim in a build; a malformed item is dropped and the words stay', () => {
+  const st = L.cleanLabelList({ labels: [{ id: 'hhhhhhhhhhhh', text: 'M5 × 20 · SHCS', hardware: ITEM }] }, { inBuild: true });
+  assert.deepEqual(st.labels[0].hardware, ITEM);
+  assert.ok(L.isHardware(st.labels[0]));
+  const bad = [
+    Object.assign({}, ITEM, { schema: 'part-record/1' }),
+    Object.assign({}, ITEM, { pinned: ['nowhere'] }),
+    Object.assign({}, ITEM, { optional: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'head'] }),
+    Object.assign({}, ITEM, { attributes: [{ path: 'head', text: 'X'.repeat(61) }] }),
+    Object.assign({}, ITEM, { fields: [1, 2] }),
+  ];
+  for (const h of bad) {
+    const c = L.cleanLabel({ text: 'M5 × 20', hardware: h }, { inBuild: true });
+    assert.equal(c.hardware, undefined, JSON.stringify(h).slice(0, 80));
+    assert.equal(c.text, 'M5 × 20', 'the label stays as words');
+    assert.ok(L.validateLabelList({ format: 'modulith-labels', version: 1, labels: [{ text: 'x', hardware: h }] }).some((m) => /"hardware" must be/.test(m)));
+  }
+});
+
+test('LL-24: reconcile with editInPlace - a plain label carried by one drawer takes the edit; shared, hardware and part labels never change', () => {
+  const list = { format: 'modulith-labels', version: 1, labels: [
+    { id: 'aaaaaaaaaaaa', text: 'Filters' },
+    { id: 'bbbbbbbbbbbb', text: 'Shared' },
+    { id: 'cccccccccccc', text: 'M5 × 20 · SHCS', hardware: ITEM }] };
+  const assign = { 1: 'aaaaaaaaaaaa', 2: 'bbbbbbbbbbbb', 3: 'bbbbbbbbbbbb', 4: 'cccccccccccc' };
+  const units = [U(1, 0, 0, 'Coffee filters', { type: 'icon', value: 'star' }), U(2, 1, 0, 'Shared, edited'), U(3, 2, 0, 'Shared'), U(4, 3, 0, 'Typed over')];
+  const r = L.reconcile(units, list, assign, { editInPlace: true });
+  const byId = new Map(r.list.labels.map((l) => [l.id, l]));
+  assert.equal(r.assignments['1'], 'aaaaaaaaaaaa', 'the sole-carrier plain label keeps its id');
+  assert.deepEqual([byId.get('aaaaaaaaaaaa').text, byId.get('aaaaaaaaaaaa').badge], ['Coffee filters', { type: 'icon', value: 'star' }]);
+  assert.notEqual(r.assignments['2'], 'bbbbbbbbbbbb', 'a shared label: the edited drawer gets its own label');
+  assert.equal(r.assignments['3'], 'bbbbbbbbbbbb', 'its other drawer keeps the shared one');
+  assert.equal(byId.get('bbbbbbbbbbbb').text, 'Shared');
+  assert.notEqual(r.assignments['4'], 'cccccccccccc', 'a hardware label is never edited by typing over its words');
+  assert.deepEqual(byId.get('cccccccccccc').hardware, ITEM, 'and keeps its item, unassigned (back in the tray)');
+  assert.equal(L.assignedUnits({ list: r.list, assignments: r.assignments }, 'cccccccccccc').length, 0);
+  assert.deepEqual(r.changes.map((c) => c.kind), ['edited-in-place', 'edited', 'edited']);
+  // without the option it is the spec's load-time rule: always a new label
+  const spec = L.reconcile(units, list, assign);
+  assert.notEqual(spec.assignments['1'], 'aaaaaaaaaaaa');
+  // and a second pass changes nothing
+  const again = L.reconcile(units, r.list, r.assignments, { editInPlace: true });
+  assert.deepEqual(again.changes, []);
+  assert.equal(JSON.stringify(again.list), JSON.stringify(r.list));
+});
+
+test('LL-25: appendLabels - an import keeps free ids, renames colliding ones, drops non-labels, keeps hardware items', () => {
+  const st = { list: L.cleanLabelList({ labels: [{ id: 'aaaaaaaaaaaa', text: 'Existing' }] }, { inBuild: true }), assignments: { 1: 'aaaaaaaaaaaa' } };
+  const r = L.appendLabels(st, [
+    { id: 'aaaaaaaaaaaa', text: 'Same id, different label', hardware: ITEM },
+    { id: 'dddddddddddd', text: 'Free id' },
+    { text: 'No id' },
+    { nope: true },
+  ]);
+  assert.equal(r.remapped, 1);
+  assert.equal(r.dropped, 1);
+  assert.equal(r.added.length, 3);
+  assert.equal(r.state.list.labels[0].text, 'Existing', 'the existing label is untouched');
+  assert.equal(r.state.assignments['1'], 'aaaaaaaaaaaa');
+  const ids = r.state.list.labels.map((l) => l.id);
+  assert.equal(new Set(ids).size, ids.length, 'no duplicate ids');
+  assert.ok(ids.includes('dddddddddddd'));
+  assert.deepEqual(r.state.list.labels[1].hardware, ITEM);
+  assert.notEqual(r.state.list.labels[1].id, 'aaaaaaaaaaaa');
+  assert.deepEqual(st.list.labels.length, 1, 'the input state is not mutated');
+});
