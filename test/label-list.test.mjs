@@ -193,13 +193,13 @@ test('LL-13: cleanLabelList drops malformed labels, mints ids for missing / dupl
   assert.notEqual(c.labels[1].id, 'dddddddddddd'); assert.match(c.labels[2].id, L.ID_RE);
 });
 
-test('LL-14: inside a build (compact) there is no uploaded SVG and no part photo; a standalone project (the full backup) keeps the SVG, the photo, style and output', () => {
+test('LL-14: inside a build (compact) there is no part photo but the uploaded icon IS kept (label content); a standalone project (the full backup) keeps both, style and output', () => {
   const svg = '<svg viewBox="0 0 1 1"><path d="M0 0h1v1z"/></svg>';
   const part = { schema: 'part-record/1', family: 'washer', photo: 'data:image/jpeg;base64,' + 'A'.repeat(50000) };
   const doc = { format: 'modulith-labels', version: 1, style: { capMm: 5, depth: 99 }, output: { printer: 'xl' },
     labels: [{ text: 'Custom', badge: { type: 'icon', svg } }, { text: 'Washers', part }] };
   const b = L.cleanLabelList(doc, { inBuild: true });
-  assert.equal(b.labels[0].badge, undefined, 'an svg-only icon becomes absent (predict) in a build');
+  assert.deepEqual(b.labels[0].badge, { type: 'icon', svg }, 'an uploaded icon is label content: a build keeps it (Astra 2026-10-06)');
   assert.equal(b.labels[1].part.photo, undefined); assert.equal(b.labels[1].part.family, 'washer');
   assert.equal(b.style, undefined); assert.equal(b.output, undefined);
   const s = L.cleanLabelList(doc);
@@ -264,9 +264,8 @@ test('LL-18: text only, icon only, and text with an icon are labels; neither is 
   for (const id of ['kkkkkkkkkkkk', 'llllllllllll']) assert.match(L.assign(st, 1, id).reason, /empty label/, id);
   const svgOnly = { text: '', badge: { type: 'icon', svg: '<svg/>' } };
   assert.equal(L.iconOnly(svgOnly), true, 'in a full project an uploaded icon with no words is icon-only');
-  assert.equal(L.isEmpty(svgOnly, { inBuild: true }), true, 'a build does not store the SVG, so there it is empty');
-  assert.match(L.validateLabelList({ format: 'modulith-labels', version: 1, labels: [{ id: 'nnnnnnnnnnnn', ...svgOnly }], assignments: { 2: 'nnnnnnnnnnnn' } }).join('\n'),
-    /shows only an uploaded icon, which a planner build does not store/);
+  assert.equal(L.isEmpty(svgOnly, { inBuild: true }), false, 'a build keeps the uploaded icon (label content), so it is icon-only there too');
+  assert.deepEqual(L.validateLabelList({ format: 'modulith-labels', version: 1, labels: [{ id: 'nnnnnnnnnnnn', ...svgOnly }], assignments: { 2: 'nnnnnnnnnnnn' } }), []);
 });
 
 test('LL-19: an icon-only drawer survives reconciling: older tools cannot show it, so a mirror without words keeps it; words typed there are an edit', () => {
@@ -291,4 +290,19 @@ test('LL-21: an old build never had an icon-only drawer - a unit carrying a badg
   const c = L.fromLegacyUnits([{ id: 1, x: 0, y: 0, labelBadge: { type: 'icon', value: 'nut' } }, U(2, 1, 0, 'Bolts')]);
   assert.deepEqual(c.list.labels.map((l) => l.text), ['Bolts']);
   assert.equal(c.assignments['1'], undefined);
+});
+
+test('LL-22: a custom uploaded icon in a build survives reconciling; older tools see the words with no badge (their own prediction)', () => {
+  const svg = '<svg viewBox="0 0 1 1"><circle r="1"/></svg>';
+  const list = { format: 'modulith-labels', version: 1, labels: [
+    { id: 'ssssssssssss', text: 'Logo bits', badge: { type: 'icon', svg } }, { id: 'tttttttttttt', text: '', badge: { type: 'icon', svg } }] };
+  const assign = { 1: 'ssssssssssss', 2: 'tttttttttttt' };
+  const st = L.cleanLabelList(list, { inBuild: true });
+  assert.deepEqual(st.labels[0].badge, { type: 'icon', svg });
+  assert.deepEqual(L.mirrorOf(st, assign), { 1: { label: 'Logo bits' } }, 'the mirror carries the words only; the icon-only label has none');
+  const r = L.reconcile([U(1, 0, 0, 'Logo bits'), U(2, 1, 0)], list, assign);
+  assert.deepEqual(r.changes, []);
+  assert.deepEqual(r.list.labels.map((l) => l.badge), [{ type: 'icon', svg }, { type: 'icon', svg }]);
+  const picked = L.reconcile([U(1, 0, 0, 'Logo bits', { type: 'icon', value: 'star' }), U(2, 1, 0)], list, assign);
+  assert.equal(picked.changes[0].kind, 'edited', 'an older tool picking a built-in icon there is an edit');
 });
