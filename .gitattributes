@@ -15,3 +15,7 @@ label-core.js text eol=lf
 # label-link.js is copied byte-for-byte into the GEN2 Planner repo (test/vendor/) and sha-pinned there:
 # a fixed LF keeps the checkout and that copy the same bytes on every OS.
 label-link.js text eol=lf
+
+# label-list.js is copied byte-for-byte into the GEN2 Planner repo and sha-pinned there (the label list format):
+# a fixed LF keeps the checkout and that copy the same bytes on every OS.
+label-list.js text eol=lf
