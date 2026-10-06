@@ -193,7 +193,7 @@ test('LL-13: cleanLabelList drops malformed labels, mints ids for missing / dupl
   assert.notEqual(c.labels[1].id, 'dddddddddddd'); assert.match(c.labels[2].id, L.ID_RE);
 });
 
-test('LL-14: inside a build there is no uploaded SVG and no part photo; a standalone project keeps the SVG, style and output', () => {
+test('LL-14: inside a build (compact) there is no uploaded SVG and no part photo; a standalone project (the full backup) keeps the SVG, the photo, style and output', () => {
   const svg = '<svg viewBox="0 0 1 1"><path d="M0 0h1v1z"/></svg>';
   const part = { schema: 'part-record/1', family: 'washer', photo: 'data:image/jpeg;base64,' + 'A'.repeat(50000) };
   const doc = { format: 'modulith-labels', version: 1, style: { capMm: 5, depth: 99 }, output: { printer: 'xl' },
@@ -206,8 +206,13 @@ test('LL-14: inside a build there is no uploaded SVG and no part photo; a standa
   assert.deepEqual(s.labels[0].badge, { type: 'icon', svg });
   assert.deepEqual(s.style, { capMm: 5 }, 'an out-of-range value is dropped, never clamped');
   assert.deepEqual(s.output, { printer: 'xl' });
-  assert.equal(s.labels[1].part, undefined, 'a part with its photo is over the size bound outside a build: dropped, and validation says so');
-  assert.ok(L.validateLabelList(doc).some((m) => /Label 2: "part"/.test(m)));
+  assert.equal(s.labels[1].part.photo, part.photo, 'the FULL project (the backup) keeps the photo (Astra: never discarded silently)');
+  assert.deepEqual(L.validateLabelList(doc).filter((m) => /Label 2/.test(m)), [], 'a 50 KB JPEG data URL is a valid photo');
+  // a malformed photo: the part record is kept, the photo is left out, and validation says so
+  const badPhoto = { format: 'modulith-labels', version: 1, labels: [{ text: 'W', part: { schema: 'part-record/1', family: 'washer', photo: 'http://x/y.jpg' } }] };
+  const bp = L.cleanLabelList(badPhoto);
+  assert.equal(bp.labels[0].part.family, 'washer'); assert.equal(bp.labels[0].part.photo, undefined);
+  assert.ok(L.validateLabelList(badPhoto).some((m) => /Label 1: the part's photo must be/.test(m)));
 });
 
 test('LL-15: validateLabelList says what is wrong in plain words, and a good list has no problems', () => {
@@ -219,7 +224,7 @@ test('LL-15: validateLabelList says what is wrong in plain words, and a good lis
   const p = L.validateLabelList(bad).join('\n');
   for (const re of [/"format" must be/, /newer version \(2\)/, /Label 1: the id must be/, /Label 1: "text" must be a string/, /Label 1: the badge must be/,
     /Label 1: "copies"/, /Label 1: "pins"/, /Style "capMm" must be a number from 2 to 6.5/, /Style "colour" is not a label setting/,
-    /Assignment "0": a drawer id/, /drawer 5: label 2 has no words/, /drawer 6: no label has the id "zzzzzzzzzzzz"/]) assert.match(p, re);
+    /Assignment "0": a drawer id/, /drawer 5: label 2 is empty \(no words and no icon\)/, /drawer 6: no label has the id "zzzzzzzzzzzz"/]) assert.match(p, re);
 });
 
 test('LL-16: cleanAssignments keeps only kept drawers, existing labels, and labels with words', () => {
@@ -243,4 +248,47 @@ test('LL-17: a legacy generator project converts - predicted badges become absen
   assert.deepEqual(c.labels[3].badge, { type: 'none' });
   assert.deepEqual(c.style, { capMm: 5.5, depth: 0.6, bold: true, allCaps: false, predictIcons: true }, 'badgeSize 40 is out of range: dropped');
   assert.deepEqual(c.output, { 'printer-preset': 'xl', 'plate-w': '360' });
+});
+
+/* ---------------------------------------------------------------- icon-only labels (Astra 2026-10-06) */
+
+test('LL-18: text only, icon only, and text with an icon are labels; neither is EMPTY and is never assigned', () => {
+  const st = { list: L.cleanLabelList({ labels: [
+    { id: 'iiiiiiiiiiii', text: '', badge: { type: 'icon', value: 'nut' } },
+    { id: 'jjjjjjjjjjjj', text: '', badge: { type: 'char', value: 'M3' } },
+    { id: 'kkkkkkkkkkkk', text: '', badge: { type: 'none' } },
+    { id: 'llllllllllll', text: '   ' },
+    { id: 'mmmmmmmmmmmm', text: 'Nuts', badge: { type: 'icon', value: 'nut' } },
+  ] }, { inBuild: true }), assignments: {} };
+  for (const id of ['iiiiiiiiiiii', 'jjjjjjjjjjjj', 'mmmmmmmmmmmm']) assert.equal(L.assign(st, 1, id).ok, true, id);
+  for (const id of ['kkkkkkkkkkkk', 'llllllllllll']) assert.match(L.assign(st, 1, id).reason, /empty label/, id);
+  const svgOnly = { text: '', badge: { type: 'icon', svg: '<svg/>' } };
+  assert.equal(L.iconOnly(svgOnly), true, 'in a full project an uploaded icon with no words is icon-only');
+  assert.equal(L.isEmpty(svgOnly, { inBuild: true }), true, 'a build does not store the SVG, so there it is empty');
+  assert.match(L.validateLabelList({ format: 'modulith-labels', version: 1, labels: [{ id: 'nnnnnnnnnnnn', ...svgOnly }], assignments: { 2: 'nnnnnnnnnnnn' } }).join('\n'),
+    /shows only an uploaded icon, which a planner build does not store/);
+});
+
+test('LL-19: an icon-only drawer survives reconciling: older tools cannot show it, so a mirror without words keeps it; words typed there are an edit', () => {
+  const list = { format: 'modulith-labels', version: 1, labels: [{ id: 'oooooooooooo', text: '', badge: { type: 'icon', value: 'washer' } }] };
+  const kept = L.reconcile([U(1, 0, 0)], list, { 1: 'oooooooooooo' });
+  assert.deepEqual(kept.changes, []); assert.equal(kept.assignments['1'], 'oooooooooooo');
+  assert.deepEqual(L.mirrorOf(kept.list, kept.assignments), {}, 'no mirror: an older tool shows an empty drawer');
+  const typed = L.reconcile([U(1, 0, 0, 'Washers')], list, { 1: 'oooooooooooo' });
+  assert.equal(typed.changes[0].kind, 'edited');
+  assert.equal(typed.list.labels.find((l) => l.id === typed.assignments['1']).text, 'Washers');
+  assert.ok(typed.list.labels.some((l) => l.id === 'oooooooooooo'), 'the icon-only label is kept');
+});
+
+test('LL-20: editing a label to icon only keeps it on its drawers; editing it to empty unassigns it', () => {
+  const st = { list: L.cleanLabelList({ labels: [{ id: 'pppppppppppp', text: 'Nuts', badge: { type: 'icon', value: 'nut' } }] }, { inBuild: true }), assignments: { 1: 'pppppppppppp' } };
+  assert.equal(L.editLabel(st, 'pppppppppppp', { text: '' }, 'all').state.assignments['1'], 'pppppppppppp');
+  assert.equal(L.editLabel(st, 'pppppppppppp', { text: '', badge: { type: 'none' } }, 'all').state.assignments['1'], undefined);
+});
+
+test('LL-21: an old build never had an icon-only drawer - a unit carrying a badge without words converts to NO label (the drawer stays empty)', () => {
+  // the planner drops such a badge on load (cleanLabelBadge lives and dies with the words); a raw one is ignored here too
+  const c = L.fromLegacyUnits([{ id: 1, x: 0, y: 0, labelBadge: { type: 'icon', value: 'nut' } }, U(2, 1, 0, 'Bolts')]);
+  assert.deepEqual(c.list.labels.map((l) => l.text), ['Bolts']);
+  assert.equal(c.assignments['1'], undefined);
 });
