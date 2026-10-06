@@ -759,10 +759,13 @@ function capsOn() {
 // attributes and which are pinned) is laid out by hardware-layout.js - the port of the Python engine every printed hardware
 // plate was laid out with (same font outlines, same fit rules, the measured label face) - then drawn and exported like any
 // other label. The layout decides the value size, the line split, the attributes and the family icon, so the Text size,
-// Bold, All caps and icon controls do not apply to these rows; the Text depth does. A label item comes in through
-// Save / Load > Upload (a label-items .json the Part Picker saved) or a #hw=<base64 JSON> link.
+// Bold, All caps and icon controls do not apply to these rows. Their ink is 0.45 mm proud (HW_INK_DEPTH), the depth the
+// printed hardware plates were made and judged at (Astra 2026-10-06); the Text depth setting keeps its default and still
+// governs every ordinary label. A label item comes in through Save / Load > Upload (a label-items .json the Part Picker
+// saved) or a #hw=<base64 JSON> link.
 //============================================================
 const HW = (window.GEN2HardwareLayout && window.GEN2HardwareData) ? GEN2HardwareLayout.create({ data: GEN2HardwareData }) : null;
+const HW_INK_DEPTH = (window.GEN2HardwareData && GEN2HardwareData.rules.inkDepth) || 0.45;
 const HW_ITEM = 'part-picker-label-item/1', HW_ITEMS = 'part-picker-label-items/1', HW_MAX_ITEMS = 200;
 // Size limits on an item, far above any saved one (the largest so far: 5 pinned + optional attributes, 2 fields, 11
 // characters). They bound the layout's search - it tries every below/beside placement of the attributes it prints, 3^n
@@ -887,7 +890,7 @@ function hardwareMeshes(hw, depth) {
   return { textGeo, badgeGeo: null, textFits: true };
 }
 function meshesFor(data, capH, depth, badgeSize, bold) {
-  return data.hardware ? hardwareMeshes(data.hardware, depth) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
+  return data.hardware ? hardwareMeshes(data.hardware, HW_INK_DEPTH) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
 }
 
 function getLabelData() {
