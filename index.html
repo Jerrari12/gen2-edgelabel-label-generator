@@ -50,6 +50,11 @@
   .row .idx { cursor: grab; user-select: none; touch-action: none; }
   .row .idx:hover { color: var(--text); }
   .row.dragging .idx, .row .idx:active { cursor: grabbing; }
+  .row.hw { flex-wrap: wrap; }
+  .row.hw .badge-btn { visibility: hidden; }
+  .row.hw input[type="text"] { background: #14161b; cursor: default; }
+  .row .hw-note { flex-basis: 100%; margin: -2px 0 2px 45px; font-size: 11px; line-height: 1.35; color: var(--muted); }
+  .row .hw-note.bad { color: var(--danger); }
   .row.dragging { opacity: 0.45; }
   /* Bulk selection bar + actions */
   .labels-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
@@ -454,6 +459,8 @@
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/SVGLoader.js"></script>
 <script src="label-core.js"></script>
+<script src="hardware-data.js"></script>
+<script src="hardware-layout.js"></script>
 <script src="label-link.js"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
@@ -632,6 +639,7 @@ function init() {
   loadFont().then(() => {
     document.getElementById('download').disabled = false;
     rebuild();
+    if (importedHardware && !linkBootStatus) { setStatus(hardwareStatus(importedHardware) + (linkBootExtra ? ' ' + linkBootExtra : ''), hardwareNotPrinted() ? 'err' : 'ok'); return; }
     // rebuild() sets its own status; override it only when it didn't warn.
     if (!document.getElementById('status').classList.contains('err')) {
       const n = importedFromPlanner;
@@ -713,6 +721,7 @@ function loadFont() {
       for (let i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
       font = opentype.parse(buf);
       LabelCore.setFont(font);
+      if (HW) HW.setFont(font);
       resolve();
     } catch (e) { reject(e); }
   });
@@ -745,10 +754,151 @@ function capsOn() {
 }
 
 // Read every label row into { text, badge } objects (LabelCore.prepareLabel applies ALL CAPS and drops empty rows).
+//============================================================
+// Hardware labels (label tool step 2). A Part Picker label item (part-picker-label-item/1: the value's fields, the
+// attributes and which are pinned) is laid out by hardware-layout.js - the port of the Python engine every printed hardware
+// plate was laid out with (same font outlines, same fit rules, the measured label face) - then drawn and exported like any
+// other label. The layout decides the value size, the line split, the attributes and the family icon, so the Text size,
+// Bold, All caps and icon controls do not apply to these rows; the Text depth does. A label item comes in through
+// Save / Load > Upload (a label-items .json the Part Picker saved) or a #hw=<base64 JSON> link.
+//============================================================
+const HW = (window.GEN2HardwareLayout && window.GEN2HardwareData) ? GEN2HardwareLayout.create({ data: GEN2HardwareData }) : null;
+const HW_ITEM = 'part-picker-label-item/1', HW_ITEMS = 'part-picker-label-items/1', HW_MAX_ITEMS = 200;
+// Size limits on an item, far above any saved one (the largest so far: 5 pinned + optional attributes, 2 fields, 11
+// characters). They bound the layout's search - it tries every below/beside placement of the attributes it prints, 3^n
+// arrangements - so an oversized item from a link cannot freeze the page.
+const HW_MAX = { printable: 8, attributes: 24, fields: 6, text: 60 };
+let importedHardware = 0, hwKeptPrevious = false;
+
+// a label-items file, an array of items or one item -> the items; null when it is not hardware label items
+function hardwareItems(doc) {
+  const list = (doc && doc.schema === HW_ITEMS && Array.isArray(doc.items)) ? doc.items
+    : Array.isArray(doc) ? doc : (doc && doc.schema === HW_ITEM) ? [doc] : null;
+  if (!HW || !list || !list.length || list.length > HW_MAX_ITEMS) return null;
+  const strs = (a, max) => Array.isArray(a) && a.length <= max && a.every(x => typeof x === 'string' && x.length <= HW_MAX.text);
+  const good = it => it && it.schema === HW_ITEM && typeof it.id === 'string' && strs(it.fields, HW_MAX.fields) &&
+    Array.isArray(it.attributes) && it.attributes.length <= HW_MAX.attributes &&
+    it.attributes.every(a => a && typeof a.path === 'string' && typeof a.text === 'string' && a.text.length <= HW_MAX.text) &&
+    (it.pinned === undefined || strs(it.pinned, HW_MAX.printable)) && (it.optional === undefined || strs(it.optional, HW_MAX.printable)) &&
+    (it.pinned || []).length + (it.optional || []).length <= HW_MAX.printable &&
+    [...(it.pinned || []), ...(it.optional || [])].every(p => it.attributes.some(a => a.path === p));
+  return list.every(good) ? list : null;
+}
+function hardwareFromUrl() {          // null: no hw= in the link; undefined: there is one and it cannot be read
+  const m = (location.hash || '').match(/(?:^#|&)hw=([^&]+)/);
+  if (!m) return null;
+  try { return hardwareItems(JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))))) || undefined; }
+  catch (e) { return undefined; }
+}
+function hardwareRowText(item, rec) { // what the row shows: the printed words, or the value when nothing prints
+  if (rec && rec.main_lines) return rec.main_lines.join(' ') + (rec.attributes.length ? ' · ' + rec.attributes.join(' · ') : '');
+  return item.fields.map(f => HW.printable(f)).join(' ') || item.title || item.id;
+}
+function hardwareNoteText(r) {
+  const rec = r.record;
+  if (rec.not_ready) return `Not ready: ${rec.not_ready}. Nothing is printed - complete the part record first.`;
+  if (rec.nonfit) {
+    const p = r.proposal;
+    return `Doesn't fit: ${rec.nonfit}.` + (p && p.omit ? ` It fits without ${p.omit.join(', ')} - unpin ${p.omit_paths.join(', ')} to print it.` : '');
+  }
+  return `Hardware label · value at ${rec.main_cap} mm caps` + (rec.icon ? ` · ${rec.icon} icon` : '') +
+    (rec.not_shown.length ? ` · Not shown on label: ${rec.not_shown.join(', ')}` : '') +
+    (rec.value_missing.length ? ` · Not recorded: ${rec.value_missing.map(m => m.why).join(', ')}` : '');
+}
+function layOutHardwareRow(row) {
+  const item = row._hwItem;
+  let r;
+  try { r = HW.layOut(item); }
+  catch (e) { r = { elements: null, record: { not_ready: 'the label item could not be read (' + e.message + ')' } }; }
+  if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = HW.propose(item).record; } catch (e) {} }
+  row._hw = r;
+  row.querySelector('input.label-text').value = hardwareRowText(item, r.record);
+  const note = row.querySelector('.hw-note');
+  note.textContent = hardwareNoteText(r);
+  note.classList.toggle('bad', !r.elements);
+}
+function layOutPendingHardware() {    // rows added before the font loaded are laid out on the first rebuild after it
+  document.querySelectorAll('#labels .row.hw').forEach(row => { if (!row._hw) layOutHardwareRow(row); });
+}
+function addHardwareRow(item) {
+  const input = addLabelRow(item.fields.map(f => HW.printable(f)).join(' '));
+  const row = input.closest('.row');
+  row.dataset.hw = '1';
+  row.classList.add('hw');
+  row._hwItem = item;
+  row._hw = null;
+  input.readOnly = true;
+  input.title = (item.title ? item.title + '. ' : '') +
+    item.attributes.map(a => a.meaning && a.meaning.toLowerCase() !== a.text.toLowerCase() ? `${a.text} = ${a.meaning}` : a.text).join('; ');
+  const note = document.createElement('div');
+  note.className = 'hw-note';
+  note.textContent = 'Laying out…';
+  row.appendChild(note);
+  if (font) layOutHardwareRow(row);
+  return row;
+}
+// replaces the rows; the set it replaces is kept as the previous set, as a planner import keeps it
+function importHardware(items) {
+  let prev = null;
+  try { prev = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) {}
+  if (!prev || !Array.isArray(prev.labels)) prev = null;
+  hwKeptPrevious = keepPreviousSet(prev);
+  if (prev) applySettings(prev.settings);
+  clearLabelRows();
+  items.forEach(addHardwareRow);
+  importedHardware = items.length;
+  syncPreviousSetButton();
+}
+function hardwareNotPrinted() { return document.querySelectorAll('#labels .row.hw .hw-note.bad').length; }
+function hardwareStatus(n, from) {
+  const bad = hardwareNotPrinted();
+  return `Loaded ${n} hardware label${n === 1 ? '' : 's'}${from ? ' from ' + from : ''}.` +
+    (bad ? ` ${bad} can't print - see the red note on ${bad === 1 ? 'its row' : 'their rows'}.` : '') +
+    (hwKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '');
+}
+function hwInPoly(p, loop) {
+  let inside = false;
+  for (let i = 0, j = loop.length - 1; i < loop.length; j = i++) {
+    const a = loop[i], b = loop[j];
+    if ((a.y > p.y) !== (b.y > p.y) && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
+}
+// the laid-out outlines as one extruded geometry (z 0..depth, placed at the label's top face like any label text)
+function hardwareMeshes(hw, depth) {
+  const geos = [];
+  for (const parts of Object.values(hw.elements)) {
+    for (const rings of parts) {
+      const loops = rings.map(r => { const o = []; for (let i = 0; i < r.length; i += 2) o.push(new THREE.Vector2(r[i], r[i + 1])); return o; });
+      // even-odd, as the outlines are filled: a ring inside an odd number of the others is a hole in the innermost one around it
+      const lvl = loops.map((L, i) => loops.reduce((n, M, j) => n + (j !== i && hwInPoly(L[0], M) ? 1 : 0), 0));
+      const outers = [];
+      loops.forEach((L, i) => { if (lvl[i] % 2 === 0) outers.push({ i, shape: new THREE.Shape(L) }); });
+      loops.forEach((L, i) => {
+        if (lvl[i] % 2 === 0) return;
+        const host = outers.find(o => lvl[o.i] === lvl[i] - 1 && hwInPoly(L[0], loops[o.i]));
+        if (host) host.shape.holes.push(new THREE.Path(L));
+      });
+      for (const o of outers) geos.push(new THREE.ExtrudeGeometry(o.shape, { depth, bevelEnabled: false, curveSegments: 1 }));
+    }
+  }
+  const textGeo = geos.length ? LabelCore.mergeGeoms(geos) : null;
+  geos.forEach(g => g.dispose());
+  return { textGeo, badgeGeo: null, textFits: true };
+}
+function meshesFor(data, capH, depth, badgeSize, bold) {
+  return data.hardware ? hardwareMeshes(data.hardware, depth) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
+}
+
 function getLabelData() {
   const rows = document.querySelectorAll('#labels .row');
   const out = [];
   rows.forEach(row => {
+    if (row.dataset.hw) {
+      const h = row._hw;
+      if (h && h.elements) out.push({ text: row.querySelector('input.label-text').value, badge: { type: 'none' }, hardware: h });
+      return;
+    }
     const input = row.querySelector('input.label-text');
     const text = input ? input.value : '';
     const bt = row.dataset.badgeType || 'none';
@@ -871,6 +1021,7 @@ function updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge) {
 function rebuild() {
   if (LINK) { updateRowFlags(); renderLinkBar(); }
   if (!font) return;   // font loads async; init() calls rebuild() once it's ready
+  layOutPendingHardware();
   if (labelGroup) {
     labelGroup.traverse(o => {
       if (o.geometry) o.geometry.dispose();
@@ -914,7 +1065,7 @@ function rebuild() {
       baseMesh.position.set(x, y, 0);
       labelGroup.add(baseMesh);
 
-      const { textGeo, badgeGeo, textFits } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+      const { textGeo, badgeGeo, textFits } = meshesFor(data, capH, depth, badgeSize, bold);
       if (!textFits) anyOverflow = true;
       if (textGeo) {
         const m = new THREE.Mesh(textGeo, textMaterial);
@@ -932,8 +1083,11 @@ function rebuild() {
   const plateTxt = nPlates > 1 ? ` · ${nPlates} plates` : '';
   document.getElementById('label-count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'}${plateTxt}`;
 
+  const hwSkipped = hardwareNotPrinted();
   if (anyOverflow) {
     setStatus(`Some text is long — held at the ${MIN_PRINT_CAP}mm minimum printable size. Shorten it for larger, cleaner text.`, 'err');
+  } else if (hwSkipped) {
+    setStatus(`${hwSkipped} hardware label${hwSkipped === 1 ? " doesn't" : "s don't"} print - see the red note on ${hwSkipped === 1 ? 'its row' : 'their rows'}.`, 'err');
   } else if (font && !document.getElementById('download').disabled) {
     setStatus(nPlates > 1 ? `Ready — exports as ${nPlates} separate plate files.` : 'Ready.', 'ok');
   }
@@ -1056,7 +1210,7 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
   const builds = [], partInfo = [];
 
   slice.forEach((data, i) => {
-    const { textGeo, badgeGeo } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+    const { textGeo, badgeGeo } = meshesFor(data, capH, depth, badgeSize, bold);
     if (!textGeo && !badgeGeo) return;
     const textId = 100 + 3 * i, badgeId = 101 + 3 * i, asmId = 102 + 3 * i;
     const name = (data.text && data.text.trim()) ? data.text.trim()
@@ -1130,7 +1284,7 @@ async function buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize
   let config = `<?xml version="1.0" encoding="UTF-8"?>\n<config>\n`;
 
   slice.forEach((data, i) => {
-    const { textGeo, badgeGeo } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+    const { textGeo, badgeGeo } = meshesFor(data, capH, depth, badgeSize, bold);
     if (!textGeo && !badgeGeo) return;
     const name = (data.text && data.text.trim()) ? data.text.trim()
       : (data.badge && data.badge.value ? String(data.badge.value) : 'icon');
@@ -1225,7 +1379,7 @@ function buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) {
     const pos = lay.positions[i] || { x: 0, y: 0 };
     const px = pos.x + bedW / 2, py = pos.y + bedL / 2;
     pushGeomTris(baseGeo, px, py, 0, tris);
-    const { textGeo, badgeGeo } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+    const { textGeo, badgeGeo } = meshesFor(data, capH, depth, badgeSize, bold);
     if (textGeo) pushGeomTris(textGeo, px, py, LABEL_HT, tris);
     if (badgeGeo) pushGeomTris(badgeGeo, px, py, LABEL_HT, tris);
   });
@@ -1421,7 +1575,7 @@ function predictionsOn() {
   return !el || el.checked;
 }
 function autoAssignIcon(row) {
-  if (!row || row.dataset.badgeManual === '1') return;   // never override a manual choice
+  if (!row || row.dataset.hw || row.dataset.badgeManual === '1') return;   // never override a manual choice
   if (!predictionsOn()) return;                          // predictions toggled off
   const id = guessIconId(row.querySelector('input.label-text').value);
   if (id) applyBadge(row, { type: 'icon', value: id });
@@ -1821,6 +1975,7 @@ function captureLabels(linked) {
     }
     const held = parseHeld(row);
     const o = { text: input ? input.value : '', badge: held || badge, manual: row.dataset.badgeManual === '1' };
+    if (row.dataset.hw && row._hwItem) o.hw = row._hwItem;
     if (linked && row.dataset.unit) { o.u = Number(row.dataset.unit); o.n = Number(row.dataset.unitN) || null; }
     if (linked && held) o.held = true;
     out.push(o);
@@ -1847,6 +2002,8 @@ function applyLabels(labels) {
   clearLabelRows();
   if (!labels || !labels.length) { for (let i = 0; i < 3; i++) addLabelRow(''); return; }
   labels.forEach(l => {
+    const hwItem = l.hw && hardwareItems(l.hw);
+    if (hwItem) { addHardwareRow(hwItem[0]); return; }
     const b = l.badge;
     const badge = (b && b.type && b.type !== 'none') ? b : null;
     const row = addLabelRow(l.text || '', badge).closest('.row');
@@ -2019,6 +2176,16 @@ function setupProjectControls() {
     reader.onload = async (ev) => {
       let p;
       try { p = JSON.parse(ev.target.result); } catch (err) { setStatus('Not a valid set file.', 'err'); return; }
+      const hwItems = hardwareItems(p);
+      if (hwItems) {
+        if (link) { setStatus("Hardware labels can't go into a planner-linked set yet - open the generator on its own.", 'err'); return; }
+        if (!(await confirmReplace())) return;
+        autosave();
+        importHardware(hwItems);
+        rebuild();
+        setStatus(hardwareStatus(hwItems.length, f.name), hardwareNotPrinted() ? 'err' : 'ok');
+        return;
+      }
       if (!p || !Array.isArray(p.labels)) { setStatus('That file isn’t an EdgeLabel set.', 'err'); return; }
       if (!(await confirmReplace())) return;
       applyProject(p);
@@ -2560,6 +2727,17 @@ async function incomingJob(job) {
 }
 function clearHash() { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
 window.addEventListener('hashchange', () => {
+  const hw = hardwareFromUrl();
+  if (hw === null) return;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  if (!hw) { setStatus("Couldn't read the hardware labels in that link (it may have been cut short).", 'err'); return; }
+  if (link) { setStatus("Hardware labels can't go into a planner-linked set yet - open the generator on its own.", 'err'); return; }
+  autosave();
+  importHardware(hw);
+  rebuild();
+  setStatus(hardwareStatus(hw.length), hardwareNotPrinted() ? 'err' : 'ok');
+});
+window.addEventListener('hashchange', () => {
   if (!LINK || !location.hash) return;
   const hash = location.hash;
   const jr = LINK.hasJobParam(hash) ? LINK.parseJob(hash, { servedFromLocalhost: SERVED_LOCAL }) : null;
@@ -2582,6 +2760,12 @@ window.addEventListener('hashchange', () => {
 // ---- boot order (section 7.1): an explicit incoming import ALWAYS wins; nothing older silently replaces it ----
 function bootRows() {
   const ordinary = () => {
+    const hw = hardwareFromUrl();
+    if (hw !== null) {
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      if (hw) { importHardware(hw); return; }
+      linkBootExtra = (linkBootExtra + " Couldn't read the hardware labels in the link (it may have been cut short).").trim();
+    }
     const imported = importedLabelsFromUrl();
     if (imported.length) importFromPlanner(imported);
     else if (restoreAutosave()) restoredFromAutosave = true;

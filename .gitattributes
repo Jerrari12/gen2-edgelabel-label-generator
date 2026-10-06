@@ -15,3 +15,8 @@ label-core.js text eol=lf
 # label-link.js is copied byte-for-byte into the GEN2 Planner repo (test/vendor/) and sha-pinned there:
 # a fixed LF keeps the checkout and that copy the same bytes on every OS.
 label-link.js text eol=lf
+
+# hardware-layout.js and its generated data (hardware-data.js, written by the Python print engine's export_hw_data.py) are
+# shared across tools the way label-core.js is: a fixed LF keeps every copy the same bytes on every OS.
+hardware-layout.js text eol=lf
+hardware-data.js text eol=lf
