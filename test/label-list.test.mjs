@@ -378,3 +378,22 @@ test('LL-25: appendLabels - an import keeps free ids, renames colliding ones, dr
   assert.notEqual(r.state.list.labels[1].id, 'aaaaaaaaaaaa');
   assert.deepEqual(st.list.labels.length, 1, 'the input state is not mutated');
 });
+
+test('LL-26: reconcile with editInPlace - clearing a sole plain label deletes it; a shared, hardware or part label is only unassigned', () => {
+  const list = { format: 'modulith-labels', version: 1, labels: [
+    { id: 'aaaaaaaaaaaa', text: 'Filters' },
+    { id: 'bbbbbbbbbbbb', text: 'Shared' },
+    { id: 'cccccccccccc', text: 'M5 × 20 · SHCS', hardware: ITEM },
+    { id: 'dddddddddddd', text: 'Unassigned, kept' }] };
+  const assign = { 1: 'aaaaaaaaaaaa', 2: 'bbbbbbbbbbbb', 3: 'bbbbbbbbbbbb', 4: 'cccccccccccc' };
+  const units = [U(1, 0, 0, ''), U(2, 1, 0, ''), U(3, 2, 0, 'Shared'), U(4, 3, 0, '')];
+  const r = L.reconcile(units, list, assign, { editInPlace: true });
+  const ids = r.list.labels.map((l) => l.id);
+  assert.deepEqual(ids, ['bbbbbbbbbbbb', 'cccccccccccc', 'dddddddddddd'], 'only the sole plain label is gone; an unassigned one is untouched');
+  assert.deepEqual(r.assignments, { 3: 'bbbbbbbbbbbb' });
+  assert.deepEqual(r.changes.map((c) => c.kind), ['removed-in-place', 'cleared', 'cleared']);
+  // the load-time rule (no option) keeps every label
+  const spec = L.reconcile(units, list, assign);
+  assert.equal(spec.list.labels.length, 4);
+  assert.deepEqual(spec.changes.map((c) => c.kind), ['cleared', 'cleared', 'cleared']);
+});
