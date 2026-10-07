@@ -534,3 +534,29 @@ test('G-session-2: snapsFromProject rebuilds the row snapshots incl. tags, held 
     lab('x', { u: 3, n: 3, badge: { type: 'icon', svg: '<svg/>' }, manual: true })]));
   assert.deepEqual(snaps.map((s) => [s.u, s.held && s.held.value, s.svg]), [[1, null, false], [2, 'zzz', false], [null, null, false], [3, null, true]]);
 });
+
+/* ---- Release B: what the planner that made a job can take back (LABEL-LIST-FORMAT.md section 3a item 3.1) ---- */
+test('G-caps-1: a job declaring label-list may carry part labels; one without (every planner older than Release B) may not', () => {
+  assert.equal(L.canEditPartLabels(mkJob([{ t: 'A' }], { caps: ['label-list'] })), true);
+  assert.equal(L.canEditPartLabels(mkJob([{ t: 'A' }])), false, 'no caps: an older planner');
+  assert.equal(L.canEditPartLabels(mkJob([{ t: 'A' }], { caps: ['something-else'] })), false);
+  assert.deepEqual([...L.jobCaps(mkJob([], { caps: ['label-list', 'x2'] }))], ['label-list', 'x2']);
+});
+
+test('G-caps-2: malformed caps mean NO capabilities and never refuse the job', () => {
+  for (const caps of ['label-list', { 'label-list': true }, [1, null, {}], ['Label-List'], ['label list'], ['a'.repeat(40)],
+    Array.from({ length: 17 }, () => 'label-list'), null]) {
+    const job = mkJob([{ t: 'A' }], { caps });
+    assert.equal(L.canEditPartLabels(job), false, JSON.stringify(caps).slice(0, 40));
+    assert.equal(L.parseJob(hashOf(job), PROD).ok, true, 'the job itself is still valid');
+  }
+  assert.equal(L.canEditPartLabels(null), false);
+  assert.deepEqual([...L.jobCaps(mkJob([], { caps: ['label-list', 7, 'ok-2'] }))], ['label-list', 'ok-2'], 'bad entries are skipped, good ones kept');
+});
+
+test('G-caps-3: a capable job still validates exactly as before (caps is an unknown top-level key to the deployed validator)', () => {
+  const job = mkJob([{ t: 'Torx bits', b: { type: 'icon', value: ICONS[0] } }], { caps: ['label-list'] });
+  const r = L.parseJob(hashOf(job), PROD);
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.job.caps, ['label-list'], 'returned verbatim');
+});

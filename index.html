@@ -2195,7 +2195,7 @@ function setupProjectControls() {
       try { p = JSON.parse(ev.target.result); } catch (err) { setStatus('Not a valid set file.', 'err'); return; }
       const hwItems = hardwareItems(p);
       if (hwItems) {
-        if (link) { setStatus("Hardware labels can't go into a planner-linked set yet - open the generator on its own.", 'err'); return; }
+        if (link) { setStatus(linkedHardwareRefusal(), 'err'); return; }
         if (!(await confirmReplace())) return;
         autosave();
         importHardware(hwItems);
@@ -2352,6 +2352,12 @@ function plainProject(p) {
   return { ...p, labels: p.labels.map(l => { const { u, n, held, hwJob, ...rest } = l; return rest; }) };
 }
 
+// a hardware import into a linked set is not built yet; from a planner tab older than the label list it never will be (Release B)
+function linkedHardwareRefusal() {
+  return link && !LINK.canEditPartLabels(link.job) ? "This planner tab is an older version: part labels can't be edited from it. Refresh the planner tab to edit part labels."
+    : "Hardware labels can't go into a planner-linked set yet - open the generator on its own.";
+}
+
 // ---- the bar ----
 function pendingActive() { return !!(link && link.pending && (link.pending.state === 'sending' || link.pending.state === 'reviewing')); }
 // ---- Add to planner build (label tool step 3): this set, as a modulith-labels list, into the open planner build's tray ----
@@ -2437,6 +2443,7 @@ function renderLinkBar() {
   const sub = [];
   const un = LINK.isUnsaved(link, allSnaps(), currentStyle(), { iconIds: iconIds() });
   if (un.extras > 0) sub.push(`${plural(un.extras, 'label exists', 'labels exist')} only in this tab. Unlink to keep ${un.extras === 1 ? 'it' : 'them'} as your ordinary labels.`);
+  if (!LINK.canEditPartLabels(link.job)) sub.push("This planner tab is an older version: part labels can't be edited from it. Refresh the planner tab to edit part labels.");
   const held = allSnaps().filter(x => x.held).length;
   if (held) sub.push(`${plural(held, 'drawer has', 'drawers have')} an icon from the planner that this generator can't show. ${held === 1 ? 'It prints' : 'They print'} without an icon here and ${held === 1 ? 'stays' : 'stay'} unchanged in the planner until you pick another.`);
   gid('lb-sub').textContent = sub.join(' ');
@@ -2629,7 +2636,8 @@ function adoptAnswer(a) {
 function addJobRow(r, job, raw) {
   // a drawer whose planner label is a HARDWARE label (step 3): its item rides the row as `hw`; laid out here, read-only, returned
   // as sent. An item this page cannot read leaves an ordinary row with the words.
-  const hwItem = raw && raw.hw && raw.t ? hardwareItems(raw.hw) : null;
+  // Release B: only from a planner that keeps a label list (its job says so); from an older one every row is words
+  const hwItem = raw && raw.hw && raw.t && LINK.canEditPartLabels(job) ? hardwareItems(raw.hw) : null;
   if (hwItem) return addHardwareRow(hwItem[0], { u: r.u, n: r.n, textMax: job.textMax, t: raw.t, b: raw.b });
   const row = addLabelRow(r.text, null, { u: r.u, n: r.n, textMax: job.textMax }).closest('.row');
   if (r.held) setHeld(row, r.held);
@@ -2835,7 +2843,7 @@ window.addEventListener('hashchange', () => {
   if (hw === null) return;
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   if (!hw) { setStatus("Couldn't read the hardware labels in that link (it may have been cut short).", 'err'); return; }
-  if (link) { setStatus("Hardware labels can't go into a planner-linked set yet - open the generator on its own.", 'err'); return; }
+  if (link) { setStatus(linkedHardwareRefusal(), 'err'); return; }
   autosave();
   importHardware(hw);
   rebuild();
