@@ -359,6 +359,10 @@
       <span>All caps</span>
       <span><input type="checkbox" id="all-caps" checked></span>
     </div>
+    <div class="setting" title="Part labels from the Part Picker: a socket-cap or button-head screw, a hex nut or a nylon-insert nut shows the part drawn head-on and from the side under its size. The drawing stands for the head type, so SHCS / BHCS is not printed. Off: the size and words only, with a small icon.">
+      <span>Screw and nut drawings</span>
+      <span><input type="checkbox" id="hw-profile" checked></span>
+    </div>
 
     <h2>Build Plate</h2>
     <div class="setting">
@@ -461,6 +465,7 @@
 <script src="vendor/SVGLoader.js"></script>
 <script src="label-core.js"></script>
 <script src="hardware-data.js"></script>
+<script src="hardware-v5-data.js"></script>
 <script src="hardware-layout.js"></script>
 <script src="label-link.js"></script>
 <script>
@@ -765,7 +770,11 @@ function capsOn() {
 // governs every ordinary label. A label item comes in through Save / Load > Upload (a label-items .json the Part Picker
 // saved) or a #hw=<base64 JSON> link.
 //============================================================
-const HW = (window.GEN2HardwareLayout && window.GEN2HardwareData) ? GEN2HardwareLayout.create({ data: GEN2HardwareData }) : null;
+const HW = (window.GEN2HardwareLayout && window.GEN2HardwareData)
+  ? GEN2HardwareLayout.create({ data: GEN2HardwareData, v5: window.GEN2HardwareV5Data || null }) : null;
+// profile labels (the screw or nut drawn head-on and from the side, label tool 2026-10-07) are the default; the
+// "Screw and nut drawings" setting turns them off for the set
+function hwProfileOn() { const el = document.getElementById('hw-profile'); return !el || el.checked; }
 const HW_INK_DEPTH = (window.GEN2HardwareData && GEN2HardwareData.rules.inkDepth) || 0.45;
 const HW_ITEM = 'part-picker-label-item/1', HW_ITEMS = 'part-picker-label-items/1', HW_MAX_ITEMS = 200;
 // Size limits on an item, far above any saved one (the largest so far: 5 pinned + optional attributes, 2 fields, 11
@@ -807,22 +816,27 @@ function hardwareNoteText(r) {
   }
   // a person's line (Astra: the old "Hardware label · value at 9.8 mm caps · screw icon" read like debug text); the layout
   // numbers are in the note's tooltip (hardwareNoteDetail)
-  return 'Part label, laid out from the part record.' +
+  const fellBack = r.covered && hwProfileOn() && rec.layout !== 'v5' ? ' No drawing: its pinned words do not fit beside it.' : '';
+  return (rec.layout === 'v5' ? `Part label with the ${rec.kind} drawing, laid out from the part record.` : 'Part label, laid out from the part record.' + fellBack) +
     (rec.not_shown.length ? ` Left off to fit: ${rec.not_shown.join(', ')}.` : '') +
     (rec.value_missing.length ? ` ${rec.value_missing.map(m => m.why).join('; ').replace(/^./, c => c.toUpperCase())}.` : '');   // each why already says it ("length not recorded")
 }
 function hardwareNoteDetail(r) {
   const rec = r.record;
   if (rec.not_ready || rec.nonfit || !rec.main_cap) return '';
-  return `Main value ${rec.main_cap} mm tall` + (rec.icon ? `, ${rec.icon} icon` : ', no icon') +
+  if (rec.layout === 'v5') return `Main value ${rec.main_cap} mm tall, ${rec.kind} drawing ${rec.H} mm tall` +
+    (rec.head_as_drawing ? `; the drawing stands for ${rec.head_as_drawing}, which is not printed` : '') +
+    '. The layout is decided by the part record: text size, bold, caps and icon settings do not apply to this row.';
+  return `Main value ${rec.main_cap} mm tall` + (rec.icon ? `, ${rec.icon} icon` : ', no icon') + (rec.profile_why && r.covered ? ` (no drawing: ${rec.profile_why})` : '') +
     '. The layout is decided by the part record: text size, bold, caps and icon settings do not apply to this row.';
 }
 function layOutHardwareRow(row) {
   const item = row._hwItem;
   let r;
-  try { r = HW.layOut(item); }
+  const opts = { profile: hwProfileOn() };
+  try { r = HW.layOut(item, opts); r.covered = HW.profileCovered ? HW.profileCovered(item) : false; }
   catch (e) { r = { elements: null, record: { not_ready: 'the label item could not be read (' + e.message + ')' } }; }
-  if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = HW.propose(item).record; } catch (e) {} }
+  if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = HW.propose(item, opts).record; } catch (e) {} }
   row._hw = r;
   row.querySelector('input.label-text').value = hardwareRowText(item, r.record);
   const note = row.querySelector('.hw-note');
@@ -1914,6 +1928,12 @@ function setupBulkControls() {
 
   // Predicted-icon toggle
   document.getElementById('predict-icons').addEventListener('change', applyPredictToggle);
+  document.getElementById('hw-profile').addEventListener('change', () => {
+    if (!font) return;            // the rows are laid out once the font is in
+    const rows = document.querySelectorAll('#labels .row.hw');
+    rows.forEach(layOutHardwareRow);
+    if (rows.length) rebuild();
+  });
 
   // Preset collection loader
   const presetSel = document.getElementById('preset-select');
@@ -1973,7 +1993,7 @@ let restoredFromAutosave = false;   // set on boot so init() can report it
 
 // Inputs whose values make up a "set". Checkboxes captured as booleans.
 const SETTING_IDS = [
-  'font-size', 'text-depth', 'badge-size', 'bold-text', 'predict-icons', 'all-caps',
+  'font-size', 'text-depth', 'badge-size', 'bold-text', 'predict-icons', 'all-caps', 'hw-profile',
   'bed-preset', 'bed-w', 'bed-l', 'export-format',
   'reserve-purge', 'purge-w', 'purge-l',
   'color-base', 'color-text'
@@ -2057,7 +2077,7 @@ function applySettings(s) {
   }
   // Fire the handlers that keep dependent UI in sync (bed dims, purge row,
   // download-button label, swatch dots + live material colors).
-  ['bed-preset', 'export-format', 'reserve-purge', 'predict-icons', 'all-caps'].forEach(id => {
+  ['bed-preset', 'export-format', 'reserve-purge', 'predict-icons', 'all-caps', 'hw-profile'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.dispatchEvent(new Event('change'));
   });

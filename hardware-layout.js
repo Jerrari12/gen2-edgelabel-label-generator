@@ -18,7 +18,18 @@
      const hw = GEN2HardwareLayout.create({ data: GEN2HardwareData });   // hardware-data.js
      hw.setFont(opentypeFont);                                           // the generator font, before laying anything out
      const r = hw.layOut(item);   // { elements: {main1: rings, icon: rings, ...} | null, record: {...} }
-   Element rings are in the generator label frame (mm, y up, the label centred at the origin; extrude from z 4.5). */
+   Element rings are in the generator label frame (mm, y up, the label centred at the origin; extrude from z 4.5).
+
+   PROFILE LABELS (v5, label tool 2026-10-07; Joey: "I'd really like them to default to have the side and top profile of
+   the bolt like this", holding his printed v5 M5 x 20 SHCS label). With hardware-v5-data.js loaded -
+     GEN2HardwareLayout.create({ data: GEN2HardwareData, v5: GEN2HardwareV5Data })
+   - a socket-cap or button-head screw, a hex nut or a regular nylon-insert nut is laid out as a PROFILE label first: the
+   value on top, the head-on view and the side profile under it, the attributes on a 4.7 mm line below - the port of
+   D:/MODULITH/handoffs/hardware-library/v5/v5_items.lay_out (on labels_v5.py), checked against it in
+   test/hardware-v5.test.mjs. The drawing shows the head, so a screw's head word (SHCS, BHCS) is not printed (Joey
+   2026-10-07); a nut keeps its word beside the size. An item with no drawing, or whose pinned words do not fit the profile
+   layout, gets the text layout above, and its record says why (profile_why). layOut(item, { profile: false }) asks for the
+   text layout. */
 (function (root) {
 'use strict';
 
@@ -43,15 +54,18 @@ function create(deps) {
   for (const [x, y] of US) { usMinX = Math.min(usMinX, x); usMaxY = Math.max(usMaxY, y); }
   const X0 = usMinX, YTOP = usMaxY;
 
+  const V5 = deps.v5 || null;
+  if (V5 && (V5.format !== 'modulith-hardware-v5' || V5.version !== 1)) throw new Error('hardware-layout: hardware-v5-data.js is not v5 data');
+
   let font = null, xScale = 0, yScale = 0;
-  const glyphCache = new Map(), textCache = new Map(), trackCache = new Map();
+  const glyphCache = new Map(), textCache = new Map(), trackCache = new Map(), tgCache = new Map(), nutTextCache = new Map();
   function setFont(f) {
     font = f;
     // matplotlib's text_to_path: FT_Set_Char_Size(100 pt, 72 dpi) with text.hinting_factor 8 - 800 px per em across,
     // 100 px down - and FT_Set_Transform(1/8, 1) to bring x back; scales = FT_DivFix(ppem << 6, units_per_EM)
     xScale = Math.floor(800 * 64 * 65536 / f.unitsPerEm + 0.5);
     yScale = Math.floor(100 * 64 * 65536 / f.unitsPerEm + 0.5);
-    glyphCache.clear(); textCache.clear(); trackCache.clear();
+    glyphCache.clear(); textCache.clear(); trackCache.clear(); tgCache.clear(); nutTextCache.clear();
   }
 
   // ===================================================================== geometry
@@ -144,6 +158,30 @@ function create(deps) {
     return false;
   }
 
+  // shapely's distance between two elements (0 when they overlap or one lies inside the other's fill). Only the v5 nut word
+  // needs the number itself (it is placed AT the v5 word gap); everything else asks elsCloser.
+  function partsDist(A, B, best) {
+    const gx = Math.max(0, A.minx - B.maxx, B.minx - A.maxx), gy = Math.max(0, A.miny - B.maxy, B.miny - A.maxy);
+    if (gx * gx + gy * gy >= best * best) return best;
+    let b2 = best * best;
+    for (const ra of A.rings) for (let i = 0, n = ra.length; i < n; i += 2) {
+      const ax = ra[i], ay = ra[i + 1], cx = ra[(i + 2) % n], cy = ra[(i + 3) % n];
+      for (const rb of B.rings) for (let k = 0, m = rb.length; k < m; k += 2) {
+        const ex = rb[k], ey = rb[k + 1], fx = rb[(k + 2) % m], fy = rb[(k + 3) % m];
+        if (segsCross(ax, ay, cx, cy, ex, ey, fx, fy)) return 0;
+        b2 = Math.min(b2, ptSeg2(ax, ay, ex, ey, fx, fy), ptSeg2(cx, cy, ex, ey, fx, fy), ptSeg2(ex, ey, ax, ay, cx, cy), ptSeg2(fx, fy, ax, ay, cx, cy));
+      }
+    }
+    for (const ra of A.rings) if (pointInRings(ra[0], ra[1], B.rings)) return 0;
+    for (const rb of B.rings) if (pointInRings(rb[0], rb[1], A.rings)) return 0;
+    return Math.sqrt(b2);
+  }
+  function elsDistance(a, b) {
+    let best = Infinity;
+    for (const p of a.parts) for (const q of b.parts) { best = partsDist(p, q, best); if (best === 0) return 0; }
+    return best;
+  }
+
   // the area of an element outside the usable area (Python: g.difference(USABLE).area). Each ring is clipped against the
   // convex area (Sutherland-Hodgman); outer rings add, holes subtract (even-odd depth within the part).
   function clipRing(r) {
@@ -162,18 +200,47 @@ function create(deps) {
     }
     return pts;
   }
+  function onFace(x, y) {                          // inside the usable area or on its edge (the tolerance the area test uses)
+    for (let e = 0; e < US.length; e++) {
+      const [ax, ay] = US[e], [bx, by] = US[(e + 1) % US.length];
+      if (usOrient * ((bx - ax) * (y - ay) - (by - ay) * (x - ax)) < -1e-9) return false;
+    }
+    return true;
+  }
+  // the area is convex, so a box whose four corners are on it is wholly on it: a part (or element) whose bounding box passes
+  // needs no per-point test (exact - the half-plane test is linear, so no point of the box can fall below its corners' minimum)
+  const boxOnFace = b => onFace(b.minx, b.miny) && onFace(b.maxx, b.miny) && onFace(b.minx, b.maxy) && onFace(b.maxx, b.maxy);
+  // strictly inside (no tolerance, the clip's own test sp >= 0): clipRing keeps such a ring unchanged, so skipping it is exact
+  function inside0(x, y) {
+    for (let e = 0; e < US.length; e++) {
+      const [ax, ay] = US[e], [bx, by] = US[(e + 1) % US.length];
+      if (usOrient * ((bx - ax) * (y - ay) - (by - ay) * (x - ax)) < 0) return false;
+    }
+    return true;
+  }
+  const boxInside = b => inside0(b.minx, b.miny) && inside0(b.maxx, b.miny) && inside0(b.minx, b.maxy) && inside0(b.maxx, b.maxy);
+  function ringBox(r) {
+    let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+    for (let i = 0; i < r.length; i += 2) { const x = r[i], y = r[i + 1]; if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
+    return { minx, miny, maxx, maxy };
+  }
   function outsideArea(el) {
+    if (boxOnFace(el)) return 0;
     let any = false;
-    for (const p of el.parts) for (const r of p.rings) for (let i = 0; i < r.length && !any; i += 2) {
-      for (let e = 0; e < US.length; e++) {
-        const [ax, ay] = US[e], [bx, by] = US[(e + 1) % US.length];
-        if (usOrient * ((bx - ax) * (r[i + 1] - ay) - (by - ay) * (r[i] - ax)) < -1e-9) { any = true; break; }
+    for (const p of el.parts) {
+      if (any) break;
+      if (boxOnFace(p)) continue;
+      for (const r of p.rings) {
+        for (let i = 0; i < r.length; i += 2) if (!onFace(r[i], r[i + 1])) { any = true; break; }
+        if (any) break;
       }
     }
     if (!any) return 0;
     let area = 0;
     for (const p of el.parts) {
+      if (boxInside(p)) continue;                // every ring of it is kept whole by the clip: it adds exactly 0
       for (const r of p.rings) {
+        if (boxInside(ringBox(r))) continue;
         let depth = 0;
         for (const o of p.rings) if (o !== r && pointInRings(r[0], r[1], [o])) depth++;
         const k = depth % 2 ? -1 : 1;
@@ -474,9 +541,18 @@ function create(deps) {
     return printable(a.text);
   }
   function ringsOut(el) { return el.parts.map(p => p.rings.map(r => r.slice())); }
-  function layOut(it) {
+  function layOut(it, opts) {
     if (!font) throw new Error('hardware-layout: setFont() first');
     if (!it.fields || !it.fields.length) return notReady(it);
+    let profileWhy = null;
+    if (V5) {
+      if (opts && opts.profile === false) profileWhy = covered5(it) ? 'the text layout was asked for' : 'no profile drawing for this part type';
+      else {
+        const r5 = layOut5(it);
+        if (r5.els) return finish5(it, r5);
+        profileWhy = r5.why;
+      }
+    }
     const byPath = {}; for (const a of it.attributes || []) byPath[a.path] = printable(a.text);
     const pinned = (it.pinned || []).map(p => attrText(it, p));
     const optional = (it.optional || []).map(p => attrText(it, p));
@@ -489,6 +565,7 @@ function create(deps) {
     rec.not_shown_paths = (r.not_shown || []).map(t => textOf[t]);
     rec.pinned_unprinted = it.pinned_unprinted || [];
     rec.value_missing = it.value_missing || [];
+    if (profileWhy) rec.profile_why = profileWhy;
     const elements = els ? Object.fromEntries(Object.entries(els).map(([k, el]) => [k, ringsOut(el)])) : null;
     return { elements, record: rec };
   }
@@ -498,12 +575,12 @@ function create(deps) {
   }
   // a NON-FIT with pins: the layout leaving off the FEWEST lowest-priority pins (never the first, the type). A PROPOSAL only:
   // the label stays a non-fit until the person unpins (label_from_items.propose, Astra 2026-10-06)
-  function propose(it) {
+  function propose(it, opts) {
     const order = it.pinned_by_priority || it.pinned || [];
     for (let k = 1; k < order.length; k++) {
       const drop = order.slice(order.length - k);
       const trial = { ...it, pinned: (it.pinned || []).filter(p => !drop.includes(p)) };
-      const r = layOut(trial);
+      const r = layOut(trial, opts);
       if (r.elements && !r.record.nonfit) return { ...r, record: { ...r.record, proposal: true, omit_paths: drop, omit: drop.map(p => attrText(it, p)) } };
     }
     const keep = order.length ? (it.attributes.find(a => a.path === order[0]) || {}).text : null;
@@ -511,8 +588,135 @@ function create(deps) {
                                                  : 'no pins to leave off' } };
   }
 
-  return { setFont, layOut, propose, printable, FACE: D.face, USABLE: D.usable, X0, YTOP,
-           _text: text, _trackFor: trackFor, _penX: penX, _glyphPart: glyphPart, _ok: ok };
+  // ===================================================================== v5 PROFILE labels (v5_items.py, rule for rule)
+  function symEl(polys) { return mkEl(polys.map(rr => mkPart(rr.map(ring => { const o = []; for (const [x, y] of ring) o.push(x, y); return o; })))); }
+  function boxOf(...els) { return mkEl(els.flatMap(e => e.parts)); }
+  const v5Screw = {}, v5Nut = {};
+  if (V5) {
+    for (const [k, g] of Object.entries(V5.screws)) v5Screw[k] = { headon: symEl(g.headon), side: symEl(g.side), envelope: symEl(g.envelope) };
+    for (const [k, list] of Object.entries(V5.nuts)) v5Nut[k] = new Map(list.map(g => [g.H, { headon: symEl(g.headon), side: symEl(g.side) }]));
+  }
+  function need5(a, b) {
+    const v = V5.need[[a, b].sort().join('|')];
+    if (typeof v !== 'number') throw new Error(`hardware-layout: no v5 spacing for ${a} / ${b}`);
+    return v;
+  }
+  function fits5(els) {                           // labels_v5.fits
+    const ks = Object.keys(els);
+    for (const k of ks) if (outsideArea(els[k]) >= V5.fitTol) return false;
+    for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) {
+      if (elsCloser(els[ks[i]], els[ks[j]], need5(ks[i], ks[j]) - 1e-6)) return false;
+    }
+    return true;
+  }
+  function tg(s, cap) {                           // labels_v5.TG: the string untracked (TextPath = its glyphs at the pen positions)
+    const key = s + '\u0000' + cap;
+    if (!tgCache.has(key)) tgCache.set(key, mkEl(glyphList(s, cap, 0)));
+    return tgCache.get(key);
+  }
+  function covered5(it) {
+    if (!V5) return null;
+    if (it.family === 'screw' && Object.prototype.hasOwnProperty.call(V5.screwHeads, it.head)) return 'screw';
+    const hk = it.head === undefined || it.head === null ? 'null' : it.head;
+    if (it.family === 'nut' && Object.prototype.hasOwnProperty.call(V5.nutHeads, hk)) return 'nut';
+    return null;
+  }
+  function buildScrew5(main, head, secondary, cap) {
+    const g = v5Screw[head];
+    const m = place(tg(main, cap), X0, YTOP);
+    const b = boxOf(g.headon, g.side, g.envelope);
+    const dx = X0 - b.minx, dy = (m.miny - V5.groupToMain) - b.maxy;
+    const headon = shift(g.headon, dx, dy), side = shift(g.side, dx, dy);
+    const els = { 'main spec': m, 'head-on view': headon, 'side profile': side };
+    if (secondary) els.secondary = place(text(secondary, V5.secCap), X0, boxOf(headon, side).miny - V5.mainToSub);
+    return els;
+  }
+  function nutTexts5(main, word, cap) {           // the size and the word for one cap (labels_v5.layout_nut_v5's first half)
+    const key = JSON.stringify([main, word, cap]);   // unambiguous for any strings (Sol 01a117f6: a NUL inside main or word made two items one key)
+    if (nutTextCache.has(key)) return nutTextCache.get(key);
+    let m5 = place(tg(main, cap), X0, YTOP);
+    for (let i = 0; i < 20; i++) {
+      if (outsideArea(m5) < 1e-4) break;
+      m5 = shift(m5, 0.1, 0);
+    }
+    let wd = tg(word, cap * V5.nutWordCap);
+    wd = shift(wd, m5.maxx + V5.nutWordGap - wd.minx, 0);
+    wd = shift(wd, 0, m5.miny - wd.miny);
+    for (let i = 0; i < 6; i++) wd = shift(wd, V5.nutWordGap - elsDistance(m5, wd), 0);
+    const out = [m5, wd];
+    nutTextCache.set(key, out);
+    return out;
+  }
+  function buildNut5(main, word, secondary, lock, cap, H) {
+    const [m5, wd] = nutTexts5(main, word, cap);
+    const g = v5Nut[lock ? 'lock' : 'plain'].get(H);
+    const b = boxOf(g.headon, g.side);
+    const dx = m5.minx - b.minx, dy = (m5.miny - V5.groupToMain) - b.maxy;
+    const headon = shift(g.headon, dx, dy), side = shift(g.side, dx, dy);
+    const els = { 'main spec': m5, 'family word': wd, 'head-on view': headon, 'side profile': side };
+    if (secondary) els.secondary = place(text(secondary, V5.secCap), m5.minx, boxOf(headon, side).miny - V5.mainToSub);
+    return els;
+  }
+  // v5_items.secondaries: the attribute lines to try, fullest first - every printed attribute in the item's reading order,
+  // then the optional ones left off from the end one at a time (a pinned one never)
+  function secondaries5(it, skip) {
+    const attrs = (it.attributes || []).filter(a => !skip.includes(a.path)).map(a => [a.path, printable(a.text)]);
+    const pinned = new Set(it.pinned || []), optional = (it.optional || []).filter(p => !skip.includes(p));
+    const keep = new Set(attrs.filter(([p]) => pinned.has(p) || optional.includes(p)).map(([p]) => p));
+    const out = [];
+    for (let k = 0; k <= optional.length; k++) {
+      const drop = new Set(k ? optional.slice(optional.length - k) : []);
+      const shown = attrs.filter(([p]) => keep.has(p) && !drop.has(p));
+      out.push({ s: shown.map(([, t]) => t).join(' \u00B7 '), shown: shown.map(([, t]) => t), shownPaths: shown.map(([p]) => p),
+                 notShown: attrs.filter(([p]) => drop.has(p)).map(([, t]) => t), notShownPaths: attrs.filter(([p]) => drop.has(p)).map(([p]) => p) });
+    }
+    return out;
+  }
+  function layOut5(it) {
+    const kind = covered5(it);
+    if (!kind) return { why: 'no profile drawing for this part type' };
+    const fields = it.fields.map(printable);
+    const headWord = (it.attributes || []).find(a => a.path === 'head');
+    const hw = headWord ? printable(headWord.text) : null;
+    if (kind === 'screw') {
+      const main = fields.join(' '), head = V5.screwHeads[it.head];
+      for (const sc of secondaries5(it, ['head'])) {
+        for (const cap of V5.caps) {
+          const els = buildScrew5(main, head, sc.s, cap);
+          if (fits5(els)) return { els, sc, rec: { layout: 'v5', kind, head, head_as_drawing: hw, main, main_cap: cap, H: V5.hScrew, secondary: sc.s,
+            sec_cap: V5.secCap, sec_track: sc.s ? trackFor(sc.s, V5.secCap) : null, shown: sc.shown, not_shown: sc.notShown } };
+        }
+      }
+      return { why: `'${main}' with its pinned attributes does not fit the profile layout at ${V5.caps[V5.caps.length - 1].toFixed(1)} mm` };
+    }
+    const lock = V5.nutHeads[it.head === undefined || it.head === null ? 'null' : it.head];
+    const word = hw || (lock ? 'LOCKNUT' : 'NUT'), main = fields.join(' ');
+    for (const sc of secondaries5(it, ['head'])) {
+      for (const cap of V5.caps) {
+        for (const H of V5.nutHs) {
+          const els = buildNut5(main, word, sc.s, lock, cap, H);
+          if (fits5(els)) return { els, sc, rec: { layout: 'v5', kind, lock, main, word, main_cap: cap, word_cap: Math.round(cap * V5.nutWordCap * 1e4) / 1e4, H,
+            secondary: sc.s, sec_cap: V5.secCap, sec_track: sc.s ? trackFor(sc.s, V5.secCap) : null, shown: sc.shown, not_shown: sc.notShown } };
+        }
+      }
+    }
+    return { why: `${main} ${word} with its pinned attributes does not fit the profile layout at ${V5.caps[V5.caps.length - 1].toFixed(1)} mm` };
+  }
+  // a v5 layout as layOut returns it: the record also carries what the page reads from a text layout - the value line, the
+  // words the label carries (the head word of a screw INCLUDED, in the item's order: the drawing carries it), what is left off
+  function finish5(it, r) {
+    const carried = new Set(['head', ...r.sc.shownPaths]);
+    const rec = { ...r.rec, main_lines: [r.rec.main], icon: null,
+      attributes: (it.attributes || []).filter(a => carried.has(a.path)).map(a => printable(a.text)),
+      not_shown_paths: r.sc.notShownPaths, pinned_unprinted: it.pinned_unprinted || [], value_missing: it.value_missing || [] };
+    if (r.rec.kind === 'nut' && !(it.attributes || []).some(a => a.path === 'head')) rec.attributes.unshift(r.rec.word);
+    const elements = Object.fromEntries(Object.entries(r.els).map(([k, el]) => [k, ringsOut(el)]));
+    return { elements, record: rec };
+  }
+
+  return { setFont, layOut, propose, printable, FACE: D.face, USABLE: D.usable, X0, YTOP, profiles: !!V5, profileCovered: it => !!covered5(it),
+           _text: text, _trackFor: trackFor, _penX: penX, _glyphPart: glyphPart, _ok: ok, _tg: tg, _elsDistance: elsDistance,
+           _fits5: els => fits5(Object.fromEntries(Object.entries(els).map(([k, rings]) => [k, mkEl(rings.map(rr => mkPart(rr)))]))) };
 }
 
 root.GEN2HardwareLayout = { version: 1, create };
