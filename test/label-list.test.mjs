@@ -379,6 +379,25 @@ test('LL-25: appendLabels - an import keeps free ids, renames colliding ones, dr
   assert.deepEqual(st.list.labels.length, 1, 'the input state is not mutated');
 });
 
+test('LL-24b: reconcile with editInPlace keeps an UPLOADED icon through a word edit; a built-in icon follows the mirror', () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>';
+  const list = { format: 'modulith-labels', version: 1, labels: [
+    { id: 'svglabel0001', text: 'Bolts', badge: { type: 'icon', svg } },
+    { id: 'nutlabel0002', text: 'Nuts', badge: { type: 'icon', value: 'nut' } },
+    { id: 'bothlabel003', text: 'Washers', badge: { type: 'icon', value: 'washer', svg } }] };
+  const assign = { 1: 'svglabel0001', 2: 'nutlabel0002', 3: 'bothlabel003' };
+  // the drawers' new words; drawer 2 still shows its nut (the mirror carries it), drawer 3 had its icon removed in an older tool
+  const units = [{ id: 1, x: 0, y: 0, label: 'Bolts M5' }, { id: 2, x: 1, y: 0, label: 'Nuts M5', labelBadge: { type: 'icon', value: 'nut' } },
+    { id: 3, x: 2, y: 0, label: 'Washers M5' }];
+  const r = L.reconcile(units, list, assign, { editInPlace: true });
+  const by = (id) => r.list.labels.find((l) => l.id === id);
+  assert.equal(by('svglabel0001').text, 'Bolts M5');
+  assert.deepEqual(by('svglabel0001').badge, { type: 'icon', svg }, 'the uploaded icon survives the edit');
+  assert.deepEqual(by('nutlabel0002').badge, { type: 'icon', value: 'nut' });
+  assert.equal(by('bothlabel003').badge, undefined, 'an icon the mirror DID carry and no longer shows was removed: it goes');
+  assert.deepEqual(r.changes.map((c) => c.kind), ['edited-in-place', 'edited-in-place', 'edited-in-place']);
+});
+
 test('LL-26: reconcile with editInPlace - clearing a sole plain label deletes it; a shared, hardware or part label is only unassigned', () => {
   const list = { format: 'modulith-labels', version: 1, labels: [
     { id: 'aaaaaaaaaaaa', text: 'Filters' },
