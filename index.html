@@ -363,6 +363,10 @@
       <span>Screw and nut drawings</span>
       <span><input type="checkbox" id="hw-profile" checked></span>
     </div>
+    <div class="setting" title="Part labels from the Part Picker with a label colour scheme: a band along one edge shows metric (blue) or SAE (red), and the 8 mm accent at its start shows the material. The words are laid out clear of it. Off: no band.">
+      <span>Colour band</span>
+      <select id="hw-band"><option value="bottom" selected>Bottom edge</option><option value="end">End stripe</option><option value="wedge">45° end</option><option value="off">Off</option></select>
+    </div>
 
     <h2>Build Plate</h2>
     <div class="setting">
@@ -466,6 +470,7 @@
 <script src="label-core.js"></script>
 <script src="hardware-data.js"></script>
 <script src="hardware-v5-data.js"></script>
+<script src="hardware-band-data.js"></script>
 <script src="hardware-layout.js"></script>
 <script src="label-link.js"></script>
 <script>
@@ -620,6 +625,12 @@ let scene, camera, renderer, controls;
 let font = null;
 let labelGroup = null;
 let baseMaterial, textMaterial;
+const bandMaterials = new Map();
+function bandMaterial(hex) {
+  const k = hex.toLowerCase();
+  if (!bandMaterials.has(k)) bandMaterials.set(k, new THREE.MeshStandardMaterial({ color: k, roughness: 0.6, metalness: 0.05 }));
+  return bandMaterials.get(k);
+}
 let bedOutline = null;
 
 //============================================================
@@ -728,6 +739,7 @@ function loadFont() {
       font = opentype.parse(buf);
       LabelCore.setFont(font);
       if (HW) HW.setFont(font);
+      Object.values(HW_BAND).forEach(h => h.setFont(font));
       resolve();
     } catch (e) { reject(e); }
   });
@@ -775,6 +787,62 @@ const HW = (window.GEN2HardwareLayout && window.GEN2HardwareData)
 // profile labels (the screw or nut drawn head-on and from the side, label tool 2026-10-07) are the default; the
 // "Screw and nut drawings" setting turns them off for the set
 function hwProfileOn() { const el = document.getElementById('hw-profile'); return !el || el.checked; }
+// COLOUR BANDS (label tool 2026-10-07; Joey: "include the color accents to represent metric vs SAE, and material"). A part
+// label whose item carries colours - the Part Picker's collection colour scheme: the band = metric blue / SAE red, the band
+// accent (its first 8 mm) = the material - gets a band along the edge the "Colour band" setting picks, and its words are laid
+// out in the face less the band and its 0.8 mm gap: one layout instance per band position. hardware-band-data.js holds the
+// usable areas and the label cut into base / band / accent pieces (made in Python from this page's own label mesh;
+// D:/MODULITH/handoffs/hardware-library/v5/export_bands.py). An item with no colours (no scheme) keeps the whole face.
+const HW_BANDS = window.GEN2HardwareBandData || null;
+const HW_BAND = {};
+if (HW && HW_BANDS && HW_BANDS.format === 'modulith-hardware-bands') for (const tr of Object.keys(HW_BANDS.treatments)) {
+  HW_BAND[tr] = GEN2HardwareLayout.create({ data: Object.assign({}, GEN2HardwareData, { usable: HW_BANDS.treatments[tr].usable }),
+    v5: window.GEN2HardwareV5Data || null });
+}
+function hwBandFor(item) {
+  const el = document.getElementById('hw-band'), v = el ? el.value : 'bottom';
+  return item && item.colours && typeof item.colours === 'object' && HW_BAND[v] ? v : null;
+}
+// an item's colours, cleaned (they can come from a link): per slot a colour {colour, hex, label, pattern}, null when the
+// scheme leaves it UNASSIGNED (the record does not hold the value - printed in the base colour, never a guess), or
+// undefined when the scheme has no such slot (no band accent: the band's colour covers the whole band)
+function hwColour(c) {
+  if (c === null || c === undefined) return undefined;
+  if (typeof c !== 'object' || typeof c.colour !== 'string' || !/^[a-z0-9-]{1,30}$/i.test(c.colour) ||
+      typeof c.hex !== 'string' || !/^#[0-9a-f]{6}$/i.test(c.hex)) return null;
+  return { colour: c.colour, hex: c.hex, label: typeof c.label === 'string' ? c.label.slice(0, 40) : c.colour,
+           pattern: c.pattern === 'dashed' ? 'dashed' : 'solid' };
+}
+function hwColours(cs) { return { band: hwColour(cs.band), band_accent: hwColour(cs.band_accent) }; }
+let bandGeoCache = new Map();          // cleared with the preview's geometries (rebuild disposes them)
+function bandGeo(tr, kind, piece) {
+  const key = tr + '/' + kind + '/' + piece;
+  if (!bandGeoCache.has(key)) {
+    const m = HW_BANDS.treatments[tr][kind][piece], g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(m.v, 3));
+    g.setIndex(m.t);
+    g.computeVertexNormals();
+    bandGeoCache.set(key, g);
+  }
+  return bandGeoCache.get(key);
+}
+// the label body of a banded row: base / band / accent pieces, each with its colour (null = the base colour)
+function bandParts(hw) {
+  const b = hw.colours.band || null, a = hw.colours.band_accent;
+  const kind = b && b.pattern === 'dashed' ? 'dashed' : 'solid';
+  return [
+    { piece: 'base', geo: bandGeo(hw.band, kind, 'base'), colour: null },
+    { piece: 'band', geo: bandGeo(hw.band, kind, 'band'), colour: b },
+    { piece: 'accent', geo: bandGeo(hw.band, kind, 'accent'), colour: a === undefined ? b : a },
+  ];
+}
+function bandNote(r) {
+  if (!r.band) return '';
+  const b = r.colours.band, a = r.colours.band_accent;
+  const bits = [b ? `${b.label} band` : 'band unassigned'];
+  if (a !== undefined) bits.push(a ? `${a.label} accent` : 'accent unassigned');
+  return ` ${bits.join(', ')}.`;
+}
 const HW_INK_DEPTH = (window.GEN2HardwareData && GEN2HardwareData.rules.inkDepth) || 0.45;
 const HW_ITEM = 'part-picker-label-item/1', HW_ITEMS = 'part-picker-label-items/1', HW_MAX_ITEMS = 200;
 // Size limits on an item, far above any saved one (the largest so far: 5 pinned + optional attributes, 2 fields, 11
@@ -818,6 +886,7 @@ function hardwareNoteText(r) {
   // numbers are in the note's tooltip (hardwareNoteDetail)
   const fellBack = r.covered && hwProfileOn() && rec.layout !== 'v5' ? ' No drawing: its pinned words do not fit beside it.' : '';
   return (rec.layout === 'v5' ? `Part label with the ${rec.kind} drawing, laid out from the part record.` : 'Part label, laid out from the part record.' + fellBack) +
+    bandNote(r) +
     (rec.not_shown.length ? ` Left off to fit: ${rec.not_shown.join(', ')}.` : '') +
     (rec.value_missing.length ? ` ${rec.value_missing.map(m => m.why).join('; ').replace(/^./, c => c.toUpperCase())}.` : '');   // each why already says it ("length not recorded")
 }
@@ -834,9 +903,14 @@ function layOutHardwareRow(row) {
   const item = row._hwItem;
   let r;
   const opts = { profile: hwProfileOn() };
-  try { r = HW.layOut(item, opts); r.covered = HW.profileCovered ? HW.profileCovered(item) : false; }
+  const band = hwBandFor(item), L = band ? HW_BAND[band] : HW;
+  try {
+    r = L.layOut(item, opts);
+    r.covered = L.profileCovered ? L.profileCovered(item) : false;
+    if (band && r.elements) { r.band = band; r.colours = hwColours(item.colours); }
+  }
   catch (e) { r = { elements: null, record: { not_ready: 'the label item could not be read (' + e.message + ')' } }; }
-  if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = HW.propose(item, opts).record; } catch (e) {} }
+  if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = L.propose(item, opts).record; } catch (e) {} }
   row._hw = r;
   row.querySelector('input.label-text').value = hardwareRowText(item, r.record);
   const note = row.querySelector('.hw-note');
@@ -896,6 +970,16 @@ function hwInPoly(p, loop) {
   }
   return inside;
 }
+// A hole pulled in towards its centre by 0.00001 mm before it is triangulated. three's triangulator (earcut) drops points
+// it finds exactly collinear once a hole is bridged to its outline, so a hole edge on the same line as an outline edge -
+// the centre square of the '#' glyph sits on the line of its bars - left the caps without two vertices the side walls
+// use: T-junctions, an ink solid that is not closed (8 open edges on "#10-24"). Far below the 0.0001 mm the exports write.
+function hwPullIn(L) {
+  let cx = 0, cy = 0;
+  for (const p of L) { cx += p.x; cy += p.y; }
+  cx /= L.length; cy /= L.length;
+  return L.map(p => { const dx = cx - p.x, dy = cy - p.y, d = Math.hypot(dx, dy) || 1; return new THREE.Vector2(p.x + 1e-5 * dx / d, p.y + 1e-5 * dy / d); });
+}
 // the laid-out outlines as one extruded geometry (z 0..depth, placed at the label's top face like any label text)
 function hardwareMeshes(hw, depth) {
   const geos = [];
@@ -909,14 +993,14 @@ function hardwareMeshes(hw, depth) {
       loops.forEach((L, i) => {
         if (lvl[i] % 2 === 0) return;
         const host = outers.find(o => lvl[o.i] === lvl[i] - 1 && hwInPoly(L[0], loops[o.i]));
-        if (host) host.shape.holes.push(new THREE.Path(L));
+        if (host) host.shape.holes.push(new THREE.Path(hwPullIn(L)));
       });
       for (const o of outers) geos.push(new THREE.ExtrudeGeometry(o.shape, { depth, bevelEnabled: false, curveSegments: 1 }));
     }
   }
   const textGeo = geos.length ? LabelCore.mergeGeoms(geos) : null;
   geos.forEach(g => g.dispose());
-  return { textGeo, badgeGeo: null, textFits: true };
+  return { textGeo, badgeGeo: null, textFits: true, baseParts: hw.band ? bandParts(hw) : null };
 }
 function meshesFor(data, capH, depth, badgeSize, bold) {
   return data.hardware ? hardwareMeshes(data.hardware, HW_INK_DEPTH) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
@@ -1060,6 +1144,7 @@ function rebuild() {
     });
     scene.remove(labelGroup);
   }
+  bandGeoCache = new Map();
   labelGroup = new THREE.Group();
   scene.add(labelGroup);
 
@@ -1093,11 +1178,12 @@ function rebuild() {
       const pos = lay.positions[j] || { x: 0, y: 0 };
       const x = pos.x + plateCenterX, y = pos.y;
 
-      const baseMesh = new THREE.Mesh(baseGeo, baseMaterial);
-      baseMesh.position.set(x, y, 0);
-      labelGroup.add(baseMesh);
-
-      const { textGeo, badgeGeo, textFits } = meshesFor(data, capH, depth, badgeSize, bold);
+      const { textGeo, badgeGeo, textFits, baseParts } = meshesFor(data, capH, depth, badgeSize, bold);
+      for (const part of baseParts || [{ geo: baseGeo, colour: null }]) {
+        const baseMesh = new THREE.Mesh(part.geo, part.colour ? bandMaterial(part.colour.hex) : baseMaterial);
+        baseMesh.position.set(x, y, 0);
+        labelGroup.add(baseMesh);
+      }
       if (!textFits) anyOverflow = true;
       if (textGeo) {
         const m = new THREE.Mesh(textGeo, textMaterial);
@@ -1233,7 +1319,7 @@ function plateCapacity(bedW, bedL, purge) {
 
 // Build a two-color 3MF (base = filament 1, text + badge = filament 2) for one plate.
 // `lay` is a single-plate layout (centered at origin). Returns a Blob.
-async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) {
+async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold, plan) {
   const baseMeshXml = geometryToMeshXml(buildBasePlateGeometry());
   let resources =
     `<object id="1" type="model" p:UUID="00000000-0000-0000-0000-000000000001">` +
@@ -1242,12 +1328,22 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
   const builds = [], partInfo = [];
 
   slice.forEach((data, i) => {
-    const { textGeo, badgeGeo } = meshesFor(data, capH, depth, badgeSize, bold);
+    const { textGeo, badgeGeo, baseParts } = meshesFor(data, capH, depth, badgeSize, bold);
     if (!textGeo && !badgeGeo) return;
     const textId = 100 + 3 * i, badgeId = 101 + 3 * i, asmId = 102 + 3 * i;
     const name = (data.text && data.text.trim()) ? data.text.trim()
       : (data.badge && data.badge.value ? String(data.badge.value) : 'icon');
-    let comps = `<component objectid="1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>`;
+    let comps = '';
+    const baseInfo = [];
+    if (baseParts) {
+      baseParts.forEach((bp, k) => {
+        const pid = 100000 + 10 * i + k, ext = plan ? partExtruder(bp, plan) : 1, pname = partName(name, bp);
+        resources += `<object id="${pid}" type="model" p:UUID="00000000-0000-0000-0000-${String(pid).padStart(12,'0')}">` +
+          `<metadata name="name">${escapeXml(pname)}</metadata><metadata name="extruder">${ext}</metadata>${geometryToMeshXml(bp.geo)}</object>`;
+        comps += `<component objectid="${pid}" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>`;
+        baseInfo.push({ id: pid, name: pname, ext });
+      });
+    } else comps = `<component objectid="1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>`;
     if (textGeo) {
       resources += `<object id="${textId}" type="model" p:UUID="00000000-0000-0000-0000-${String(textId).padStart(12,'0')}">` +
         `<metadata name="name">${escapeXml(name)} text</metadata><metadata name="extruder">2</metadata>${geometryToMeshXml(textGeo)}</object>`;
@@ -1260,7 +1356,7 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
     }
     resources += `<object id="${asmId}" type="model" p:UUID="00000000-0000-0000-0000-${String(asmId).padStart(12,'0')}">` +
       `<metadata name="name">${escapeXml(name)}</metadata><components>${comps}</components></object>`;
-    partInfo.push({ asmId, name, textId: textGeo ? textId : null, badgeId: badgeGeo ? badgeId : null });
+    partInfo.push({ asmId, name, textId: textGeo ? textId : null, badgeId: badgeGeo ? badgeId : null, baseInfo });
     const pos = lay.positions[i] || { x: 0, y: 0 };
     const px = (pos.x + bedW / 2).toFixed(4), py = (pos.y + bedL / 2).toFixed(4);
     builds.push(`<item objectid="${asmId}" transform="1 0 0 0 1 0 0 0 1 ${px} ${py} 0" p:UUID="00000000-0000-0000-0000-${String(1000 + i).padStart(12,'0')}"/>`);
@@ -1283,7 +1379,9 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
   let modelSettings = `<?xml version="1.0" encoding="UTF-8"?>\n<config>`;
   partInfo.forEach(p => {
     modelSettings += `<object id="${p.asmId}"><metadata key="name" value="${escapeXml(p.name)}"/>` +
-      `<part id="1" subtype="normal_part"><metadata key="name" value="Base"/><metadata key="extruder" value="1"/></part>`;
+      (p.baseInfo.length
+        ? p.baseInfo.map(b => `<part id="${b.id}" subtype="normal_part"><metadata key="name" value="${escapeXml(b.name)}"/><metadata key="extruder" value="${b.ext}"/></part>`).join('')
+        : `<part id="1" subtype="normal_part"><metadata key="name" value="Base"/><metadata key="extruder" value="1"/></part>`);
     if (p.textId != null) modelSettings += `<part id="${p.textId}" subtype="normal_part"><metadata key="name" value="${escapeXml(p.name)} text"/><metadata key="extruder" value="2"/></part>`;
     if (p.badgeId != null) modelSettings += `<part id="${p.badgeId}" subtype="normal_part"><metadata key="name" value="${escapeXml(p.name)} badge"/><metadata key="extruder" value="2"/></part>`;
     modelSettings += `</object>`;
@@ -1310,19 +1408,21 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
 // (with no slic3rpe:Version3mf PrusaSlicer bakes a build transform into the FIRST part
 // only). The Application name contains "PrusaSlicer" because that is the string Bambu
 // Studio and OrcaSlicer look for to read a file through their PrusaSlicer importer.
-async function buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) {
+async function buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize, bold, plan) {
   const base = geometryToVertsTris(buildBasePlateGeometry());
   let resources = '', builds = '', oid = 0;
   let config = `<?xml version="1.0" encoding="UTF-8"?>\n<config>\n`;
 
   slice.forEach((data, i) => {
-    const { textGeo, badgeGeo } = meshesFor(data, capH, depth, badgeSize, bold);
+    const { textGeo, badgeGeo, baseParts } = meshesFor(data, capH, depth, badgeSize, bold);
     if (!textGeo && !badgeGeo) return;
     const name = (data.text && data.text.trim()) ? data.text.trim()
       : (data.badge && data.badge.value ? String(data.badge.value) : 'icon');
     const pos = lay.positions[i] || { x: 0, y: 0 };
     const px = pos.x + bedW / 2, py = pos.y + bedL / 2;
-    const parts = [{ name: 'Base', mesh: base, z: 0, extruder: 1 }];
+    const parts = baseParts
+      ? baseParts.map(bp => ({ name: partName(name, bp), mesh: geometryToVertsTris(bp.geo), z: 0, extruder: plan ? partExtruder(bp, plan) : 1 }))
+      : [{ name: 'Base', mesh: base, z: 0, extruder: 1 }];
     if (textGeo) parts.push({ name: `${name} text`, mesh: geometryToVertsTris(textGeo), z: LABEL_HT, extruder: 2 });
     if (badgeGeo) parts.push({ name: `${name} badge`, mesh: geometryToVertsTris(badgeGeo), z: LABEL_HT, extruder: 2 });
 
@@ -1410,8 +1510,8 @@ function buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) {
   slice.forEach((data, i) => {
     const pos = lay.positions[i] || { x: 0, y: 0 };
     const px = pos.x + bedW / 2, py = pos.y + bedL / 2;
-    pushGeomTris(baseGeo, px, py, 0, tris);
-    const { textGeo, badgeGeo } = meshesFor(data, capH, depth, badgeSize, bold);
+    const { textGeo, badgeGeo, baseParts } = meshesFor(data, capH, depth, badgeSize, bold);
+    for (const part of baseParts || [{ geo: baseGeo }]) pushGeomTris(part.geo, px, py, 0, tris);
     if (textGeo) pushGeomTris(textGeo, px, py, LABEL_HT, tris);
     if (badgeGeo) pushGeomTris(badgeGeo, px, py, LABEL_HT, tris);
   });
@@ -1425,6 +1525,38 @@ function downloadBlob(blob, filename) {
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+// The filaments a set needs: 1 the label base, 2 the text, then one per band colour in the bands (white shares the text's
+// filament when the text is that colour, a colour equal to the base shares the base's), planned over the whole set so
+// every plate file uses the same filament for the same colour.
+const BAND_ORDER = ['sky-blue', 'red', 'yellow', 'white', 'green', 'purple'];
+function filamentPlan(labels) {
+  const baseHex = (document.getElementById('color-base').value || '').toLowerCase();
+  const textHex = (document.getElementById('color-text').value || '').toLowerCase();
+  const used = new Map();
+  for (const d of labels) {
+    if (!d.hardware || !d.hardware.band) continue;
+    for (const p of bandParts(d.hardware)) {
+      if (!p.colour) continue;
+      const u = used.get(p.colour.colour) || { hex: p.colour.hex, labels: new Set() };
+      u.labels.add(p.colour.label);
+      used.set(p.colour.colour, u);
+    }
+  }
+  const rank = (k) => { const i = BAND_ORDER.indexOf(k); return i < 0 ? 99 : i; };
+  const keys = [...used.keys()].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  const ext = {}, slots = [{ n: 1, what: ['label base'] }, { n: 2, what: ['text'] }];
+  let next = 3;
+  for (const k of keys) {
+    const u = used.get(k), hx = u.hex.toLowerCase(), what = `${k} (${[...u.labels].join(', ')})`;
+    if (hx === textHex) { ext[k] = 2; slots[1].what.push(what); }
+    else if (hx === baseHex) { ext[k] = 1; slots[0].what.push(what); }
+    else { ext[k] = next; slots.push({ n: next, what: [what] }); next++; }
+  }
+  return { ext, slots, count: next - 1, banded: used.size > 0 };
+}
+function partExtruder(p, plan) { return p.colour ? plan.ext[p.colour.colour] || 1 : 1; }
+function partName(name, p) { return p.piece === 'base' ? 'Base' : `${name} ${p.piece === 'band' ? 'band' : 'band accent'}${p.colour ? ' ' + p.colour.label : ''}`; }
 
 // Export everything: one file per plate (3MF or STL), zipped together if >1 plate.
 async function doExport() {
@@ -1444,6 +1576,7 @@ async function doExport() {
   const cap = plateCapacity(bedW, bedL, purge);
   const nPlates = Math.max(1, Math.ceil(labels.length / cap.perPlate));
 
+  const plan = filamentPlan(labels);
   const files = [];
   for (let p = 0; p < nPlates; p++) {
     const slice = labels.slice(p * cap.perPlate, (p + 1) * cap.perPlate);
@@ -1452,22 +1585,32 @@ async function doExport() {
     if (fmt === 'stl') {
       files.push({ name: `edgelabels${suffix}.stl`, blob: buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
     } else if (fmtVal === '3mf-bambu') {
-      files.push({ name: `edgelabels${suffix}.3mf`, blob: await buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
+      files.push({ name: `edgelabels${suffix}.3mf`, blob: await buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold, plan) });
     } else {
-      files.push({ name: `edgelabels${suffix}.3mf`, blob: await buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
+      files.push({ name: `edgelabels${suffix}.3mf`, blob: await buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize, bold, plan) });
+    }
+  }
+  // the filaments, said with the save: which filament carries which band colour (and a warning past five)
+  let fil = '', filBad = false;
+  if (plan.banded) {
+    fil = fmt === 'stl' ? ' STL is one colour: the colour bands print in the base colour - use a 3MF for them.'
+      : ` Filaments: ${plan.slots.map(s => `${s.n} ${s.what.join(' + ')}`).join('; ')}.`;
+    if (fmt !== 'stl' && plan.count > 5) {
+      filBad = true;
+      fil += ` That is ${plan.count} filaments - most multi-material printers hold 5; print fewer colours per set.`;
     }
   }
 
   if (files.length === 1) {
     downloadBlob(files[0].blob, files[0].name);
-    setStatus(`Saved ${files[0].name} (${(files[0].blob.size / 1024).toFixed(1)} KB)`, 'ok');
+    setStatus(`Saved ${files[0].name} (${(files[0].blob.size / 1024).toFixed(1)} KB).${fil}`, filBad ? 'err' : 'ok');
   } else {
     const zip = new JSZip();
     files.forEach(f => zip.file(f.name, f.blob));
     const z = await zip.generateAsync({ type: 'blob' });
     const zname = `gen2_edgelabels_${nPlates}plates_${fmt}.zip`;
     downloadBlob(z, zname);
-    setStatus(`Saved ${zname} — ${nPlates} separate plate files (${(z.size / 1024).toFixed(1)} KB)`, 'ok');
+    setStatus(`Saved ${zname} — ${nPlates} separate plate files (${(z.size / 1024).toFixed(1)} KB).${fil}`, filBad ? 'err' : 'ok');
   }
 }
 
@@ -1928,6 +2071,13 @@ function setupBulkControls() {
 
   // Predicted-icon toggle
   document.getElementById('predict-icons').addEventListener('change', applyPredictToggle);
+  const relayHardware = () => {
+    if (!font) return;
+    const rows = document.querySelectorAll('#labels .row.hw');
+    rows.forEach(layOutHardwareRow);
+    if (rows.length) rebuild();
+  };
+  document.getElementById('hw-band').addEventListener('change', relayHardware);
   document.getElementById('hw-profile').addEventListener('change', () => {
     if (!font) return;            // the rows are laid out once the font is in
     const rows = document.querySelectorAll('#labels .row.hw');
@@ -1993,7 +2143,7 @@ let restoredFromAutosave = false;   // set on boot so init() can report it
 
 // Inputs whose values make up a "set". Checkboxes captured as booleans.
 const SETTING_IDS = [
-  'font-size', 'text-depth', 'badge-size', 'bold-text', 'predict-icons', 'all-caps', 'hw-profile',
+  'font-size', 'text-depth', 'badge-size', 'bold-text', 'predict-icons', 'all-caps', 'hw-profile', 'hw-band',
   'bed-preset', 'bed-w', 'bed-l', 'export-format',
   'reserve-purge', 'purge-w', 'purge-l',
   'color-base', 'color-text'
@@ -2077,7 +2227,7 @@ function applySettings(s) {
   }
   // Fire the handlers that keep dependent UI in sync (bed dims, purge row,
   // download-button label, swatch dots + live material colors).
-  ['bed-preset', 'export-format', 'reserve-purge', 'predict-icons', 'all-caps', 'hw-profile'].forEach(id => {
+  ['bed-preset', 'export-format', 'reserve-purge', 'predict-icons', 'all-caps', 'hw-profile', 'hw-band'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.dispatchEvent(new Event('change'));
   });
