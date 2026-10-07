@@ -395,8 +395,8 @@
     <div class="setting">
       <span>Export format</span>
       <select id="export-format">
-        <option value="3mf-prusa" selected>3MF · 2-color · PrusaSlicer</option>
-        <option value="3mf-bambu">3MF · 2-color · Bambu Studio / OrcaSlicer</option>
+        <option value="3mf-prusa" selected>3MF · multi-color · PrusaSlicer</option>
+        <option value="3mf-bambu">3MF · multi-color · Bambu Studio / OrcaSlicer</option>
         <option value="stl">STL · single color</option>
       </select>
     </div>
@@ -1317,7 +1317,7 @@ function plateCapacity(bedW, bedL, purge) {
   return { perCol, colsPerPlate, perPlate };
 }
 
-// Build a two-color 3MF (base = filament 1, text + badge = filament 2) for one plate.
+// Build a multi-color 3MF (base = filament 1, text + badge = filament 2, colour bands on their own filaments) for one plate.
 // `lay` is a single-plate layout (centered at origin). Returns a Blob.
 async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold, plan) {
   const baseMeshXml = geometryToMeshXml(buildBasePlateGeometry());
