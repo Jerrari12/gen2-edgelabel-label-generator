@@ -805,9 +805,17 @@ function hardwareNoteText(r) {
     const p = r.proposal;
     return `Doesn't fit: ${rec.nonfit}.` + (p && p.omit ? ` It fits without ${p.omit.join(', ')} - unpin ${p.omit_paths.join(', ')} to print it.` : '');
   }
-  return `Hardware label · value at ${rec.main_cap} mm caps` + (rec.icon ? ` · ${rec.icon} icon` : '') +
-    (rec.not_shown.length ? ` · Not shown on label: ${rec.not_shown.join(', ')}` : '') +
-    (rec.value_missing.length ? ` · Not recorded: ${rec.value_missing.map(m => m.why).join(', ')}` : '');
+  // a person's line (Astra: the old "Hardware label · value at 9.8 mm caps · screw icon" read like debug text); the layout
+  // numbers are in the note's tooltip (hardwareNoteDetail)
+  return 'Part label, laid out from the part record.' +
+    (rec.not_shown.length ? ` Left off to fit: ${rec.not_shown.join(', ')}.` : '') +
+    (rec.value_missing.length ? ` ${rec.value_missing.map(m => m.why).join('; ').replace(/^./, c => c.toUpperCase())}.` : '');   // each why already says it ("length not recorded")
+}
+function hardwareNoteDetail(r) {
+  const rec = r.record;
+  if (rec.not_ready || rec.nonfit || !rec.main_cap) return '';
+  return `Main value ${rec.main_cap} mm tall` + (rec.icon ? `, ${rec.icon} icon` : ', no icon') +
+    '. The layout is decided by the part record: text size, bold, caps and icon settings do not apply to this row.';
 }
 function layOutHardwareRow(row) {
   const item = row._hwItem;
@@ -819,6 +827,7 @@ function layOutHardwareRow(row) {
   row.querySelector('input.label-text').value = hardwareRowText(item, r.record);
   const note = row.querySelector('.hw-note');
   note.textContent = hardwareNoteText(r);
+  note.title = hardwareNoteDetail(r);
   note.classList.toggle('bad', !r.elements);
 }
 function layOutPendingHardware() {    // rows added before the font loaded are laid out on the first rebuild after it
