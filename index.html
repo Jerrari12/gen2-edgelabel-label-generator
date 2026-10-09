@@ -3,51 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#1a1a1c">
-<title>GEN2 EdgeLabel Label Generator · Jerrari Design</title>
-<!-- Site icon: the Jerrari J on a dark tile — the same three files ship in all
-     four GEN2 repos so every tab in the family reads as one site. The mark's
-     core is WHITE, hence the tile: transparent, it vanishes on a light tab bar. -->
+<meta name="theme-color" content="#1d1e20">
+<title>Label Studio · MODULITH</title>
+<meta name="description" content="MODULITH Label Studio (formerly the GEN2 label generators): make EdgeLabel and Classic Pro labels for your MODULITH drawers, typed or from a part record, ready for your slicer.">
+<!-- Site icon: the MODULITH square, the same three files as the MODULITH site and the Planner (copied from the
+     Planner 2026-10-09, when the label app became the MODULITH Label Studio). -->
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* The MODULITH fonts, as the Planner ships them (Space Grotesk, SIL OFL) */
+  @font-face { font-family: "Space Grotesk"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/space-grotesk-500.woff2") format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/space-grotesk-700.woff2") format("woff2"); }
   :root {
-    /* Jerrari Design brand palette */
-    --bg: #1a1a1c;
-    --panel: #232427;
-    --panel-2: #2c2d31;
-    --border: #3a3b3f;
-    --text: #f0f0f2;
-    --muted: #8a8d94;
-    --accent: #ee7a30;          /* brand orange */
-    --accent-hover: #ff8a40;
-    --accent-dark: #c25a1e;     /* darker orange */
-    --accent-dim: #6e3b18;
+    /* the MODULITH palette (the site's --ml-* tokens, as the Planner's dark mode uses them) */
+    --bg: #1d1e20;              /* --ml-ink */
+    --panel: #2c2d31;           /* --ml-charcoal */
+    --panel-2: #3a3b3f;         /* --ml-panel */
+    --border: #4a4b50;          /* --ml-line */
+    --text: #ececee;            /* --ml-paper */
+    --muted: #a6a8ad;           /* --ml-muted */
+    --well: #141517;            /* one step below the page: fields and wells (the Planner's --well) */
+    --accent: #ff6a1a;          /* MODULITH orange */
+    --accent-hover: #ff8340;
+    --accent-dark: #d9550f;     /* --ml-orange-press */
+    --accent-dim: #7a3512;
     --info: #5fc3e3;            /* brand blue */
     --info-dark: #3a8aa8;
-    --danger: #ff6b6b;
+    --danger: #e5534b;          /* --ml-bad */
+    color-scheme: dark;         /* dark scrollbars and native controls, to match the page */
+    accent-color: var(--accent);   /* every checkbox in MODULITH orange (they were part blue, part orange) */
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-  #app { display: flex; height: 100%; }
+  body { display: flex; flex-direction: column; }
+  #app { display: flex; flex: 1; min-height: 0; }
   #sidebar { width: 360px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
-  #preview { flex: 1; position: relative; background: linear-gradient(180deg, #2c2d31 0%, #1a1a1c 100%); }
+  /* nothing in the sidebar shrinks: it scrolls instead (#status has a min-height, which let it shrink below its own text
+     and spill over the footer once the masthead took 48 px off the sidebar) */
+  #sidebar > * { flex-shrink: 0; }
+  #preview { flex: 1; position: relative; background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%); }
   #preview canvas { display: block; }
   .type-row select { min-width: 9em; }
   .type-note { margin: 6px 0 4px; padding: 8px 10px; border-radius: 6px; font-size: 12px; line-height: 1.4;
-    background: rgba(238, 122, 48, 0.12); border: 1px solid rgba(238, 122, 48, 0.45); }
+    background: rgba(255, 106, 26, 0.12); border: 1px solid rgba(255, 106, 26, 0.45); }
   body.type-no-hw #labels .row[data-hw] { opacity: 0.45; }
   .setting.type-off { opacity: 0.5; }
-  .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .brand-logo { width: 38px; height: 56px; flex-shrink: 0; }
-  .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
-  .brand-name { font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: var(--text); }
-  .brand-tag { font-size: 11px; color: var(--muted); margin-top: 3px; letter-spacing: 0.3px; }
-  h2 { font-size: 11px; margin: 18px 0 8px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  h2 { font-family: "Space Grotesk", -apple-system, "Segoe UI", sans-serif; font-size: 11px; margin: 18px 0 8px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+  #sidebar > .type-row:first-of-type { margin-top: 2px; }
   .row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
   .row .idx { color: var(--muted); font-size: 11px; width: 18px; text-align: right; }
-  .row input[type="text"] { flex: 1; padding: 9px 11px; background: #0a0b0e; border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
+  .row input[type="text"] { flex: 1; padding: 9px 11px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
   .row input[type="text"]:focus { outline: none; border-color: var(--accent-dim); }
   .row .remove { width: 26px; height: 26px; background: transparent; border: 1px solid transparent; color: var(--muted); border-radius: 4px; cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
   .row .remove:hover { color: var(--danger); border-color: var(--danger); }
@@ -84,7 +91,7 @@
   /* Inline prefix/suffix panel (bulk) */
   .affix-panel { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 8px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; }
   .affix-panel[hidden] { display: none; }
-  .affix-panel input { flex: 1 1 80px; min-width: 0; padding: 6px 8px; background: #0a0b0e; border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
+  .affix-panel input { flex: 1 1 80px; min-width: 0; padding: 6px 8px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
   .affix-panel input:focus { outline: none; border-color: var(--accent-dim); }
   .affix-panel button { flex: 0 0 auto; }
   #affix-apply { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
@@ -97,7 +104,7 @@
   button.primary:hover:not(:disabled) { background: var(--accent-hover); }
   button.primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
   .setting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; }
-  .setting input[type="number"], .setting select { padding: 6px 8px; background: #0a0b0e; border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
+  .setting input[type="number"], .setting select { padding: 6px 8px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
   .setting input[type="number"] { width: 64px; text-align: right; }
   .setting select { width: 140px; }
   .csv-zone { border: 1px dashed var(--border); padding: 10px; text-align: center; border-radius: 5px; font-size: 11px; color: var(--muted); margin-top: 6px; cursor: pointer; transition: all 0.15s; }
@@ -127,14 +134,15 @@
   .overlay strong { color: var(--text); }
   .brand { position: absolute; bottom: 12px; right: 14px; color: var(--muted); font-size: 10px; letter-spacing: 1px; opacity: 0.6; }
   .color-swatches { display: flex; gap: 8px; margin-top: 4px; }
-  .swatch { flex: 1; display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: #0a0b0e; border: 1px solid var(--border); border-radius: 4px; font-size: 11px; cursor: pointer; }
+  .swatch { flex: 1; display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: var(--well); border: 1px solid var(--border); border-radius: 4px; font-size: 11px; cursor: pointer; }
   .swatch:hover { border-color: var(--accent-dim); }
   .swatch .dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
   .swatch input[type="color"] { width: 0; height: 0; padding: 0; border: 0; opacity: 0; position: absolute; }
   /* === Mobile / responsive (≤ 760px) === */
   @media (max-width: 760px) {
     html, body { overflow-y: auto; }
-    #app { flex-direction: column; height: auto; min-height: 100vh; }
+    body { height: auto; }
+    #app { flex-direction: column; flex: none; min-height: 100vh; }
     #sidebar {
       width: 100%;
       max-height: none;
@@ -152,10 +160,6 @@
       order: 1;
       flex: none;
     }
-    .brand-header { padding-bottom: 12px; margin-bottom: 12px; }
-    .brand-logo { width: 32px; height: 50px; }
-    .brand-name { font-size: 13px; }
-    .brand-tag { font-size: 10px; }
     h2 { margin: 14px 0 6px 0; }
     .row { gap: 8px; }
     .row input[type="text"] {
@@ -189,12 +193,10 @@
 
   /* === Very narrow (≤ 380px) === */
   @media (max-width: 380px) {
-    .brand-name { font-size: 12px; letter-spacing: 1px; }
-    .brand-logo { width: 28px; height: 44px; }
     #preview { height: 45vh; min-height: 280px; }
   }
   /* === Left badge (icon / letter) === */
-  .row .badge-btn { width: 28px; height: 28px; flex-shrink: 0; background: #0a0b0e; border: 1px solid var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .row .badge-btn { width: 28px; height: 28px; flex-shrink: 0; background: var(--well); border: 1px solid var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .row .badge-btn:hover { border-color: var(--accent-dim); color: var(--text); }
   .row .badge-btn.set { border-color: var(--accent-dim); color: var(--accent); }
   .row .badge-btn svg { width: 18px; height: 18px; fill: currentColor; }
@@ -204,11 +206,11 @@
   .bp-close { background: none; border: none; color: var(--muted); font-size: 17px; line-height: 1; cursor: pointer; padding: 0; }
   .bp-label { font-size: 10px; color: var(--muted); margin: 2px 0 5px; text-transform: uppercase; letter-spacing: 0.6px; }
   .bp-section { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
-  .bp-section input[type="text"] { flex: 1; padding: 7px 9px; background: #0a0b0e; border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
+  .bp-section input[type="text"] { flex: 1; padding: 7px 9px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
   .bp-section button:not(.bp-icon) { padding: 7px 10px; background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 12px; white-space: nowrap; }
   .bp-section button:not(.bp-icon):hover { border-color: var(--accent-dim); color: var(--accent); }
   .bp-icons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
-  .bp-icon { aspect-ratio: 1 / 1; background: #0a0b0e; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
+  .bp-icon { aspect-ratio: 1 / 1; background: var(--well); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
   .bp-icon:hover { border-color: var(--accent); color: var(--accent); }
   .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
   /* === Planner link (Step 3) === */
@@ -239,38 +241,132 @@
   .veil-sub:empty { display: none; }
   .veil-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
   button.btn-sm.primary-sm { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
+
+  /* ---------- the MODULITH masthead, SLIM (Joey 2026-10-09: "maybe a slim version so that it doesn't eat up a ton of
+     realestate"). The Planner's masthead (its css/style.css "the MODULITH masthead", from the site's header) at about
+     two thirds of its height, with the product name beside the wordmark. Its colours are the site's FIXED ink bar.
+     Not sticky: the app below it is a full-height workspace. ---------- */
+  .mast { flex: none; position: relative; z-index: 30; background: #1d1e20; border-bottom: 1px solid #4a4b50; padding: 0 20px; container-type: inline-size; }
+  .mast .shell { display: flex; align-items: center; gap: 22px; min-height: 48px; }
+  .mast .brandlink { display: block; line-height: 0; }
+  .mast .brandlogo { height: 24px; width: auto; display: block; }
+  .mast .product { font: 700 0.95rem/1 "Space Grotesk", -apple-system, "Segoe UI", sans-serif; color: #ececee; letter-spacing: 0.2px; padding-left: 14px; border-left: 1px solid #4a4b50; white-space: nowrap; margin-left: -8px; }
+  .mast .mainnav { display: flex; gap: 20px; margin-left: auto; font-weight: 600; font-size: 0.88rem; align-items: center; }
+  .mast .mainnav a { color: #ececee; text-decoration: none; }
+  .mast .mainnav a:hover { color: #ff6a1a; }
+  .mast .navmenu { position: relative; }
+  .mast .menubtn { appearance: none; background: none; border: none; color: #ececee; font: inherit; font-weight: 600; cursor: pointer; padding: 6px 0; }
+  .mast .menubtn:hover { color: #ff6a1a; }
+  .mast .navhelp { appearance: none; background: none; border: none; color: #ececee; font: inherit; font-weight: 600; cursor: pointer; padding: 6px 0; }
+  .mast .navhelp:hover { color: #ff6a1a; }
+  .mast .navhelp:focus-visible, .mast .menubtn:focus-visible, .mast .mainnav a:focus-visible { outline: 2px solid #ff6a1a; outline-offset: 3px; border-radius: 4px; }
+  .mast .menubtn .caret { color: #a6a8ad; }
+  .mast .dropdown { display: none; position: absolute; top: 100%; right: -14px; background: #1d1e20; border: 1px solid #4a4b50; border-radius: 10px; min-width: 230px; padding: 8px 0; box-shadow: 0 10px 30px rgba(0,0,0,.4); z-index: 31; }
+  .mast .dropdown.open { display: block; }
+  .mast .dropdown a { display: block; padding: 8px 18px; }
+  .mast .dropdown a:hover { background: #3a3b3f; }
+  .mast .mobilebtn { display: none; margin-left: auto; appearance: none; background: none; border: 1px solid #4a4b50; border-radius: 8px; color: #ececee; font-size: 1rem; padding: 4px 11px; cursor: pointer; }
+  dialog.mobilenav { background: #1d1e20; color: #ececee; border: 1px solid #4a4b50; border-radius: 10px; padding: 18px 22px; min-width: min(320px, 88vw); }
+  dialog.mobilenav::backdrop { background: rgba(0,0,0,.55); }
+  dialog.mobilenav a { display: block; color: #ececee; text-decoration: none; font-weight: 600; padding: 10px 2px; border-bottom: 1px solid #35363b; }
+  dialog.mobilenav a:hover { color: #ff6a1a; }
+  .mnhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: #a6a8ad; font-weight: 700; }
+  .mnclose { appearance: none; background: none; border: none; color: #ececee; font-size: 1rem; cursor: pointer; }
+  .mnhelp { display: block; width: 100%; text-align: left; appearance: none; background: none; border: none; border-bottom: 1px solid #35363b; color: #ececee; font: inherit; font-weight: 600; padding: 10px 2px; cursor: pointer; }
+  .mnhelp:hover { color: #ff6a1a; }
+  .mnsection { margin: 16px 0 2px; color: #a6a8ad; font: 700 0.72rem "Space Grotesk", sans-serif; letter-spacing: 1.5px; }
+  /* the Help panel */
+  dialog.helpdlg { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px 20px; width: min(560px, 92vw); max-height: 86vh; overflow-y: auto; font-size: 13px; line-height: 1.5; }
+  dialog.helpdlg::backdrop { background: rgba(0,0,0,.55); }
+  .hd-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .helpdlg h3 { font: 700 1.05rem "Space Grotesk", -apple-system, "Segoe UI", sans-serif; margin: 0; }
+  .helpdlg h4 { font: 700 0.72rem "Space Grotesk", -apple-system, "Segoe UI", sans-serif; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin: 16px 0 4px; }
+  .helpdlg p { margin: 0; }
+  .hd-steps { margin: 12px 0 0; padding-left: 20px; }
+  .hd-steps li { margin-bottom: 6px; }
+  .hd-close { appearance: none; background: none; border: none; color: var(--text); font-size: 1rem; cursor: pointer; padding: 4px; }
+  .hd-close:hover { color: var(--accent); }
+  .skip { position: absolute; left: -9999px; top: 0; z-index: 200; padding: 8px 14px; background: #ff6a1a; color: #1d1e20; font: 700 0.9rem "Space Grotesk", sans-serif; border-radius: 0 0 10px 0; text-decoration: none; }
+  .skip:focus { left: 0; }
+  /* the menu by the masthead's own width (the wordmark, the name, Help, two tools and the MODULITH menu need ~600 px) */
+  @container (max-width: 620px) {
+    .mast .mainnav { display: none; }
+    .mast .mobilebtn { display: block; }
+  }
+  @media (max-width: 760px) {
+    .mast { padding: 0 14px; }
+    .mast .shell { min-height: 44px; gap: 18px; }
+    .mast .brandlogo { height: 20px; }
+    .mast .product { font-size: 0.85rem; padding-left: 12px; }
+  }
 </style>
 </head>
 <body>
+<a class="skip" href="#sidebar">Skip to the labels</a>
+<!-- THE MODULITH MASTHEAD, SLIM AND TOOL FIRST (2026-10-09, Joey: the MODULITH Label Studio with the site menu "but maybe a
+     slim version so that it doesn't eat up a ton of realestate"; then, since "How It Works" first in a tool reads as this
+     tool's own help: Help, the two other tools, and one MODULITH menu holding the site's pages). Every link opens a new tab, so
+     the labels you are working on stay open. The site pages and their order are the site's navItems() (MODULITH
+     src/components.js) as the Planner's masthead mirrors them; test/masthead.test.mjs checks them against the Planner's
+     index.html when its checkout is beside this one. ⚠ A site nav change is an edit here too. -->
+<header class="mast" id="mast">
+  <div class="shell">
+    <a class="brandlink" target="_blank" rel="noopener" href="https://modulith.systems/" aria-label="MODULITH home"><svg class="brandlogo" role="img" aria-label="MODULITH" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1648.55 357.75">
+<polygon fill="#ff6a1a" points="908.3 0 908.3 357.75 1546.93 357.75 1648.55 256.14 1648.55 0 908.3 0"/>
+<polygon fill="#2c2d31" points="908.3 146.94 908.3 0 101.61 0 0 101.61 0 357.75 908.3 357.75 908.3 210.81 928.8 231.31 928.8 126.44 908.3 146.94"/>
+<g fill="#fff">
+<path d="M977.3,99.5h53.07v113.39h74.61v45.36h-127.67V99.5Z"/>
+<path d="M1126.99,99.5h53.07v158.74h-53.07V99.5Z"/>
+<path d="M1249.25,144.41h-46.72v-44.9h146.5v44.9h-46.72v113.84h-53.06v-113.84Z"/>
+<path d="M1371.04,99.5h53.07v56.01h48.53v-56.01h53.07v158.74h-53.07v-56.92h-48.53v56.92h-53.07V99.5Z"/>
+<path d="M316.11,179.33v-.45c0-46.04,37.87-82.77,86.85-82.77s86.4,36.28,86.4,82.32v.45c0,46.04-37.87,82.77-86.86,82.77s-86.4-36.28-86.4-82.32ZM435.84,179.33v-.45c0-18.82-12.93-35.83-33.34-35.83s-32.88,16.78-32.88,35.38v.45c0,18.82,12.93,35.83,33.34,35.83s32.88-16.78,32.88-35.38Z"/>
+<polygon points="236.26 99.5 202.25 155.29 168.23 99.5 148.15 99.5 112.9 134.76 112.9 258.25 164.83 258.25 164.83 179.56 201.34 236.02 202.25 236.02 238.76 179.56 238.76 258.25 291.6 258.25 291.6 99.5 236.26 99.5"/>
+<path d="M574.65,99.5h-25.52l-35.25,35.25v123.49h58.96c64.18,0,96.38-33.34,96.38-80.28v-.45c0-46.94-31.52-78.01-94.57-78.01ZM615.69,179.1c0,22.9-15.65,32.88-39.91,32.88h-8.84v-66.22h8.84c24.27,0,39.91,9.98,39.91,32.88v.45Z"/>
+<path d="M795.32,99.5v87.99c0,19.28-10.2,26.99-24.49,26.99s-24.49-8.39-24.49-28.12v-86.85h-18.72l-35.25,35.25v52.28c0,52.61,30.61,74.38,78.01,74.38s78.92-21.32,78.92-75.52v-86.4h-53.97Z"/>
+</g></svg></a>
+    <span class="product">Label Studio</span>
+    <nav aria-label="Primary" class="mainnav">
+      <button type="button" class="navhelp" data-help>Help</button>
+      <a target="_blank" rel="noopener" href="https://gen2planner.jerrari3d.com/">Planner</a>
+      <a target="_blank" rel="noopener" href="https://gen2build.jerrari3d.com/builds/">Build Studio</a>
+      <div class="navmenu">
+        <button type="button" class="menubtn" aria-expanded="false" aria-controls="prodmenu">MODULITH<span class="caret" aria-hidden="true"> &#9662;</span></button>
+        <div class="dropdown" id="prodmenu">
+          <a target="_blank" rel="noopener" href="https://modulith.systems/how-it-works/">How It Works</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/builds/">Starter Builds</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/catalog/">Catalog</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/instructions/">Instructions</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/in-the-wild/">Community Builds</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/story/">The story</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/about/">About</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/support/">Support</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/support/#club">Club &amp; membership</a>
+          <a target="_blank" rel="noopener" href="https://modulith.systems/more-designs/">More Designs</a>
+        </div>
+      </div>
+    </nav>
+    <button type="button" class="mobilebtn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
+  </div>
+</header>
+<dialog class="mobilenav" aria-label="Menu">
+  <div class="mnhead"><span>Menu</span><button type="button" class="mnclose" aria-label="Close menu">&#10005;</button></div>
+  <button type="button" class="mnhelp" data-help>Help</button>
+  <a target="_blank" rel="noopener" href="https://gen2planner.jerrari3d.com/">Planner</a>
+  <a target="_blank" rel="noopener" href="https://gen2build.jerrari3d.com/builds/">Build Studio</a>
+  <div class="mnsection">MODULITH</div>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/how-it-works/">How It Works</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/builds/">Starter Builds</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/catalog/">Catalog</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/instructions/">Instructions</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/in-the-wild/">Community Builds</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/story/">The story</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/about/">About</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/support/">Support</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/support/#club">Club &amp; membership</a>
+  <a target="_blank" rel="noopener" href="https://modulith.systems/more-designs/">More Designs</a>
+</dialog>
 <div id="app">
   <div id="sidebar">
-    <!-- LOGO START — real Jerrari Design badge -->
-    <div class="brand-header">
-      <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 798.74 1365.44" aria-label="Jerrari Design">
-        <defs>
-          <linearGradient id="jdl-grad" x1="82.85" y1="547.74" x2="716.19" y2="547.74" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stop-color="#72C6EF"/>
-            <stop offset="1" stop-color="#379AD5"/>
-          </linearGradient>
-        </defs>
-        <g>
-          <path fill="#59595B" d="M657.4,141.35L24.31,774.44L0,798.74l0.06,34.37L0.3,983.65l0,2.2l0.12,2.19c5.3,96.98,45.68,188.35,113.8,257.73c0.86,0.95,1.75,1.88,2.66,2.79l0.02,0.02l0.02,0.02c38.1,38.06,82.56,67.55,132.14,87.64c23.82,9.65,48.73,17.03,74.02,21.92c25.03,4.84,50.66,7.3,76.18,7.3c25.54,0,51.18-2.46,76.23-7.31c25.31-4.9,50.23-12.28,74.06-21.95c49.61-20.12,94.09-49.64,132.2-87.75c18.55-18.55,35.34-39.03,49.89-60.85c14.41-21.62,26.77-44.75,36.71-68.76c9.94-24.01,17.57-49.1,22.66-74.58c5.14-25.72,7.75-52.06,7.75-78.3v-316.7V534.58v-60.02V350.67v-2.65V199.9V0L657.4,141.35z"/>
-          <polygon fill="url(#jdl-grad)" points="716.19,199.65 82.85,832.98 82.85,895.82 716.19,262.49"/>
-          <path fill="#F06A35" d="M631.44,733.99l-41.89,41.89c-0.03,0.03-0.05,0.07-0.05,0.12v188.49c0,50.9-19.78,100.03-55.82,135.98c-52.72,52.6-128.64,67.8-194.78,45.62c-0.06-0.02-0.13,0-0.17,0.04l-32.38,32.38c-0.08,0.08-0.06,0.23,0.05,0.28c84.01,36.71,185.31,21.32,254.82-46.18c45.37-44.06,70.5-104.92,70.5-168.16V734.11C631.73,733.96,631.55,733.89,631.44,733.99z"/>
-          <path fill="#F06A35" d="M175.67,1189.77l24.31-24.31l35.28-35.28l29.86-29.86l24.4-24.4l35.2-35.2c0.07-0.07,0.17-0.07,0.24,0c40.32,40.2,105.05,41.05,146.4,2.55c21.71-20.2,33.69-48.76,33.69-78.42V860.79c0-0.15-0.18-0.23-0.29-0.12L399.78,965.66c-0.11,0.11-0.29,0.03-0.29-0.12V667.43c0-0.04,0.02-0.09,0.05-0.12l-316.2,316.2c4.4,80.48,38.86,152.95,92.33,206.39C175.67,1189.86,175.63,1189.8,175.67,1189.77z"/>
-          <path fill="#F06A35" d="M483.99,704.31c-0.03,0.03-0.05,0.08-0.05,0.12v58.9c0,0.15,0.18,0.23,0.29,0.12L715.9,534.46c0.11-0.11,0.29-0.03,0.29,0.12v-60.02c0,0.05-0.02,0.09-0.05,0.12L483.99,704.31z"/>
-          <path fill="#FFFFFF" d="M716.19,474.56V351.08c0-0.15-0.18-0.23-0.29-0.12L399.54,667.32c-0.03,0.03-0.05,0.07-0.05,0.12v298.11c0,0.15,0.18,0.23,0.29,0.12l104.99-104.99c0.11-0.11,0.29-0.03,0.29,0.12v104.06c0,29.65-11.98,58.21-33.69,78.42c-41.36,38.5-106.08,37.64-146.4-2.55c-0.07-0.07-0.17-0.07-0.24,0l-35.2,35.2l-24.4,24.4l-29.86,29.86l-35.28,35.28l-24.31,24.31c-0.07,0.07-0.07,0.17,0,0.24c123.69,123.56,324.12,123.52,447.76-0.12c59.39-59.39,92.76-139.94,92.76-223.94v-316.7V534.58c0-0.15-0.18-0.23-0.29-0.12L484.23,763.45c-0.11,0.11-0.29,0.03-0.29-0.12v-58.9c0-0.05,0.02-0.09,0.05-0.12l232.14-229.63C716.17,474.65,716.19,474.61,716.19,474.56z M589.51,964.49V776c0-0.04,0.02-0.09,0.05-0.12l41.89-41.89c0.11-0.11,0.29-0.03,0.29,0.12v230.34c0,63.24-25.13,124.1-70.5,168.16c-69.51,67.5-170.81,82.89-254.82,46.18c-0.11-0.05-0.14-0.19-0.05-0.28l32.38-32.38c0.05-0.05,0.11-0.06,0.17-0.04c66.14,22.18,142.06,6.98,194.78-45.62C569.73,1064.52,589.51,1015.39,589.51,964.49z"/>
-          <path fill="#C05627" d="M631.44,733.99l-41.89,41.89c-0.03,0.03-0.05,0.07-0.05,0.12v188.49c0,50.9-19.78,100.03-55.82,135.98c-52.72,52.6-128.64,67.8-194.78,45.62c-0.06-0.02-0.13,0-0.17,0.04l-32.38,32.38c-0.08,0.08-0.06,0.23,0.05,0.28c20.71,9.05,42.46,14.92,64.53,17.63l18.48-18.48c0.04-0.05,0.11-0.06,0.17-0.04c26.76,8.98,55.12,11.83,82.9,8.56c32.31-10.67,62.75-28.62,88.73-53.85c45.37-44.06,70.5-104.92,70.5-168.16V734.11C631.73,733.96,631.55,733.89,631.44,733.99z"/>
-          <path fill="#C05627" d="M483.99,704.31c-0.03,0.03-0.05,0.08-0.05,0.12v58.9c0,0.15,0.18,0.23,0.29,0.12L715.9,534.46c0.11-0.11,0.29-0.03,0.29,0.12v-60.02c0,0.05-0.02,0.09-0.05,0.12L483.99,704.31z"/>
-          <path fill="#C05627" d="M504.77,860.67l-54.59,54.59v82.09c0,0.15,0.18,0.23,0.29,0.12l54.59-54.59v-82.09C505.06,860.64,504.87,860.57,504.77,860.67z"/>
-        </g>
-      </svg>
-      <div class="brand-text">
-        <div class="brand-name">JERRARI DESIGN</div>
-        <div class="brand-tag">GEN2 EdgeLabel Label Generator</div>
-      </div>
-    </div>
-    <!-- LOGO END -->
 
     <div class="link-bar" id="link-bar" role="status" aria-live="polite" hidden>
       <div class="lb-text" id="lb-text"></div>
@@ -344,8 +440,8 @@
     <div class="proj-actions">
       <button class="btn-sm" id="proj-export" title="Download your labels + settings as a .json file">Export</button>
       <button class="btn-sm" id="proj-upload-btn" title="Load labels + settings from a .json file you exported earlier">Upload</button>
-      <button class="btn-sm" id="to-planner" title="Open the GEN2 Planner with these labels: they wait in its Labels tray under the board, where you tap a label and then a drawer. Hardware labels keep their part details.">Add to planner build</button>
-      <button class="btn-sm" id="proj-restore" style="display:none" title="Swap the current labels and settings with the previous set - the one set kept from before the last GEN2 Planner import. Click again to swap back. Only one previous set is kept: the next Planner import replaces it.">Previous set</button>
+      <button class="btn-sm" id="to-planner" title="Open the MODULITH Planner with these labels: they wait in its Labels tray under the board, where you tap a label and then a drawer. Hardware labels keep their part details.">Add to planner build</button>
+      <button class="btn-sm" id="proj-restore" style="display:none" title="Swap the current labels and settings with the previous set - the one set kept from before the last Planner import. Click again to swap back. Only one previous set is kept: the next Planner import replaces it.">Previous set</button>
       <input type="file" id="proj-import" accept=".json,application/json">
     </div>
 
@@ -438,17 +534,17 @@
     <div id="status">Loading…</div>
 
     <div class="footer">
-      Built for the GEN2 Modular Storage System<br>
+      MODULITH Label Studio · for MODULITH (formerly GEN2) drawers<br>
       <a href="#" id="help-link">How to print in two colors →</a><br>
-      <span style="opacity: 0.6;">jerrari3d.com</span>
+      <a target="_blank" rel="noopener" href="https://modulith.systems/" style="opacity: 0.6;">modulith.systems</a>
     </div>
   </div>
   <div id="preview">
     <div class="overlay">
-      <strong id="type-name">GEN2 EdgeLabel</strong> · <span id="type-size">57 × 27 × 4.5 mm</span><br>
+      <strong id="type-name">EdgeLabel label</strong> · <span id="type-size">57 × 27 × 4.5 mm</span><br>
       <span id="label-count">0 labels</span><span class="hint-desktop"> · Scroll to zoom · Drag to rotate</span><span class="hint-mobile"> · Pinch / drag to navigate</span>
     </div>
-    <span class="brand" id="type-version">JERRARI DESIGN · EdgeLabel v1.02</span>
+    <span class="brand" id="type-version">MODULITH LABEL STUDIO · EdgeLabel v1.02</span>
   </div>
 </div>
 
@@ -459,6 +555,22 @@
     <button class="btn-sm" id="veil-stop">Stop waiting</button>
   </div>
 </div>
+<!-- Help: how to use the Label Studio (the masthead's Help; the footer's link opens it at two-color printing) -->
+<dialog id="help" class="helpdlg" aria-labelledby="help-title">
+  <div class="hd-head"><h3 id="help-title">How to use the Label Studio</h3><button type="button" class="hd-close" aria-label="Close help">&#10005;</button></div>
+  <ol class="hd-steps">
+    <li><b>Pick the label type</b> your faceplates take: EdgeLabel or Classic Pro. Your labels are kept when you switch; each type keeps its own label settings.</li>
+    <li><b>Type your labels</b>, one per row, or drop in a CSV / TXT file (one label per line), or start from a preset collection. An icon is suggested from the words; click the badge at the left of a row to choose an icon, a letter or no badge.</li>
+    <li><b>Set your printer</b> under Build Plate, so the labels are laid out on plates that fit it.</li>
+    <li><b>Download</b> and open the file in your slicer: 3MF for a two-color print, STL for one color.</li>
+  </ol>
+  <h4>From the Planner</h4>
+  <p>Labels you open from the Planner arrive linked to your build: edit them here and press <b>Send to planner</b>. <b>Add to planner build</b> sends a list from here to the Planner's Labels tray, where you tap a label and then a drawer.</p>
+  <h4 id="help-two-color">Two-color printing</h4>
+  <p>Choose the 3MF for your slicer (PrusaSlicer, or Bambu Studio / OrcaSlicer). The base and the text are already set to filaments 1 and 2. If your slicer does not pick them up, set each part's filament yourself: base light, text dark. 0.2 mm layers work well; leave the purge area free for the wipe tower.</p>
+  <h4>Saving your work</h4>
+  <p>Your labels and settings are kept in this browser as you go. <b>Export</b> saves a copy as a file; <b>Upload</b> opens it again, here or on another computer.</p>
+</dialog>
 <div id="gen-modal" class="veil" hidden>
   <div class="veil-card" role="dialog" aria-modal="true" aria-labelledby="gm-title">
     <div class="veil-title" id="gm-title"></div>
@@ -699,7 +811,7 @@ function init() {
     // rebuild() sets its own status; override it only when it didn't warn.
     if (!document.getElementById('status').classList.contains('err')) {
       const n = importedFromPlanner;
-      setStatus(linkBootStatus || ((n ? `Loaded ${n} label${n === 1 ? '' : 's'} from the GEN2 Planner.` +
+      setStatus(linkBootStatus || ((n ? `Loaded ${n} label${n === 1 ? '' : 's'} from the Planner.` +
                     (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '')
         : restoredFromAutosave ? 'Restored your previous session.' : 'Ready. Type labels and click Download.') + (linkBootExtra ? ' ' + linkBootExtra : '')), 'ok');
     }
@@ -2201,7 +2313,7 @@ function startRowDrag(e, row) {
   handle.addEventListener('pointercancel', onUp);
 }
 
-// Labels handed off from the GEN2 Planner: #labels=<base64 JSON array of strings>.
+// Labels handed off from the Planner: #labels=<base64 JSON array of strings>.
 function importedLabelsFromUrl() {
   try {
     const m = (location.hash || '').match(/labels=([^&]+)/);
@@ -2318,11 +2430,10 @@ function updateTypeUI() {
   const sel = document.getElementById('label-type');
   const linked = typeof link !== 'undefined' && !!link;
   if (sel) { sel.value = labelType.id; sel.disabled = linked; sel.title = linked ? 'A planner build is linked: its faceplates take EdgeLabel labels.' : ''; }
-  const tag = document.querySelector('.brand-tag'); if (tag) tag.textContent = labelType.app;
-  document.title = labelType.app + ' · Jerrari Design';
-  const nm = document.getElementById('type-name'); if (nm) nm.textContent = 'GEN2 ' + labelType.name;
+  document.title = labelType.name + ' · Label Studio · MODULITH';
+  const nm = document.getElementById('type-name'); if (nm) nm.textContent = labelType.name + ' label';
   const sz = document.getElementById('type-size'); if (sz) sz.textContent = labelType.size;
-  const vn = document.getElementById('type-version'); if (vn) vn.textContent = 'JERRARI DESIGN · ' + labelType.version;
+  const vn = document.getElementById('type-version'); if (vn) vn.textContent = 'MODULITH LABEL STUDIO · ' + labelType.version;
   document.body.classList.toggle('type-no-hw', !labelType.hardware);
   const cp = labelType.id === 'classicpro';
   ['hw-profile', 'hw-band'].forEach(id => {      // drawings and bands are EdgeLabel's for now: the setting is kept, not used
@@ -3200,7 +3311,7 @@ window.addEventListener('hashchange', () => {
     importFromPlanner(labels);
     rebuild();
     renderLinkBar();
-    setStatus(`Loaded ${plural(labels.length, 'label', 'labels')} from the GEN2 Planner.` + (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '') +
+    setStatus(`Loaded ${plural(labels.length, 'label', 'labels')} from the Planner.` + (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '') +
       (pausedSession ? ' Your planner link in this tab is paused: Resume it.' : ''), 'ok');
   } else if (jr) setStatus("Couldn't read the planner's link (it may have been cut short by the browser).", 'err');
 });
@@ -3230,7 +3341,7 @@ function bootRows() {
       clearHash();
       startLinked(plan.job);
       const n = plan.job.rows.length;
-      linkBootStatus = `Loaded ${plural(n, 'drawer', 'drawers')} from the GEN2 Planner - linked.` + (kept ? ' Your earlier linked labels were kept: Save / Load › Previous set.' : '');
+      linkBootStatus = `Loaded ${plural(n, 'drawer', 'drawers')} from the Planner - linked.` + (kept ? ' Your earlier linked labels were kept: Save / Load › Previous set.' : '');
       break;
     }
     case 'legacy-import':
@@ -3378,19 +3489,18 @@ function setupUI() {
     window.addEventListener(ev, (e) => { e.preventDefault(); });
   });
 
-  document.getElementById('help-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    alert(
-      'Two-color print instructions:\n\n' +
-      '1. Pick the export format for your slicer (PrusaSlicer, or Bambu Studio / ' +
-      'OrcaSlicer), then open the .3mf in it.\n' +
-      '2. The base and text are pre-assigned to filaments 1 and 2.\n' +
-      '3. If your slicer doesn\'t auto-detect, right-click each part and ' +
-      'manually set the filament: base = white/light, text = black/dark.\n\n' +
-      'Print settings: 0.2mm layer height works well. Use a flush tower ' +
-      'to clean the nozzle between filament changes.'
-    );
-  });
+  // Help: the masthead's Help (and the phone menu's) opens the Help panel; the footer's link opens it at two-color printing
+  const helpDlg = document.getElementById('help');
+  const openHelp = (at) => {
+    const mn = document.querySelector('dialog.mobilenav'); if (mn && mn.open) mn.close();
+    if (!helpDlg.open) helpDlg.showModal();
+    const sec = at && document.getElementById(at);
+    helpDlg.scrollTop = sec ? sec.offsetTop - 12 : 0;
+  };
+  document.querySelectorAll('[data-help]').forEach(el => el.addEventListener('click', () => openHelp()));
+  helpDlg.querySelector('.hd-close').addEventListener('click', () => helpDlg.close());
+  helpDlg.addEventListener('click', (e) => { if (e.target === helpDlg) helpDlg.close(); });
+  document.getElementById('help-link').addEventListener('click', (e) => { e.preventDefault(); openHelp('help-two-color'); });
 
   // Populate label rows LAST — after every settings/colour/bed/purge listener
   // above is registered — so the sync events dispatched by restoreAutosave()'s
@@ -3447,6 +3557,34 @@ function debounce(fn, ms) {
 // Boot
 //============================================================
 window.addEventListener('DOMContentLoaded', init);
+</script>
+<!-- the masthead's MODULITH menu and the phone menu - the Planner's script (the site's sharedScript() in MODULITH
+     src/components.js): a click outside or Escape closes the MODULITH menu; the phone menu is a <dialog>. Without it the
+     links still work, only the two menus stay shut. -->
+<script>
+(function () {
+  "use strict";
+  try {
+    var mb = document.querySelector(".mobilebtn"), mn = document.querySelector("dialog.mobilenav");
+    if (mb && mn && mn.showModal) {
+      mb.addEventListener("click", function () { mn.showModal(); mb.setAttribute("aria-expanded", "true"); });
+      mn.addEventListener("close", function () { mb.setAttribute("aria-expanded", "false"); });
+      var mc = mn.querySelector(".mnclose"); if (mc) mc.addEventListener("click", function () { mn.close(); });
+      mn.addEventListener("click", function (e) { if (e.target === mn) mn.close(); });
+    }
+    var menubtn = document.querySelector(".menubtn");
+    if (menubtn) {
+      var dd = document.getElementById("prodmenu");
+      var shut = function () { menubtn.setAttribute("aria-expanded", "false"); dd.classList.remove("open"); };
+      menubtn.addEventListener("click", function () {
+        var open = menubtn.getAttribute("aria-expanded") === "true";
+        menubtn.setAttribute("aria-expanded", String(!open)); dd.classList.toggle("open", !open);
+      });
+      document.addEventListener("click", function (e) { if (!(e.target && e.target.closest && e.target.closest(".navmenu"))) shut(); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+    }
+  } catch (e) { /* the links work without this; only the two menus stay shut */ }
+})();
 </script>
 </body>
 </html>

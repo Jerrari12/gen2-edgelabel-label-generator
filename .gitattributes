@@ -31,3 +31,6 @@ label-list.js text eol=lf
 # label-core-classicpro.js is the Classic Pro generator's label core (its classicpro-label-core branch, f0ef3c6), byte for byte and
 # sha-pinned in test/label-types.test.mjs: a fixed LF keeps it the same bytes on every OS.
 label-core-classicpro.js text eol=lf
+
+# The MODULITH fonts (Space Grotesk, copied from the Planner with its masthead) are binary, like the site icons.
+*.woff2 binary
