@@ -18,6 +18,7 @@
    },
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -62,6 +63,7 @@
     "STEEL"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -100,7 +102,7 @@
    "main_lines": [
     "M5"
    ],
-   "main_cap": 11.9,
+   "main_cap": 12,
    "attributes": [
     "NUT",
     "STEEL",
@@ -113,42 +115,43 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -19.347,
-      -2.5526,
-      -0.9849,
-      9.5176
+      -12.5682,
+      -3.6786,
+      5.9483,
+      8.4931
      ],
-     "area": 123.9246
+     "area": 126.0161
     },
     "beside1": {
      "bbox": [
-      1.0151,
-      -2.5526,
-      12.4911,
-      2.2146
+      7.9483,
+      -3.6786,
+      19.4242,
+      1.0886
      ],
      "area": 23.6079
     },
     "icon": {
      "bbox": [
-      13.8911,
-      2.9926,
-      19.347,
-      8.8426
+      -19.4242,
+      -0.5177,
+      -13.9682,
+      5.3323
      ],
      "area": 16.1217
     },
     "secondary1": {
      "bbox": [
       -18.9441,
-      -8.6903,
+      -9.8163,
       18.9441,
-      -3.8526
+      -4.9786
      ],
      "area": 66.1336
     }
@@ -171,24 +174,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.6862,
+      -5.8303,
       -3.6786,
-      5.8303,
+      12.6862,
       8.4931
      ],
      "area": 126.0161
     },
     "icon": {
      "bbox": [
-      7.2303,
-      1.9681,
-      12.6862,
-      7.8181
+      -12.6862,
+      -0.5177,
+      -7.2303,
+      5.3323
      ],
      "area": 16.1217
     },
@@ -222,24 +226,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -9.6773,
+      -2.8213,
       1.3682,
-      2.8213,
+      9.6773,
       9.5841
      ],
      "area": 57.4161
     },
     "icon": {
      "bbox": [
-      4.2213,
-      3.0591,
-      9.6773,
-      8.9091
+      -9.6773,
+      2.5511,
+      -4.2213,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -278,24 +283,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -13.1082,
+      -5.4083,
       -3.6786,
-      5.4083,
+      13.1082,
       8.4931
      ],
      "area": 126.0161
     },
     "icon": {
      "bbox": [
-      6.8083,
-      1.7431,
-      13.1082,
-      8.0431
+      -13.1082,
+      -0.7427,
+      -6.8083,
+      5.5572
      ],
      "area": 22.4139
     },
@@ -331,24 +337,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -393,24 +400,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4705,
+      -9.6146,
       1.3628,
-      9.6146,
+      16.4705,
       9.5894
      ],
      "area": 83.4506
     },
     "icon": {
      "bbox": [
-      11.0146,
-      3.0644,
-      16.4705,
-      8.9144
+      -16.4705,
+      2.5511,
+      -11.0146,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -453,24 +461,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -516,6 +525,7 @@
     "UNC"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -583,24 +593,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.0873,
+      -4.3874,
       1.3628,
-      4.3874,
+      12.0873,
       9.5894
      ],
      "area": 46.945
     },
     "icon": {
      "bbox": [
-      5.7874,
-      2.8394,
-      12.0873,
-      9.1394
+      -12.0873,
+      2.3261,
+      -5.7874,
+      8.6261
      ],
      "area": 22.4139
     },
@@ -645,24 +656,25 @@
     "UNC"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.5876,
+      -9.7316,
       1.2735,
-      9.7316,
+      16.5876,
       9.6083
      ],
      "area": 83.6012
     },
     "icon": {
      "bbox": [
-      11.1316,
-      3.0833,
-      16.5876,
-      8.9333
+      -16.5876,
+      2.5159,
+      -11.1316,
+      8.3659
      ],
      "area": 16.1217
     },
@@ -703,6 +715,7 @@
    },
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -747,6 +760,7 @@
     "STEEL"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -785,7 +799,7 @@
    "main_lines": [
     "M5"
    ],
-   "main_cap": 11.9,
+   "main_cap": 12,
    "attributes": [
     "NUT",
     "STEEL",
@@ -798,42 +812,43 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -19.347,
-      -2.5526,
-      -0.9849,
-      9.5176
+      -12.5682,
+      -3.6786,
+      5.9483,
+      8.4931
      ],
-     "area": 123.9246
+     "area": 126.0161
     },
     "beside1": {
      "bbox": [
-      1.0151,
-      -2.5526,
-      12.4911,
-      2.2146
+      7.9483,
+      -3.6786,
+      19.4242,
+      1.0886
      ],
      "area": 23.6079
     },
     "icon": {
      "bbox": [
-      13.8911,
-      2.9926,
-      19.347,
-      8.8426
+      -19.4242,
+      -0.5177,
+      -13.9682,
+      5.3323
      ],
      "area": 16.1217
     },
     "secondary1": {
      "bbox": [
       -18.9441,
-      -8.6903,
+      -9.8163,
       18.9441,
-      -3.8526
+      -4.9786
      ],
      "area": 66.1336
     }
@@ -856,24 +871,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.6862,
+      -5.8303,
       -3.6786,
-      5.8303,
+      12.6862,
       8.4931
      ],
      "area": 126.0161
     },
     "icon": {
      "bbox": [
-      7.2303,
-      1.9681,
-      12.6862,
-      7.8181
+      -12.6862,
+      -0.5177,
+      -7.2303,
+      5.3323
      ],
      "area": 16.1217
     },
@@ -907,24 +923,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -9.6773,
+      -2.8213,
       1.3682,
-      2.8213,
+      9.6773,
       9.5841
      ],
      "area": 57.4161
     },
     "icon": {
      "bbox": [
-      4.2213,
-      3.0591,
-      9.6773,
-      8.9091
+      -9.6773,
+      2.5511,
+      -4.2213,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -963,24 +980,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -13.1082,
+      -5.4083,
       -3.6786,
-      5.4083,
+      13.1082,
       8.4931
      ],
      "area": 126.0161
     },
     "icon": {
      "bbox": [
-      6.8083,
-      1.7431,
-      13.1082,
-      8.0431
+      -13.1082,
+      -0.7427,
+      -6.8083,
+      5.5572
      ],
      "area": 22.4139
     },
@@ -1016,24 +1034,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1078,24 +1097,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4705,
+      -9.6146,
       1.3628,
-      9.6146,
+      16.4705,
       9.5894
      ],
      "area": 83.4506
     },
     "icon": {
      "bbox": [
-      11.0146,
-      3.0644,
-      16.4705,
-      8.9144
+      -16.4705,
+      2.5511,
+      -11.0146,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1138,24 +1158,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1201,6 +1222,7 @@
     "UNC"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -1268,24 +1290,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.0873,
+      -4.3874,
       1.3628,
-      4.3874,
+      12.0873,
       9.5894
      ],
      "area": 46.945
     },
     "icon": {
      "bbox": [
-      5.7874,
-      2.8394,
-      12.0873,
-      9.1394
+      -12.0873,
+      2.3261,
+      -5.7874,
+      8.6261
      ],
      "area": 22.4139
     },
@@ -1330,24 +1353,25 @@
     "UNC"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.5876,
+      -9.7316,
       1.2735,
-      9.7316,
+      16.5876,
       9.6083
      ],
      "area": 83.6012
     },
     "icon": {
      "bbox": [
-      11.1316,
-      3.0833,
-      16.5876,
-      8.9333
+      -16.5876,
+      2.5159,
+      -11.1316,
+      8.3659
      ],
      "area": 16.1217
     },
@@ -1388,24 +1412,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.6862,
+      -5.8303,
       -3.6786,
-      5.8303,
+      12.6862,
       8.4931
      ],
      "area": 126.0161
     },
     "icon": {
      "bbox": [
-      7.2303,
-      1.9681,
-      12.6862,
-      7.8181
+      -12.6862,
+      -0.5177,
+      -7.2303,
+      5.3323
      ],
      "area": 16.1217
     },
@@ -1426,7 +1451,7 @@
    "main_lines": [
     "M5"
    ],
-   "main_cap": 11.9,
+   "main_cap": 12,
    "attributes": [
     "NUT",
     "STEEL",
@@ -1439,42 +1464,43 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -19.347,
-      -2.5526,
-      -0.9849,
-      9.5176
+      -12.5682,
+      -3.6786,
+      5.9483,
+      8.4931
      ],
-     "area": 123.9246
+     "area": 126.0161
     },
     "beside1": {
      "bbox": [
-      1.0151,
-      -2.5526,
-      12.4911,
-      2.2146
+      7.9483,
+      -3.6786,
+      19.4242,
+      1.0886
      ],
      "area": 23.6079
     },
     "icon": {
      "bbox": [
-      13.8911,
-      2.9926,
-      19.347,
-      8.8426
+      -19.4242,
+      -0.5177,
+      -13.9682,
+      5.3323
      ],
      "area": 16.1217
     },
     "secondary1": {
      "bbox": [
       -18.9441,
-      -8.6903,
+      -9.8163,
       18.9441,
-      -3.8526
+      -4.9786
      ],
      "area": 66.1336
     }
@@ -1501,24 +1527,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1559,24 +1586,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.6862,
+      -5.8303,
       -3.6786,
-      5.8303,
+      12.6862,
       8.4931
      ],
      "area": 126.0161
     },
     "icon": {
      "bbox": [
-      7.2303,
-      1.9681,
-      12.6862,
-      7.8181
+      -12.6862,
+      -0.5177,
+      -7.2303,
+      5.3323
      ],
      "area": 16.1217
     },
@@ -1597,7 +1625,7 @@
    "main_lines": [
     "M5"
    ],
-   "main_cap": 11.9,
+   "main_cap": 12,
    "attributes": [
     "NUT",
     "STEEL",
@@ -1610,42 +1638,43 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -19.347,
-      -2.5526,
-      -0.9849,
-      9.5176
+      -12.5682,
+      -3.6786,
+      5.9483,
+      8.4931
      ],
-     "area": 123.9246
+     "area": 126.0161
     },
     "beside1": {
      "bbox": [
-      1.0151,
-      -2.5526,
-      12.4911,
-      2.2146
+      7.9483,
+      -3.6786,
+      19.4242,
+      1.0886
      ],
      "area": 23.6079
     },
     "icon": {
      "bbox": [
-      13.8911,
-      2.9926,
-      19.347,
-      8.8426
+      -19.4242,
+      -0.5177,
+      -13.9682,
+      5.3323
      ],
      "area": 16.1217
     },
     "secondary1": {
      "bbox": [
       -18.9441,
-      -8.6903,
+      -9.8163,
       18.9441,
-      -3.8526
+      -4.9786
      ],
      "area": 66.1336
     }
@@ -1672,24 +1701,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1734,24 +1764,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1796,24 +1827,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4705,
+      -9.6146,
       1.3628,
-      9.6146,
+      16.4705,
       9.5894
      ],
      "area": 83.4506
     },
     "icon": {
      "bbox": [
-      11.0146,
-      3.0644,
-      16.4705,
-      8.9144
+      -16.4705,
+      2.5511,
+      -11.0146,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1858,24 +1890,25 @@
     "UNC"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.5876,
+      -9.7316,
       1.2735,
-      9.7316,
+      16.5876,
       9.6083
      ],
      "area": 83.6012
     },
     "icon": {
      "bbox": [
-      11.1316,
-      3.0833,
-      16.5876,
-      8.9333
+      -16.5876,
+      2.5159,
+      -11.1316,
+      8.3659
      ],
      "area": 16.1217
     },
@@ -1920,24 +1953,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -18.5097,
+      -11.6538,
       1.3628,
-      11.6538,
+      18.5097,
       9.5894
      ],
      "area": 101.869
     },
     "icon": {
      "bbox": [
-      13.0538,
-      3.0644,
-      18.5097,
-      8.9144
+      -18.5097,
+      2.5511,
+      -13.0538,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -1982,24 +2016,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -18.7763,
+      -11.9203,
       1.3628,
-      11.9203,
+      18.7763,
       9.5894
      ],
      "area": 101.3019
     },
     "icon": {
      "bbox": [
-      13.3203,
-      3.0644,
-      18.7763,
-      8.9144
+      -18.7763,
+      2.5511,
+      -13.3203,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2044,24 +2079,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -18.1661,
+      -11.3102,
       1.3589,
-      11.3102,
+      18.1661,
       9.5933
      ],
      "area": 97.4755
     },
     "icon": {
      "bbox": [
-      12.7102,
-      3.0683,
-      18.1661,
-      8.9183
+      -18.1661,
+      2.5511,
+      -12.7102,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2106,24 +2142,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -18.0008,
+      -11.1448,
       1.3507,
-      11.1448,
+      18.0008,
       9.6015
      ],
      "area": 98.1861
     },
     "icon": {
      "bbox": [
-      12.5448,
-      3.0765,
-      18.0008,
-      8.9265
+      -18.0008,
+      2.5511,
+      -12.5448,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2166,24 +2203,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.1672,
+      -9.3112,
       1.2735,
-      9.3112,
+      16.1672,
       9.6083
      ],
      "area": 88.3753
     },
     "icon": {
      "bbox": [
-      10.7112,
-      3.0833,
-      16.1672,
-      8.9333
+      -16.1672,
+      2.5159,
+      -10.7112,
+      8.3659
      ],
      "area": 16.1217
     },
@@ -2226,24 +2264,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.0873,
+      -4.3874,
       1.3628,
-      4.3874,
+      12.0873,
       9.5894
      ],
      "area": 46.945
     },
     "icon": {
      "bbox": [
-      5.7874,
-      2.8394,
-      12.0873,
-      9.1394
+      -12.0873,
+      2.3261,
+      -5.7874,
+      8.6261
      ],
      "area": 22.4139
     },
@@ -2286,24 +2325,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.0873,
+      -4.3874,
       1.3628,
-      4.3874,
+      12.0873,
       9.5894
      ],
      "area": 46.945
     },
     "icon": {
      "bbox": [
-      5.7874,
-      2.8394,
-      12.0873,
-      9.1394
+      -12.0873,
+      2.3261,
+      -5.7874,
+      8.6261
      ],
      "area": 22.4139
     },
@@ -2346,24 +2386,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -11.5266,
+      -3.8266,
       1.3589,
-      3.8266,
+      11.5266,
       9.5933
      ],
      "area": 54.7448
     },
     "icon": {
      "bbox": [
-      5.2266,
-      2.8433,
-      11.5266,
-      9.1433
+      -11.5266,
+      2.3261,
+      -5.2266,
+      8.6261
      ],
      "area": 22.4139
     },
@@ -2406,6 +2447,7 @@
     "UNC"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -2459,24 +2501,25 @@
     "UNC"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2521,24 +2564,25 @@
     "UNF"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4705,
+      -9.6146,
       1.3628,
-      9.6146,
+      16.4705,
       9.5894
      ],
      "area": 83.4506
     },
     "icon": {
      "bbox": [
-      11.0146,
-      3.0644,
-      16.4705,
-      8.9144
+      -16.4705,
+      2.5511,
+      -11.0146,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2583,24 +2627,25 @@
     "UNF"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -18.0008,
+      -11.1448,
       1.3507,
-      11.1448,
+      18.0008,
       9.6015
      ],
      "area": 98.1861
     },
     "icon": {
      "bbox": [
-      12.5448,
-      3.0765,
-      18.0008,
-      8.9265
+      -18.0008,
+      2.5511,
+      -12.5448,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2645,24 +2690,25 @@
     "UNC"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4248,
+      -9.5688,
       1.3628,
-      9.5688,
+      16.4248,
       9.5894
      ],
      "area": 81.4438
     },
     "icon": {
      "bbox": [
-      10.9688,
-      3.0644,
-      16.4248,
-      8.9144
+      -16.4248,
+      2.5511,
+      -10.9688,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2707,24 +2753,25 @@
     "UNF"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -16.4705,
+      -9.6146,
       1.3628,
-      9.6146,
+      16.4705,
       9.5894
      ],
      "area": 83.4506
     },
     "icon": {
      "bbox": [
-      11.0146,
-      3.0644,
-      16.4705,
-      8.9144
+      -16.4705,
+      2.5511,
+      -11.0146,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2769,24 +2816,25 @@
     "UNC"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -18.5097,
+      -11.6538,
       1.3628,
-      11.6538,
+      18.5097,
       9.5894
      ],
      "area": 101.869
     },
     "icon": {
      "bbox": [
-      13.0538,
-      3.0644,
-      18.5097,
-      8.9144
+      -18.5097,
+      2.5511,
+      -13.0538,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -2831,24 +2879,25 @@
     "UNC"
    ],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -14.2664,
+      -7.4104,
       2.6506,
-      7.4104,
+      14.2664,
       9.5783
      ],
      "area": 61.0051
     },
     "icon": {
      "bbox": [
-      8.8104,
-      3.0533,
-      14.2664,
-      8.9033
+      -14.2664,
+      3.1894,
+      -8.8104,
+      9.0394
      ],
      "area": 16.1217
     },
@@ -2888,6 +2937,7 @@
    },
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -2936,6 +2986,7 @@
    },
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -2985,6 +3036,7 @@
    },
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -3017,6 +3069,7 @@
    "attribute_places": null,
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": true
   },
@@ -3029,6 +3082,7 @@
    "attribute_places": null,
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": true
   },
@@ -3049,6 +3103,7 @@
    },
    "not_shown": [],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -3102,6 +3157,7 @@
     "STEEL"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -3155,6 +3211,7 @@
     "STEEL"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -3209,6 +3266,7 @@
     "UNC"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
@@ -3254,6 +3312,7 @@
     "UNC"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": true,
    "not_ready": false
   },
@@ -3269,6 +3328,7 @@
     "UNC"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": true,
    "not_ready": false
   },
@@ -3291,24 +3351,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -9.5602,
+      -2.7042,
       1.3589,
-      2.7042,
+      9.5602,
       9.5933
      ],
      "area": 56.6921
     },
     "icon": {
      "bbox": [
-      4.1042,
-      3.0683,
-      9.5602,
-      8.9183
+      -9.5602,
+      2.5511,
+      -4.1042,
+      8.4011
      ],
      "area": 16.1217
     },
@@ -3347,24 +3408,25 @@
    },
    "not_shown": [],
    "icon": "nut",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -12.6862,
+      -5.8303,
       -3.0403,
-      5.8303,
+      12.6862,
       9.1314
      ],
      "area": 126.0161
     },
     "icon": {
      "bbox": [
-      7.2303,
-      2.6064,
-      12.6862,
-      8.4564
+      -12.6862,
+      0.1206,
+      -7.2303,
+      5.9706
      ],
      "area": 16.1217
     },
@@ -3398,24 +3460,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -10.2872,
+      -2.5873,
       1.3761,
-      2.5873,
+      10.2872,
       9.5761
      ],
      "area": 56.7254
     },
     "icon": {
      "bbox": [
-      3.9873,
-      2.8261,
-      10.2872,
-      9.1261
+      -10.2872,
+      2.3261,
+      -3.9873,
+      8.6261
      ],
      "area": 22.4139
     },
@@ -3450,6 +3513,7 @@
     "STEEL"
    ],
    "icon": null,
+   "icon_left_off": null,
    "nonfit": true,
    "not_ready": false
   },
@@ -3472,24 +3536,25 @@
    },
    "not_shown": [],
    "icon": "washer",
+   "icon_left_off": null,
    "nonfit": false,
    "not_ready": false,
    "elements": {
     "main1": {
      "bbox": [
-      -10.2872,
+      -2.5873,
       1.3761,
-      2.5873,
+      10.2872,
       9.5761
      ],
      "area": 56.7254
     },
     "icon": {
      "bbox": [
-      3.9873,
-      2.8261,
-      10.2872,
-      9.1261
+      -10.2872,
+      2.3261,
+      -3.9873,
+      8.6261
      ],
      "area": 22.4139
     },

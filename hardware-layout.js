@@ -73,6 +73,8 @@ function create(deps) {
   // ----- ALIGNMENT: 'left' (EdgeLabel: everything from the usable area's top-left, as the printed plates) or 'centre' (Classic
   // Pro, Joey 2026-10-09: centred, as its plain labels - each row centred across the area, the label in the middle of it)
   const ALIGN = D.align === 'centre' ? 'centre' : 'left';
+  const ICON_LEFT = ALIGN === 'centre' && D.iconSide === 'left';   // centred rows only: the icon before the value line
+  const ICON_MIDDLE = ALIGN === 'centre' && D.iconAlign === 'middle';   // centred rows only: the icon on the value's mid-height
   let usMaxX = -Infinity, usMinY = Infinity;
   for (const [x, y] of US) { usMaxX = Math.max(usMaxX, x); usMinY = Math.min(usMinY, y); }
   const XC = (usMinX + usMaxX) / 2;
@@ -468,9 +470,14 @@ function create(deps) {
       for (const k of words) { minx = Math.min(minx, els[k].minx); maxx = Math.max(maxx, els[k].maxx); }
       const row = {};
       for (const k of words) row[k] = els[k];
-      if (keys.includes('icon')) {
-        const g = els.icon;
-        row.icon = words.length ? shift(g, maxx + GAP_ICON - g.minx, 0) : g;
+      if (keys.includes('icon')) {            // after the row's words, or before them (iconSide 'left': Classic Pro, Joey 2026-10-09 -
+        const g = els.icon;                   // right after the value a washer ring read as a degree sign, "M5°")
+        row.icon = !words.length ? g : ICON_LEFT ? shift(g, minx - GAP_ICON - g.maxx, 0) : shift(g, maxx + GAP_ICON - g.minx, 0);
+        if (ICON_MIDDLE && els.main1) {      // centred on the value line's height, not top-aligned (top-aligned beside a tall value
+          const m = els.main1;               // it reads as a superscript); never above the area's top
+          const dy = Math.min((m.miny + m.maxy) / 2 - (row.icon.miny + row.icon.maxy) / 2, YTOP - row.icon.maxy);
+          if (dy) row.icon = shift(row.icon, 0, dy);
+        }
         minx = Math.min(minx, row.icon.minx); maxx = Math.max(maxx, row.icon.maxx);
       }
       const dx = XC - (minx + maxx) / 2;
@@ -613,7 +620,9 @@ function create(deps) {
           return [els, { layout: 'value by fields + attributes', fields: [...fields], main_lines: lines, main_cap: cap,
             attributes: attrs, attribute_places: where, pinned: [...required], not_shown: optional.slice(nOpt),
             secondary_cap: attrs.length ? SEC_CAP : null, icon: withIcon ? iid : null,
-            icon_version: withIcon ? 'compact' : null, tried_before: tried }];
+            icon_version: withIcon ? (RU.iconVersion || 'compact') : null,
+            // the family has an icon and this label has no room for it (Astra 2026-10-09: an icon left off is shown, never silent)
+            icon_left_off: iid && !withIcon ? iid : null, tried_before: tried }];
         }
         tried.push(`attributes ${JSON.stringify(attrs)} ${withIcon ? 'with' : 'without'} the icon: no split fits at >= ${MAIN_MIN} mm caps`);
       }

@@ -60,6 +60,8 @@ test('the face is this page\'s Classic Pro printing face; the usable area keeps 
   assert.ok(Math.abs(top - 1057.0) < 0.05, `top face ${top} mm²`);
   assert.equal(D.rules.margin, 1.8);
   assert.equal(D.align, 'centre');
+  // the family icon before the value, on its mid-height, at the 7.2 mm compact size ("row 3": Astra + Joey 2026-10-09)
+  assert.deepEqual([D.iconSide, D.iconAlign, D.rules.iconVersion, D.rules.iconCompact], ['left', 'middle', 'compact', 7.2]);
   assert.ok(convex(D.usable), 'the usable hull is convex');
   assert.equal(D.cutouts.length, 2);
   for (const c of D.cutouts) {
@@ -121,6 +123,7 @@ function summary(r) {
   const rec = r.record;
   const out = { main_lines: rec.main_lines || null, main_cap: rec.main_cap || null, attributes: rec.attributes || null,
                 attribute_places: rec.attribute_places || null, not_shown: rec.not_shown || null, icon: rec.icon || null,
+                icon_left_off: rec.icon_left_off || null,
                 nonfit: !!rec.nonfit, not_ready: !!rec.not_ready };
   if (r.elements) out.elements = Object.fromEntries(Object.entries(r.elements).map(([k, parts]) => [k, { bbox: boxOf(parts).map(round), area: round(area(parts)) }]));
   return out;
@@ -155,6 +158,54 @@ test('every saved part item on Classic Pro: rows centred, inside the area and cl
     }
   });
   assert.ok(laid >= 55, `${laid} laid out`);
+});
+
+test('the icon sits before the value, 1.4 mm from it, centred on its height (or as high as the area allows)', () => {
+  const top = Math.max(...D.usable.map(p => p[1]));
+  let n = 0;
+  LAID.forEach((r, i) => {
+    if (!r.elements || !r.elements.icon) return;
+    n++;
+    const id = `${FX.items[i].set} ${FX.items[i].id}`;
+    const ic = boxOf(r.elements.icon), m = boxOf(r.elements.main1);
+    assert.ok(Math.abs(m[0] - ic[2] - 1.4) < 1e-9, `${id}: icon to value ${m[0] - ic[2]} mm`);
+    const mid = (m[1] + m[3]) / 2, icMid = (ic[1] + ic[3]) / 2;
+    assert.ok(Math.abs(icMid - mid) < 1e-9 || Math.abs(ic[3] - top) < 1e-9, `${id}: icon centre ${icMid}, value centre ${mid}`);
+  });
+  assert.ok(n >= 40, `${n} labels with an icon`);
+});
+
+test('an icon is never left off silently: every nut and washer label either has its icon or says so (both types)', () => {
+  const EL = layout(globalThis.GEN2HardwareData);
+  for (const [name, L] of [['Classic Pro', CP], ['EdgeLabel', EL]]) {
+    let off = 0, on = 0;
+    FX.items.forEach((x) => {
+      const r = L.layOut(x.item).record, fam = x.item.family;
+      if (!r.main_cap || r.layout === 'v5') return;
+      if (fam === 'screw') assert.ok(!r.icon && !r.icon_left_off, `${name} ${x.id}: a screw has no icon`);
+      if (fam === 'nut' || fam === 'washer') {
+        assert.ok(r.icon === fam || r.icon_left_off === fam, `${name} ${x.set} ${x.id}: ${fam} icon neither printed nor reported`);
+        if (r.icon_left_off) off++; else on++;
+      }
+    });
+    assert.ok(on > 0, `${name}: ${on} with an icon, ${off} left off`);
+  }
+});
+
+test('a cap (acorn) nut from the Part Picker gets no hex-nut drawing on EdgeLabel', () => {
+  require('../hardware-v5-data.js');
+  const EL = globalThis.GEN2HardwareLayout.create({ data: globalThis.GEN2HardwareData, v5: globalThis.GEN2HardwareV5Data });
+  EL.setFont(FONT);
+  // the picker records an acorn nut as family 'nut', head 'cap' (js/synonyms.js, data/own_tables.json sae_acorn_nut)
+  const acorn = { schema: 'part-picker-label-item/1', id: 'acorn', family: 'nut', head: 'cap', units: 'mm', fields: ['M5'], value_missing: [],
+    attributes: [{ path: 'head', text: 'ACORN' }, { path: 'finish', text: 'ZINC' }], pinned: ['head'], optional: ['finish'], pinned_unprinted: [] };
+  assert.equal(EL.profileCovered(acorn), false);
+  const r = EL.layOut(acorn).record;
+  assert.notEqual(r.layout, 'v5');
+  assert.ok(r.attributes.includes('ACORN'), 'the word ACORN prints');
+  // a hex nut with no head word gets the drawing (the synthetic 'v5-m5-nut-acorn' test item is a HEX nut carrying the word
+  // ACORN, there only so the word-gap pull-in moves a slanted first letter)
+  assert.equal(EL.profileCovered({ ...acorn, head: 'hex' }), true);
 });
 
 test('the Classic Pro layouts are the reviewed ones (test/fixtures/hardware-classicpro-ref.json)', () => {
