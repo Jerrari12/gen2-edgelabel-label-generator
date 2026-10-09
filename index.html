@@ -38,6 +38,7 @@
   .type-note { margin: 6px 0 4px; padding: 8px 10px; border-radius: 6px; font-size: 12px; line-height: 1.4;
     background: rgba(238, 122, 48, 0.12); border: 1px solid rgba(238, 122, 48, 0.45); }
   body.type-no-hw #labels .row[data-hw] { opacity: 0.45; }
+  .setting.type-off { opacity: 0.5; }
   .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
   .brand-logo { width: 38px; height: 56px; flex-shrink: 0; }
   .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
@@ -480,6 +481,7 @@
 <script src="label-core.js"></script>
 <script src="label-core-classicpro.js"></script>
 <script src="hardware-data.js"></script>
+<script src="hardware-data-classicpro.js"></script>
 <script src="hardware-v5-data.js"></script>
 <script src="hardware-band-data.js"></script>
 <script src="hardware-layout.js"></script>
@@ -631,8 +633,8 @@ const CP_BASE_TRIS = [0,1,2,2,1,3,0,2,4,4,2,5,4,5,6,6,5,7,6,7,8,8,7,9,8,9,10,10,
 // LABEL TYPES (Astra, 2026-10-09: "one app with selectable label types ... Classic Pro should become another supported output
 // for the same label collection"). The labels - words, icons, part records, pins - are shared; each type brings its own label
 // body, label core (face, wrap, alignment), file names and its own layout and print settings (TYPE_SETTING_IDS below).
-// Switching never touches the labels, and a feature the selected type cannot print (hardware rows on Classic Pro, for now) stays
-// saved with a notice. The Classic Pro core is that generator's own code (label-core-classicpro.js, its classicpro-label-core
+// Switching never touches the labels, and a feature the selected type cannot print (a part label's drawing and colour band on
+// Classic Pro, for now) stays saved with a notice. The Classic Pro core is that generator's own code (label-core-classicpro.js, its classicpro-label-core
 // branch f0ef3c6, unchanged; none of the moved functions changed on its main since).
 const LABEL_TYPES = {
   edgelabel: { id: 'edgelabel', name: 'EdgeLabel', coreName: 'GEN2EdgeLabelCore', verts: BASE_VERTS, tris: BASE_TRIS,
@@ -640,7 +642,7 @@ const LABEL_TYPES = {
     size: '57 × 27 × 4.5 mm', version: 'EdgeLabel v1.02', hardware: true },
   classicpro: { id: 'classicpro', name: 'Classic Pro', coreName: 'GEN2ClassicProCore', verts: CP_BASE_VERTS, tris: CP_BASE_TRIS,
     app: 'GEN2 Classic Pro Label Generator', files: 'classicpro-labels', zip: 'gen2_classicpro_labels', set: 'classicpro-set',
-    size: '47 × 25.5 × 1.5 mm', version: 'Classic Pro v1.02', hardware: false },
+    size: '47 × 25.5 × 1.5 mm', version: 'Classic Pro v1.02', hardware: true },   // part labels: when its face data loaded (HW_CP)
 };
 for (const t of Object.values(LABEL_TYPES)) t.core = window[t.coreName] ? window[t.coreName].create({ THREE: window.THREE }) : null;
 let labelType = LABEL_TYPES.edgelabel;
@@ -776,6 +778,7 @@ function loadFont() {
       font = opentype.parse(buf);
       Object.values(LABEL_TYPES).forEach(t => { if (t.core) t.core.setFont(font); });
       if (HW) HW.setFont(font);
+      if (HW_CP) HW_CP.setFont(font);
       Object.values(HW_BAND).forEach(h => h.setFont(font));
       resolve();
     } catch (e) { reject(e); }
@@ -839,6 +842,29 @@ if (HW && HW_BANDS && HW_BANDS.format === 'modulith-hardware-bands') for (const 
 function hwBandFor(item) {
   const el = document.getElementById('hw-band'), v = el ? el.value : 'bottom';
   return item && item.colours && typeof item.colours === 'object' && HW_BAND[v] ? v : null;
+}
+// CLASSIC PRO PART LABELS (label types step 3, 2026-10-09). The same layout on Classic Pro's own face (hardware-data-classicpro.js,
+// made by export_hw_data_classicpro.py from this page's Classic Pro label body: the printing face less a 1.8 mm margin, kept
+// from the two slits that make its lower corners springy too - Joey: "avoid the compliant mechanisms at all cost"), every row
+// centred, as its plain labels are (Joey 2026-10-09). It prints the words and the family icon; the screw and nut drawings and
+// the colour band are EdgeLabel-only for now (Astra: optional, after measuring) and stay saved, named in the row's note. Its
+// text sizes are EdgeLabel's until Astra decides whether the 45 degree face (it reads at 71% from in front) needs larger ones.
+const HW_CP = (window.GEN2HardwareLayout && window.GEN2HardwareDataClassicPro)
+  ? GEN2HardwareLayout.create({ data: GEN2HardwareDataClassicPro }) : null;
+if (!HW_CP) LABEL_TYPES.classicpro.hardware = false;     // its rows are then kept, dimmed and named (updateTypeUI)
+// the layout a part label gets on the current type, its band position (EdgeLabel only) and its ink depth
+function hwLayoutFor(item) {
+  if (labelType.id === 'classicpro') return { L: HW_CP, band: null, depth: HW_CP ? GEN2HardwareDataClassicPro.rules.inkDepth : HW_INK_DEPTH };
+  const band = hwBandFor(item);
+  return { L: band ? HW_BAND[band] : HW, band, depth: HW_INK_DEPTH };
+}
+// what a part label carries that Classic Pro does not print yet (it prints again on EdgeLabel)
+function hwTypeSkips(item) {
+  if (labelType.id !== 'classicpro' || !item) return [];
+  const out = [];
+  if (HW && HW.profileCovered(item)) out.push('drawing');
+  if (item.colours && typeof item.colours === 'object') out.push('colour band');
+  return out;
 }
 // an item's colours, cleaned (they can come from a link): per slot a colour {colour, hex, label, pattern}, null when the
 // scheme leaves it UNASSIGNED (the record does not hold the value - printed in the base colour, never a guess), or
@@ -924,6 +950,7 @@ function hardwareNoteText(r) {
   const fellBack = r.covered && hwProfileOn() && rec.layout !== 'v5' ? ' No drawing: its pinned words do not fit beside it.' : '';
   return (rec.layout === 'v5' ? `Part label with the ${rec.kind} drawing, laid out from the part record.` : 'Part label, laid out from the part record.' + fellBack) +
     bandNote(r) +
+    (r.typeSkips ? ` Its ${r.typeSkips.join(' and ')} print${r.typeSkips.length === 1 ? 's' : ''} on EdgeLabel only, for now.` : '') +
     (rec.not_shown.length ? ` Left off to fit: ${rec.not_shown.join(', ')}.` : '') +
     (rec.value_missing.length ? ` ${rec.value_missing.map(m => m.why).join('; ').replace(/^./, c => c.toUpperCase())}.` : '');   // each why already says it ("length not recorded")
 }
@@ -940,14 +967,24 @@ function layOutHardwareRow(row) {
   const item = row._hwItem;
   let r;
   const opts = { profile: hwProfileOn() };
-  const band = hwBandFor(item), L = band ? HW_BAND[band] : HW;
-  try {
-    r = L.layOut(item, opts);
-    r.covered = L.profileCovered ? L.profileCovered(item) : false;
-    if (band && r.elements) { r.band = band; r.colours = hwColours(item.colours); }
+  const { L, band, depth } = hwLayoutFor(item);
+  const key = labelType.id + '|' + (band || '') + '|' + opts.profile;
+  if (!row._hwBy) row._hwBy = {};
+  if (row._hwBy[key]) r = row._hwBy[key];   // laid out before on this type with these settings (switching back is instant)
+  else {
+    try {
+      if (!L) throw new Error('the Classic Pro part-label layout did not load');
+      r = L.layOut(item, opts);
+      r.covered = L.profileCovered ? L.profileCovered(item) : false;
+      if (band && r.elements) { r.band = band; r.colours = hwColours(item.colours); }
+    }
+    catch (e) { r = { elements: null, record: { not_ready: 'the label item could not be read (' + e.message + ')' } }; }
+    if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = L.propose(item, opts).record; } catch (e) {} }
+    r.inkDepth = depth;
+    const skips = hwTypeSkips(item);
+    if (skips.length) r.typeSkips = skips;
+    row._hwBy[key] = r;
   }
-  catch (e) { r = { elements: null, record: { not_ready: 'the label item could not be read (' + e.message + ')' } }; }
-  if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = L.propose(item, opts).record; } catch (e) {} }
   row._hw = r;
   row.querySelector('input.label-text').value = hardwareRowText(item, r.record);
   const note = row.querySelector('.hw-note');
@@ -987,7 +1024,7 @@ function importHardware(items) {
   if (!prev || !Array.isArray(prev.labels)) prev = null;
   hwKeptPrevious = keepPreviousSet(prev);
   if (prev) applyProjectSettings(prev);
-  // part labels print on EdgeLabel only, for now: a Part Picker hand-off opens there, whatever type the last session used
+  // a Part Picker hand-off opens on a type that prints part labels: both do, unless Classic Pro's face data did not load
   if (!labelType.hardware) setLabelType('edgelabel');
   clearLabelRows();
   items.forEach(addHardwareRow);
@@ -1042,7 +1079,7 @@ function hardwareMeshes(hw, depth) {
   return { textGeo, badgeGeo: null, textFits: true, baseParts: hw.band ? bandParts(hw) : null };
 }
 function meshesFor(data, capH, depth, badgeSize, bold) {
-  return data.hardware ? hardwareMeshes(data.hardware, HW_INK_DEPTH) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
+  return data.hardware ? hardwareMeshes(data.hardware, data.hardware.inkDepth || HW_INK_DEPTH) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
 }
 
 function getLabelData() {
@@ -2268,6 +2305,7 @@ function setLabelType(id, o = {}) {
     if (o.remember !== false) typeSettings[labelType.id] = pickIds(captureSettings(), TYPE_SETTING_IDS);
     adoptType(t);
     if (o.apply !== false) applySettings(Object.assign({}, pickIds(typeDefaults, TYPE_SETTING_IDS), typeSettings[t.id] || {}));
+    if (font) document.querySelectorAll('#labels .row.hw').forEach(layOutHardwareRow);   // the new type's face (kept per type)
   }
   updateTypeUI();
   return true;
@@ -2285,11 +2323,20 @@ function updateTypeUI() {
   const sz = document.getElementById('type-size'); if (sz) sz.textContent = labelType.size;
   const vn = document.getElementById('type-version'); if (vn) vn.textContent = 'JERRARI DESIGN · ' + labelType.version;
   document.body.classList.toggle('type-no-hw', !labelType.hardware);
+  const cp = labelType.id === 'classicpro';
+  ['hw-profile', 'hw-band'].forEach(id => {      // drawings and bands are EdgeLabel's for now: the setting is kept, not used
+    const el = document.getElementById(id); if (!el) return;
+    el.disabled = cp;
+    const s = el.closest('.setting'); if (s) s.classList.toggle('type-off', cp);
+  });
   const note = document.getElementById('type-note');
   if (note) {
-    const n = labelType.hardware ? 0 : document.querySelectorAll('#labels .row[data-hw]').length;
-    note.hidden = !n;
-    note.textContent = n ? `${n} part label${n === 1 ? ' is' : 's are'} EdgeLabel-only for now: kept here, not printed on ${labelType.name}. Switch back to EdgeLabel to print ${n === 1 ? 'it' : 'them'}.` : '';
+    const rows = [...document.querySelectorAll('#labels .row[data-hw]')];
+    const n = labelType.hardware ? 0 : rows.length;
+    const k = labelType.hardware ? rows.filter(r => hwTypeSkips(r._hwItem).length).length : 0;
+    note.hidden = !n && !k;
+    note.textContent = n ? `${n} part label${n === 1 ? ' is' : 's are'} EdgeLabel-only for now: kept here, not printed on ${labelType.name}. Switch back to EdgeLabel to print ${n === 1 ? 'it' : 'them'}.`
+      : k ? `${k} part label${k === 1 ? ' has a drawing or colour band' : 's have drawings or colour bands'}: ${labelType.name} prints the words and the family icon, and the rest stays saved for EdgeLabel.` : '';
   }
 }
 
@@ -2872,7 +2919,7 @@ function finishSend(message, kind) {
 function plainRowFromHardware(row) {
   delete row.dataset.hw; delete row.dataset.hwJob;
   row.classList.remove('hw');
-  row._hwItem = null; row._hw = null;
+  row._hwItem = null; row._hw = null; row._hwBy = null;
   const note = row.querySelector('.hw-note'); if (note) note.remove();
   const input = row.querySelector('input.label-text');
   input.readOnly = false; input.title = '';

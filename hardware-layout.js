@@ -6,7 +6,7 @@
        only BETWEEN fields, never inside one;
      - the attributes at 4.7 mm caps, below the value or beside a value line, in reading order; pinned ones must print or
        the label is a NON-FIT naming them; the others go on while they fit and the rest are "not shown on label";
-     - the compact family icon (screw / nut / washer) top-right when it fits beside everything else;
+     - the compact family icon (nut / washer; screws have none since 2026-10-09) top-right when it fits beside everything else;
      - every element inside the face's usable area (1.8 mm margin) and 1.3 mm apart (1.4 mm from the icon);
      - text tracked in 0.05 mm steps until every glyph-to-glyph gap is at least 0.6 mm.
    Text outlines come from the generator's own font exactly as the Python engine reads it: FreeType's unhinted outline at
@@ -39,7 +39,9 @@ function create(deps) {
   const RU = D.rules;
   const MAIN_MIN = RU.mainMin, MAIN_MAX = RU.mainMax, SEC_CAP = RU.secCap, GAP_TEXT = RU.gapText, GAP_ICON = RU.gapIcon;
   const ATTR_BESIDE_GAP = RU.attrBesideGap, GLYPH_GAP = RU.glyphGap, TRACK_STEP = RU.trackStep, CAP_RATIO = D.capRatio;
-  const FAMILY_ICON = { screw: 'screw', nut: 'nut', washer: 'washer' };
+  // no screw icon (Joey 2026-10-09: it "reads more like a 'T' out of place"); nuts and washers keep theirs. A screw's profile
+  // drawing (v5) is a separate thing and stays.
+  const FAMILY_ICON = { nut: 'nut', washer: 'washer' };
   const FONT_SUBS = [['\u2300', '\u00D8']];      // the font has no DIAMETER SIGN; Ø is in it (label_sheet_v1.FONT_SUBS)
 
   // ----- the usable area: convex (checked), so containment is a half-plane test per edge
@@ -54,8 +56,30 @@ function create(deps) {
   for (const [x, y] of US) { usMinX = Math.min(usMinX, x); usMaxY = Math.max(usMaxY, y); }
   const X0 = usMinX, YTOP = usMaxY;
 
+  // ----- CUTOUTS (Classic Pro, label types step 3): pieces of that convex area that are NOT usable. Classic Pro's face less its
+  // margin is not convex - the two slits that make its lower corners springy cut into it (export_hw_data_classicpro.py) - so its
+  // data gives the area as its convex hull (usable) less convex cutouts, and an element's area off the face is its area outside
+  // the hull plus its area inside each cutout: shapely's g.difference(USABLE).area, as the Python engine counts it. EdgeLabel's
+  // face is convex and has none.
+  const CUTS = (D.cutouts || []).map(c => {
+    const P = c.map(p => [p[0], p[1]]), o = Math.sign(signedArea(P.flat()));
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i], b = P[(i + 1) % P.length], d = P[(i + 2) % P.length];
+      if (((b[0] - a[0]) * (d[1] - b[1]) - (b[1] - a[1]) * (d[0] - b[0])) * o < -1e-9) throw new Error('hardware-layout: a cutout is not convex');
+    }
+    return { P, o, minx: Math.min(...P.map(p => p[0])), maxx: Math.max(...P.map(p => p[0])),
+             miny: Math.min(...P.map(p => p[1])), maxy: Math.max(...P.map(p => p[1])) };
+  });
+  // ----- ALIGNMENT: 'left' (EdgeLabel: everything from the usable area's top-left, as the printed plates) or 'centre' (Classic
+  // Pro, Joey 2026-10-09: centred, as its plain labels - each row centred across the area, the label in the middle of it)
+  const ALIGN = D.align === 'centre' ? 'centre' : 'left';
+  let usMaxX = -Infinity, usMinY = Infinity;
+  for (const [x, y] of US) { usMaxX = Math.max(usMaxX, x); usMinY = Math.min(usMinY, y); }
+  const XC = (usMinX + usMaxX) / 2;
+
   const V5 = deps.v5 || null;
   if (V5 && (V5.format !== 'modulith-hardware-v5' || V5.version !== 1)) throw new Error('hardware-layout: hardware-v5-data.js is not v5 data');
+  if (V5 && ALIGN !== 'left') throw new Error('hardware-layout: profile drawings are laid out from the top-left only');
 
   let font = null, xScale = 0, yScale = 0;
   const glyphCache = new Map(), textCache = new Map(), trackCache = new Map(), tgCache = new Map(), nutTextCache = new Map();
@@ -184,11 +208,12 @@ function create(deps) {
 
   // the area of an element outside the usable area (Python: g.difference(USABLE).area). Each ring is clipped against the
   // convex area (Sutherland-Hodgman); outer rings add, holes subtract (even-odd depth within the part).
-  function clipRing(r) {
+  function clipRing(r) { return clipTo(r, US, usOrient); }
+  function clipTo(r, P, orient) {                 // the ring clipped to the convex polygon P (Sutherland-Hodgman)
     let pts = r;
-    for (let e = 0; e < US.length && pts.length; e++) {
-      const [ax, ay] = US[e], [bx, by] = US[(e + 1) % US.length];
-      const side = (x, y) => usOrient * ((bx - ax) * (y - ay) - (by - ay) * (x - ax));
+    for (let e = 0; e < P.length && pts.length; e++) {
+      const [ax, ay] = P[e], [bx, by] = P[(e + 1) % P.length];
+      const side = (x, y) => orient * ((bx - ax) * (y - ay) - (by - ay) * (x - ax));
       const out = [];
       for (let i = 0, n = pts.length; i < n; i += 2) {
         const px = pts[i], py = pts[i + 1], qx = pts[(i + 2) % n], qy = pts[(i + 3) % n];
@@ -224,7 +249,26 @@ function create(deps) {
     for (let i = 0; i < r.length; i += 2) { const x = r[i], y = r[i + 1]; if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
     return { minx, miny, maxx, maxy };
   }
-  function outsideArea(el) {
+  function outsideArea(el) { return CUTS.length ? outsideHull(el) + inCutouts(el) : outsideHull(el); }
+  // the area of an element inside the cutouts: each ring clipped to each cutout it can reach, outer rings add, holes subtract
+  function inCutouts(el) {
+    let area = 0;
+    for (const C of CUTS) {
+      const near = b => b.maxx > C.minx && b.minx < C.maxx && b.maxy > C.miny && b.miny < C.maxy;
+      if (!near(el)) continue;
+      for (const p of el.parts) {
+        if (!near(p)) continue;
+        for (const r of p.rings) {
+          if (!near(ringBox(r))) continue;
+          let depth = 0;
+          for (const o of p.rings) if (o !== r && pointInRings(r[0], r[1], [o])) depth++;
+          area += (depth % 2 ? -1 : 1) * Math.abs(signedArea(clipTo(r, C.P, C.o)));
+        }
+      }
+    }
+    return area;
+  }
+  function outsideHull(el) {
     if (boxOnFace(el)) return 0;
     let any = false;
     for (const p of el.parts) {
@@ -401,12 +445,61 @@ function create(deps) {
     return mkEl(ic.polys.map(rr => mkPart(rr.map(ring => { const o = []; for (const [x, y] of ring) o.push(x + x0, y + ytop); return o; }))));
   }
 
+  // ===================================================================== CENTRED (Classic Pro)
+  // The label is built as on EdgeLabel - value lines stacked from the top, an attribute beside a value line or in lines below,
+  // the family icon beside the first line - and every check reads it ARRANGED: each row (a value line with the attribute beside
+  // it and, on the first, the icon 1.4 mm after them; each attribute line below) centred across the usable area. Rows keep their
+  // heights and gaps, so moving them sideways never brings two rows closer. The search runs with the label at the top of the
+  // area, where it is furthest from the slits; the label it picks is then moved down towards the middle as far as it still
+  // fits (centreDown) - the lower corners narrow, so a wide bottom row may keep it higher than the middle.
+  function rowOf(k) {
+    let m = /^(?:main|beside)(\d+)$/.exec(k);
+    if (m) return 'm' + m[1];
+    if (k === 'icon') return 'm1';
+    m = /^secondary(\d+)$/.exec(k);
+    return m ? 's' + m[1] : k;
+  }
+  function arrangeRows(els) {
+    const rows = new Map(), out = {};
+    for (const k of Object.keys(els)) { const r = rowOf(k); if (!rows.has(r)) rows.set(r, []); rows.get(r).push(k); }
+    for (const keys of rows.values()) {
+      const words = keys.filter(k => k !== 'icon');
+      let minx = Infinity, maxx = -Infinity;
+      for (const k of words) { minx = Math.min(minx, els[k].minx); maxx = Math.max(maxx, els[k].maxx); }
+      const row = {};
+      for (const k of words) row[k] = els[k];
+      if (keys.includes('icon')) {
+        const g = els.icon;
+        row.icon = words.length ? shift(g, maxx + GAP_ICON - g.minx, 0) : g;
+        minx = Math.min(minx, row.icon.minx); maxx = Math.max(maxx, row.icon.maxx);
+      }
+      const dx = XC - (minx + maxx) / 2;
+      for (const [k, el] of Object.entries(row)) out[k] = dx ? shift(el, dx, 0) : el;
+    }
+    return out;
+  }
+  function centreDown(els) {
+    let miny = Infinity, maxy = -Infinity;
+    for (const el of Object.values(els)) { miny = Math.min(miny, el.miny); maxy = Math.max(maxy, el.maxy); }
+    const move = ((miny - usMinY) - (YTOP - maxy)) / 2;   // down by this, the room above and below is the same
+    if (!(move > 1e-9)) return els;
+    const at = dy => Object.fromEntries(Object.entries(els).map(([k, el]) => [k, shift(el, 0, -dy)]));
+    if (okHere(at(move))[0]) return at(move);
+    let lo = 0, hi = move;                         // lo fits (where the search checked it), hi does not: halve towards the lowest that fits
+    for (let i = 0; i < 12; i++) { const mid = (lo + hi) / 2; if (okHere(at(mid))[0]) lo = mid; else hi = mid; }
+    return lo > 0 ? at(lo) : els;
+  }
+
   // ===================================================================== the layout (printtest_v1, verbatim in logic)
-  function ok(els) {
+  function ok(els) { return okHere(ALIGN === 'centre' ? arrangeRows(els) : els); }
+  function okHere(els) {                          // the elements where they are
     const ks = Object.keys(els);
     for (const k of ks) {
       const a = outsideArea(els[k]);
       if (a > 1e-4) return [false, `${k} leaves the usable face by ${a.toFixed(3)} mm²`];
+      // the slits' margin is kept exactly, without the area test's 1e-4 mm² (which let ink reach 7 µm into it; Joey: "avoid the
+      // compliant mechanisms at all cost")
+      if (CUTS.length && inCutouts(els[k]) > 1e-9) return [false, `${k} comes inside the margin around a slit`];
     }
     for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) {
       const need = (ks[i] + ks[j]).includes('icon') ? GAP_ICON : GAP_TEXT;
@@ -515,7 +608,8 @@ function create(deps) {
           }
         }
         if (best) {
-          const [lines, cap, els, where] = best;
+          const [lines, cap, built, where] = best;
+          const els = ALIGN === 'centre' ? centreDown(arrangeRows(built)) : built;
           return [els, { layout: 'value by fields + attributes', fields: [...fields], main_lines: lines, main_cap: cap,
             attributes: attrs, attribute_places: where, pinned: [...required], not_shown: optional.slice(nOpt),
             secondary_cap: attrs.length ? SEC_CAP : null, icon: withIcon ? iid : null,
@@ -714,8 +808,9 @@ function create(deps) {
     return { elements, record: rec };
   }
 
-  return { setFont, layOut, propose, printable, FACE: D.face, USABLE: D.usable, X0, YTOP, profiles: !!V5, profileCovered: it => !!covered5(it),
+  return { setFont, layOut, propose, printable, FACE: D.face, USABLE: D.usable, CUTOUTS: D.cutouts || [], ALIGN, X0, YTOP, profiles: !!V5, profileCovered: it => !!covered5(it),
            _text: text, _trackFor: trackFor, _penX: penX, _glyphPart: glyphPart, _ok: ok, _tg: tg, _elsDistance: elsDistance,
+           _okRings: els => okHere(Object.fromEntries(Object.entries(els).map(([k, rings]) => [k, mkEl(rings.map(rr => mkPart(rr)))])))[0],
            _fits5: els => fits5(Object.fromEntries(Object.entries(els).map(([k, rings]) => [k, mkEl(rings.map(rr => mkPart(rr)))]))) };
 }
 

@@ -1,0 +1,3517 @@
+{
+ "source": "hardware-layout.js on hardware-data-classicpro.js, every item of hardware-ref.json; checked independently in shapely by D:/MODULITH/handoffs/label-release/label-types/step3/check-cp.py",
+ "items": [
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t1",
+   "main_lines": [
+    "M5 × 20"
+   ],
+   "main_cap": 9.6,
+   "attributes": [
+    "SHCS",
+    "A2"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "A2": "below"
+   },
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -20.2193,
+      -1.42,
+      20.2193,
+      8.4613
+     ],
+     "area": 159.3376
+    },
+    "secondary1": {
+     "bbox": [
+      -14.7551,
+      -7.5577,
+      14.7551,
+      -2.72
+     ],
+     "area": 48.6762
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t2",
+   "main_lines": [
+    "M5 × 20"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "SHCS",
+    "12.9",
+    "BLK OX"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "12.9": "below",
+    "BLK OX": "below"
+   },
+   "not_shown": [
+    "STEEL"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.8494,
+      1.3589,
+      16.8494,
+      9.5933
+     ],
+     "area": 110.6511
+    },
+    "secondary1": {
+     "bbox": [
+      -17.0384,
+      -4.7788,
+      17.0384,
+      0.0589
+     ],
+     "area": 55.0868
+    },
+    "secondary2": {
+     "bbox": [
+      -10.6192,
+      -10.9165,
+      10.6192,
+      -6.0788
+     ],
+     "area": 40.9768
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t3",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 11.9,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "NUT": "beside line 1",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -19.347,
+      -2.5526,
+      -0.9849,
+      9.5176
+     ],
+     "area": 123.9246
+    },
+    "beside1": {
+     "bbox": [
+      1.0151,
+      -2.5526,
+      12.4911,
+      2.2146
+     ],
+     "area": 23.6079
+    },
+    "icon": {
+     "bbox": [
+      13.8911,
+      2.9926,
+      19.347,
+      8.8426
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -18.9441,
+      -8.6903,
+      18.9441,
+      -3.8526
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t4",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "NYLOC",
+    "A2"
+   ],
+   "attribute_places": {
+    "NYLOC": "below",
+    "A2": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.6862,
+      -3.6786,
+      5.8303,
+      8.4931
+     ],
+     "area": 126.0161
+    },
+    "icon": {
+     "bbox": [
+      7.2303,
+      1.9681,
+      12.6862,
+      7.8181
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -16.8211,
+      -9.8163,
+      16.8211,
+      -4.9786
+     ],
+     "area": 53.1422
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t5",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 8.1,
+   "attributes": [
+    "THIN NYLOC",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "THIN NYLOC": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -9.6773,
+      1.3682,
+      2.8213,
+      9.5841
+     ],
+     "area": 57.4161
+    },
+    "icon": {
+     "bbox": [
+      4.2213,
+      3.0591,
+      9.6773,
+      8.9091
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9061,
+      -4.7695,
+      17.9061,
+      0.0682
+     ],
+     "area": 65.6092
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9073,
+      18.9441,
+      -6.0695
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t6",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "WASHER"
+   ],
+   "attribute_places": {
+    "WASHER": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -13.1082,
+      -3.6786,
+      5.4083,
+      8.4931
+     ],
+     "area": 126.0161
+    },
+    "icon": {
+     "bbox": [
+      6.8083,
+      1.7431,
+      13.1082,
+      8.0431
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -12.3564,
+      -9.8163,
+      12.3564,
+      -4.9786
+     ],
+     "area": 56.2347
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t7",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.3783,
+      -10.9126,
+      15.3783,
+      -6.0749
+     ],
+     "area": 54.6015
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t8",
+   "main_lines": [
+    "1/4-28"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNF"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNF": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4705,
+      1.3628,
+      9.6146,
+      9.5894
+     ],
+     "area": 83.4506
+    },
+    "icon": {
+     "bbox": [
+      11.0146,
+      3.0644,
+      16.4705,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.0416,
+      -10.9126,
+      15.0416,
+      -6.0749
+     ],
+     "area": 53.909
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t9",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NYLOC",
+    "SS",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NYLOC": "below",
+    "SS": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -9.8388,
+      -4.7749,
+      9.8388,
+      0.0628
+     ],
+     "area": 37.5083
+    },
+    "secondary2": {
+     "bbox": [
+      -13.0093,
+      -10.9126,
+      13.0093,
+      -6.0749
+     ],
+     "area": 42.9711
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t10",
+   "main_lines": [
+    "1/4-20",
+    "× 1\""
+   ],
+   "main_cap": 6.2,
+   "attributes": [
+    "SHCS",
+    "STEEL",
+    "BLK OX"
+   ],
+   "attribute_places": {
+    "SHCS": "beside line 1",
+    "STEEL": "beside line 2",
+    "BLK OX": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -20.0074,
+      2.8017,
+      1.9282,
+      9.5128
+     ],
+     "area": 54.2019
+    },
+    "beside1": {
+     "bbox": [
+      3.9282,
+      2.8017,
+      20.0074,
+      7.6394
+     ],
+     "area": 33.0423
+    },
+    "main2": {
+     "bbox": [
+      -16.8541,
+      -4.6983,
+      -3.6656,
+      1.5017
+     ],
+     "area": 21.5908
+    },
+    "beside2": {
+     "bbox": [
+      -1.6656,
+      -4.6983,
+      16.8541,
+      0.1394
+     ],
+     "area": 36.9862
+    },
+    "secondary1": {
+     "bbox": [
+      -10.6192,
+      -10.836,
+      10.6192,
+      -5.9983
+     ],
+     "area": 40.9768
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t11",
+   "main_lines": [
+    "1/4\""
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "WASHER",
+    "SS"
+   ],
+   "attribute_places": {
+    "WASHER": "below",
+    "SS": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.0873,
+      1.3628,
+      4.3874,
+      9.5894
+     ],
+     "area": 46.945
+    },
+    "icon": {
+     "bbox": [
+      5.7874,
+      2.8394,
+      12.0873,
+      9.1394
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -12.3564,
+      -4.7749,
+      12.3564,
+      0.0628
+     ],
+     "area": 56.2347
+    },
+    "secondary2": {
+     "bbox": [
+      -3.6711,
+      -10.9126,
+      3.6711,
+      -6.0749
+     ],
+     "area": 16.5582
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items-material.json",
+   "id": "t12",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.7,
+   "attributes": [
+    "JAM NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "JAM NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.5876,
+      1.2735,
+      9.7316,
+      9.6083
+     ],
+     "area": 83.6012
+    },
+    "icon": {
+     "bbox": [
+      11.1316,
+      3.0833,
+      16.5876,
+      8.9333
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.975,
+      -4.7938,
+      12.975,
+      -0.0265
+     ],
+     "area": 49.09
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9315,
+      18.9441,
+      -6.0938
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t1",
+   "main_lines": [
+    "M5 × 20"
+   ],
+   "main_cap": 9.6,
+   "attributes": [
+    "SHCS",
+    "A2"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "A2": "below"
+   },
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -20.2193,
+      -1.42,
+      20.2193,
+      8.4613
+     ],
+     "area": 159.3376
+    },
+    "secondary1": {
+     "bbox": [
+      -14.7551,
+      -7.5577,
+      14.7551,
+      -2.72
+     ],
+     "area": 48.6762
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t2",
+   "main_lines": [
+    "M5 × 20"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "SHCS",
+    "12.9",
+    "BLK OX"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "12.9": "below",
+    "BLK OX": "below"
+   },
+   "not_shown": [
+    "STEEL"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.8494,
+      1.3589,
+      16.8494,
+      9.5933
+     ],
+     "area": 110.6511
+    },
+    "secondary1": {
+     "bbox": [
+      -17.0384,
+      -4.7788,
+      17.0384,
+      0.0589
+     ],
+     "area": 55.0868
+    },
+    "secondary2": {
+     "bbox": [
+      -10.6192,
+      -10.9165,
+      10.6192,
+      -6.0788
+     ],
+     "area": 40.9768
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t3",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 11.9,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "NUT": "beside line 1",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -19.347,
+      -2.5526,
+      -0.9849,
+      9.5176
+     ],
+     "area": 123.9246
+    },
+    "beside1": {
+     "bbox": [
+      1.0151,
+      -2.5526,
+      12.4911,
+      2.2146
+     ],
+     "area": 23.6079
+    },
+    "icon": {
+     "bbox": [
+      13.8911,
+      2.9926,
+      19.347,
+      8.8426
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -18.9441,
+      -8.6903,
+      18.9441,
+      -3.8526
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t4",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "NYLOC",
+    "A2"
+   ],
+   "attribute_places": {
+    "NYLOC": "below",
+    "A2": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.6862,
+      -3.6786,
+      5.8303,
+      8.4931
+     ],
+     "area": 126.0161
+    },
+    "icon": {
+     "bbox": [
+      7.2303,
+      1.9681,
+      12.6862,
+      7.8181
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -16.8211,
+      -9.8163,
+      16.8211,
+      -4.9786
+     ],
+     "area": 53.1422
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t5",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 8.1,
+   "attributes": [
+    "THIN NYLOC",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "THIN NYLOC": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -9.6773,
+      1.3682,
+      2.8213,
+      9.5841
+     ],
+     "area": 57.4161
+    },
+    "icon": {
+     "bbox": [
+      4.2213,
+      3.0591,
+      9.6773,
+      8.9091
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9061,
+      -4.7695,
+      17.9061,
+      0.0682
+     ],
+     "area": 65.6092
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9073,
+      18.9441,
+      -6.0695
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t6",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "WASHER"
+   ],
+   "attribute_places": {
+    "WASHER": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -13.1082,
+      -3.6786,
+      5.4083,
+      8.4931
+     ],
+     "area": 126.0161
+    },
+    "icon": {
+     "bbox": [
+      6.8083,
+      1.7431,
+      13.1082,
+      8.0431
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -12.3564,
+      -9.8163,
+      12.3564,
+      -4.9786
+     ],
+     "area": 56.2347
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t7",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.3783,
+      -10.9126,
+      15.3783,
+      -6.0749
+     ],
+     "area": 54.6015
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t8",
+   "main_lines": [
+    "1/4-28"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNF"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNF": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4705,
+      1.3628,
+      9.6146,
+      9.5894
+     ],
+     "area": 83.4506
+    },
+    "icon": {
+     "bbox": [
+      11.0146,
+      3.0644,
+      16.4705,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.0416,
+      -10.9126,
+      15.0416,
+      -6.0749
+     ],
+     "area": 53.909
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t9",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NYLOC",
+    "SS",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NYLOC": "below",
+    "SS": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -9.8388,
+      -4.7749,
+      9.8388,
+      0.0628
+     ],
+     "area": 37.5083
+    },
+    "secondary2": {
+     "bbox": [
+      -13.0093,
+      -10.9126,
+      13.0093,
+      -6.0749
+     ],
+     "area": 42.9711
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t10",
+   "main_lines": [
+    "1/4-20",
+    "× 1\""
+   ],
+   "main_cap": 6.2,
+   "attributes": [
+    "SHCS",
+    "STEEL",
+    "BLK OX"
+   ],
+   "attribute_places": {
+    "SHCS": "beside line 1",
+    "STEEL": "beside line 2",
+    "BLK OX": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -20.0074,
+      2.8017,
+      1.9282,
+      9.5128
+     ],
+     "area": 54.2019
+    },
+    "beside1": {
+     "bbox": [
+      3.9282,
+      2.8017,
+      20.0074,
+      7.6394
+     ],
+     "area": 33.0423
+    },
+    "main2": {
+     "bbox": [
+      -16.8541,
+      -4.6983,
+      -3.6656,
+      1.5017
+     ],
+     "area": 21.5908
+    },
+    "beside2": {
+     "bbox": [
+      -1.6656,
+      -4.6983,
+      16.8541,
+      0.1394
+     ],
+     "area": 36.9862
+    },
+    "secondary1": {
+     "bbox": [
+      -10.6192,
+      -10.836,
+      10.6192,
+      -5.9983
+     ],
+     "area": 40.9768
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t11",
+   "main_lines": [
+    "1/4\""
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "WASHER",
+    "SS"
+   ],
+   "attribute_places": {
+    "WASHER": "below",
+    "SS": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.0873,
+      1.3628,
+      4.3874,
+      9.5894
+     ],
+     "area": 46.945
+    },
+    "icon": {
+     "bbox": [
+      5.7874,
+      2.8394,
+      12.0873,
+      9.1394
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -12.3564,
+      -4.7749,
+      12.3564,
+      0.0628
+     ],
+     "area": 56.2347
+    },
+    "secondary2": {
+     "bbox": [
+      -3.6711,
+      -10.9126,
+      3.6711,
+      -6.0749
+     ],
+     "area": 16.5582
+    }
+   }
+  },
+  {
+   "set": "colour-bank/label-items.json",
+   "id": "t12",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.7,
+   "attributes": [
+    "JAM NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "JAM NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.5876,
+      1.2735,
+      9.7316,
+      9.6083
+     ],
+     "area": 83.6012
+    },
+    "icon": {
+     "bbox": [
+      11.1316,
+      3.0833,
+      16.5876,
+      8.9333
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.975,
+      -4.7938,
+      12.975,
+      -0.0265
+     ],
+     "area": 49.09
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9315,
+      18.9441,
+      -6.0938
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "first-print/first-combined-items.json",
+   "id": "t13",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "NUT",
+    "A2"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "A2": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.6862,
+      -3.6786,
+      5.8303,
+      8.4931
+     ],
+     "area": 126.0161
+    },
+    "icon": {
+     "bbox": [
+      7.2303,
+      1.9681,
+      12.6862,
+      7.8181
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.4734,
+      -9.8163,
+      12.4734,
+      -4.9786
+     ],
+     "area": 39.2418
+    }
+   }
+  },
+  {
+   "set": "first-print/first-combined-items.json",
+   "id": "t14",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 11.9,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "NUT": "beside line 1",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -19.347,
+      -2.5526,
+      -0.9849,
+      9.5176
+     ],
+     "area": 123.9246
+    },
+    "beside1": {
+     "bbox": [
+      1.0151,
+      -2.5526,
+      12.4911,
+      2.2146
+     ],
+     "area": 23.6079
+    },
+    "icon": {
+     "bbox": [
+      13.8911,
+      2.9926,
+      19.347,
+      8.8426
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -18.9441,
+      -8.6903,
+      18.9441,
+      -3.8526
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "first-print/first-combined-items.json",
+   "id": "t15",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.3783,
+      -10.9126,
+      15.3783,
+      -6.0749
+     ],
+     "area": 54.6015
+    }
+   }
+  },
+  {
+   "set": "first-print/first-material-items.json",
+   "id": "t13",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "NUT",
+    "A2"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "A2": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.6862,
+      -3.6786,
+      5.8303,
+      8.4931
+     ],
+     "area": 126.0161
+    },
+    "icon": {
+     "bbox": [
+      7.2303,
+      1.9681,
+      12.6862,
+      7.8181
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.4734,
+      -9.8163,
+      12.4734,
+      -4.9786
+     ],
+     "area": 39.2418
+    }
+   }
+  },
+  {
+   "set": "first-print/first-material-items.json",
+   "id": "t14",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 11.9,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "NUT": "beside line 1",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -19.347,
+      -2.5526,
+      -0.9849,
+      9.5176
+     ],
+     "area": 123.9246
+    },
+    "beside1": {
+     "bbox": [
+      1.0151,
+      -2.5526,
+      12.4911,
+      2.2146
+     ],
+     "area": 23.6079
+    },
+    "icon": {
+     "bbox": [
+      13.8911,
+      2.9926,
+      19.347,
+      8.8426
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -18.9441,
+      -8.6903,
+      18.9441,
+      -3.8526
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "first-print/first-material-items.json",
+   "id": "t15",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.3783,
+      -10.9126,
+      15.3783,
+      -6.0749
+     ],
+     "area": 54.6015
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t1",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.3783,
+      -10.9126,
+      15.3783,
+      -6.0749
+     ],
+     "area": 54.6015
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t2",
+   "main_lines": [
+    "1/4-28"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNF"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNF": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4705,
+      1.3628,
+      9.6146,
+      9.5894
+     ],
+     "area": 83.4506
+    },
+    "icon": {
+     "bbox": [
+      11.0146,
+      3.0644,
+      16.4705,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.0416,
+      -10.9126,
+      15.0416,
+      -6.0749
+     ],
+     "area": 53.909
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t3",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.7,
+   "attributes": [
+    "JAM NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "JAM NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.5876,
+      1.2735,
+      9.7316,
+      9.6083
+     ],
+     "area": 83.6012
+    },
+    "icon": {
+     "bbox": [
+      11.1316,
+      3.0833,
+      16.5876,
+      8.9333
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.975,
+      -4.7938,
+      12.975,
+      -0.0265
+     ],
+     "area": 49.09
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9315,
+      18.9441,
+      -6.0938
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t4",
+   "main_lines": [
+    "5/16-18"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -18.5097,
+      1.3628,
+      11.6538,
+      9.5894
+     ],
+     "area": 101.869
+    },
+    "icon": {
+     "bbox": [
+      13.0538,
+      3.0644,
+      18.5097,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.3783,
+      -10.9126,
+      15.3783,
+      -6.0749
+     ],
+     "area": 54.6015
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t5",
+   "main_lines": [
+    "5/16-24"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNF"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNF": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -18.7763,
+      1.3628,
+      11.9203,
+      9.5894
+     ],
+     "area": 101.3019
+    },
+    "icon": {
+     "bbox": [
+      13.3203,
+      3.0644,
+      18.7763,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7749,
+      17.9976,
+      0.0628
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.0416,
+      -10.9126,
+      15.0416,
+      -6.0749
+     ],
+     "area": 53.909
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t6",
+   "main_lines": [
+    "#10-24"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -18.1661,
+      1.3589,
+      11.3102,
+      9.5933
+     ],
+     "area": 97.4755
+    },
+    "icon": {
+     "bbox": [
+      12.7102,
+      3.0683,
+      18.1661,
+      8.9183
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.7788,
+      17.9976,
+      0.0589
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.3783,
+      -10.9165,
+      15.3783,
+      -6.0788
+     ],
+     "area": 54.6015
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t7",
+   "main_lines": [
+    "#10-32"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "NUT",
+    "STEEL",
+    "ZINC",
+    "UNF"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below",
+    "UNF": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -18.0008,
+      1.3507,
+      11.1448,
+      9.6015
+     ],
+     "area": 98.1861
+    },
+    "icon": {
+     "bbox": [
+      12.5448,
+      3.0765,
+      18.0008,
+      8.9265
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9976,
+      -4.787,
+      17.9976,
+      0.0507
+     ],
+     "area": 61.5528
+    },
+    "secondary2": {
+     "bbox": [
+      -15.0416,
+      -10.9247,
+      15.0416,
+      -6.087
+     ],
+     "area": 53.909
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t8",
+   "main_lines": [
+    "3/8-16"
+   ],
+   "main_cap": 7.7,
+   "attributes": [
+    "NUT",
+    "SS",
+    "UNC"
+   ],
+   "attribute_places": {
+    "NUT": "below",
+    "SS": "below",
+    "UNC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.1672,
+      1.2735,
+      9.3112,
+      9.6083
+     ],
+     "area": 88.3753
+    },
+    "icon": {
+     "bbox": [
+      10.7112,
+      3.0833,
+      16.1672,
+      8.9333
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -5.738,
+      -4.7938,
+      5.738,
+      -0.0265
+     ],
+     "area": 23.6079
+    },
+    "secondary2": {
+     "bbox": [
+      -13.0093,
+      -10.9315,
+      13.0093,
+      -6.0938
+     ],
+     "area": 42.9711
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t9",
+   "main_lines": [
+    "1/4\""
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "WASHER",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "WASHER": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.0873,
+      1.3628,
+      4.3874,
+      9.5894
+     ],
+     "area": 46.945
+    },
+    "icon": {
+     "bbox": [
+      5.7874,
+      2.8394,
+      12.0873,
+      9.1394
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -12.3564,
+      -4.7749,
+      12.3564,
+      0.0628
+     ],
+     "area": 56.2347
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9126,
+      18.9441,
+      -6.0749
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t10",
+   "main_lines": [
+    "1/4\""
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "LG WASHER",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "LG WASHER": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.0873,
+      1.3628,
+      4.3874,
+      9.5894
+     ],
+     "area": 46.945
+    },
+    "icon": {
+     "bbox": [
+      5.7874,
+      2.8394,
+      12.0873,
+      9.1394
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -16.9174,
+      -4.7749,
+      16.9174,
+      0.0628
+     ],
+     "area": 70.81
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9126,
+      18.9441,
+      -6.0749
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t11",
+   "main_lines": [
+    "#10"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "TOOTH LW",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "TOOTH LW": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -11.5266,
+      1.3589,
+      3.8266,
+      9.5933
+     ],
+     "area": 54.7448
+    },
+    "icon": {
+     "bbox": [
+      5.2266,
+      2.8433,
+      11.5266,
+      9.1433
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -15.4004,
+      -4.7788,
+      15.4004,
+      0.0589
+     ],
+     "area": 56.7359
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9165,
+      18.9441,
+      -6.0788
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t12",
+   "main_lines": [
+    "1/4-20 × 1\""
+   ],
+   "main_cap": 6.5,
+   "attributes": [
+    "SHCS",
+    "GRADE 8"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "GRADE 8": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -20.3947,
+      1.9582,
+      20.3947,
+      8.994
+     ],
+     "area": 83.3049
+    },
+    "secondary1": {
+     "bbox": [
+      -8.0396,
+      -4.1795,
+      8.0396,
+      0.6582
+     ],
+     "area": 33.0423
+    },
+    "secondary2": {
+     "bbox": [
+      -13.2974,
+      -10.3172,
+      13.2974,
+      -5.4795
+     ],
+     "area": 53.1741
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t13",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NYLOC",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "NYLOC": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -9.8388,
+      -4.7749,
+      9.8388,
+      0.0628
+     ],
+     "area": 37.5083
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9126,
+      18.9441,
+      -6.0749
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t14",
+   "main_lines": [
+    "1/4-28"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "NYLOC",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "NYLOC": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNF"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4705,
+      1.3628,
+      9.6146,
+      9.5894
+     ],
+     "area": 83.4506
+    },
+    "icon": {
+     "bbox": [
+      11.0146,
+      3.0644,
+      16.4705,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -9.8388,
+      -4.7749,
+      9.8388,
+      0.0628
+     ],
+     "area": 37.5083
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9126,
+      18.9441,
+      -6.0749
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t15",
+   "main_lines": [
+    "#10-32"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "THIN NYLOC",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "THIN NYLOC": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNF"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -18.0008,
+      1.3507,
+      11.1448,
+      9.6015
+     ],
+     "area": 98.1861
+    },
+    "icon": {
+     "bbox": [
+      12.5448,
+      3.0765,
+      18.0008,
+      8.9265
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -17.9061,
+      -4.787,
+      17.9061,
+      0.0507
+     ],
+     "area": 65.6092
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9247,
+      18.9441,
+      -6.087
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t16",
+   "main_lines": [
+    "1/4-20"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "CAP NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "CAP NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4248,
+      1.3628,
+      9.5688,
+      9.5894
+     ],
+     "area": 81.4438
+    },
+    "icon": {
+     "bbox": [
+      10.9688,
+      3.0644,
+      16.4248,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.8512,
+      -4.7749,
+      12.8512,
+      0.0628
+     ],
+     "area": 46.9453
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9126,
+      18.9441,
+      -6.0749
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t17",
+   "main_lines": [
+    "1/4-28"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "CAP NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "CAP NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNF"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.4705,
+      1.3628,
+      9.6146,
+      9.5894
+     ],
+     "area": 83.4506
+    },
+    "icon": {
+     "bbox": [
+      11.0146,
+      3.0644,
+      16.4705,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.8512,
+      -4.7749,
+      12.8512,
+      0.0628
+     ],
+     "area": 46.9453
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9126,
+      18.9441,
+      -6.0749
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t18",
+   "main_lines": [
+    "5/16-18"
+   ],
+   "main_cap": 7.6,
+   "attributes": [
+    "FLG NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "FLG NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -18.5097,
+      1.3628,
+      11.6538,
+      9.5894
+     ],
+     "area": 101.869
+    },
+    "icon": {
+     "bbox": [
+      13.0538,
+      3.0644,
+      18.5097,
+      8.9144
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.5187,
+      -4.7749,
+      12.5187,
+      0.0628
+     ],
+     "area": 45.0241
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9126,
+      18.9441,
+      -6.0749
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "inch-bank/label-items.json",
+   "id": "t19",
+   "main_lines": [
+    "3/8-16"
+   ],
+   "main_cap": 6.4,
+   "attributes": [
+    "SQ NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "SQ NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [
+    "UNC"
+   ],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -14.2664,
+      2.6506,
+      7.4104,
+      9.5783
+     ],
+     "area": 61.0051
+    },
+    "icon": {
+     "bbox": [
+      8.8104,
+      3.0533,
+      14.2664,
+      8.9033
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -10.9712,
+      -4.7638,
+      10.9712,
+      1.3506
+     ],
+     "area": 42.6279
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9015,
+      18.9441,
+      -6.0638
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "joey-labels/label-items.json",
+   "id": "rec_muu6te0c_2",
+   "main_lines": [
+    "M12",
+    "× 25"
+   ],
+   "main_cap": 9.4,
+   "attributes": [
+    "SHCS"
+   ],
+   "attribute_places": {
+    "SHCS": "beside line 1"
+   },
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -19.3405,
+      0.0556,
+      1.2613,
+      9.5966
+     ],
+     "area": 97.5369
+    },
+    "beside1": {
+     "bbox": [
+      3.2613,
+      0.0556,
+      19.3405,
+      4.8934
+     ],
+     "area": 33.0423
+    },
+    "main2": {
+     "bbox": [
+      -10.6681,
+      -10.9198,
+      10.6681,
+      -1.2444
+     ],
+     "area": 75.2441
+    }
+   }
+  },
+  {
+   "set": "joey-labels/label-items.json",
+   "id": "rec_muu6te0c_5",
+   "main_lines": [
+    "M10",
+    "× 85"
+   ],
+   "main_cap": 9.3,
+   "attributes": [
+    "SHCS"
+   ],
+   "attribute_places": {
+    "SHCS": "beside line 1"
+   },
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -19.2246,
+      -0.0116,
+      1.1454,
+      9.5609
+     ],
+     "area": 97.7405
+    },
+    "beside1": {
+     "bbox": [
+      3.1454,
+      -0.0116,
+      19.2246,
+      4.8261
+     ],
+     "area": 33.0423
+    },
+    "main2": {
+     "bbox": [
+      -10.5546,
+      -10.8841,
+      10.5546,
+      -1.3116
+     ],
+     "area": 78.9245
+    }
+   }
+  },
+  {
+   "set": "joey-labels/label-items.json",
+   "id": "rec_muu6te0c_8",
+   "main_lines": [
+    "M8"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "FHCS",
+    "SS"
+   ],
+   "attribute_places": {
+    "FHCS": "below",
+    "SS": "below"
+   },
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -9.2364,
+      -3.7685,
+      9.2364,
+      8.583
+     ],
+     "area": 131.3431
+    },
+    "secondary1": {
+     "bbox": [
+      -14.7519,
+      -9.9062,
+      14.7519,
+      -5.0685
+     ],
+     "area": 49.1211
+    }
+   }
+  },
+  {
+   "set": "joey-labels/label-items.json",
+   "id": "rec_muvo7odb_1",
+   "main_lines": null,
+   "main_cap": null,
+   "attributes": [],
+   "attribute_places": null,
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": true
+  },
+  {
+   "set": "joey-labels/label-items.json",
+   "id": "rec_muvo7odb_2",
+   "main_lines": null,
+   "main_cap": null,
+   "attributes": [],
+   "attribute_places": null,
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": true
+  },
+  {
+   "set": "joey-labels/label-items.json",
+   "id": "rec_muvo7odb_5",
+   "main_lines": [
+    "M6 × 30"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "BHCS",
+    "STEEL"
+   ],
+   "attribute_places": {
+    "BHCS": "below",
+    "STEEL": "below"
+   },
+   "not_shown": [],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -16.8494,
+      1.3507,
+      16.8494,
+      9.6015
+     ],
+     "area": 111.5658
+    },
+    "secondary1": {
+     "bbox": [
+      -8.0866,
+      -4.787,
+      8.0866,
+      0.0507
+     ],
+     "area": 35.2644
+    },
+    "secondary2": {
+     "bbox": [
+      -9.2599,
+      -10.9247,
+      9.2599,
+      -6.087
+     ],
+     "area": 36.9862
+    }
+   }
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t1",
+   "main_lines": [
+    "M8 × 40"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "SHCS",
+    "12.9",
+    "BLK OX"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "12.9": "below",
+    "BLK OX": "below"
+   },
+   "not_shown": [
+    "STEEL"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -17.2994,
+      1.3589,
+      17.2994,
+      9.5933
+     ],
+     "area": 112.5377
+    },
+    "secondary1": {
+     "bbox": [
+      -17.0384,
+      -4.7788,
+      17.0384,
+      0.0589
+     ],
+     "area": 55.0868
+    },
+    "secondary2": {
+     "bbox": [
+      -10.6192,
+      -10.9165,
+      10.6192,
+      -6.0788
+     ],
+     "area": 40.9768
+    }
+   }
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t1",
+   "main_lines": [
+    "M8 × 40"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "SHCS",
+    "12.9",
+    "BLK OX"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "12.9": "below",
+    "BLK OX": "below"
+   },
+   "not_shown": [
+    "STEEL"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -17.2994,
+      1.3589,
+      17.2994,
+      9.5933
+     ],
+     "area": 112.5377
+    },
+    "secondary1": {
+     "bbox": [
+      -17.0384,
+      -4.7788,
+      17.0384,
+      0.0589
+     ],
+     "area": 55.0868
+    },
+    "secondary2": {
+     "bbox": [
+      -10.6192,
+      -10.9165,
+      10.6192,
+      -6.0788
+     ],
+     "area": 40.9768
+    }
+   }
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t2",
+   "main_lines": [
+    "5/16-18",
+    "× 1-1/2\""
+   ],
+   "main_cap": 6,
+   "attributes": [
+    "SHCS",
+    "12.9"
+   ],
+   "attribute_places": {
+    "SHCS": "below",
+    "12.9": "below"
+   },
+   "not_shown": [
+    "BLK OX",
+    "STEEL",
+    "UNC"
+   ],
+   "icon": null,
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.2067,
+      3.0573,
+      12.2067,
+      9.5519
+     ],
+     "area": 63.4493
+    },
+    "main2": {
+     "bbox": [
+      -13.7687,
+      -4.7374,
+      13.7687,
+      1.7573
+     ],
+     "area": 47.889
+    },
+    "secondary1": {
+     "bbox": [
+      -17.0384,
+      -10.8751,
+      17.0384,
+      -6.0374
+     ],
+     "area": 55.0868
+    }
+   }
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t2",
+   "main_lines": null,
+   "main_cap": null,
+   "attributes": null,
+   "attribute_places": null,
+   "not_shown": [
+    "12.9",
+    "STEEL",
+    "UNC"
+   ],
+   "icon": null,
+   "nonfit": true,
+   "not_ready": false
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t2",
+   "main_lines": null,
+   "main_cap": null,
+   "attributes": null,
+   "attribute_places": null,
+   "not_shown": [
+    "STEEL",
+    "UNC"
+   ],
+   "icon": null,
+   "nonfit": true,
+   "not_ready": false
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t3",
+   "main_lines": [
+    "M6"
+   ],
+   "main_cap": 8,
+   "attributes": [
+    "CAP NUT",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "CAP NUT": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -9.5602,
+      1.3589,
+      2.7042,
+      9.5933
+     ],
+     "area": 56.6921
+    },
+    "icon": {
+     "bbox": [
+      4.1042,
+      3.0683,
+      9.5602,
+      8.9183
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -12.8512,
+      -4.7788,
+      12.8512,
+      0.0589
+     ],
+     "area": 46.9453
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.9165,
+      18.9441,
+      -6.0788
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t4",
+   "main_lines": [
+    "M5"
+   ],
+   "main_cap": 12,
+   "attributes": [
+    "SQ NUT"
+   ],
+   "attribute_places": {
+    "SQ NUT": "below"
+   },
+   "not_shown": [],
+   "icon": "nut",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -12.6862,
+      -3.0403,
+      5.8303,
+      9.1314
+     ],
+     "area": 126.0161
+    },
+    "icon": {
+     "bbox": [
+      7.2303,
+      2.6064,
+      12.6862,
+      8.4564
+     ],
+     "area": 16.1217
+    },
+    "secondary1": {
+     "bbox": [
+      -10.9712,
+      -10.4546,
+      10.9712,
+      -4.3403
+     ],
+     "area": 42.6279
+    }
+   }
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t5",
+   "main_lines": [
+    "M4"
+   ],
+   "main_cap": 8.2,
+   "attributes": [
+    "TOOTH LW",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "TOOTH LW": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -10.2872,
+      1.3761,
+      2.5873,
+      9.5761
+     ],
+     "area": 56.7254
+    },
+    "icon": {
+     "bbox": [
+      3.9873,
+      2.8261,
+      10.2872,
+      9.1261
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -15.4004,
+      -4.7616,
+      15.4004,
+      0.0761
+     ],
+     "area": 56.7359
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.8993,
+      18.9441,
+      -6.0616
+     ],
+     "area": 66.1336
+    }
+   }
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t5",
+   "main_lines": null,
+   "main_cap": null,
+   "attributes": null,
+   "attribute_places": null,
+   "not_shown": [
+    "STEEL"
+   ],
+   "icon": null,
+   "nonfit": true,
+   "not_ready": false
+  },
+  {
+   "set": "pin-demo/label-items.json",
+   "id": "t5",
+   "main_lines": [
+    "M4"
+   ],
+   "main_cap": 8.2,
+   "attributes": [
+    "STAR LW",
+    "STEEL",
+    "ZINC"
+   ],
+   "attribute_places": {
+    "STAR LW": "below",
+    "STEEL": "below",
+    "ZINC": "below"
+   },
+   "not_shown": [],
+   "icon": "washer",
+   "nonfit": false,
+   "not_ready": false,
+   "elements": {
+    "main1": {
+     "bbox": [
+      -10.2872,
+      1.3761,
+      2.5873,
+      9.5761
+     ],
+     "area": 56.7254
+    },
+    "icon": {
+     "bbox": [
+      3.9873,
+      2.8261,
+      10.2872,
+      9.1261
+     ],
+     "area": 22.4139
+    },
+    "secondary1": {
+     "bbox": [
+      -12.9147,
+      -4.7616,
+      12.9147,
+      0.0761
+     ],
+     "area": 49.5125
+    },
+    "secondary2": {
+     "bbox": [
+      -18.9441,
+      -10.8993,
+      18.9441,
+      -6.0616
+     ],
+     "area": 66.1336
+    }
+   }
+  }
+ ]
+}

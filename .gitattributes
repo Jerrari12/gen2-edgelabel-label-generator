@@ -20,6 +20,7 @@ label-link.js text eol=lf
 # shared across tools the way label-core.js is: a fixed LF keeps every copy the same bytes on every OS.
 hardware-layout.js text eol=lf
 hardware-data.js text eol=lf
+hardware-data-classicpro.js text eol=lf
 hardware-v5-data.js text eol=lf
 hardware-band-data.js text eol=lf
 
