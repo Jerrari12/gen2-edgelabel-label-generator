@@ -34,3 +34,8 @@ label-core-classicpro.js text eol=lf
 
 # The MODULITH fonts (Space Grotesk, copied from the Planner with its masthead) are binary, like the site icons.
 *.woff2 binary
+
+# label-icons.js and its generated artwork (label-icon-art.js, written by the icon family's export_label_icon_art.py) are
+# copied byte-for-byte into the 3D Build Studio and sha-pinned there: a fixed LF keeps every copy the same bytes on every OS.
+label-icons.js text eol=lf
+label-icon-art.js text eol=lf

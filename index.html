@@ -200,16 +200,28 @@
   .row .badge-btn:hover { border-color: var(--accent-dim); color: var(--text); }
   .row .badge-btn.set { border-color: var(--accent-dim); color: var(--accent); }
   .row .badge-btn svg { width: 18px; height: 18px; fill: currentColor; }
-  .badge-popover { position: fixed; z-index: 50; width: 250px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 11px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
+  .badge-popover { position: fixed; z-index: 50; width: 286px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 11px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
   .badge-popover[hidden] { display: none; }
   .bp-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 9px; }
   .bp-close { background: none; border: none; color: var(--muted); font-size: 17px; line-height: 1; cursor: pointer; padding: 0; }
   .bp-label { font-size: 10px; color: var(--muted); margin: 2px 0 5px; text-transform: uppercase; letter-spacing: 0.6px; }
   .bp-section { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
-  .bp-section input[type="text"] { flex: 1; padding: 7px 9px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
+  .bp-section input[type="text"], .bp-section input[type="search"] { flex: 1; min-width: 0; padding: 7px 9px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
   .bp-section button:not(.bp-icon) { padding: 7px 10px; background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 12px; white-space: nowrap; }
   .bp-section button:not(.bp-icon):hover { border-color: var(--accent-dim); color: var(--accent); }
-  .bp-icons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
+  /* the icon menu: collapsible groups in a box that scrolls (label-icons.js GROUPS) */
+  .bp-icons { max-height: min(46vh, 330px); overflow-y: auto; margin: 0 -4px 10px; padding: 0 4px; }
+  .bp-group { border-top: 1px solid var(--border); }
+  .bp-group:first-child { border-top: none; }
+  .bp-ghead { display: flex; align-items: center; gap: 7px; width: 100%; background: none; border: none; color: var(--text); font: inherit; font-size: 12px; font-weight: 600; padding: 7px 2px; cursor: pointer; text-align: left; }
+  .bp-ghead:hover { color: var(--accent); }
+  .bp-caret { display: inline-block; width: 10px; color: var(--muted); transition: transform 0.12s; }
+  .bp-group.open .bp-caret { transform: rotate(90deg); }
+  .bp-gcount { margin-left: auto; font-size: 10px; color: var(--muted); font-weight: 600; }
+  .bp-cells { display: none; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 0 0 9px; }
+  .bp-group.open .bp-cells { display: grid; }
+  .bp-icon.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .bp-empty { font-size: 12px; color: var(--muted); padding: 8px 2px 4px; line-height: 1.45; }
   .bp-icon { aspect-ratio: 1 / 1; background: var(--well); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
   .bp-icon:hover { border-color: var(--accent); color: var(--accent); }
   .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
@@ -422,8 +434,9 @@
         <input type="text" id="bp-char" maxlength="4" placeholder="A, 1, M3…">
         <button id="bp-char-apply">Use</button>
       </div>
-      <div class="bp-label">Built-in icons</div>
-      <div class="bp-section"><div class="bp-icons" id="bp-icons"></div></div>
+      <div class="bp-label">Icons</div>
+      <div class="bp-section"><input type="search" id="bp-search" placeholder="Search icons: nut, scissors, battery…" autocomplete="off" aria-label="Search icons"></div>
+      <div class="bp-icons" id="bp-icons"></div>
       <div class="bp-section">
         <button id="bp-upload-btn">Upload SVG…</button>
         <button id="bp-none">No badge</button>
@@ -592,6 +605,10 @@
 <script src="vendor/SVGLoader.js"></script>
 <script src="label-core.js"></script>
 <script src="label-core-classicpro.js"></script>
+<!-- the label icon catalog: groups, the MODULITH icon family's drawings and the wider word -> icon guess, built on
+     label-core.js's own 23 icons and rules (label-icons.js says how; both are shared with the 3D Build Studio) -->
+<script src="label-icon-art.js"></script>
+<script src="label-icons.js"></script>
 <script src="hardware-data.js"></script>
 <script src="hardware-data-classicpro.js"></script>
 <script src="hardware-v5-data.js"></script>
@@ -738,9 +755,9 @@ const BASE_TRIS = [0,1,2,0,2,3,4,3,5,4,0,3,6,5,7,6,4,5,8,7,9,8,6,7,10,8,9,11,8,1
 const CP_BASE_VERTS = [-21.0121,-3.1366,0,-21.0121,-12.7366,0,-21.0121,-3.1366,1.5,-21.0121,-12.7366,1.5,-21.0258,-3.0331,0,-21.0258,-3.0331,1.5,-21.0657,-2.9366,0,-21.0657,-2.9366,1.5,-21.1293,-2.8538,0,-21.1293,-2.8538,1.5,-21.2121,-2.7902,0,-21.2121,-2.7902,1.5,-21.3086,-2.7502,0,-21.3086,-2.7502,1.5,-21.4121,-2.7366,0,-21.4121,-2.7366,1.5,-21.5157,-2.7502,0,-21.5157,-2.7502,1.5,-21.6121,-2.7902,0,-21.6121,-2.7902,1.5,-21.695,-2.8538,0,-21.695,-2.8538,1.5,-21.7586,-2.9366,0,-21.7586,-2.9366,1.5,-21.7985,-3.0331,0,-21.7985,-3.0331,1.5,-21.8121,-3.1366,0,-21.8121,-3.1366,1.5,-22.7354,-10.2747,0.9768,-22.7354,-9.1985,0.9768,-22.7354,-10.2747,0,-22.7354,-9.1985,0,-23.5354,-8.7366,0.1768,-23.4621,-8.7789,0,-23.5354,-10.7366,0.1768,-23.4621,-10.6943,0,-22.77,-12.7366,0.9421,-22.2121,-12.7366,1.5,-22.2121,11.4134,1.5,-23.5354,12.7366,0.1768,-23.5354,-11.7366,0.1768,-23.4621,12.6634,0,-23.4621,-11.7366,0,-22.3797,-12.7366,0,-21.8121,-12.7366,0,-21.8121,-12.7366,1.5,21.0121,-12.7366,1.5,21.0121,-3.1366,1.5,21.0257,-3.0331,1.5,21.0657,-2.9366,1.5,21.1293,-2.8538,1.5,22.2121,11.4134,1.5,21.2121,-2.7902,1.5,21.3086,-2.7502,1.5,21.4121,-2.7366,1.5,21.5156,-2.7502,1.5,21.6121,-2.7902,1.5,21.695,-2.8538,1.5,21.7585,-2.9366,1.5,21.7985,-3.0331,1.5,21.8121,-3.1366,1.5,22.2121,-12.7366,1.5,21.8121,-12.7366,1.5,21.0121,-12.7366,0,21.0121,-3.1366,0,21.8121,-3.1366,0,21.7985,-3.0331,0,21.7585,-2.9366,0,21.695,-2.8538,0,21.6121,-2.7902,0,21.5156,-2.7502,0,21.4121,-2.7366,0,21.3086,-2.7502,0,21.2121,-2.7902,0,21.1293,-2.8538,0,21.0657,-2.9366,0,21.0257,-3.0331,0,22.7353,-9.1985,0.9768,22.7353,-10.2747,0.9768,22.7353,-9.1985,0,22.7353,-10.2747,0,23.5354,-8.7366,0.1768,23.4621,-8.7789,0,23.5354,-10.7366,0.1768,23.4621,-10.6943,0,23.5354,-11.7366,0.1768,22.77,-12.7366,0.9422,23.5354,12.7366,0.1768,23.4621,12.6634,0,23.4621,-11.7366,0,22.3797,-12.7366,0,21.8121,-12.7366,0];
 const CP_BASE_TRIS = [0,1,2,2,1,3,0,2,4,4,2,5,4,5,6,6,5,7,6,7,8,8,7,9,8,9,10,10,9,11,10,11,12,12,11,13,12,13,14,14,13,15,14,15,16,16,15,17,16,17,18,18,17,19,18,19,20,20,19,21,20,21,22,22,21,23,22,23,24,24,23,25,24,25,26,26,25,27,28,29,30,30,29,31,29,32,31,31,32,33,28,30,34,34,30,35,34,36,28,28,36,37,28,37,29,29,37,38,29,38,39,34,40,36,39,32,29,33,32,41,41,32,39,35,42,34,34,42,40,43,36,42,42,36,40,36,43,37,37,43,44,37,44,45,27,45,26,26,45,44,3,46,2,2,46,47,2,47,5,5,47,48,5,48,7,7,48,49,7,49,9,9,49,50,9,50,38,38,50,51,51,50,52,51,52,53,53,54,51,51,54,55,51,55,56,56,57,51,51,57,58,51,58,59,59,60,51,51,60,61,61,60,62,37,27,38,38,27,25,38,25,23,37,45,27,23,21,38,38,21,19,38,19,17,17,15,38,38,15,13,38,13,11,11,9,38,1,63,3,3,63,46,47,46,64,64,46,63,65,60,66,66,60,59,66,59,67,67,59,58,67,58,68,68,58,57,68,57,69,69,57,56,69,56,70,70,56,55,70,55,71,71,55,54,71,54,72,72,54,53,72,53,73,73,53,52,73,52,74,74,52,50,74,50,75,75,50,49,75,49,76,76,49,48,76,48,64,64,48,47,77,78,79,79,78,80,77,79,81,81,79,82,78,83,80,80,83,84,85,83,86,86,83,78,86,78,61,61,78,77,61,77,51,51,77,87,87,77,81,82,88,81,81,88,87,84,83,89,89,83,85,89,85,90,90,85,86,88,10,41,41,10,12,41,12,14,82,66,88,88,66,67,88,67,68,66,82,65,65,82,79,65,79,91,91,79,80,91,80,89,89,80,84,89,90,91,68,69,88,88,69,70,88,70,71,71,72,88,88,72,73,88,73,10,10,73,8,8,73,74,8,74,6,6,74,75,6,75,4,4,75,76,4,76,0,0,76,64,0,64,1,1,64,63,14,16,41,41,16,18,41,18,20,20,22,41,41,22,24,41,24,33,33,24,26,33,26,31,31,26,44,31,44,30,30,44,42,30,42,35,44,43,42,86,61,90,90,61,91,91,61,62,65,91,60,60,91,62,39,87,41,41,87,88,38,51,39,39,51,87];
 
-// The label itself - its dimensions and text area, the word wrap and auto-shrink, the left badge, the icon library and the
-// icon prediction - lives in label-core.js, shared byte-for-byte with the GEN2 3D Build Studio so a label previewed on a
-// drawer there is the label printed here. If the file is missing, init() names it and nothing is built.
+// The label itself - its dimensions and text area, the word wrap and auto-shrink, the left badge and the 23 original icons
+// with their word rules - lives in label-core.js, shared byte-for-byte with the GEN2 3D Build Studio so a label previewed on a
+// drawer there is the label printed here (the wider icon catalog and guess build on it in label-icons.js, shared the same way). If the file is missing, init() names it and nothing is built.
 //
 // LABEL TYPES (Astra, 2026-10-09: "one app with selectable label types ... Classic Pro should become another supported output
 // for the same label collection"). The labels - words, icons, part records, pins - are shared; each type brings its own label
@@ -759,8 +776,13 @@ const LABEL_TYPES = {
 for (const t of Object.values(LABEL_TYPES)) t.core = window[t.coreName] ? window[t.coreName].create({ THREE: window.THREE }) : null;
 let labelType = LABEL_TYPES.edgelabel;
 let LabelCore = labelType.core;
-// the icon library and its prediction are the same in every core (test/label-types.test.mjs): taken once, from EdgeLabel's
-const { ICON_LIBRARY = [], guessIconId = () => null } = LabelCore || {};
+// The label icon catalog (label-icons.js): the cores' 23 icons (the same in every core - test/label-types.test.mjs - so
+// read from EdgeLabel's), the MODULITH icon family, the groups and the guess. Every label build passes its badge through
+// LabelIcons.resolveBadge, so an icon the cores do not hold reaches either core as the badge's own drawing.
+const LabelIcons = (window.GEN2LabelIcons && LABEL_TYPES.edgelabel.core)
+  ? GEN2LabelIcons.create({ core: LABEL_TYPES.edgelabel.core, art: window.GEN2LabelIconArt || null }) : null;
+const guessIconId = (text) => (LabelIcons ? LabelIcons.guessIconId(text) : null);
+const iconSvg = (id) => { const it = LabelIcons && LabelIcons.find(id); return it ? it.svg : null; };
 let { LABEL_LEN, LABEL_WID, LABEL_HT, MIN_PRINT_CAP, buildLabelMeshes, shapesFromSVG, prepareLabel } = LabelCore || {};
 function adoptType(t) {
   labelType = t; LabelCore = t.core;
@@ -1214,7 +1236,7 @@ function getLabelData() {
       if (row.dataset.badgeIcon) badge.value = row.dataset.badgeIcon;
       if (row._badgeSvg) badge.svg = row._badgeSvg;
     }
-    const d = prepareLabel(text, badge, capsOn());
+    const d = prepareLabel(text, LabelIcons ? LabelIcons.resolveBadge(badge, getBadgeSize()) : badge, capsOn());
     if (d) out.push(d);
   });
   return out;
@@ -1895,10 +1917,7 @@ function updateBadgeBtn(row) {
     btn.textContent = (row.dataset.badgeValue || '+').slice(0, 2);
   } else if (t === 'icon') {
     let svg = row._badgeSvg;
-    if (!svg && row.dataset.badgeIcon) {
-      const it = ICON_LIBRARY.find(i => i.id === row.dataset.badgeIcon);
-      if (it) svg = it.svg;
-    }
+    if (!svg && row.dataset.badgeIcon) svg = iconSvg(row.dataset.badgeIcon);
     btn.innerHTML = svg || '+';
   } else {
     btn.textContent = '+';
@@ -1971,6 +1990,8 @@ function positionPopover(anchorEl, charPrefill) {
   const pop = document.getElementById('badge-popover');
   const charInput = document.getElementById('bp-char');
   charInput.value = charPrefill;
+  document.getElementById('bp-search').value = '';
+  renderIconMenu();
   pop.hidden = false;
   const r = anchorEl.getBoundingClientRect();
   const top = Math.min(window.innerHeight - pop.offsetHeight - 8, r.bottom + 6);
@@ -1999,23 +2020,93 @@ function closeBadgePopover() {
   bulkBadgeMode = false;
 }
 
+// ---- the icon menu (label-icons.js groups) ----
+const ICON_GROUPS_KEY = 'label-studio.icon-groups.v1';
+function openIconGroups() {
+  try { const v = JSON.parse(sessionStorage.getItem(ICON_GROUPS_KEY) || 'null'); return Array.isArray(v) ? v : null; } catch (e) { return null; }
+}
+function saveOpenIconGroups(ids) { try { sessionStorage.setItem(ICON_GROUPS_KEY, JSON.stringify(ids)); } catch (e) {} }
+// The row's current icon (or the bulk picker's none): its group opens when the menu opens, and its cell is ringed.
+function menuCurrentIcon() {
+  if (bulkBadgeMode || !activeBadgeRow) return null;
+  return activeBadgeRow.dataset.badgeType === 'icon' ? (activeBadgeRow.dataset.badgeIcon || null) : null;
+}
+function renderIconMenu() {
+  const grid = document.getElementById('bp-icons');
+  const q = document.getElementById('bp-search').value;
+  grid.innerHTML = '';
+  if (!LabelIcons) { grid.textContent = 'Icons did not load.'; return; }
+  const found = LabelIcons.search(q);
+  const searching = !!q.trim();
+  const current = menuCurrentIcon();
+  const curIcon = current && LabelIcons.find(current);
+  const saved = openIconGroups();
+  let any = false;
+  for (const g of LabelIcons.GROUPS) {
+    const items = found.filter(i => i.group === g.id);
+    if (!items.length) continue;
+    any = true;
+    const open = searching || (saved ? saved.includes(g.id) : false) || (curIcon && curIcon.group === g.id);
+    const sec = document.createElement('div');
+    sec.className = 'bp-group' + (open ? ' open' : '');
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.className = 'bp-ghead';
+    head.setAttribute('aria-expanded', String(open));
+    head.innerHTML = '<span class="bp-caret" aria-hidden="true">▸</span><span class="bp-gname"></span><span class="bp-gcount"></span>';
+    head.querySelector('.bp-gname').textContent = g.name;
+    head.querySelector('.bp-gcount').textContent = String(items.length);
+    head.addEventListener('click', (e) => {
+      e.preventDefault();
+      const nowOpen = !sec.classList.contains('open');
+      sec.classList.toggle('open', nowOpen);
+      head.setAttribute('aria-expanded', String(nowOpen));
+      if (!searching) {
+        const ids = new Set(openIconGroups() || []);
+        if (nowOpen) ids.add(g.id); else ids.delete(g.id);
+        saveOpenIconGroups([...ids]);
+      }
+    });
+    const cells = document.createElement('div');
+    cells.className = 'bp-cells';
+    for (const it of items) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'bp-icon' + (it.id === current ? ' on' : '');
+      cell.title = it.name;
+      cell.setAttribute('aria-label', it.name);
+      cell.innerHTML = it.svg;
+      cell.addEventListener('click', (e) => {
+        e.preventDefault();
+        setActiveRowBadge('icon', it.id, null);
+        closeBadgePopover();
+      });
+      cells.appendChild(cell);
+    }
+    sec.appendChild(head);
+    sec.appendChild(cells);
+    grid.appendChild(sec);
+  }
+  if (!any) {
+    const none = document.createElement('div');
+    none.className = 'bp-empty';
+    none.textContent = 'No icon matches. Try another word, use a letter above, or upload an SVG.';
+    grid.appendChild(none);
+  }
+}
+
 function setupBadgePicker() {
   const pop = document.getElementById('badge-popover');
   const grid = document.getElementById('bp-icons');
 
-  // Built-in icon grid
-  ICON_LIBRARY.forEach(it => {
-    const cell = document.createElement('button');
-    cell.className = 'bp-icon';
-    cell.title = it.name;
-    cell.innerHTML = it.svg;
-    cell.addEventListener('click', (e) => {
-      e.preventDefault();
-      setActiveRowBadge('icon', it.id, null);
-      closeBadgePopover();
-    });
-    grid.appendChild(cell);
+  // The icon menu: the catalog's groups, each collapsible, and a search that opens every group it finds something in.
+  const search = document.getElementById('bp-search');
+  search.addEventListener('input', () => renderIconMenu());
+  search.addEventListener('keydown', (e) => {
+    // Enter takes the first icon the search found (only while searching: a collapsed group's icon is not on screen)
+    if (e.key === 'Enter') { e.preventDefault(); const first = search.value.trim() && grid.querySelector('.bp-group.open .bp-icon'); if (first) first.click(); }
   });
+  renderIconMenu();
 
   // Letter / number badge
   const charInput = document.getElementById('bp-char');
@@ -2681,7 +2772,7 @@ let linkBootExtra = '';         // ...and a sentence added to the one-way import
 const linkTimers = { hello: null, send: null };
 
 const gid = (id) => document.getElementById(id);
-const iconIds = () => ICON_LIBRARY.map(i => i.id);
+const iconIds = () => (LabelIcons ? LabelIcons.icons.map(i => i.id) : []);
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 // ---- rows as the rules see them ----
