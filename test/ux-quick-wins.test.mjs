@@ -110,3 +110,38 @@ test('B13: the icon menu opens on the matching group, is held to the room on its
   assert.match(HTML, /if \(e\.key === 'Escape' && !pop\.hidden\) closeBadgePopover\(true\)/);
   assert.match(fnSource('closeBadgePopover'), /if \(refocus && wasOpen && a && a\.isConnected && !a\.disabled\) a\.focus\(\)/);
 });
+
+test('B8, B10: plain words - Save set file, Open set file, Download print file (.3mf), icon (never badge) where a person reads it', () => {
+  assert.match(HTML, /id="proj-export"[^>]*>Save set file</);
+  assert.match(HTML, /id="proj-upload-btn"[^>]*>Open set file</);
+  assert.match(HTML, /<h2>Save \/ Open<\/h2>/);
+  assert.match(HTML, /id="download" disabled>Download print file \(\.3mf\)</);
+  assert.match(HTML, /dlBtn\.textContent = 'Download print file \(' \+ \(fmtSel\.value === 'stl' \? '\.stl' : '\.3mf'\) \+ '\)'/);
+  assert.doesNotMatch(HTML, /Save \/ Load ›|>Export<|>Upload<|>No badge<|Left badge \(optional\)|Badge size \(cap\)|pick another badge|'Badge: |`Badge: |"Badge: |Add a badge/);
+  assert.match(HTML, /<button id="bp-none">No icon<\/button>/);
+  assert.match(HTML, /title="Swap the current labels and settings with the previous set - the one set kept from before the last import \(from the Planner, the Part Picker or a CSV \/ TXT file\)/);
+});
+
+test('B2: a CSV / TXT file over a list with labels keeps it: Undo beside the list, and the Previous set', () => {
+  const csv = fnSource('handleCsv');
+  assert.match(csv, /const kept = had && keepPreviousSet\(captureProject\(\)\);/);
+  assert.match(csv, /if \(had\) listUndo = \{ labels: before, sig: null, undone:/);
+  assert.match(csv, /showListNote\(`Replaced your list with/);
+  assert.match(fnSource('undoListAdd'), /setStatus\(u\.undone \|\|/);
+});
+
+test('B12: a part row\'s note is one short line - what prints, anything left off before the stripe - and the whole account its tooltip', () => {
+  const run = (r, profile = true) => new Function('LH', 'LabelIcons', fnSource('hwShortNote') + '; return hwShortNote;')(
+    { noteText: () => 'the whole account' },
+    { find: (id) => ({ 'hex-nut': { name: 'Hex nut, plain' } }[id] || null) })(r, profile);
+  const rec = (o) => Object.assign({ not_shown: [], value_missing: [] }, o);
+  const metric = { band: { label: 'Metric' }, band_accent: { label: 'Stainless' } };
+  assert.equal(run({ elements: [1], record: rec({ layout: 'v5', kind: 'screw' }), band: 'bottom', colours: metric }), 'Screw drawing · Metric stripe');
+  assert.equal(run({ elements: [1], record: rec({ layout: 'v5', kind: 'nut', not_shown: ['ZINC'] }), band: 'bottom', colours: metric }), 'Nut drawing · left off: ZINC · Metric stripe');
+  assert.equal(run({ elements: [1], record: rec({ icon: 'hex-nut', icon_left_off: 'hex-nut' }), covered: false }), 'Icon: hex nut, plain · no room for the hex nut, plain icon');
+  assert.equal(run({ elements: [1], record: rec({}), covered: true }), 'Words only: no room for the drawing');
+  assert.equal(run({ elements: [1], record: rec({ layout: 'v5', kind: 'screw' }), typeSkips: ['colour band'] }), 'Screw drawing · colour band on EdgeLabel only');
+  assert.equal(run({ elements: null, record: rec({ nonfit: 'too long' }) }), 'the whole account', 'a label that cannot print keeps the whole reason');
+  assert.match(fnSource('layOutHardwareRow'), /note\.title = \[LH\.noteText\(r, profile\), LH\.noteDetail\(r\)\]\.filter\(Boolean\)\.join\('\\n'\)/);
+  assert.match(CSS, /\.row \.hw-note \{[^}]*white-space: nowrap; overflow: hidden; text-overflow: ellipsis; \}/);
+});

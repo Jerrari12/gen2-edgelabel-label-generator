@@ -90,8 +90,10 @@
   .row.hw { flex-wrap: wrap; }
   .row.hw .badge-btn { visibility: hidden; }
   .row.hw input[type="text"] { background: #14161b; cursor: default; min-width: 0; }   /* shrinks, so the remove button stays on the row */
-  .row .hw-note { flex-basis: 100%; margin: -2px 0 2px 45px; font-size: 11px; line-height: 1.35; color: var(--muted); }
-  .row .hw-note.bad { color: var(--bad-text); }
+  /* a part row's ONE short line (its whole account is the tooltip); a label that cannot print keeps its whole reason, wrapped */
+  .row .hw-note { flex-basis: 100%; min-width: 0; margin: -2px 0 2px 45px; font-size: 11.5px; line-height: 1.35; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .hw-note.bad { color: var(--bad-text); white-space: normal; }
   .row.dragging { opacity: 0.45; }
   /* Bulk selection bar + actions */
   .labels-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
@@ -517,7 +519,7 @@
       <label class="sel-all"><input type="checkbox" id="sel-all"><span id="sel-count">Select all</span></label>
       <div class="bulk-actions" id="bulk-actions" hidden>
         <button id="bulk-icon" title="Pick one icon and apply it to the selected labels">Set icon</button>
-        <button id="bulk-clear" title="Remove the icon/badge from the selected labels">Clear icon</button>
+        <button id="bulk-clear" title="Remove the icon or letter from the selected labels">Clear icon</button>
         <button id="bulk-stripe" title="Give the selected labels a coloured stripe, or none">Set stripe…</button>
         <button id="bulk-affix" title="Add text before/after every selected label">Prefix/Suffix…</button>
         <button id="bulk-delete" class="danger" title="Delete the selected labels">Delete</button>
@@ -552,7 +554,7 @@
       <div class="af-buttons">
         <button type="button" class="btn-sm af-parts" id="open-parts" data-parts-entry title="Choose screws, nuts and washers in the Part Picker: they are added to the end of your list as part labels.">Part Picker</button>
         <select id="preset-select" aria-label="Preset collection" title="Add a preset collection of labels"></select>
-        <div class="csv-zone" id="csv-zone" tabindex="0" role="button" title="Import a CSV or TXT file, one label per row (it replaces your list). You can also drop the file here.">CSV / TXT</div>
+        <div class="csv-zone" id="csv-zone" tabindex="0" role="button" title="Open a CSV or TXT file, one label per line. It replaces your list - Undo beside the list brings it back. You can also drop the file here.">CSV / TXT</div>
       </div>
       <div class="af-note" id="parts-reason" hidden></div>
     </div>
@@ -566,7 +568,7 @@
 
     <!-- Shared badge picker popover -->
     <div id="badge-popover" class="badge-popover" hidden>
-      <div class="bp-head"><span>Left badge (optional)</span><button class="bp-close" id="bp-close" title="Close">×</button></div>
+      <div class="bp-head"><span>Icon or letter (optional)</span><button class="bp-close" id="bp-close" title="Close">×</button></div>
       <div class="bp-label">Letter / number / short code</div>
       <div class="bp-section">
         <input type="text" id="bp-char" maxlength="4" placeholder="A, 1, M3…">
@@ -578,19 +580,19 @@
       <div class="bp-caption" id="bp-caption"></div>
       <div class="bp-section">
         <button id="bp-upload-btn">Upload SVG…</button>
-        <button id="bp-none">No badge</button>
+        <button id="bp-none">No icon</button>
         <input type="file" id="bp-upload" accept=".svg,image/svg+xml" hidden>
       </div>
     </div>
 
     <input type="file" id="csv-input" accept=".csv,.txt,text/csv,text/plain">
 
-    <h2>Save / Load</h2>
+    <h2>Save / Open</h2>
     <div class="proj-actions">
-      <button class="btn-sm" id="proj-export" title="Download your labels + settings as a .json file">Export</button>
-      <button class="btn-sm" id="proj-upload-btn" title="Load labels + settings from a .json file you exported earlier">Upload</button>
+      <button class="btn-sm" id="proj-export" title="Save your labels and settings to your computer as a set file (.json), to open again later or on another computer">Save set file</button>
+      <button class="btn-sm" id="proj-upload-btn" title="Open a set file (.json) you saved earlier: its labels and settings replace these">Open set file</button>
       <button class="btn-sm" id="to-planner" title="Open the MODULITH Planner with these labels: they wait in its Labels tray under the board, where you tap a label and then a drawer. Hardware labels keep their part details.">Add to planner build</button>
-      <button class="btn-sm" id="proj-restore" style="display:none" title="Swap the current labels and settings with the previous set - the one set kept from before the last Planner import. Click again to swap back. Only one previous set is kept: the next Planner import replaces it.">Previous set</button>
+      <button class="btn-sm" id="proj-restore" style="display:none" title="Swap the current labels and settings with the previous set - the one set kept from before the last import (from the Planner, the Part Picker or a CSV / TXT file). Click again to swap back. Only one previous set is kept: the next import replaces it.">Previous set</button>
       <input type="file" id="proj-import" accept=".json,application/json">
     </div>
 
@@ -604,7 +606,7 @@
       <span><input type="number" id="text-depth" value="0.6" min="0.2" max="1.2" step="0.1"> mm</span>
     </div>
     <div class="setting">
-      <span>Badge size (cap)</span>
+      <span>Icon size (cap)</span>
       <span><input type="number" id="badge-size" value="14" min="4" max="22" step="0.5"> mm</span>
     </div>
     <div class="setting">
@@ -696,7 +698,7 @@
       <div id="status" role="status" aria-live="polite">Loading…</div>
       <div class="dock-row">
         <span class="dock-count" id="dock-count">0 labels</span>
-        <button class="primary" id="download" disabled>Download .3mf</button>
+        <button class="primary" id="download" disabled>Download print file (.3mf)</button>
       </div>
     </div>
 
@@ -729,9 +731,9 @@
   <div class="hd-head"><h3 id="help-title">How to use the Label Studio</h3><button type="button" class="hd-close" aria-label="Close help">&#10005;</button></div>
   <ol class="hd-steps">
     <li><b>Pick the label type</b> your faceplates take: EdgeLabel or Classic Pro. Your labels are kept when you switch; each type keeps its own label settings.</li>
-    <li><b>Type your labels</b>, one per row, or add them from the Part Picker, a preset collection or a CSV / TXT file (one label per line). An icon is suggested from the words; click the badge at the left of a row to choose an icon, a letter or no badge.</li>
+    <li><b>Type your labels</b>, one per row, or add them from the Part Picker, a preset collection or a CSV / TXT file (one label per line). An icon is suggested from the words; click the icon button at the left of a row to choose an icon, a letter or none.</li>
     <li><b>Set your printer</b> under Build Plate, so the labels are laid out on plates that fit it.</li>
-    <li><b>Download</b> and open the file in your slicer: 3MF for a two-color print, STL for one color.</li>
+    <li><b>Download print file</b> and open it in your slicer: 3MF for a two-color print, STL for one color.</li>
   </ol>
   <h4 id="help-parts">Labels for screws, nuts and washers</h4>
   <p>Press <b>Part Picker</b> (at the top, or under your labels) and choose your parts: size, head, material and the rest. <b>Add part labels</b> puts them at the end of your list; <b>Undo</b> beside the list takes them back out. A part that is already in your list is updated, not added twice.</p>
@@ -743,7 +745,7 @@
   <h4 id="help-stripes">A stripe on any label</h4>
   <p>Any label can have a coloured stripe: press the narrow swatch beside a row's icon, or select labels and use <b>Set stripe…</b>. Metric (blue) and SAE / inch (red) match the Part Picker's colours; yellow, white, green and purple are there too. A typed label's stripe runs along its left end, where its words never reach; a part label's goes where <b>Stripe position</b> says, and the stripe button on a part's row can change its colour or take it off. Each stripe colour prints from its own filament: the 3MF names which filament carries which colour. Classic Pro labels have no stripes yet; they are kept for EdgeLabel.</p>
   <h4>Saving your work</h4>
-  <p>Your labels and settings are kept in this browser as you go. <b>Export</b> saves a copy as a file; <b>Upload</b> opens it again, here or on another computer.</p>
+  <p>Your labels and settings are kept in this browser as you go. <b>Save set file</b> saves a copy on your computer; <b>Open set file</b> opens it again, here or on another computer.</p>
 </dialog>
 <div id="gen-modal" class="veil" hidden>
   <div class="veil-card" role="dialog" aria-modal="true" aria-labelledby="gm-title">
@@ -1010,7 +1012,7 @@ function init() {
     if (!document.getElementById('status').classList.contains('err')) {
       const n = importedFromPlanner;
       setStatus(linkBootStatus || ((n ? `Loaded ${n} label${n === 1 ? '' : 's'} from the Planner.` +
-                    (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '')
+                    (importKeptPrevious ? ' Your previous set is kept: Save / Open › Previous set.' : '')
         : restoredFromAutosave ? 'Restored your previous session.' : 'Ready. Type labels and click Download.') + (linkBootExtra ? ' ' + linkBootExtra : '')), 'ok');
     }
   }).catch(err => {
@@ -1167,7 +1169,7 @@ function capsOn() {
 // other label. The layout decides the value size, the line split, the attributes and the family icon, so the Text size,
 // Bold, All caps and icon controls do not apply to these rows. Their ink is 0.45 mm proud (HW_INK_DEPTH), the depth the
 // printed hardware plates were made and judged at (Astra 2026-10-06); the Text depth setting keeps its default and still
-// governs every ordinary label. A label item comes in through Save / Load > Upload (a label-items .json the Part Picker
+// governs every ordinary label. A label item comes in through Save / Open > Open set file (a label-items .json the Part Picker
 // saved) or a #hw=<base64 JSON> link.
 //============================================================
 // The layout itself, the raised ink, the colour-band pieces and the row note live in label-hardware.js (GEN2LabelHardware),
@@ -1252,9 +1254,28 @@ function layOutHardwareRow(row) {
   row._hw = r;
   row.querySelector('input.label-text').value = hardwareRowText(item, r.record);
   const note = row.querySelector('.hw-note');
-  note.textContent = LH.noteText(r, profile);   // a person's line; the layout numbers are in its tooltip
-  note.title = LH.noteDetail(r);
+  note.textContent = hwShortNote(r, profile);   // one short line; the whole account and the layout numbers are its tooltip
+  note.title = [LH.noteText(r, profile), LH.noteDetail(r)].filter(Boolean).join('\n');
   note.classList.toggle('bad', !r.elements);
+}
+// A part row's ONE short line (UI/UX review B12: every part row repeated two lines of "laid out from the part record… accent
+// unassigned"): what prints - "Screw drawing · Metric stripe · Stainless patch" - and anything left off, never silently.
+// A label that cannot print keeps the whole reason (in red).
+function hwShortNote(r, profile) {
+  const rec = r.record;
+  if (rec.not_ready || rec.nonfit || !r.elements) return LH.noteText(r, profile);
+  const up = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1);
+  const iconName = (id) => { const ic = LabelIcons && LabelIcons.find(id); return ic ? ic.name.toLowerCase() : String(id).replace(/-/g, ' '); };
+  const bits = [rec.layout === 'v5' ? `${up(rec.kind)} drawing`
+    : r.covered && profile ? 'Words only: no room for the drawing'
+    : rec.icon ? `Icon: ${iconName(rec.icon)}` : 'Words only'];
+  // what is left off comes before the stripe: the line is cut to one line with "…", and a cut must never hide a missing word
+  if (rec.not_shown.length) bits.push(`left off: ${rec.not_shown.join(', ')}`);
+  if (rec.icon_left_off) bits.push(`no room for the ${iconName(rec.icon_left_off)} icon`);
+  for (const m of rec.value_missing) bits.push(m.why);
+  if (r.typeSkips) bits.push(`${r.typeSkips.join(' and ')} on EdgeLabel only`);
+  if (r.band) bits.push(r.colours.band ? `${r.colours.band.label} stripe` : 'stripe colour not set');   // the material patch: in the tooltip
+  return bits.join(' · ');
 }
 function layOutPendingHardware() {    // rows added before the font loaded are laid out on the first rebuild after it
   document.querySelectorAll('#labels .row.hw').forEach(row => { if (!row._hw) layOutHardwareRow(row); });
@@ -1308,9 +1329,9 @@ function importHardware(items) {
 function hardwareNotPrinted() { return document.querySelectorAll('#labels .row.hw .hw-note.bad').length; }
 function hardwareStatus(n, from) {
   const bad = hardwareNotPrinted();
-  return `Loaded ${n} hardware label${n === 1 ? '' : 's'}${from ? ' from ' + from : ''}.` +
+  return `Loaded ${n} part label${n === 1 ? '' : 's'}${from ? ' from ' + from : ''}.` +
     (bad ? ` ${bad} can't print - see the red note on ${bad === 1 ? 'its row' : 'their rows'}.` : '') +
-    (hwKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '');
+    (hwKeptPrevious ? ' Your previous set is kept: Save / Open › Previous set.' : '');
 }
 
 //============================================================
@@ -1467,7 +1488,7 @@ function undoListAdd() {
   renumberRows();
   updateBulkBar();
   rebuild();
-  setStatus('Undone: your list is back as it was before the parts were added.', 'ok');
+  setStatus(u.undone || 'Undone: your list is back as it was before the parts were added.', 'ok');
 }
 // the Part Picker's "Add part labels": only from the sheet's own frame, on this site (part-picker-link.js readAdd)
 window.addEventListener('message', (e) => {
@@ -1724,7 +1745,7 @@ function rebuild() {
   if (anyOverflow) {
     setStatus(`Some text is long — held at the ${MIN_PRINT_CAP}mm minimum printable size. Shorten it for larger, cleaner text.`, 'err');
   } else if (hwSkipped) {
-    setStatus(`${hwSkipped} hardware label${hwSkipped === 1 ? " doesn't" : "s don't"} print - see the red note on ${hwSkipped === 1 ? 'its row' : 'their rows'}.`, 'err');
+    setStatus(`${hwSkipped} part label${hwSkipped === 1 ? " doesn't" : "s don't"} print - see the red note on ${hwSkipped === 1 ? 'its row' : 'their rows'}.`, 'err');
   } else if (waiting.length) {
     setStatus(`${rowsText(waiting)} ${waiting.length === 1 ? 'is' : 'are'} waiting for ${waiting.length === 1 ? 'its icon' : 'their icons'} from the planner - export waits for ${waiting.length === 1 ? 'it' : 'them'} (see the note on the row).`, 'err');
   } else if (font && !document.getElementById('download').disabled) {
@@ -2089,7 +2110,7 @@ async function doExport() {
     const one = waiting.length === 1;
     if (waiting.every(r => r.dataset.badgeUpHeld !== 'missing')) {
       setStatus(`Not exported: ${rowsText(waiting)} ${one ? 'is' : 'are'} waiting for ${one ? 'its icon' : 'their icons'} from the planner (too big to send in the link). `
-        + `Keep the planner tab open and this tab linked - the planner sends ${one ? 'it' : 'them'} - or upload the icon file on ${one ? 'that row' : 'those rows'}, or pick another badge.`, 'err');
+        + `Keep the planner tab open and this tab linked - the planner sends ${one ? 'it' : 'them'} - or upload the icon file on ${one ? 'that row' : 'those rows'}, or pick another icon.`, 'err');
     } else {
       setStatus(`Not exported: ${rowsText(waiting)} ${one ? "doesn't" : "don't"} have ${one ? 'its icon' : 'their icons'} from the planner yet - see the note on ${one ? 'the row' : 'each row'}.`, 'err');
     }
@@ -2233,7 +2254,7 @@ function updateBadgeBtn(row) {
     btn.classList.remove('predicted');
     btn.textContent = '?';
     btn.title = `Icon '${h && h.value}' from the planner isn't in this generator version. It prints without an icon here and stays unchanged in the planner until you pick another.`;
-    btn.setAttribute('aria-label', `Badge: planner icon ${h && h.value}, held`);
+    btn.setAttribute('aria-label', `Icon: planner icon ${h && h.value}, held`);
     return;
   }
   if (row.dataset.badgeUpHeld) {   // the drawer's icon is in the planner build; this job did not carry it (or it is an id this version lacks)
@@ -2242,12 +2263,12 @@ function updateBadgeBtn(row) {
     btn.textContent = '?';
     if (row.dataset.badgeUpHeld === 'missing') {
       const id = keptIconId(row);
-      btn.title = `This label's icon from the planner ('${id}') isn't in this version of the Label Studio, so the label does not export yet. Reload the Label Studio for the latest version, or upload the icon file or pick another badge here - the planner keeps its own icon until you send a different one.`;
-      btn.setAttribute('aria-label', `Badge: planner icon ${id}, not in this version`);
+      btn.title = `This label's icon from the planner ('${id}') isn't in this version of the Label Studio, so the label does not export yet. Reload the Label Studio for the latest version, or upload the icon file or pick another icon here - the planner keeps its own icon until you send a different one.`;
+      btn.setAttribute('aria-label', `Icon: planner icon ${id}, not in this version`);
       return;
     }
-    btn.title = "This drawer's icon is in the planner build, but it was too big to send in the link. The planner sends it while this tab is linked; until it arrives this label does not export. You can also upload the icon file here or pick another badge - the planner keeps its own icon until you send a different one.";
-    btn.setAttribute('aria-label', "Badge: the planner's icon, not here yet");
+    btn.title = "This drawer's icon is in the planner build, but it was too big to send in the link. The planner sends it while this tab is linked; until it arrives this label does not export. You can also upload the icon file here or pick another icon - the planner keeps its own icon until you send a different one.";
+    btn.setAttribute('aria-label', "Icon: the planner's icon, not here yet");
     return;
   }
   btn.classList.remove('held');
@@ -2259,7 +2280,7 @@ function updateBadgeBtn(row) {
   btn.title = predicted ? `${name}: suggested from the label text (dashed). Click to choose your own.`
             : set ? `${name}. Click to change the icon or letter.`
             : 'Add an icon or letter (optional)';
-  btn.setAttribute('aria-label', predicted ? `Badge: ${name}, suggested` : set ? `Badge: ${name}` : 'Add a badge');
+  btn.setAttribute('aria-label', predicted ? `Icon: ${name}, suggested` : set ? `Icon: ${name}` : 'Add an icon');
   if (t === 'char') {
     btn.textContent = (row.dataset.badgeValue || '+').slice(0, 2);
   } else if (t === 'icon') {
@@ -2285,7 +2306,7 @@ function badgeName(row) {
     const ic = LabelIcons && LabelIcons.find(row.dataset.badgeIcon);
     return ic ? ic.name : `icon '${row.dataset.badgeIcon || ''}'`;
   }
-  return 'no badge';
+  return 'no icon';
 }
 // An uploaded SVG on screen is a CSS mask over the current colour: the browser draws it as an image, so nothing in it is ever
 // parsed into the page or run (an upload can arrive from a planner link now, not only from this computer).
@@ -3295,7 +3316,7 @@ function setupProjectControls() {
     const fname = sanitizeFilename(labelType.set + '-' + stamp) + '.json';
     const blob = new Blob([JSON.stringify(captureProject(), null, 2)], { type: 'application/json' });
     downloadBlob(blob, fname);
-    setStatus('Exported ' + fname, 'ok');
+    setStatus('Saved the set file ' + fname + '. Open set file opens it again.', 'ok');
   });
 
   // Previous set — swap the on-screen set with the one kept slot (swapPreviousSet).
@@ -3330,7 +3351,7 @@ function setupProjectControls() {
         setStatus(hardwareStatus(hwItems.length, f.name), hardwareNotPrinted() ? 'err' : 'ok');
         return;
       }
-      if (!p || !Array.isArray(p.labels)) { setStatus('That file isn’t an EdgeLabel set.', 'err'); return; }
+      if (!p || !Array.isArray(p.labels)) { setStatus('That file isn’t a Label Studio set file.', 'err'); return; }
       if (!(await confirmReplace())) return;
       applyProject(p);
       const n = p.labels.length;
@@ -3469,7 +3490,7 @@ function updateRowFlags() {
       if (len > max) { note = `${len} / ${max} - the planner keeps the first ${max}`; over = true; }
       else {
         const s = rowSnap(row);
-        if (row.dataset.badgeUpHeld === 'missing') note = "This label's icon from the planner isn't in this version of the Label Studio - reload it, or pick another badge; export waits for it";
+        if (row.dataset.badgeUpHeld === 'missing') note = "This label's icon from the planner isn't in this version of the Label Studio - reload it, or pick another icon; export waits for it";
         else if (row.dataset.badgeUpHeld) note = "The planner's icon for this drawer was too big for the link - it arrives while this tab is linked; export waits for it";
         else if (s.keep && !LINK.hasWords(s)) note = "Icon-only label from the planner";
         else if (!LINK.hasWords(s) && (s.held || (s.manual && (s.type === 'char' || s.type === 'icon')))) note = 'Icon only - printed here, not saved to the planner';
@@ -3560,7 +3581,7 @@ function plannerLabelList() {
 }
 function addToPlanner() {
   const { labels, notReady } = plannerLabelList();
-  const skipped = notReady ? ` ${plural(notReady, 'hardware label', 'hardware labels')} can't print yet and ${notReady === 1 ? 'was' : 'were'} left out (see the red note).` : '';
+  const skipped = notReady ? ` ${plural(notReady, 'part label', 'part labels')} can't print yet and ${notReady === 1 ? 'was' : 'were'} left out (see the red note).` : '';
   if (!labels.length) { setStatus('There are no labels to add to the planner.' + skipped, 'err'); return; }
   const doc = { format: 'modulith-labels', version: 1, batchId: LINK.newId(), labels };
   const json = JSON.stringify(doc);
@@ -3966,8 +3987,8 @@ function unlinkNow(o) {
   renderLinkBar();
   updateRowFlags();
   rebuild();
-  setStatus('Unlinked.' + (kept ? ' Your previous labels are kept: Save / Load › Previous set.' : '')
-    + (lost.length ? ` ${rowsText(lost)} never got ${lost.length === 1 ? 'its icon' : 'their icons'} from the planner and ${lost.length === 1 ? 'has' : 'have'} none now - upload the icon file there or pick another badge.` : ''),
+  setStatus('Unlinked.' + (kept ? ' Your previous labels are kept: Save / Open › Previous set.' : '')
+    + (lost.length ? ` ${rowsText(lost)} never got ${lost.length === 1 ? 'its icon' : 'their icons'} from the planner and ${lost.length === 1 ? 'has' : 'have'} none now - upload the icon file there or pick another icon.` : ''),
     lost.length ? 'err' : 'ok');
   return true;
 }
@@ -4035,7 +4056,7 @@ async function incomingJob(job) {
     const stored = readStoredSession();
     if (stored && stored.job.jobId !== job.jobId) {
       const un = LINK.isUnsaved({ job: stored.job, baseline: stored.baseline, pending: stored.pending }, LINK.snapsFromProject(stored.project), LINK.styleFromProject(stored), { iconIds: iconIds() });
-      if (un.any && keepPreviousSet(plainProject(stored.project))) linkBootExtra = 'Your earlier linked labels were kept: Save / Load › Previous set.';
+      if (un.any && keepPreviousSet(plainProject(stored.project))) linkBootExtra = 'Your earlier linked labels were kept: Save / Open › Previous set.';
     }
     autosave();
     startLinked(job);
@@ -4052,7 +4073,7 @@ async function incomingJob(job) {
   if (c === 'replace') {
     keepPreviousSet(plainProject(captureProject({ linked: true })));
     startLinked(job);
-    setStatus("Replaced with the planner's set. Your earlier labels are kept: Save / Load › Previous set.", 'ok');
+    setStatus("Replaced with the planner's set. Your earlier labels are kept: Save / Open › Previous set.", 'ok');
   } else if (c === 'send') {
     if (link.state !== 'linked' || pendingActive()) { setStatus("Can't send right now. Kept your current labels. Click the planner's button again to reload them.", 'err'); return; }
     link.queuedJob = job;
@@ -4064,7 +4085,7 @@ window.addEventListener('hashchange', () => {
   const hw = hardwareFromUrl();
   if (hw === null) return;
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-  if (!hw) { setStatus("Couldn't read the hardware labels in that link (it may have been cut short).", 'err'); return; }
+  if (!hw) { setStatus("Couldn't read the part labels in that link (it may have been cut short).", 'err'); return; }
   if (link) { setStatus(linkedHardwareRefusal(), 'err'); return; }
   if (listHasLabels()) { askHardwareLink(hw); return; }   // add to them, replace them, or cancel
   autosave();
@@ -4087,7 +4108,7 @@ window.addEventListener('hashchange', () => {
     importFromPlanner(labels);
     rebuild();
     renderLinkBar();
-    setStatus(`Loaded ${plural(labels.length, 'label', 'labels')} from the Planner.` + (importKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '') +
+    setStatus(`Loaded ${plural(labels.length, 'label', 'labels')} from the Planner.` + (importKeptPrevious ? ' Your previous set is kept: Save / Open › Previous set.' : '') +
       (pausedSession ? ' Your planner link in this tab is paused: Resume it.' : ''), 'ok');
   } else if (jr) setStatus("Couldn't read the planner's link (it may have been cut short by the browser).", 'err');
 });
@@ -4101,7 +4122,7 @@ function bootRows() {
       // a list with labels in it (the autosave) is restored first, and asked about the link once the page is up (setupUI)
       if (hw && autosaveHasLabels() && restoreAutosave()) { restoredFromAutosave = true; pendingHwLink = hw; return; }
       if (hw) { importHardware(hw); return; }
-      linkBootExtra = (linkBootExtra + " Couldn't read the hardware labels in the link (it may have been cut short).").trim();
+      linkBootExtra = (linkBootExtra + " Couldn't read the part labels in the link (it may have been cut short).").trim();
     }
     const imported = importedLabelsFromUrl();
     if (imported.length) importFromPlanner(imported);
@@ -4119,7 +4140,7 @@ function bootRows() {
       clearHash();
       startLinked(plan.job);
       const n = plan.job.rows.length;
-      linkBootStatus = `Loaded ${plural(n, 'drawer', 'drawers')} from the Planner - linked.` + (kept ? ' Your earlier linked labels were kept: Save / Load › Previous set.' : '');
+      linkBootStatus = `Loaded ${plural(n, 'drawer', 'drawers')} from the Planner - linked.` + (kept ? ' Your earlier linked labels were kept: Save / Open › Previous set.' : '');
       break;
     }
     case 'legacy-import':
@@ -4172,7 +4193,7 @@ function setupUI() {
   // Export format → updates the download button label
   const fmtSel = document.getElementById('export-format');
   const dlBtn = document.getElementById('download');
-  const updateDlLabel = () => { dlBtn.textContent = 'Download ' + (fmtSel.value === 'stl' ? '.stl' : '.3mf'); };
+  const updateDlLabel = () => { dlBtn.textContent = 'Download print file (' + (fmtSel.value === 'stl' ? '.stl' : '.3mf') + ')'; };
   fmtSel.addEventListener('change', updateDlLabel);
   updateDlLabel();
 
@@ -4336,10 +4357,21 @@ function handleCsv(file) {
         return;
       }
       if (!(await confirmReplace())) return;
+      // the list it replaces is not lost (UI/UX review B2): Undo beside the list, and the Previous set
+      const had = listHasLabels(), before = captureLabels(false);
+      const kept = had && keepPreviousSet(captureProject());
+      closeBadgePopover();
       clearLabelRows();
       values.forEach(v => autoAssignIcon(addLabelRow(v).closest('.row')));
+      renumberRows();
+      updateBulkBar();
+      if (had) listUndo = { labels: before, sig: null, undone: `Undone: your list is back as it was before ${file.name}.` };
       rebuild();
-      setStatus(`Loaded ${values.length} label${values.length === 1 ? '' : 's'} from ${file.name}.`, 'ok');
+      if (had) {
+        listUndo.sig = listSignature();
+        showListNote(`Replaced your list with ${plural(values.length, 'label', 'labels')} from ${file.name}`);
+      }
+      setStatus(`Loaded ${plural(values.length, 'label', 'labels')} from ${file.name}.` + (kept ? ' Your previous list is kept too: Save / Open › Previous set.' : ''), 'ok');
     } catch (err) {
       setStatus('Could not parse file: ' + err.message, 'err');
     }
