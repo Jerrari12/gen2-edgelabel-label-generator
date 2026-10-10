@@ -1216,7 +1216,9 @@ function summaryTail(card) {
   const vp = varyPath();
   const label = !batching() ? 'Save part' : recs.length > 1 ? `Add ${recs.length} parts`
     : (state.sel.length || !vp ? 'Add 1 part' : `Add 1 part (${vp === 'length.value' || vp === 'specific.rivet.length' ? 'length' : 'size'} Unknown)`);
-  card.append(h('button', { type: 'button', class: 'btn primary big', onclick: batching() ? addParts : saveEdit }, label));
+  // inside the Label Studio the one orange button is Add part labels (end-to-end check 2026-10-10: this one only fills the
+  // Picker's own list, and read as the next thing to press)
+  card.append(h('button', { type: 'button', class: EMBED ? 'btn big' : 'btn primary big', onclick: batching() ? addParts : saveEdit }, label));
   if (!batching()) card.append(h('button', { type: 'button', class: 'btn ghost', onclick: cancelEdit }, 'Cancel editing'));
   card.append(h('div', { id: 'status', class: 'status', role: 'status' }));
   return card;
@@ -1345,6 +1347,11 @@ function listCard() {
       applyImport(records, problems, labelStyle, false);
     } catch (err) { setStatus(`Import failed: ${err.message}`, 'err'); }
   });
+  const labelsBtn = h('button', { type: 'button', class: EMBED ? 'btn primary' : 'btn sm', id: 'make-labels', disabled: !shownRecords().length || null, onclick: makeLabels,
+      title: EMBED ? 'Add a part label for every part shown here (the collection filter applies) to the end of your list in the Label Studio.'
+        : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
+    labelsButtonText(shownRecords().length, EMBED));
+  const labelsStatus = h('div', { id: 'labels-status', class: `status ${labelsMsg ? labelsMsg.cls : ''}`, role: 'status' }, labelsMsg ? labelsMsg.text : '');
   card.append(h('div', { class: 'row wrap list-tools' },
     h('button', { type: 'button', class: 'btn sm ghost', onclick: () => copyText(listText(P, state.records), 'List') }, 'Copy list as text'),
     h('button', { type: 'button', class: 'btn sm ghost', onclick: () => {
@@ -1353,12 +1360,12 @@ function listCard() {
       setStatus(`Exported ${state.records.length} parts.`, 'ok');
     } }, 'Export JSON'),
     h('button', { type: 'button', class: 'btn sm ghost', onclick: () => imp.click() }, 'Import JSON'),
-    h('button', { type: 'button', class: 'btn sm', id: 'make-labels', disabled: !shownRecords().length || null, onclick: makeLabels,
-      title: EMBED ? 'Add a part label for every part shown here (the collection filter applies) to the end of your list in the Label Studio.'
-        : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
-      labelsButtonText(shownRecords().length, EMBED)),
+    EMBED ? null : labelsBtn,
     clearBtn, imp, styleControl()));
-  card.append(h('div', { id: 'labels-status', class: `status ${labelsMsg ? labelsMsg.cls : ''}`, role: 'status' }, labelsMsg ? labelsMsg.text : ''));
+  // inside the Label Studio: Add part labels and what it did sit in a bar pinned to the bottom, always in reach (on a phone the
+  // button used to sit below a long list)
+  if (EMBED) card.append(h('div', { class: 'embed-addbar' }, labelsBtn, labelsStatus));
+  else card.append(labelsStatus);
   if (state.textView) card.append(h('textarea', { readonly: true, rows: 10, class: 'textview' }, state.textView));
   if (state.importReview) card.append(importReviewBox());
   return card;

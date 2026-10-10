@@ -43,6 +43,12 @@ header.top .spacer { flex: 1; }
 html.embed-pending header.top, html.embed header.top { display: none; }
 .embed-legend { align-self: flex-start; }
 html.embed .layout { padding-top: 14px; }
+/* inside the Label Studio: Add part labels in a bar pinned to the bottom of the panel (end-to-end check 2026-10-10) */
+html.embed body { padding-bottom: 76px; }
+html.embed .embed-addbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px;
+  padding: 10px 16px; background: var(--panel); border-top: 1px solid var(--line-2); box-shadow: 0 -6px 18px rgba(0,0,0,.18); }
+html.embed .embed-addbar .btn.primary { min-height: 44px; padding: 4px 20px; font-size: 15px; }
+html.embed .embed-addbar .status { margin: 0; flex: 1 1 220px; min-width: 0; }
 
 .layout { display: flex; flex-wrap: wrap; gap: 28px; padding: 20px 28px 60px; max-width: 1500px; }
 #builder { flex: 999 1 660px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
