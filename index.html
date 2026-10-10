@@ -1476,7 +1476,7 @@ function addPartItems(items) {
   flashRows(touched);
   const first = touched.find(r => r.isConnected);
   if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  return { count, skipped: plan.skipped, rows: touched };
+  return { count, added: plan.add.length, updated: plan.update.length, skipped: plan.skipped, rows: touched };
 }
 function addSavedLabels(labels) { labels.forEach(addSavedLabel); }
 function undoListAdd() {
@@ -1513,7 +1513,10 @@ async function askHardwareLink(items) {
   bootStatusTaken = true;
   if (c === 'add') {
     const r = addPartItems(items);
-    setStatus(r.count ? `Added ${plural(r.count, 'part label', 'part labels')} from the link to the end of your list.` : 'None of the part labels in the link could be read.', r.count ? 'ok' : 'err');
+    // the same counts as the note beside the list: a part already in the list is updated, not added (end-to-end check 2026-10-10)
+    setStatus(!r.count ? 'None of the part labels in the link could be read.'
+      : (r.added ? `Added ${plural(r.added, 'part label', 'part labels')} from the link to the end of your list` : `Updated ${plural(r.updated, 'part label', 'part labels')} already in your list`)
+        + (r.added && r.updated ? `, updated ${r.updated} already in it` : '') + '.', r.count ? 'ok' : 'err');
   } else if (c === 'replace') {
     autosave();
     importHardware(items);
