@@ -944,10 +944,10 @@ const CP_BASE_TRIS = [0,1,2,2,1,3,0,2,4,4,2,5,4,5,6,6,5,7,6,7,8,8,7,9,8,9,10,10,
 // branch f0ef3c6, unchanged; none of the moved functions changed on its main since).
 const LABEL_TYPES = {
   edgelabel: { id: 'edgelabel', name: 'EdgeLabel', coreName: 'GEN2EdgeLabelCore', verts: BASE_VERTS, tris: BASE_TRIS,
-    app: 'GEN2 EdgeLabel Label Generator', files: 'edgelabels', zip: 'gen2_edgelabels', set: 'edgelabel-set',
+    app: 'MODULITH Label Studio - EdgeLabel', files: 'edgelabels', zip: 'gen2_edgelabels', set: 'edgelabel-set',
     size: '57 × 27 × 4.5 mm', version: 'EdgeLabel v1.02', hardware: true },
   classicpro: { id: 'classicpro', name: 'Classic Pro', coreName: 'GEN2ClassicProCore', verts: CP_BASE_VERTS, tris: CP_BASE_TRIS,
-    app: 'GEN2 Classic Pro Label Generator', files: 'classicpro-labels', zip: 'gen2_classicpro_labels', set: 'classicpro-set',
+    app: 'MODULITH Label Studio - Classic Pro', files: 'classicpro-labels', zip: 'gen2_classicpro_labels', set: 'classicpro-set',
     size: '47 × 25.5 × 1.5 mm', version: 'Classic Pro v1.02', hardware: true },   // part labels: when its face data loaded (HW_CP)
 };
 for (const t of Object.values(LABEL_TYPES)) t.core = window[t.coreName] ? window[t.coreName].create({ THREE: window.THREE }) : null;
