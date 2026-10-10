@@ -1304,8 +1304,10 @@ function closePartsSheet() {
   if (o && document.contains(o) && !o.disabled && o.focus) o.focus({ preventScroll: true });
 }
 
-// the list as captured for a set (every row); its string tells whether the list changed since an add
-const listSignature = () => JSON.stringify(captureLabels(false));
+// the list as captured for a set (every row), less a part row's shown words - its layout derives them, and they follow the
+// font arriving and the settings (a stripe position, the drawings switch), which are not changes to the list: its string
+// tells whether the list itself changed since an add
+const listSignature = () => JSON.stringify(captureLabels(false).map(l => (l.hw ? Object.assign({}, l, { text: '' }) : l)));
 function showListNote(text) {
   document.getElementById('list-note-text').textContent = text;
   document.getElementById('list-note').hidden = false;
