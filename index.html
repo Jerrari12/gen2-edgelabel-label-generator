@@ -69,8 +69,8 @@
   .dock { position: sticky; bottom: -20px; z-index: 5; margin: 14px -20px 0; padding: 10px 20px 14px; background: var(--panel);
     border-top: 1px solid var(--line); box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.28); }
   .dock-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-  .dock-count { flex: 0 1 auto; min-width: 0; font-size: 12px; color: var(--muted); line-height: 1.3; }
-  .dock-row button.primary { flex: 1 0 auto; width: auto; margin-top: 0; padding: 11px 14px; }
+  .dock-count { flex: none; font-size: 12px; color: var(--muted); line-height: 1.3; white-space: nowrap; }
+  .dock-row button.primary { flex: 1 1 0; min-width: 0; width: auto; margin-top: 0; padding: 11px 8px; font-size: 13.5px; letter-spacing: 0; white-space: nowrap; }
   .type-row select { min-width: 9em; }
   .type-note { margin: 6px 0 4px; padding: 8px 10px; border-radius: 6px; font-size: 12px; line-height: 1.4;
     background: rgba(255, 106, 26, 0.12); border: 1px solid rgba(255, 106, 26, 0.45); }
