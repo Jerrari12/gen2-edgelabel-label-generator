@@ -626,3 +626,56 @@ test('G-up-4: a saved linked session brings the keep back (snapsFromProject)', (
   assert.deepEqual(s.map((x) => x.keep), [{ b: null }, { b: null }, null]);
   assert.deepEqual(s.map((x) => L.badgeRep(x, ICONS)), [null, null, null]);
 });
+
+// ChatGPT's second review, relayed by Joey 2026-10-09: an icon the job could not carry is ASKED for over the link, and an
+// icon-only planner label reaches the generator instead of arriving as an empty row.
+test('G-up-5: the request for the icons a job could not carry, and the answer it accepts', () => {
+  const link = { job: mkJob([{ t: 'Big logo', up: true }]) };
+  assert.deepEqual(L.uploadsRequest(link, [3, 'x', 0, -1, 1.5, 7]),
+    { gen2label: 'need-uploads', v: 1, family: 'edgelabel', jobId: link.job.jobId, buildId: link.job.buildId, units: [3, 7] });
+  assert.equal(L.uploadsRequest(link, Array.from({ length: 900 }, (_, i) => i + 1)).units.length, L.JOB_ROWS_MAX);
+  const ok = { gen2label: 'uploads', v: 1, jobId: ID('j'), rows: [{ u: 1, up: SVG }] };
+  assert.equal(L.parseAnswer(ok), ok);
+  assert.ok(L.parseAnswer({ ...ok, rows: [] }), 'an empty answer is an answer (the planner had none of them)');
+  for (const bad of [{ ...ok, rows: undefined }, { ...ok, rows: [{ u: 0, up: SVG }] }, { ...ok, rows: [{ u: 1 }] }, { ...ok, rows: [{ u: 1, up: 7 }] },
+    { ...ok, rows: Array.from({ length: L.JOB_ROWS_MAX + 1 }, (_, i) => ({ u: i + 1, up: SVG })) }, { ...ok, jobId: 'x' }, { ...ok, v: 2 }]) {
+    assert.equal(L.parseAnswer(bad), null, JSON.stringify(bad).slice(0, 80));
+  }
+  // each up is checked again where it is used: only an SVG within the label list's bound is taken
+  assert.equal(L.upOf({ up: '<script>alert(1)</script>' }), null);
+  assert.equal(L.upOf({ up: SVG }), SVG);
+});
+
+test('G-io-1: an icon-only planner label shows its icon, letter or upload, waits for an upload the job left out, and returns nothing untouched', () => {
+  const job = mkJob([
+    { t: '', io: { value: 'nut' } },               // a catalog icon
+    { t: '', io: { char: 'A' } },                  // a letter
+    { t: '', io: {}, up: SVG },                    // an upload
+    { t: '', io: {}, up: true },                   // an upload this job could not carry
+    { t: 'Nuts', io: { value: 'nut' } },           // words: not an icon-only row, the key is ignored
+    { t: '', io: { value: 'Not an id' } },         // malformed: no icon-only label
+    { t: '', io: { char: 'TOO LONG' } },
+    { t: '', io: 'nut' },
+  ]);
+  assert.equal(L.validateJob(job, PROD).ok, true, 'a job with icon-only rows validates (an unknown row key)');
+  const rows = L.jobToRows(job, ICONS);
+  assert.deepEqual(rows.slice(0, 4).map((r) => [r.type, r.value === undefined ? null : r.value, r.svg, r.manual, r.keep]), [
+    ['icon', 'nut', false, true, { b: { type: 'icon', value: 'nut' } }],
+    ['char', 'A', false, true, { b: { type: 'char', value: 'A' } }],
+    ['icon', null, true, true, { b: null }],
+    ['none', null, false, true, { b: null }],
+  ]);
+  for (const i of [4, 5, 6, 7]) assert.equal(rows[i].keep, null, `row ${i}: no icon-only label`);
+  assert.equal(rows[4].manual, false, 'a row with words is predicted as before');
+  // untouched: nothing goes back (the planner keeps its label), and nothing reads as unsaved
+  assert.deepEqual(L.returnCore(rows, job.style, job.baseRev, ICONS).rows.map((r) => [r.t, r.b]), job.rows.map((r) => [r.t, null]));
+  assert.equal(L.isUnsaved(linkOf(job), rows, job.style, { iconIds: ICONS }).any, false);
+  // words typed on an icon-only row go back with its icon id or letter (an upload stays the planner's: b null)
+  assert.deepEqual(L.badgeRep({ ...rows[0], text: 'Nuts' }, ICONS), { type: 'icon', value: 'nut' });
+  assert.deepEqual(L.badgeRep({ ...rows[1], text: 'Drawer A' }, ICONS), { type: 'char', value: 'A' });
+  assert.equal(L.badgeRep({ ...rows[2], text: 'Logo' }, ICONS), null);
+  // a pick on the row ends the keep (the page clears it): an icon-only pick stays in the generator, as before
+  assert.deepEqual(L.badgeRep({ ...rows[0], keep: null, value: 'washer' }, ICONS), { type: 'unsupplied', why: 'icon-only' });
+  // the deployed planner's job (no io) is the empty row it always was
+  assert.deepEqual(L.jobToRows(mkJob([{ t: '' }]), ICONS)[0], { u: 1, n: 1, text: '', type: 'none', value: undefined, svg: false, manual: false, held: null, keep: null });
+});

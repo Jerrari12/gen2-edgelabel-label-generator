@@ -226,6 +226,15 @@
   .bp-icon:hover { border-color: var(--accent); color: var(--accent); }
   .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
   .bp-caption { min-height: 1.45em; font-size: 12px; color: var(--muted); padding: 6px 2px 0; line-height: 1.45; }
+  /* A touch screen has no hover: there every icon shows its name under it, so the name is read BEFORE the tap that
+     chooses it (ChatGPT's second review via Joey). A mouse keeps the compact grid and its caption. */
+  .bp-iname { display: none; }
+  @media (hover: none), (any-pointer: coarse) {
+    .bp-cells { grid-template-columns: repeat(3, 1fr); }
+    .bp-icon { aspect-ratio: auto; flex-direction: column; gap: 4px; padding: 7px 3px 6px; }
+    .bp-icon svg { width: 26px; height: 26px; flex: none; }
+    .bp-iname { display: block; font-size: 10.5px; line-height: 1.2; text-align: center; color: var(--muted); }
+  }
   /* an uploaded SVG is shown as a mask over the current colour: a picture of its shape, never markup in the page */
   .svg-mask { display: block; width: 18px; height: 18px; background: currentColor; -webkit-mask-size: contain; mask-size: contain;
     -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
@@ -1420,10 +1429,13 @@ function rebuild() {
   document.getElementById('label-count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'}${plateTxt}`;
 
   const hwSkipped = hardwareNotPrinted();
+  const waiting = iconWaitRows();
   if (anyOverflow) {
     setStatus(`Some text is long — held at the ${MIN_PRINT_CAP}mm minimum printable size. Shorten it for larger, cleaner text.`, 'err');
   } else if (hwSkipped) {
     setStatus(`${hwSkipped} hardware label${hwSkipped === 1 ? " doesn't" : "s don't"} print - see the red note on ${hwSkipped === 1 ? 'its row' : 'their rows'}.`, 'err');
+  } else if (waiting.length) {
+    setStatus(`${rowsText(waiting)} ${waiting.length === 1 ? 'is' : 'are'} waiting for ${waiting.length === 1 ? 'its icon' : 'their icons'} from the planner - export waits for ${waiting.length === 1 ? 'it' : 'them'} (see the note on the row).`, 'err');
   } else if (font && !document.getElementById('download').disabled) {
     setStatus(nPlates > 1 ? `Ready — exports as ${nPlates} separate plate files.` : 'Ready.', 'ok');
   }
@@ -1778,6 +1790,20 @@ function partName(name, p) { return p.piece === 'base' ? 'Base' : `${name} ${p.p
 
 // Export everything: one file per plate (3MF or STL), zipped together if >1 plate.
 async function doExport() {
+  // A drawer's icon still in the planner (too big for the link) would print as a blank badge - an icon-only label as
+  // nothing at all - so the export waits for it, and says how to go on (ChatGPT's second review via Joey: "block the
+  // affected export ... with a clear explanation"). The planner keeps its icon whatever happens here.
+  const waiting = iconWaitRows();
+  if (waiting.length) {
+    const one = waiting.length === 1;
+    if (waiting.every(r => r.dataset.badgeUpHeld !== 'missing')) {
+      setStatus(`Not exported: ${rowsText(waiting)} ${one ? 'is' : 'are'} waiting for ${one ? 'its icon' : 'their icons'} from the planner (too big to send in the link). `
+        + `Keep the planner tab open and this tab linked - the planner sends ${one ? 'it' : 'them'} - or upload the icon file on ${one ? 'that row' : 'those rows'}, or pick another badge.`, 'err');
+    } else {
+      setStatus(`Not exported: ${rowsText(waiting)} ${one ? "doesn't" : "don't"} have ${one ? 'its icon' : 'their icons'} from the planner yet - see the note on ${one ? 'the row' : 'each row'}.`, 'err');
+    }
+    return;
+  }
   const labels = getLabelData();
   if (!labels.length) { setStatus('Add at least one label.', 'err'); return; }
   const fmtVal = (document.getElementById('export-format') || {}).value || '3mf-prusa';
@@ -1912,12 +1938,18 @@ function updateBadgeBtn(row) {
     btn.setAttribute('aria-label', `Badge: planner icon ${h && h.value}, held`);
     return;
   }
-  if (row.dataset.badgeUpHeld) {   // the drawer's uploaded icon is in the planner build; this job did not carry it
+  if (row.dataset.badgeUpHeld) {   // the drawer's icon is in the planner build; this job did not carry it (or it is an id this version lacks)
     btn.classList.add('set', 'held');
     btn.classList.remove('predicted');
     btn.textContent = '?';
-    btn.title = "This drawer's uploaded icon stays in the planner build: it was too large to send here with the others. The label prints here without it, and the planner keeps it until you pick another badge.";
-    btn.setAttribute('aria-label', "Badge: the planner's uploaded icon, not sent here");
+    if (row.dataset.badgeUpHeld === 'missing') {
+      const id = keptIconId(row);
+      btn.title = `This label's icon from the planner ('${id}') isn't in this version of the Label Studio, so the label does not export yet. Reload the Label Studio for the latest version, or upload the icon file or pick another badge here - the planner keeps its own icon until you send a different one.`;
+      btn.setAttribute('aria-label', `Badge: planner icon ${id}, not in this version`);
+      return;
+    }
+    btn.title = "This drawer's icon is in the planner build, but it was too big to send in the link. The planner sends it while this tab is linked; until it arrives this label does not export. You can also upload the icon file here or pick another badge - the planner keeps its own icon until you send a different one.";
+    btn.setAttribute('aria-label', "Badge: the planner's icon, not here yet");
     return;
   }
   btn.classList.remove('held');
@@ -1941,12 +1973,13 @@ function updateBadgeBtn(row) {
 }
 
 // The words for a row's badge: its button's name, the icon menu's caption and the status line after a pick (ChatGPT's review,
-// relayed by Joey: every icon has a readable name on hover, keyboard focus and selection - and on touch, where there is no
-// hover, in the caption and the status line).
+// relayed by Joey: every icon has a readable name on hover, keyboard focus and selection). On a touch screen the menu shows
+// every icon's name under it (CSS .bp-iname), so the name is read before the tap, not after.
 function badgeName(row) {
   if (!row) return '';
   if (row.dataset.badgeHeld) { const h = parseHeld(row); return `planner icon '${h && h.value}'`; }
-  if (row.dataset.badgeUpHeld) return "the planner's uploaded icon (not sent here)";
+  if (row.dataset.badgeUpHeld === 'missing') return `planner icon '${keptIconId(row)}' (not in this version)`;
+  if (row.dataset.badgeUpHeld) return "the planner's icon (not here yet)";
   const t = row.dataset.badgeType;
   if (t === 'char') return `letter "${row.dataset.badgeValue || ''}"`;
   if (t === 'icon') {
@@ -1993,14 +2026,18 @@ function setActiveRowBadge(type, value, svg) {
     if (!rows.length) { bulkBadgeMode = false; setStatus('No labels selected.', 'err'); return; }
     rows.forEach(r => { r.dataset.badgeManual = '1'; applyBadge(r, { type, value, svg }); });
     rebuild();
-    setStatus(`Applied to ${rows.length} selected label${rows.length === 1 ? '' : 's'}.`, 'ok');
+    const linkedUp = svg ? rows.filter(r => r.dataset.unit).length : 0;
+    setStatus(`Applied to ${rows.length} selected label${rows.length === 1 ? '' : 's'}.`
+      + (linkedUp ? ` An uploaded icon prints from here only: the planner can't take it from the Label Studio, so ${linkedUp === 1 ? 'that drawer keeps its' : `those ${linkedUp} drawers keep their`} own icon there.` : ''), 'ok');
     return;
   }
   if (!activeBadgeRow) return;
   activeBadgeRow.dataset.badgeManual = '1';   // a manual pick stops auto-assigning for this row
   applyBadge(activeBadgeRow, { type, value, svg });
   rebuild();
-  setStatus(`Label ${activeBadgeRow.querySelector('.idx').textContent}: ${badgeName(activeBadgeRow)}.`, 'ok');
+  const linkedUp = svg && activeBadgeRow.dataset.unit;
+  setStatus(`Label ${activeBadgeRow.querySelector('.idx').textContent}: ${badgeName(activeBadgeRow)}.`
+    + (linkedUp ? " It prints from here only: the planner can't take an uploaded icon from the Label Studio, so this drawer keeps its own icon there." : ''), 'ok');
 }
 
 // Predicted-icon master switch (the "Predict icons from text" checkbox).
@@ -2012,6 +2049,9 @@ function autoAssignIcon(row) {
   if (!row || row.dataset.hw || row.dataset.badgeManual === '1') return;   // never override a manual choice
   if (!predictionsOn()) return;                          // predictions toggled off
   const id = guessIconId(row.querySelector('input.label-text').value);
+  // a row already wearing the OTHER drawing of the same part keeps it (label-icons.js TWINS): a later change of which drawing
+  // the guess prefers must not redraw labels a set already holds (ChatGPT's second review via Joey)
+  if (id && row.dataset.badgeType === 'icon' && LabelIcons && LabelIcons.twinOf(id) === row.dataset.badgeIcon) return;
   if (id) applyBadge(row, { type: 'icon', value: id });
   else if (row.dataset.badgeType === 'icon') applyBadge(row, { type: 'none' });  // clear a stale auto-icon
 }
@@ -2092,7 +2132,7 @@ function renderIconMenu() {
   grid.innerHTML = '';
   if (!LabelIcons) { grid.textContent = 'Icons did not load.'; return; }
   const current = menuCurrentIcon();
-  const found = LabelIcons.search(q, current);   // one of each near twin, plus the row's own icon
+  const found = LabelIcons.search(q);   // every icon; a near twin sits beside the drawing it is a twin of
   const searching = !!q.trim();
   const curIcon = current && LabelIcons.find(current);
   resetIconCaption();
@@ -2131,7 +2171,11 @@ function renderIconMenu() {
       cell.className = 'bp-icon' + (it.id === current ? ' on' : '');
       cell.title = it.name;
       cell.setAttribute('aria-label', it.name);
-      cell.innerHTML = it.svg;
+      cell.innerHTML = it.svg;   // the catalog's own drawings (code, not user data)
+      const nm = document.createElement('span');
+      nm.className = 'bp-iname';
+      nm.textContent = it.name;
+      cell.appendChild(nm);
       const say = () => iconCaption(it.id === current ? `${it.name} (this label's icon)` : it.name);
       cell.addEventListener('pointerenter', say);
       cell.addEventListener('focus', say);
@@ -2507,7 +2551,7 @@ function captureLabels(linked) {
     if (row.dataset.hw && row._hwItem) o.hw = row._hwItem;
     if (linked && row.dataset.unit) { o.u = Number(row.dataset.unit); o.n = Number(row.dataset.unitN) || null; }
     if (linked && held) o.held = true;
-    if (linked && row.dataset.unit && parseKeep(row)) { o.keep = parseKeep(row); if (row.dataset.badgeUpHeld) o.upHeld = true; }
+    if (linked && row.dataset.unit && parseKeep(row)) { o.keep = parseKeep(row); if (row.dataset.badgeUpHeld) o.upHeld = row.dataset.badgeUpHeld === 'missing' ? 'missing' : true; }
     if (linked && row.dataset.unit && row.dataset.hwJob) o.hwJob = parseHwJob(row);
     out.push(o);
   });
@@ -2872,14 +2916,25 @@ function setHeld(row, b) {
   row.dataset.badgeHeld = JSON.stringify(b);
   updateBadgeBtn(row);
 }
-// A drawer's UPLOADED icon from the planner (label-link.js `keep`): shown and printed here, the job's badge returned unchanged until
-// the user picks another badge on the row (applyBadge ends it). Without the SVG (the job did not carry it) the row says so.
-function setKept(row, b, svg) {
-  applyBadge(row, svg ? { type: 'icon', svg } : { type: 'none' });
+// A drawer's icon from the planner that the mirror cannot carry (label-link.js `keep`): an UPLOADED icon, or an icon-only label's
+// icon. Shown and printed here, the job's badge returned unchanged until the user picks another badge on the row (applyBadge
+// ends it). Without the artwork (the job did not carry it) the row waits for it: the planner sends it over the link
+// (takeUploads), and until then the export does not print the row (doExport).
+// why: when nothing is shown, 'missing' = an icon id this version of the Label Studio does not have (the planner holds no
+// drawing of it to send), else the artwork was too big for the job's link (the planner sends it when asked).
+function setKept(row, b, shown, why) {   // shown: the badge to show and print ({ type: 'icon', svg } / an icon id / a letter), or null
+  applyBadge(row, shown || { type: 'none' });
   row.dataset.badgeManual = '1';
   row.dataset.badgeKeep = JSON.stringify({ b: b === undefined ? null : b });
-  if (!svg) row.dataset.badgeUpHeld = '1';
+  if (!shown) row.dataset.badgeUpHeld = why === 'missing' ? 'missing' : '1';
   updateBadgeBtn(row);
+}
+function keptIconId(row) { const k = parseKeep(row); return (k && k.b && typeof k.b.value === 'string') ? k.b.value : ''; }
+// The rows waiting for their icon from the planner, and how a status line names them.
+function iconWaitRows() { return Array.from(document.querySelectorAll('#labels .row')).filter(r => r.dataset.badgeUpHeld); }
+function rowsText(rows) {
+  const n = rows.map(r => r.querySelector('.idx').textContent);
+  return n.length === 1 ? `Label ${n[0]}` : `Labels ${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}`;
 }
 function parseKeep(row) {
   try { const k = row.dataset.badgeKeep ? JSON.parse(row.dataset.badgeKeep) : null; return k && 'b' in k ? k : null; } catch (e) { return null; }
@@ -2930,8 +2985,11 @@ function updateRowFlags() {
       if (len > max) { note = `${len} / ${max} - the planner keeps the first ${max}`; over = true; }
       else {
         const s = rowSnap(row);
-        if (!LINK.hasWords(s) && (s.held || (s.manual && (s.type === 'char' || s.type === 'icon')))) note = 'Icon only - printed here, not saved to the planner';
-        else if (s.svg && !s.keep && LINK.hasWords(s)) note = 'Uploaded icon - printed here; the planner keeps its own icon for this drawer';
+        if (row.dataset.badgeUpHeld === 'missing') note = "This label's icon from the planner isn't in this version of the Label Studio - reload it, or pick another badge; export waits for it";
+        else if (row.dataset.badgeUpHeld) note = "The planner's icon for this drawer was too big for the link - it arrives while this tab is linked; export waits for it";
+        else if (s.keep && !LINK.hasWords(s)) note = "Icon-only label from the planner";
+        else if (!LINK.hasWords(s) && (s.held || (s.manual && (s.type === 'char' || s.type === 'icon')))) note = 'Icon only - printed here, not saved to the planner';
+        else if (s.svg && !s.keep && LINK.hasWords(s)) note = 'Uploaded icon - prints from here only; the planner keeps its own icon for this drawer';
       }
     }
     input.classList.toggle('over', over);
@@ -3085,6 +3143,31 @@ function postToPlanner(msg) {
   let w = null;
   try { w = LINK_OPENER; if (!w || w.closed) return false; w.postMessage(msg, o); return true; } catch (e) { return false; }
 }
+// The drawers whose icon was too big for the job's link: once the planner confirms the link, ask it for them over the link
+// itself (postMessage to our opener only; the planner answers `uploads`). An older planner does not answer, and the rows keep
+// waiting - the export says so.
+function askForIcons() {
+  if (!link || link.state !== 'linked') return;
+  const units = iconWaitRows().filter(r => r.dataset.unit && r.dataset.badgeUpHeld === '1').map(r => Number(r.dataset.unit));
+  if (units.length) postToPlanner(LINK.uploadsRequest(link, units));
+}
+function takeUploads(rows) {
+  let got = 0;
+  for (const r of rows || []) {
+    const svg = LINK.upOf(r);
+    if (typeof svg !== 'string') continue;
+    const row = iconWaitRows().find(x => x.dataset.unit && Number(x.dataset.unit) === r.u);
+    if (!row) continue;
+    const k = parseKeep(row);
+    setKept(row, k ? k.b : null, { type: 'icon', svg });
+    got++;
+  }
+  if (!got) return;
+  rebuild();
+  const left = iconWaitRows();   // a partial answer must not read as all done (Sol 01a123c3)
+  setStatus((got === 1 ? "The planner sent the icon that was too big for the link." : `The planner sent the ${got} icons that were too big for the link.`)
+    + (left.length ? ` ${rowsText(left)} ${left.length === 1 ? 'is' : 'are'} still waiting - see the note on ${left.length === 1 ? 'the row' : 'each row'}.` : ''), left.length ? 'err' : 'ok');
+}
 function startHello() {
   clearInterval(linkTimers.hello);
   link.hellos = 0;
@@ -3155,8 +3238,10 @@ window.addEventListener('message', (e) => {
     link.drawers = a.drawers;
     link.review = (a.review === 'full' || a.baseRev !== link.baseRev) ? 'full' : 'normal';
     renderLinkBar();
+    askForIcons();
     return;
   }
+  if (a.gen2label === 'uploads') { takeUploads(a.rows); return; }
   const out = LINK.onAnswer({ job: link.job, baseRev: link.baseRev, pending: link.pending }, a,
     LINK.returnCore(allSnaps(), currentStyle(), link.baseRev, iconIds()));
   switch (out.effect) {
@@ -3257,7 +3342,11 @@ function addJobRow(r, job, raw) {
   const hwItem = raw && raw.hw && raw.t && LINK.canEditPartLabels(job) ? hardwareItems(raw.hw) : null;
   if (hwItem) return addHardwareRow(hwItem[0], { u: r.u, n: r.n, textMax: job.textMax, t: raw.t, b: raw.b });
   const row = addLabelRow(r.text, null, { u: r.u, n: r.n, textMax: job.textMax }).closest('.row');
-  if (r.keep) { const up = LINK.upOf(raw); setKept(row, r.keep.b, typeof up === 'string' ? up : null); }
+  if (r.keep) {
+    const up = LINK.upOf(raw);
+    setKept(row, r.keep.b, typeof up === 'string' ? { type: 'icon', svg: up }
+      : (r.type === 'icon' || r.type === 'char') && r.value ? { type: r.type, value: r.value } : null, up === true ? 'big' : 'missing');
+  }
   else if (r.held) setHeld(row, r.held);
   else if (r.manual) {
     row.dataset.badgeManual = '1';
@@ -3311,7 +3400,11 @@ function applyLinkedLabels(labels, textMax) {
     const row = addLabelRow(l.text || '', badge, opts).closest('.row');
     if (l.manual) row.dataset.badgeManual = '1';
     if (l.held) setHeld(row, b);
-    else if (l.keep && 'b' in l.keep) setKept(row, l.keep.b, badge && badge.type === 'icon' && badge.svg && !l.upHeld ? badge.svg : null);
+    else if (l.keep && 'b' in l.keep) {
+      // an icon id that was missing when the session was saved may be here now (the page has been updated since)
+      const kb = l.keep.b, nowHere = l.upHeld === 'missing' && kb && kb.type === 'icon' && iconIds().includes(kb.value) ? { type: 'icon', value: kb.value } : null;
+      setKept(row, kb, nowHere || (!l.upHeld && badge ? badge : null), l.upHeld === 'missing' ? 'missing' : 'big');
+    }
     else if (!l.manual && isPredictedBadge(badge)) autoAssignIcon(row);
   });
 }
@@ -3356,6 +3449,7 @@ function unlinkNow(o) {
   const kept = (o && o.keepPrevious === false) ? false : keepPreviousSet(prev && Array.isArray(prev.labels) ? prev : null);
   clearTimeout(linkTimers.send); clearInterval(linkTimers.hello);
   const rows = linkRows();
+  const lost = iconWaitRows();   // their icon never arrived: unlinked, they print without it - said below, never quietly
   rows.forEach(row => {
     const held = parseHeld(row);
     clearRowLink(row);
@@ -3368,7 +3462,9 @@ function unlinkNow(o) {
   renderLinkBar();
   updateRowFlags();
   rebuild();
-  setStatus('Unlinked.' + (kept ? ' Your previous labels are kept: Save / Load › Previous set.' : ''), 'ok');
+  setStatus('Unlinked.' + (kept ? ' Your previous labels are kept: Save / Load › Previous set.' : '')
+    + (lost.length ? ` ${rowsText(lost)} never got ${lost.length === 1 ? 'its icon' : 'their icons'} from the planner and ${lost.length === 1 ? 'has' : 'have'} none now - upload the icon file there or pick another badge.` : ''),
+    lost.length ? 'err' : 'ok');
   return true;
 }
 
