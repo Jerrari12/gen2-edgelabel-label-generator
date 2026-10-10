@@ -548,6 +548,7 @@
       <button class="btn-sm" id="proj-upload-btn" title="Load labels + settings from a .json file you exported earlier">Upload</button>
       <button class="btn-sm" id="to-planner" title="Open the MODULITH Planner with these labels: they wait in its Labels tray under the board, where you tap a label and then a drawer. Hardware labels keep their part details.">Add to planner build</button>
       <button class="btn-sm" id="proj-restore" style="display:none" title="Swap the current labels and settings with the previous set - the one set kept from before the last Planner import. Click again to swap back. Only one previous set is kept: the next Planner import replaces it.">Previous set</button>
+      <button class="btn-sm" id="proj-moved" style="display:none" title="The labels moved here from the old Label Studio address. Open one when you choose: it replaces the labels on screen.">Moved labels</button>
       <input type="file" id="proj-import" accept=".json,application/json">
     </div>
 
@@ -3468,7 +3469,7 @@ function renderLinkBar() {
     if (link.review === 'full') text += ' · the planner was reloaded or reopened a build, so your next send is reviewed line by line';
     bar.classList.add('linked');
   } else if (s === 'other-build') { text = "Your planner now shows a different build. These labels can't be sent to it. Unlink to keep them here."; bar.classList.add('warn'); }
-  else { text = 'Not connected to a planner tab. Your labels are kept in this tab. To link again, open the planner and click Design your EdgeLabel labels; or Unlink to keep these here.'; bar.classList.add('warn'); }
+  else { text = 'Not connected to a planner tab. Your labels are kept in this tab. Reopen Label Studio from your planner to link again, or Unlink to keep these here.'; bar.classList.add('warn'); }
   gid('lb-text').textContent = text;
   const sub = [];
   const un = LINK.isUnsaved(link, allSnaps(), currentStyle(), { iconIds: iconIds() });
@@ -4177,6 +4178,7 @@ function setupUI() {
   setupLinkControls();
   setupPartsSheet();
   bootRows();
+  setupMoveIn();
   const wanted = new URLSearchParams(location.search).get('type');
   if (wanted && !(typeof link !== 'undefined' && link) && Object.prototype.hasOwnProperty.call(LABEL_TYPES, wanted)) setLabelType(wanted);
   updateTypeUI();
@@ -4186,6 +4188,127 @@ function setupUI() {
 }
 
 // The Part Picker's four entries, the sheet's Done and Escape, the start card's two choices, Undo beside the list.
+// ---- labels moved from the old address (MODULITH handoffs/label-release/move/MOVE-DESIGN.md; Astra 2026-10-10) ----
+// The old page (edgelabel.jerrari3d.com) opens this one with ?move=<one-time token>. This page says it is ready; the sets
+// arrive only from that opener window, only from an old address on the list, only for that token - never in a URL. They are
+// shown before anything is saved. Into an empty Label Studio they become the labels and the Previous set; where work is
+// already here NOTHING is replaced: they wait under Save / Load › Moved labels (their own slot, so neither Previous set is
+// ever overwritten by the move). The same sets twice are recognised and not copied again. The move is reported done only
+// after a reload finds them still here.
+const LS_MOVED = 'labelstudio.moved.v1';
+const MOVE_FROM = { 'https://edgelabel.jerrari3d.com': 'edgelabel' };   // Classic Pro's old address joins when it moves
+const MOVE_FMT = { edgelabel: 'edgelabel-set', classicpro: 'classicpro-set' };
+const MOVE_MAX = 4 * 1024 * 1024;
+const moveOriginOk = (o) => !!MOVE_FROM[o] || (SERVED_LOCAL && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o));
+function moveTargets() {
+  const t = Object.keys(MOVE_FROM);
+  if (SERVED_LOCAL) { try { const r = new URL(document.referrer).origin; if (moveOriginOk(r) && !t.includes(r)) t.push(r); } catch (e) {} }
+  return t;
+}
+function movedPackage() {
+  try { const m = JSON.parse(localStorage.getItem(LS_MOVED)); return m && typeof m.digest === 'string' ? m : null; } catch (e) { return null; }
+}
+function syncMovedButton() { const b = document.getElementById('proj-moved'); if (b) b.style.display = movedPackage() ? '' : 'none'; }
+function moveSet(raw, from) {   // a stored set as the old page sent it: null, or a set a Load would accept
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw !== 'string' || raw.length > MOVE_MAX) throw new Error('size');
+  const p = JSON.parse(raw);
+  if (!p || !Array.isArray(p.labels) || (p.fmt !== undefined && p.fmt !== MOVE_FMT[from])) throw new Error('format');
+  return p;
+}
+const usedLabels = (p) => p ? p.labels.filter(l => (l.text || '').trim() || (l.badge && l.badge.type && l.badge.type !== 'none')) : [];
+function setLine(name, p) {
+  const u = usedLabels(p);
+  if (!u.length) return '';
+  const up = u.filter(l => l.badge && l.badge.svg).length;
+  return `${name}: ${plural(u.length, 'label', 'labels')}${up ? `, ${up} with an uploaded icon` : ''}`;
+}
+async function moveDigest(a, b) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify([a, b])));
+  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+async function openMovedLabels() {
+  const m = movedPackage();
+  if (!m) { syncMovedButton(); return; }
+  let draft = null, previous = null;
+  try { draft = moveSet(m.draft, m.from); previous = moveSet(m.previous, m.from); } catch (e) {}
+  const buttons = [];
+  if (usedLabels(draft).length) buttons.push({ id: 'draft', label: 'Open the moved labels', primary: true });
+  if (usedLabels(previous).length) buttons.push({ id: 'previous', label: 'Open the moved Previous set', primary: !buttons.length });
+  buttons.push({ id: 'cancel', label: 'Cancel' });
+  const c = await askModal({ title: 'Labels moved from the old address',
+    body: [setLine('Your labels there', draft), setLine('Your Previous set there', previous)].filter(Boolean).join('\n')
+      + '\n\nOpening one replaces the labels on screen. Export them first if you want to keep them; the moved labels stay here either way.',
+    buttons });
+  const p = c === 'draft' ? draft : c === 'previous' ? previous : null;
+  if (!p) return;
+  if (!(await confirmReplace())) return;
+  applyProject(p);
+  autosave();
+  setStatus(`Opened ${plural(usedLabels(p).length, 'moved label', 'moved labels')}.`, 'ok');
+}
+function setupMoveIn() {
+  gid('gm-body').style.whiteSpace = 'pre-line';
+  syncMovedButton();
+  gid('proj-moved').addEventListener('click', openMovedLabels);
+  const q = new URLSearchParams(location.search);
+  const tok = q.get('move');
+  if (!tok || !/^[a-z0-9]{12,32}$/.test(tok)) return;
+  try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+  const opener = window.opener;
+  const say = (msg) => { if (opener) moveTargets().forEach(o => { try { opener.postMessage(Object.assign({}, msg, { token: tok }), o); } catch (e) {} }); };
+  if (q.get('check') === '1') {   // after the reload: the move counts only if the labels are still here
+    const m = movedPackage();
+    if (m && m.token === tok) {
+      if (opener && moveOriginOk(m.origin)) { try { opener.postMessage({ modulithMove: 'done', digest: m.digest, token: tok }, m.origin); } catch (e) {} }
+      linkBootStatus = m.placed ? 'Your labels moved here from the old Label Studio and are saved in this browser.'
+        : 'Your moved labels are saved in this browser: Save / Load › Moved labels.';
+    } else {
+      say({ modulithMove: 'refused', reason: 'The labels were not saved in the new Label Studio.' });
+      linkBootStatus = "The moved labels weren't saved in this browser. Try again from the old page, or use its Download a backup.";
+    }
+    return;
+  }
+  if (!opener) { linkBootStatus = 'To move your labels, open this from the old Label Studio page.'; return; }
+  let took = false;
+  window.addEventListener('message', async (e) => {
+    const d = e.data;
+    if (took || e.source !== opener || !moveOriginOk(e.origin) || !d || typeof d !== 'object' || d.modulithMove !== 'sets' || d.token !== tok) return;
+    took = true;
+    const refuse = (reason) => { say({ modulithMove: 'refused', reason }); setStatus(reason, 'err'); };
+    const from = MOVE_FROM[e.origin] || 'edgelabel';
+    let draft, previous;
+    try { draft = moveSet(d.draft, from); previous = moveSet(d.previous, from); } catch (err) { refuse("These labels couldn't be read."); return; }
+    if (!usedLabels(draft).length && !usedLabels(previous).length) { refuse('No labels were found to move.'); return; }
+    const digest = await moveDigest(d.draft || null, d.previous || null);
+    const had = movedPackage();
+    if (had && had.digest === digest) {   // the same sets again: nothing is written twice
+      say({ modulithMove: 'done', digest });
+      setStatus(`These labels were already moved here (${String(had.at || '').slice(0, 10)}). Nothing was copied again.`, 'ok');
+      return;
+    }
+    const empty = !link && !setHasContent(captureProject()) && !readPreviousSet();
+    const c = await askModal({ title: 'Move your saved labels here?',
+      body: 'Found in the old Label Studio:\n' + [setLine('Your labels', draft), setLine('Your Previous set', previous)].filter(Boolean).join('\n') + '\n\n'
+        + (empty ? 'They become your labels here.'
+          : "You already have labels here. They stay as they are: the moved labels wait under Save / Load › Moved labels, to open when you choose."
+            + (had ? ' Labels moved earlier are replaced by these in that slot.' : '')),
+      buttons: [{ id: 'move', label: empty ? 'Move them in' : 'Keep them under Moved labels', primary: true }, { id: 'cancel', label: 'Cancel' }] });
+    if (c !== 'move') { say({ modulithMove: 'cancelled' }); setStatus('Nothing was moved. Your labels are still on the old page.', 'ok'); return; }
+    const pkg = { digest, token: tok, from, origin: e.origin, at: new Date().toISOString(), placed: empty, draft: d.draft || null, previous: d.previous || null };
+    try { localStorage.setItem(LS_MOVED, JSON.stringify(pkg)); } catch (err) { refuse("This browser had no room to save them. Use the old page's Download a backup."); return; }
+    const back = movedPackage();
+    if (!back || back.digest !== digest) { refuse("They didn't save in this browser. Use the old page's Download a backup."); return; }
+    if (empty) {
+      if (usedLabels(draft).length) { applyProject(draft); autosave(); }
+      if (usedLabels(previous).length) keepPreviousSet(previous);
+    }
+    location.replace(location.pathname + '?move=' + tok + '&check=1');
+  });
+  say({ modulithMove: 'ready', v: 1 });
+  linkBootStatus = 'Waiting for your labels from the old Label Studio…';
+}
+
 function setupPartsSheet() {
   document.querySelectorAll('[data-parts], [data-parts-entry]').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); openPartsSheet(el); }));
   document.getElementById('ps-done').addEventListener('click', closePartsSheet);
