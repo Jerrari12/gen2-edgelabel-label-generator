@@ -3374,7 +3374,7 @@ function plainProject(p) {
 
 // a hardware import into a linked set is not built yet; from a planner tab older than the label list it never will be (Release B)
 function linkedHardwareRefusal() {
-  return link && !LINK.canEditPartLabels(link.job) ? "This planner tab is an older version: part labels can't be edited from it. Refresh the planner tab to edit part labels."
+  return link && !LINK.canEditPartLabels(link.job) ? "This link came from an older planner tab: part labels can't be edited from it. Refresh the planner tab, then click Label Studio there again."
     : "Part labels can't go into a planner-linked set yet: add them in a Label Studio tab that is not linked, then use Add to planner build.";
 }
 
@@ -3473,7 +3473,7 @@ function renderLinkBar() {
   const sub = [];
   const un = LINK.isUnsaved(link, allSnaps(), currentStyle(), { iconIds: iconIds() });
   if (un.extras > 0) sub.push(`${plural(un.extras, 'label exists', 'labels exist')} only in this tab. Unlink to keep ${un.extras === 1 ? 'it' : 'them'} as your ordinary labels.`);
-  if (!LINK.canEditPartLabels(link.job)) sub.push("This planner tab is an older version: part labels can't be edited from it. Refresh the planner tab to edit part labels.");
+  if (!LINK.canEditPartLabels(link.job)) sub.push("This link came from an older planner tab: part labels can't be edited from it. Refresh the planner tab, then click Label Studio there again.");
   const held = allSnaps().filter(x => x.held).length;
   if (held) sub.push(`${plural(held, 'drawer has', 'drawers have')} an icon from the planner that this generator can't show. ${held === 1 ? 'It prints' : 'They print'} without an icon here and ${held === 1 ? 'stays' : 'stay'} unchanged in the planner until you pick another.`);
   gid('lb-sub').textContent = sub.join(' ');
@@ -3773,6 +3773,18 @@ function applyLinkedLabels(labels, textMax) {
     restoreStripe(row, l);
   });
 }
+// A linked session saved by a Label Studio older than part labels (stale-tab deploy test, 2026-10-10): a tab that was open
+// before an update took a newer planner's job by a hash change, ran it with the old code, and saved hardware drawers as plain
+// words, icon-only drawers as empty rows and uploaded icons as guesses. After a refresh this page would restore those rows as
+// they are. Told apart by the saved project: every Label Studio that lays out part labels saves its label type, the older one
+// does not (the session's own v is 1 in both) - never by what a row lacks, since a user here can end a kept icon too.
+function savedByOlderStudio(session) {
+  if (session.project.type) return false;
+  const job = session.job;
+  if (!LINK.canEditPartLabels(job)) return false;   // an older planner's job: every row is words in both versions
+  const want = LINK.jobToRows(job, iconIds());
+  return job.rows.some((raw, i) => (raw.hw && raw.t && hardwareItems(raw.hw)) || !!(want[i] && want[i].keep));
+}
 // Restore a linked session completely (section 7.1 step 3): ALL settings first, then rows (tags, held badges, extras), the
 // baseline and any pending send.
 function restoreLinked(session) {
@@ -3988,10 +4000,25 @@ function bootRows() {
       if (plan.jobError) linkBootExtra = (cutShort + ' - opened as a one-way import. ') + linkBootExtra;
       importFromPlanner(plan.labels);
       break;
-    case 'linked-restore':
-      restoreLinked(plan.session);
+    case 'linked-restore': {
+      const s = plan.session;
+      if (savedByOlderStudio(s)) {
+        // nothing sent or applied since the job came: the job is the whole truth, so rebuild from it (the old rows kept)
+        if (!s.pending && s.baseRev === s.job.baseRev) {
+          const kept = keepPreviousSet(plainProject(s.project));
+          startLinked(s.job);
+          linkBootStatus = "Reloaded your planner labels: an older Label Studio had shown this build's part labels as plain words."
+            + (kept ? ' The rows it had are kept: Save / Load › Previous set.' : '');
+          break;
+        }
+        restoreLinked(s);
+        linkBootStatus = "Restored your linked session. An older Label Studio showed this build's part labels as plain words: click Label Studio in the planner to load them again.";
+        break;
+      }
+      restoreLinked(s);
       linkBootStatus = 'Restored your linked session.';
       break;
+    }
     default:   // 'autosave'
       if (plan.jobError) { clearHash(); linkBootExtra = cutShort + ', so nothing was imported.'; }
       if (plan.pausedSession) { pausedSession = plan.pausedSession; linkBootExtra = (linkBootExtra + ' Your planner link in this tab is paused: Resume it.').trim(); }
