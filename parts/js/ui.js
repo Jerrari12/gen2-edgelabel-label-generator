@@ -1602,6 +1602,10 @@ function renderSide() {
 async function main() {
   LEGEND = legend();
   if (!EMBED) $('header-extra').append(LEGEND);
+  // Feedback & support (Astra 2026-10-10): the shared MODULITH dialog. Not when embedded - the Label Studio around it has its own
+  if (!EMBED && !$('feedback-btn')) $('header-extra').append(h('button', { type: 'button', id: 'feedback-btn', class: 'btn sm ghost', 'aria-haspopup': 'dialog',
+    onclick: () => (window.MODULITHFeedback ? window.MODULITHFeedback.open({ tool: 'Part Picker' })
+      : (location.href = 'mailto:support@jerrari3d.com?subject=' + encodeURIComponent('[MODULITH Part Picker]'))) }, 'Feedback'));
   try {
     D = await loadDataAsync((name) => fetch('data/' + name).then((r) => { if (!r.ok) throw new Error(`${name}: HTTP ${r.status}`); return r.text(); }));
   } catch (e) {
