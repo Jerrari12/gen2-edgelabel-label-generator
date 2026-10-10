@@ -560,3 +560,69 @@ test('G-caps-3: a capable job still validates exactly as before (caps is an unkn
   assert.equal(r.ok, true);
   assert.deepEqual(r.job.caps, ['label-list'], 'returned verbatim');
 });
+
+/* ---------------------------------------------------------------- G-up: a drawer's uploaded icon (ChatGPT's review via Joey) */
+const SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><path d="M0 0H10V10H0Z"/></svg>';
+
+test('G-up-1: a row carrying the drawer\'s uploaded icon shows it and KEEPS the job\'s badge; `up: true` says it has one; anything else is no upload', () => {
+  const job = mkJob([
+    { t: 'Logo parts', up: SVG },                                          // mirror badge null (an upload has no id)
+    { t: 'Brand nuts', b: { type: 'icon', value: 'nut' }, up: SVG },      // an upload that also carries an id
+    { t: 'Big logo', up: true },                                           // the planner had one and did not send it
+    { t: '', up: SVG },                                                    // no words: no mirror, no upload
+    { t: 'Junk', up: '<script>alert(1)</script>' },                        // not an SVG: no upload
+    { t: 'Huge', up: '<svg>' + 'x'.repeat(L.UP_MAX) + '</svg>' },          // past the label list's own bound: no upload
+    { t: 'Odd', up: 7 },
+  ]);
+  assert.equal(L.validateJob(job, PROD).ok, true, 'a job with uploads validates (an unknown row key)');
+  const rows = L.jobToRows(job, ICONS);
+  assert.deepEqual([rows[0].type, rows[0].svg, rows[0].manual, rows[0].keep], ['icon', true, true, { b: null }]);
+  assert.deepEqual(rows[1].keep, { b: { type: 'icon', value: 'nut' } });
+  assert.equal(rows[1].type, 'icon');
+  assert.deepEqual([rows[2].type, rows[2].svg, rows[2].manual, rows[2].keep], ['none', false, true, { b: null }]);
+  for (const i of [3, 4, 5, 6]) assert.equal(rows[i].keep, null, `row ${i}: no upload`);
+  assert.equal(rows[4].manual, false, 'a malformed upload leaves the row to prediction, as today');
+  assert.equal(L.upOf(job.rows[0]), SVG);
+  assert.equal(L.upOf(job.rows[2]), true);
+  assert.equal(L.upOf(job.rows[4]), null);
+});
+
+test('G-up-2: an untouched kept row returns the job\'s badge as it came and is not unsaved; a pick on the row returns the pick', () => {
+  const job = mkJob([{ t: 'Logo parts', up: SVG }, { t: 'Brand nuts', b: { type: 'icon', value: 'nut' }, up: SVG }]);
+  const snaps = L.jobToRows(job, ICONS);
+  const ret = L.returnCore(snaps, job.style, job.baseRev, ICONS);
+  assert.deepEqual(ret.rows.map((r) => r.b), [null, { type: 'icon', value: 'nut' }]);
+  assert.equal(L.isUnsaved(linkOf(job), snaps, job.style, { iconIds: ICONS }).any, false);
+  // the user picks the washer on row 1: applyBadge ends the keep (the page clears badgeKeep), so the pick goes back
+  const picked = { ...snaps[0], type: 'icon', value: 'washer', svg: false, keep: null };
+  assert.deepEqual(L.badgeRep(picked, ICONS), { type: 'icon', value: 'washer' });
+  assert.equal(L.isUnsaved(linkOf(job), [picked, snaps[1]], job.style, { iconIds: ICONS }).rows, true);
+  // a new upload of the user's own on a linked row is unsupplied/custom, as before
+  assert.deepEqual(L.badgeRep({ ...snaps[0], keep: null, svg: true }, ICONS), { type: 'unsupplied', why: 'custom' });
+  // the words cleared: the page resets the badge (keep ends) - and with keep still set it is never an icon-only send
+  assert.equal(L.badgeRep(snap({ u: 1, text: '', keep: { b: null } }), ICONS), null);
+});
+
+test('G-up-3: adopting the planner\'s answer keeps the uploaded icon while the drawer\'s badge is unchanged; a changed badge replaces it', () => {
+  const job = mkJob([{ t: 'Logo parts', up: SVG }, { t: 'Logo bolts', up: SVG }]);
+  const snaps = L.jobToRows(job, ICONS);
+  const answer = { gen2label: 'applied', v: 1, jobId: job.jobId, returnId: ID('t'), baseRev: ID('s'), changes: 1, gone: [],
+    style: job.style, styleDecision: {},
+    rows: [{ u: 1, t: 'Logo parts!', b: null, decision: 'applied' }, { u: 2, t: 'Logo bolts', b: { type: 'icon', value: 'bolt-hex-head' }, decision: 'applied' }] };
+  const out = L.adoptApplied({ job, baseRev: job.baseRev, pending: null }, snaps, answer, ICONS);
+  const a1 = out.actions.find((a) => a.u === 1), a2 = out.actions.find((a) => a.u === 2);
+  assert.equal(a1.text, 'Logo parts!');
+  assert.equal(a1.badge, undefined, 'the upload stays: the planner still holds the badge it came with');
+  assert.deepEqual(a2.badge, { mode: 'manual', type: 'icon', value: 'bolt-hex-head' }, 'the planner changed it: the change wins');
+});
+
+test('G-up-4: a saved linked session brings the keep back (snapsFromProject)', () => {
+  const project = { labels: [
+    { u: 1, n: 1, text: 'Logo parts', badge: { type: 'icon', svg: SVG }, manual: true, keep: { b: null } },
+    { u: 2, n: 2, text: 'Big logo', badge: { type: 'none' }, manual: true, keep: { b: null }, upHeld: true },
+    { u: 3, n: 3, text: 'Nuts', badge: { type: 'icon', value: 'nut' }, manual: false },
+  ] };
+  const s = L.snapsFromProject(project);
+  assert.deepEqual(s.map((x) => x.keep), [{ b: null }, { b: null }, null]);
+  assert.deepEqual(s.map((x) => L.badgeRep(x, ICONS)), [null, null, null]);
+});

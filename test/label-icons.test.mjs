@@ -1,5 +1,6 @@
 // The label icon catalog (label-icons.js, 2026-10-09): what the menu offers, which drawing a badge prints, and the
-// rule agreed with Joey - a word that predicts an icon today keeps that same icon (Sol 01a122f1 reviewed the design).
+// guess - a word keeps the icon it predicts today unless it is on the documented corrections list (Sol 01a122f1 reviewed
+// the design; the corrections and the one-of-each-twin menu follow ChatGPT's review, relayed by Joey).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -42,13 +43,16 @@ const LABELS = [
   'Favorites', 'Favourites', 'Important', 'Star parts', 'Fishing hooks', 'Sandpaper', 'Brushes', 'Batteries AA', 'Tweezers',
   'Calipers', 'Hex bits', 'Torx', 'Phillips bits', 'Drill', 'Cogs', 'Pulleys', 'Belts', 'Gears GT2', 'SD', 'TF cards',
   'Microsd', 'Volts', 'Amps', 'Electrical tape', 'Bottle caps', 'Ink cartridges', 'Coffee', 'Tea', 'Spices', 'Keys',
+  'Socket caps', 'Allen keys', 'Allen key set', 'Allen', 'Allen screws', 'Stepper drivers', 'Drivers', 'LED drivers',
+  'Bolt cutters', 'Star bits', 'Star', 'Power tools', 'Power tool batteries', 'Cell phone chargers', 'Fishing gear',
+  'Gear ties', 'Flush mount hinges', 'Cookie cutters', 'Box cutters', 'Bits and pieces', 'Nut drivers', 'Power banks', 'Caps',
 ];
 const coreKeywordForms = EL.KEYWORD_ICONS.flatMap(([keys]) => keys.flatMap((k) => [k, k.toUpperCase(), `M3 ${k}s`]));
 const CORPUS = [...new Set([...LABELS, ...coreKeywordForms])];
 
 // Each NEW rule's phrases, both ways (Sol, finding 7): what it must catch and what it must leave alone.
 const EXAMPLES = {
-  'screw-hex-socket': { yes: ['Cap screws', 'M4 socket cap screws', 'Socket cap M3'], no: ['Capacitors', 'Socket caps'] },
+  'screw-hex-socket': { yes: ['Cap screws', 'M4 socket head screws'], no: ['Capacitors'] },
   'nut': { yes: ['M3 nylock', 'Lock nuts', 'Nylon insert nuts M4'], no: ['Lockers'] },
   'wrench-a': { yes: ['Hex keys', 'Hex keys metric'], no: ['Keys'] },
   'screw-driver': { yes: ['Screwdrivers', 'Precision screw drivers', 'Bit drivers'], no: ['Screws'] },
@@ -123,16 +127,66 @@ test('svgFor: the standard drawing from its threshold up, the compact one below 
   for (const a of ART.icons.filter((i) => i.selectable)) assert.ok(a.std.from <= 14, `${a.id} std from ${a.std.from}`);
 });
 
-test('a word that predicts an icon today keeps that same icon (the core\'s guess first, over the whole corpus)', () => {
-  let kept = 0, gained = 0;
+// Does the label contain one of the documented corrections' phrases (whole words, as the guess matches)?
+const corrected = (t) => LI.CORRECTIONS.some(([keys]) => keys.some((k) =>
+  new RegExp('(^|[^a-z0-9])' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)', 'i').test(t)));
+
+test('a word keeps the icon it predicts today unless it holds a documented correction (over the whole corpus)', () => {
+  let kept = 0, gained = 0, fixed = 0;
   for (const t of CORPUS) {
     const old = EL.guessIconId(t);
     const now = LI.guessIconId(t);
-    if (old) { assert.equal(now, old, `"${t}": was ${old}, now ${now}`); kept++; }
-    else if (now) gained++;
     assert.equal(CP.guessIconId(t), old, `the Classic Pro core guesses as EdgeLabel's: "${t}"`);
+    if (corrected(t)) { if (now !== old) fixed++; continue; }
+    if (old) { assert.equal(now, old, `"${t}": was ${old}, now ${now} (not on the corrections list)`); kept++; }
+    else if (now) gained++;
   }
-  assert.ok(kept > 100 && gained > 40, `kept ${kept}, gained ${gained}`);
+  assert.ok(kept > 100 && gained > 40 && fixed >= 15, `kept ${kept}, gained ${gained}, fixed ${fixed}`);
+});
+
+test('the corrections: every phrase changes the core\'s guess to the listed icon (or to none), and the words around them still count', () => {
+  for (const [keys, id] of LI.CORRECTIONS) {
+    for (const k of keys) {
+      assert.equal(LI.guessIconId(k), id, `"${k}" -> ${id}`);
+      assert.notEqual(EL.guessIconId(k), id, `"${k}" changes the core's guess (${EL.guessIconId(k)}), so the entry is needed`);
+    }
+    if (id) assert.ok(LI.find(id) && LI.find(id).predict, `${id} is a guessable icon`);
+  }
+  const cases = {
+    'Socket caps': 'screw-hex-socket', 'M3 socket caps': 'screw-hex-socket', 'Allen keys': 'wrench-a', 'Allen key set': 'wrench-a',
+    'Stepper drivers': 'ic-chip', 'Bolt cutters': 'flush-cutter', 'Hex bits': 'screw-hex-socket', 'Star bits': 'screw-torx-head',
+    'Bits and pieces': 'storage-box', 'Power banks': 'battery', 'Nut drivers': 'screw-driver',
+    'Bottle caps': null, 'Power tools': null, 'Fishing gear': null, 'Gear ties': null, 'Flush mount hinges': null,
+    'Cookie cutters': null, 'Cell phones': null,
+    // the words around a removed phrase are still read
+    'Cell phone chargers': 'lightning', 'Power tool batteries': 'battery', 'Fishing gear hooks': null,
+    // the single words the corrections sit in front of keep the core's icon
+    'Caps': 'capacitor', 'Ceramic caps': 'capacitor', 'Allen': 'screw-hex-socket', 'Allen bolts': 'screw-hex-socket',
+    'Drivers': 'screw-driver', 'Torx bits': 'screw-torx-head', 'Drill bits': 'drill-bit', 'Gears': 'gear', 'Star': 'star',
+    'Power': 'lightning', 'Flush cutters': 'flush-cutter', 'Hex nuts': 'nut', 'Bolts': 'bolt-hex-head', 'Cells': 'battery',
+  };
+  for (const [t, id] of Object.entries(cases)) assert.equal(LI.guessIconId(t), id, `"${t}" -> ${id}`);
+});
+
+test('near twins: a menu shows one of each pair; the other is a working icon, offered only while it is the current one', () => {
+  assert.deepEqual(LI.TWINS, [['nut', 'hex-nut'], ['washer', 'flat-washer'], ['resistor', 'resistor-axial']]);
+  const menuIds = (cur) => LI.menu(cur).map((i) => i.id);
+  for (const [shown, other] of LI.TWINS) {
+    assert.ok(menuIds().includes(shown) && !menuIds().includes(other), `${shown} shown, ${other} not`);
+    assert.ok(menuIds(other).includes(other), `${other} offered while it is the current icon`);
+    assert.ok(LI.find(other) && LI.icons.some((i) => i.id === other), `${other} stays in the catalog`);
+    assert.notEqual(LI.resolveBadge({ type: 'icon', value: other }, 14).svg, undefined, `${other} still prints`);
+    assert.ok(!LI.search('', undefined).some((i) => i.id === other) && LI.search('', other).some((i) => i.id === other));
+    assert.notEqual(LI.find(shown).name, LI.find(other).name);
+  }
+  assert.equal(LI.menu().length, LI.icons.length - LI.TWINS.length);
+  for (const t of CORPUS) {
+    const g = LI.guessIconId(t);
+    if (g) assert.ok(!LI.TWINS.some(([, o]) => o === g), `"${t}" never guesses a hidden twin (${g})`);
+  }
+  // every name in a menu is unique, so the caption tells any two icons apart
+  const names = LI.menu().map((i) => i.name.toLowerCase());
+  assert.equal(new Set(names).size, names.length);
 });
 
 test('every new rule: its examples match it, its counter-examples do not; it never guesses an icon that is not to be guessed', () => {
@@ -156,10 +210,12 @@ test('every new rule: its examples match it, its counter-examples do not; it nev
 });
 
 test('search finds icons by name, group and the words that predict them', () => {
-  assert.equal(LI.search('').length, LI.icons.length);
-  const ids = (q) => LI.search(q).map((i) => i.id);
-  assert.ok(ids('nut').includes('nut') && ids('nut').includes('hex-nut'));
+  assert.equal(LI.search('').length, LI.menu().length);
+  const ids = (q, cur) => LI.search(q, cur).map((i) => i.id);
+  assert.ok(ids('nut').includes('nut') && !ids('nut').includes('hex-nut'), 'one nut in a menu');
+  assert.ok(ids('nut', 'hex-nut').includes('hex-nut'), 'the twin a label carries is found too');
   assert.ok(ids('allen').includes('screw-hex-socket'), 'by a predicting word');
+  assert.ok(ids('allen').includes('wrench-a'), '"allen" finds the hex keys too');
   assert.ok(ids('electronics').includes('capacitor'), 'by group name');
   assert.ok(ids('paper clip').includes('paper-clip'));
   assert.deepEqual(ids('zzzz'), []);

@@ -225,6 +225,10 @@
   .bp-icon { aspect-ratio: 1 / 1; background: var(--well); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
   .bp-icon:hover { border-color: var(--accent); color: var(--accent); }
   .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
+  .bp-caption { min-height: 1.45em; font-size: 12px; color: var(--muted); padding: 6px 2px 0; line-height: 1.45; }
+  /* an uploaded SVG is shown as a mask over the current colour: a picture of its shape, never markup in the page */
+  .svg-mask { display: block; width: 18px; height: 18px; background: currentColor; -webkit-mask-size: contain; mask-size: contain;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
   /* === Planner link (Step 3) === */
   .link-bar { margin: 0 0 14px; padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; line-height: 1.45; }
   .link-bar[hidden] { display: none; }
@@ -437,6 +441,7 @@
       <div class="bp-label">Icons</div>
       <div class="bp-section"><input type="search" id="bp-search" placeholder="Search icons: nut, scissors, battery…" autocomplete="off" aria-label="Search icons"></div>
       <div class="bp-icons" id="bp-icons"></div>
+      <div class="bp-caption" id="bp-caption"></div>
       <div class="bp-section">
         <button id="bp-upload-btn">Upload SVG…</button>
         <button id="bp-none">No badge</button>
@@ -1904,28 +1909,71 @@ function updateBadgeBtn(row) {
     btn.classList.remove('predicted');
     btn.textContent = '?';
     btn.title = `Icon '${h && h.value}' from the planner isn't in this generator version. It prints without an icon here and stays unchanged in the planner until you pick another.`;
+    btn.setAttribute('aria-label', `Badge: planner icon ${h && h.value}, held`);
+    return;
+  }
+  if (row.dataset.badgeUpHeld) {   // the drawer's uploaded icon is in the planner build; this job did not carry it
+    btn.classList.add('set', 'held');
+    btn.classList.remove('predicted');
+    btn.textContent = '?';
+    btn.title = "This drawer's uploaded icon stays in the planner build: it was too large to send here with the others. The label prints here without it, and the planner keeps it until you pick another badge.";
+    btn.setAttribute('aria-label', "Badge: the planner's uploaded icon, not sent here");
     return;
   }
   btn.classList.remove('held');
   const predicted = t === 'icon' && row.dataset.badgeManual !== '1';
-  btn.classList.toggle('set', !!t && t !== 'none');
+  const set = !!t && t !== 'none';
+  const name = badgeName(row);
+  btn.classList.toggle('set', set);
   btn.classList.toggle('predicted', predicted);
-  btn.title = predicted ? 'Auto-suggested from the label text (dashed) — click to choose your own'
-            : (t && t !== 'none') ? 'Click to change the icon or letter'
+  btn.title = predicted ? `${name}: suggested from the label text (dashed). Click to choose your own.`
+            : set ? `${name}. Click to change the icon or letter.`
             : 'Add an icon or letter (optional)';
+  btn.setAttribute('aria-label', predicted ? `Badge: ${name}, suggested` : set ? `Badge: ${name}` : 'Add a badge');
   if (t === 'char') {
     btn.textContent = (row.dataset.badgeValue || '+').slice(0, 2);
   } else if (t === 'icon') {
-    let svg = row._badgeSvg;
-    if (!svg && row.dataset.badgeIcon) svg = iconSvg(row.dataset.badgeIcon);
-    btn.innerHTML = svg || '+';
+    if (row._badgeSvg) { btn.textContent = ''; btn.appendChild(svgMaskEl(row._badgeSvg)); }
+    else { const svg = row.dataset.badgeIcon && iconSvg(row.dataset.badgeIcon); btn.innerHTML = svg || '+'; }
   } else {
     btn.textContent = '+';
   }
 }
 
+// The words for a row's badge: its button's name, the icon menu's caption and the status line after a pick (ChatGPT's review,
+// relayed by Joey: every icon has a readable name on hover, keyboard focus and selection - and on touch, where there is no
+// hover, in the caption and the status line).
+function badgeName(row) {
+  if (!row) return '';
+  if (row.dataset.badgeHeld) { const h = parseHeld(row); return `planner icon '${h && h.value}'`; }
+  if (row.dataset.badgeUpHeld) return "the planner's uploaded icon (not sent here)";
+  const t = row.dataset.badgeType;
+  if (t === 'char') return `letter "${row.dataset.badgeValue || ''}"`;
+  if (t === 'icon') {
+    if (row._badgeSvg) return row.dataset.badgeKeep ? "uploaded icon (the planner's)" : 'uploaded icon';
+    const ic = LabelIcons && LabelIcons.find(row.dataset.badgeIcon);
+    return ic ? ic.name : `icon '${row.dataset.badgeIcon || ''}'`;
+  }
+  return 'no badge';
+}
+// An uploaded SVG on screen is a CSS mask over the current colour: the browser draws it as an image, so nothing in it is ever
+// parsed into the page or run (an upload can arrive from a planner link now, not only from this computer).
+function svgMaskEl(svg) {
+  const el = document.createElement('span');
+  el.className = 'svg-mask';
+  // a lone surrogate (valid JSON, so possible in a saved set or a link) would make encodeURIComponent throw (Sol 01a1234d)
+  let enc = '';
+  try { enc = encodeURIComponent(typeof svg.toWellFormed === 'function' ? svg.toWellFormed() : svg); } catch (e) { /* drawn empty */ }
+  const url = `url("data:image/svg+xml;charset=utf-8,${enc}")`;
+  el.style.webkitMaskImage = url;
+  el.style.maskImage = url;
+  return el;
+}
+
 function applyBadge(row, badge) {
   delete row.dataset.badgeHeld;   // picking any badge on a row ends a hold (setHeld sets it again afterwards)
+  delete row.dataset.badgeKeep;   // ... and ends showing the planner's uploaded icon (setKept sets it again afterwards)
+  delete row.dataset.badgeUpHeld;
   row.dataset.badgeType = badge.type || 'none';
   delete row.dataset.badgeValue;
   delete row.dataset.badgeIcon;
@@ -1952,6 +2000,7 @@ function setActiveRowBadge(type, value, svg) {
   activeBadgeRow.dataset.badgeManual = '1';   // a manual pick stops auto-assigning for this row
   applyBadge(activeBadgeRow, { type, value, svg });
   rebuild();
+  setStatus(`Label ${activeBadgeRow.querySelector('.idx').textContent}: ${badgeName(activeBadgeRow)}.`, 'ok');
 }
 
 // Predicted-icon master switch (the "Predict icons from text" checkbox).
@@ -2026,6 +2075,12 @@ function openIconGroups() {
   try { const v = JSON.parse(sessionStorage.getItem(ICON_GROUPS_KEY) || 'null'); return Array.isArray(v) ? v : null; } catch (e) { return null; }
 }
 function saveOpenIconGroups(ids) { try { sessionStorage.setItem(ICON_GROUPS_KEY, JSON.stringify(ids)); } catch (e) {} }
+// The line under the icons: the name of the icon under the pointer or keyboard focus, else what the label carries now.
+function iconCaption(text) { const c = document.getElementById('bp-caption'); if (c) c.textContent = text; }
+function resetIconCaption() {
+  iconCaption(bulkBadgeMode ? `Applies to ${plural(selectedRows().length, 'selected label', 'selected labels')}.`
+    : activeBadgeRow ? `This label: ${badgeName(activeBadgeRow)}.` : '');
+}
 // The row's current icon (or the bulk picker's none): its group opens when the menu opens, and its cell is ringed.
 function menuCurrentIcon() {
   if (bulkBadgeMode || !activeBadgeRow) return null;
@@ -2036,10 +2091,11 @@ function renderIconMenu() {
   const q = document.getElementById('bp-search').value;
   grid.innerHTML = '';
   if (!LabelIcons) { grid.textContent = 'Icons did not load.'; return; }
-  const found = LabelIcons.search(q);
-  const searching = !!q.trim();
   const current = menuCurrentIcon();
+  const found = LabelIcons.search(q, current);   // one of each near twin, plus the row's own icon
+  const searching = !!q.trim();
   const curIcon = current && LabelIcons.find(current);
+  resetIconCaption();
   const saved = openIconGroups();
   let any = false;
   for (const g of LabelIcons.GROUPS) {
@@ -2076,6 +2132,11 @@ function renderIconMenu() {
       cell.title = it.name;
       cell.setAttribute('aria-label', it.name);
       cell.innerHTML = it.svg;
+      const say = () => iconCaption(it.id === current ? `${it.name} (this label's icon)` : it.name);
+      cell.addEventListener('pointerenter', say);
+      cell.addEventListener('focus', say);
+      cell.addEventListener('pointerleave', resetIconCaption);
+      cell.addEventListener('blur', resetIconCaption);
       cell.addEventListener('click', (e) => {
         e.preventDefault();
         setActiveRowBadge('icon', it.id, null);
@@ -2138,9 +2199,8 @@ function setupBadgePicker() {
         setStatus('Could not read that SVG (needs filled paths).', 'err');
         return;
       }
-      setActiveRowBadge('icon', null, svg);
+      setActiveRowBadge('icon', null, svg);   // the status line names it ("uploaded icon")
       closeBadgePopover();
-      setStatus('Custom icon applied.', 'ok');
     };
     reader.onerror = () => setStatus('Failed to read SVG file.', 'err');
     reader.readAsText(f);
@@ -2447,6 +2507,7 @@ function captureLabels(linked) {
     if (row.dataset.hw && row._hwItem) o.hw = row._hwItem;
     if (linked && row.dataset.unit) { o.u = Number(row.dataset.unit); o.n = Number(row.dataset.unitN) || null; }
     if (linked && held) o.held = true;
+    if (linked && row.dataset.unit && parseKeep(row)) { o.keep = parseKeep(row); if (row.dataset.badgeUpHeld) o.upHeld = true; }
     if (linked && row.dataset.unit && row.dataset.hwJob) o.hwJob = parseHwJob(row);
     out.push(o);
   });
@@ -2553,9 +2614,12 @@ function applyLabels(labels) {
     const badge = (b && b.type && b.type !== 'none') ? b : null;
     const row = addLabelRow(l.text || '', badge).closest('.row');
     if (l.manual) row.dataset.badgeManual = '1';
-    else if (!badge) autoAssignIcon(row);
+    else if (isPredictedBadge(badge)) autoAssignIcon(row);
   });
 }
+// A badge the guess put there (not picked, not uploaded) - or none - is guessed again from the words when a set is restored,
+// so a corrected guess (label-icons.js CORRECTIONS) reaches saved sets too. A letter or an upload is never re-guessed.
+function isPredictedBadge(b) { return !b || (b.type === 'icon' && !b.svg); }
 
 // The 3MF layout that suits the chosen printer's usual slicer, or null when the
 // printer doesn't say (Snapmaker, Creality, Voron, custom).
@@ -2793,7 +2857,7 @@ function rowSnap(row) {
     u: row.dataset.unit ? Number(row.dataset.unit) : null, n: row.dataset.unitN ? Number(row.dataset.unitN) : null,
     text: input ? input.value : '', type: t,
     value: t === 'char' ? (row.dataset.badgeValue || '') : (row.dataset.badgeIcon || undefined),
-    svg: !!row._badgeSvg, manual: row.dataset.badgeManual === '1', held: parseHeld(row),
+    svg: !!row._badgeSvg, manual: row.dataset.badgeManual === '1', held: parseHeld(row), keep: parseKeep(row),
   };
 }
 const allSnaps = () => [...document.querySelectorAll('#labels .row')].map(rowSnap);
@@ -2807,6 +2871,18 @@ function setHeld(row, b) {
   row.dataset.badgeManual = '1';
   row.dataset.badgeHeld = JSON.stringify(b);
   updateBadgeBtn(row);
+}
+// A drawer's UPLOADED icon from the planner (label-link.js `keep`): shown and printed here, the job's badge returned unchanged until
+// the user picks another badge on the row (applyBadge ends it). Without the SVG (the job did not carry it) the row says so.
+function setKept(row, b, svg) {
+  applyBadge(row, svg ? { type: 'icon', svg } : { type: 'none' });
+  row.dataset.badgeManual = '1';
+  row.dataset.badgeKeep = JSON.stringify({ b: b === undefined ? null : b });
+  if (!svg) row.dataset.badgeUpHeld = '1';
+  updateBadgeBtn(row);
+}
+function parseKeep(row) {
+  try { const k = row.dataset.badgeKeep ? JSON.parse(row.dataset.badgeKeep) : null; return k && 'b' in k ? k : null; } catch (e) { return null; }
 }
 function setRowLink(row, u, n, textMax) {
   row.dataset.unit = String(u);
@@ -2825,6 +2901,11 @@ function clearRowLink(row) {
   delete row.dataset.unit;
   delete row.dataset.unitN;
   delete row.dataset.hwJob;
+  if (row.dataset.badgeKeep || row.dataset.badgeUpHeld) {   // the uploaded icon stays on the row as an ordinary upload
+    delete row.dataset.badgeKeep;
+    delete row.dataset.badgeUpHeld;
+    updateBadgeBtn(row);
+  }
   const tag = row.querySelector('.utag'); if (tag) tag.remove();
   const note = row.querySelector('.row-note'); if (note) note.remove();
   row.classList.remove('has-note');
@@ -2850,6 +2931,7 @@ function updateRowFlags() {
       else {
         const s = rowSnap(row);
         if (!LINK.hasWords(s) && (s.held || (s.manual && (s.type === 'char' || s.type === 'icon')))) note = 'Icon only - printed here, not saved to the planner';
+        else if (s.svg && !s.keep && LINK.hasWords(s)) note = 'Uploaded icon - printed here; the planner keeps its own icon for this drawer';
       }
     }
     input.classList.toggle('over', over);
@@ -3175,7 +3257,8 @@ function addJobRow(r, job, raw) {
   const hwItem = raw && raw.hw && raw.t && LINK.canEditPartLabels(job) ? hardwareItems(raw.hw) : null;
   if (hwItem) return addHardwareRow(hwItem[0], { u: r.u, n: r.n, textMax: job.textMax, t: raw.t, b: raw.b });
   const row = addLabelRow(r.text, null, { u: r.u, n: r.n, textMax: job.textMax }).closest('.row');
-  if (r.held) setHeld(row, r.held);
+  if (r.keep) { const up = LINK.upOf(raw); setKept(row, r.keep.b, typeof up === 'string' ? up : null); }
+  else if (r.held) setHeld(row, r.held);
   else if (r.manual) {
     row.dataset.badgeManual = '1';
     applyBadge(row, r.type === 'none' ? { type: 'none' } : { type: r.type, value: r.value });
@@ -3211,7 +3294,7 @@ function addExtraRow(l) {
   const b = l.badge;
   const badge = (b && b.type && b.type !== 'none') ? b : null;
   const row = addLabelRow(l.text || '', badge).closest('.row');
-  if (l.manual) row.dataset.badgeManual = '1'; else if (!badge) autoAssignIcon(row);
+  if (l.manual) row.dataset.badgeManual = '1'; else if (isPredictedBadge(badge)) autoAssignIcon(row);
 }
 function applyLinkedLabels(labels, textMax) {
   clearLabelRows();
@@ -3228,7 +3311,8 @@ function applyLinkedLabels(labels, textMax) {
     const row = addLabelRow(l.text || '', badge, opts).closest('.row');
     if (l.manual) row.dataset.badgeManual = '1';
     if (l.held) setHeld(row, b);
-    else if (!l.manual && !badge) autoAssignIcon(row);
+    else if (l.keep && 'b' in l.keep) setKept(row, l.keep.b, badge && badge.type === 'icon' && badge.svg && !l.upHeld ? badge.svg : null);
+    else if (!l.manual && isPredictedBadge(badge)) autoAssignIcon(row);
   });
 }
 // Restore a linked session completely (section 7.1 step 3): ALL settings first, then rows (tags, held badges, extras), the
