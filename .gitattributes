@@ -51,3 +51,7 @@ parts/** -text
 # part-picker-link.js (the Part Picker sheet's message contract and the part-item check) is executed by node --test like the
 # page runs it: a fixed LF keeps the served file and the checkout the same bytes on every OS, like its neighbours.
 part-picker-link.js text eol=lf
+
+# label-stripes.js (stripes on any label: the colours, the cleaning, which position a label takes) is executed by node --test like
+# the page runs it: a fixed LF keeps the served file and the checkout the same bytes on every OS, like its neighbours.
+label-stripes.js text eol=lf

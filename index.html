@@ -64,7 +64,7 @@
   .row.dragging .idx, .row .idx:active { cursor: grabbing; }
   .row.hw { flex-wrap: wrap; }
   .row.hw .badge-btn { visibility: hidden; }
-  .row.hw input[type="text"] { background: #14161b; cursor: default; }
+  .row.hw input[type="text"] { background: #14161b; cursor: default; min-width: 0; }   /* shrinks, so the remove button stays on the row */
   .row .hw-note { flex-basis: 100%; margin: -2px 0 2px 45px; font-size: 11px; line-height: 1.35; color: var(--muted); }
   .row .hw-note.bad { color: var(--danger); }
   .row.dragging { opacity: 0.45; }
@@ -135,6 +135,23 @@
   button.link-btn:hover { color: var(--accent-hover); }
   @keyframes row-flash { 0%, 30% { background: rgba(255, 106, 26, 0.32); } 100% { background: transparent; } }
   .row.flash { animation: row-flash 2.4s ease-out; border-radius: 6px; }
+  /* the stripe button on a row (beside the badge) and its menu */
+  .row .stripe-btn { width: 18px; height: 28px; flex-shrink: 0; padding: 4px 5px; background: var(--well); border: 1px solid var(--border); border-radius: 5px; cursor: pointer; display: flex; align-items: stretch; justify-content: center; }
+  .row .stripe-btn:hover:not(:disabled), .row .stripe-btn:focus-visible { border-color: var(--accent-dim); outline: none; }
+  .row .stripe-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+  .stripe-btn .sw, .sp-opt .sw { display: block; width: 6px; border-radius: 2px; border: 1px dashed var(--border); }
+  .stripe-btn .sw.on, .sp-opt .sw.on { border: 1px solid rgba(255, 255, 255, 0.35); }
+  .stripe-popover { width: 236px; }
+  .sp-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
+  .sp-opt { display: flex; align-items: center; gap: 9px; width: 100%; padding: 6px 7px; background: none; border: 1px solid transparent; border-radius: 5px; color: var(--text); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+  .sp-opt .sw { width: 22px; height: 12px; flex: none; }
+  .sp-opt:hover, .sp-opt:focus-visible { border-color: var(--accent-dim); outline: none; }
+  .sp-opt.on { border-color: var(--accent); }
+  .sp-opt small { color: var(--muted); font-size: 11px; margin-left: auto; }
+  .setting-note { margin: -4px 0 10px; font-size: 11.5px; line-height: 1.4; color: var(--muted); }
+  .setting-note[hidden] { display: none; }
+  .link-bar .lb-note { flex-basis: 100%; font-size: 11px; color: var(--muted); }
+  .link-bar .lb-note[hidden] { display: none; }
   /* the Part Picker sheet: full width under the masthead (top set from the masthead's bottom), the page behind it inert */
   .parts-sheet { position: fixed; left: 0; right: 0; bottom: 0; top: 48px; z-index: 60; display: flex; flex-direction: column; background: var(--bg); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
   .parts-sheet[hidden] { display: none; }
@@ -442,6 +459,7 @@
         <button class="btn-sm" id="link-retry" hidden>Try connecting again</button>
         <button class="btn-sm" id="link-resume" hidden>Resume the planner link</button>
         <button class="btn-sm" id="link-unlink" title="Stop linking this tab to the planner: these labels stay here as your ordinary labels.">Keep these labels here only</button>
+        <div class="lb-note" id="lb-stripe-note" hidden></div>
       </div>
     </div>
 
@@ -457,6 +475,7 @@
       <div class="bulk-actions" id="bulk-actions" hidden>
         <button id="bulk-icon" title="Pick one icon and apply it to the selected labels">Set icon</button>
         <button id="bulk-clear" title="Remove the icon/badge from the selected labels">Clear icon</button>
+        <button id="bulk-stripe" title="Give the selected labels a coloured stripe, or none">Set stripe…</button>
         <button id="bulk-affix" title="Add text before/after every selected label">Prefix/Suffix…</button>
         <button id="bulk-delete" class="danger" title="Delete the selected labels">Delete</button>
       </div>
@@ -493,6 +512,13 @@
         <div class="csv-zone" id="csv-zone" tabindex="0" role="button" title="Import a CSV or TXT file, one label per row (it replaces your list). You can also drop the file here.">CSV / TXT</div>
       </div>
       <div class="af-note" id="parts-reason" hidden></div>
+    </div>
+
+    <!-- Shared stripe menu (a row's stripe button, or Set stripe… for the selected labels) -->
+    <div id="stripe-popover" class="badge-popover stripe-popover" role="dialog" aria-labelledby="sp-head" hidden>
+      <div class="bp-head"><span id="sp-head">Stripe</span><button class="bp-close" id="sp-close" title="Close">×</button></div>
+      <div class="sp-list" id="sp-list"></div>
+      <div class="bp-caption" id="sp-note"></div>
     </div>
 
     <!-- Shared badge picker popover -->
@@ -550,10 +576,11 @@
       <span>Screw and nut drawings</span>
       <span><input type="checkbox" id="hw-profile" checked></span>
     </div>
-    <div class="setting" title="Part labels from the Part Picker with a label colour scheme: a band along one edge shows metric (blue) or SAE (red), and the 8 mm accent at its start shows the material. The words are laid out clear of it. Off: no band.">
-      <span>Colour band</span>
+    <div class="setting" title="Where the coloured stripe goes. Part labels from the Part Picker: a stripe along one edge shows metric (blue) or SAE (red), and the 8 mm patch at its start the material; their words are laid out clear of it. Any label can have a stripe (the stripe button on its row): typed labels always take the end stripe, the one place their words never reach. Off: no stripes.">
+      <span>Stripe position</span>
       <select id="hw-band"><option value="bottom" selected>Bottom edge</option><option value="end">End stripe</option><option value="wedge">45° end</option><option value="off">Off</option></select>
     </div>
+    <div class="setting-note" id="stripe-note" hidden></div>
 
     <h2>Build Plate</h2>
     <div class="setting">
@@ -651,6 +678,8 @@
   <p>Labels you open from the Planner arrive linked to your build: edit them here and press <b>Send to planner</b>. <b>Add to planner build</b> sends a list from here to the Planner's Labels tray, where you tap a label and then a drawer.</p>
   <h4 id="help-two-color">Two-color printing</h4>
   <p>Choose the 3MF for your slicer (PrusaSlicer, or Bambu Studio / OrcaSlicer). The base and the text are already set to filaments 1 and 2. If your slicer does not pick them up, set each part's filament yourself: base light, text dark. 0.2 mm layers work well; leave the purge area free for the wipe tower.</p>
+  <h4 id="help-stripes">A stripe on any label</h4>
+  <p>Any label can have a coloured stripe: press the narrow swatch beside a row's icon, or select labels and use <b>Set stripe…</b>. Metric (blue) and SAE / inch (red) match the Part Picker's colours; yellow, white, green and purple are there too. A typed label's stripe runs along its left end, where its words never reach; a part label's goes where <b>Stripe position</b> says, and the stripe button on a part's row can change its colour or take it off. Each stripe colour prints from its own filament: the 3MF names which filament carries which colour. Classic Pro labels have no stripes yet; they are kept for EdgeLabel.</p>
   <h4>Saving your work</h4>
   <p>Your labels and settings are kept in this browser as you go. <b>Export</b> saves a copy as a file; <b>Upload</b> opens it again, here or on another computer.</p>
 </dialog>
@@ -695,6 +724,7 @@
 <script src="hardware-band-data.js?v=0ed77c4b"></script>
 <script src="hardware-layout.js?v=e496ddf0"></script>
 <script src="label-hardware.js?v=be221a77"></script>
+<script src="label-stripes.js?v=4b6e5cc5"></script>
 <script src="label-link.js?v=c04966dd"></script>
 <script src="part-picker-link.js?v=2e4b8128"></script>
 <script>
@@ -1055,6 +1085,20 @@ function hwProfileOn() { const el = document.getElementById('hw-profile'); retur
 // D:/MODULITH/handoffs/hardware-library/v5/export_bands.py). An item with no colours (no scheme) keeps the whole face.
 // The setting's value ('bottom' | 'end' | 'wedge' | 'off'); label-hardware.js decides which rows it applies to.
 function hwBandSetting() { const el = document.getElementById('hw-band'); return el ? el.value : 'bottom'; }
+// STRIPES ON ANY LABEL (2026-10-10, the owner). label-stripes.js holds the rules: a label's stripe is its `colours` (the shape a
+// Part Picker item's colours have), kept on the row as row._stripe - undefined = none (a part label: its Part Picker colours),
+// an object = that stripe, null = a part label told to print none. The stripe is label-hardware.js's band: the label body cut
+// into base / band / accent pieces. A typed label takes the END stripe whatever "Stripe position" says - measured, its words
+// can reach the bottom and the 45 degree stripes but never the end one (label-stripes.js says how) - and a part label takes the
+// position the setting picks, its words laid out clear of it. Classic Pro has no stripes yet: kept, not printed.
+const LS = window.GEN2LabelStripes || null;
+const stripesOn = () => !!(LS && LH && labelType.id === 'edgelabel');
+// what a row's stripe is: its own, else (a part row) the Part Picker's colours; null when none
+function rowStripe(row) {
+  if (row._stripe !== undefined) return row._stripe;
+  const it = row.dataset.hw && row._hwItem;
+  return it && it.colours && typeof it.colours === 'object' && LH ? LH.colours(it.colours) : null;
+}
 // CLASSIC PRO PART LABELS (label types step 3, 2026-10-09). The same layout on Classic Pro's own face (hardware-data-classicpro.js,
 // made by export_hw_data_classicpro.py from this page's Classic Pro label body: the printing face less a 1.8 mm margin, kept
 // from the two slits that make its lower corners springy too - Joey: "avoid the compliant mechanisms at all cost"), every row
@@ -1093,11 +1137,12 @@ function hardwareRowText(item, rec) { // what the row shows: the printed words, 
 }
 // lays the row's item out for the current type and settings (label-hardware.js: the layout, its band and the note's words)
 function layOutHardwareRow(row) {
-  const item = row._hwItem;
+  // the row's own stripe, when it has one, in place of the Part Picker's colours (null: no stripe, the whole face for words)
+  const item = LS ? LS.partItem(row._hwItem, row._stripe) : row._hwItem;
   let r;
   const type = labelType.id, profile = hwProfileOn(), setting = hwBandSetting();
   const { band } = LH.layoutFor(item, type, setting);
-  const key = type + '|' + (band || '') + '|' + profile;
+  const key = type + '|' + (band || '') + '|' + profile + '|' + (LS ? LS.signature(row._stripe) : '');
   if (!row._hwBy) row._hwBy = {};
   if (row._hwBy[key]) r = row._hwBy[key];   // laid out before on this type with these settings (switching back is instant)
   else row._hwBy[key] = r = LH.layOut(item, { type, profile, band: setting });
@@ -1225,6 +1270,7 @@ function openPartsSheet(trigger) {
   const why = partsBlockedReason();
   if (why) { setStatus(why, 'err'); return; }
   closeBadgePopover();
+  closeStripeMenu();
   const mn = document.querySelector('dialog.mobilenav'); if (mn && mn.open) mn.close();
   const help = document.getElementById('help'); if (help && help.open) help.close();
   const sheet = document.getElementById('parts-sheet');
@@ -1349,8 +1395,17 @@ async function askHardwareLink(items) {
   } else setStatus('Kept your labels: the part labels in the link were not added.', 'ok');
 }
 // a part label's ink (z 0..depth, placed at the label's top face like any label text) and its band pieces: label-hardware.js
+// a typed label's words and icon (label-core.js) on its body - the plain one, or with a stripe the body cut into band pieces
 function meshesFor(data, capH, depth, badgeSize, bold) {
-  return data.hardware ? LH.meshes(data.hardware, data.hardware.inkDepth || HW_INK_DEPTH) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
+  if (data.hardware) return LH.meshes(data.hardware, data.hardware.inkDepth || HW_INK_DEPTH);
+  const m = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+  if (data.stripe) m.baseParts = LH.bandParts(data.stripe.position, data.stripe.colours);
+  return m;
+}
+// the stripe a built label carries, whichever kind it is: { position, colours } or null
+function bandOf(d) {
+  if (d.hardware) return d.hardware.band ? { position: d.hardware.band, colours: d.hardware.colours } : null;
+  return d.stripe || null;
 }
 
 function getLabelData() {
@@ -1373,6 +1428,10 @@ function getLabelData() {
       if (row._badgeSvg) badge.svg = row._badgeSvg;
     }
     const d = prepareLabel(text, LabelIcons ? LabelIcons.resolveBadge(badge, getBadgeSize()) : badge, capsOn());
+    if (d && row._stripe && stripesOn()) {
+      const position = LS.positionFor('ordinary', hwBandSetting());
+      if (position) d.stripe = { position, colours: LH.colours(row._stripe) };
+    }
     if (d) out.push(d);
   });
   return out;
@@ -1889,8 +1948,9 @@ function filamentPlan(labels) {
   const textHex = (document.getElementById('color-text').value || '').toLowerCase();
   const used = new Map();
   for (const d of labels) {
-    if (!d.hardware || !d.hardware.band) continue;
-    for (const p of LH.bandParts(d.hardware.band, d.hardware.colours)) {
+    const bd = bandOf(d);          // a part label's band or a typed label's stripe: the same pieces, the same plan
+    if (!bd) continue;
+    for (const p of LH.bandParts(bd.position, bd.colours)) {
       if (!p.colour) continue;
       const u = used.get(p.colour.colour) || { hex: p.colour.hex, labels: new Set() };
       u.labels.add(p.colour.label);
@@ -1961,7 +2021,7 @@ async function doExport() {
   // the filaments, said with the save: which filament carries which band colour (and a warning past five)
   let fil = '', filBad = false;
   if (plan.banded) {
-    fil = fmt === 'stl' ? ' STL is one colour: the colour bands print in the base colour - use a 3MF for them.'
+    fil = fmt === 'stl' ? ' STL is one colour: the stripes print in the base colour - use a 3MF for them.'
       : ` Filaments: ${plan.slots.map(s => `${s.n} ${s.what.join(' + ')}`).join('; ')}.`;
     if (fmt !== 'stl' && plan.count > 5) {
       filBad = true;
@@ -2004,6 +2064,7 @@ function addLabelRow(value = '', badge = null, opts = {}) {
     `<input class="row-sel" type="checkbox" title="Select for bulk actions">` +
     `<span class="idx" title="Drag to reorder"></span>` +
     `<button class="badge-btn" title="Add icon or letter (optional)">+</button>` +
+    `<button class="stripe-btn" type="button" title="Add a stripe (optional)" aria-label="Stripe: none"><span class="sw"></span></button>` +
     `<input class="label-text" type="text" maxlength="48" placeholder="Label text">` +
     `<button class="remove" title="Remove">×</button>`;
   container.appendChild(row);
@@ -2038,6 +2099,11 @@ function addLabelRow(value = '', badge = null, opts = {}) {
     e.stopPropagation();
     openBadgePopover(row);
   });
+  row.querySelector('.stripe-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openStripeMenu(row, e.currentTarget);
+  });
   row.querySelector('.row-sel').addEventListener('change', updateBulkBar);
 
   // Drag-to-reorder via the index handle — pointer events work on mouse + touch
@@ -2045,6 +2111,7 @@ function addLabelRow(value = '', badge = null, opts = {}) {
 
   if (badge) applyBadge(row, badge);
   updateBadgeBtn(row);
+  updateStripeBtn(row);
   updateBulkBar();
   return input;
 }
@@ -2200,6 +2267,7 @@ function applyCapsToggle() {
 }
 
 function positionPopover(anchorEl, charPrefill) {
+  closeStripeMenu();
   const pop = document.getElementById('badge-popover');
   const charInput = document.getElementById('bp-char');
   charInput.value = charPrefill;
@@ -2231,6 +2299,140 @@ function closeBadgePopover() {
   document.getElementById('badge-popover').hidden = true;
   activeBadgeRow = null;
   bulkBadgeMode = false;
+}
+
+//============================================================
+// Stripes: the row's stripe button and the stripe menu (label-stripes.js has the rules, rowStripe() above the row's stripe)
+//============================================================
+let stripeRow = null, stripeBulk = false, stripeAnchor = null;
+const STRIPE_POSITION_NAMES = { bottom: 'Bottom edge', end: 'End stripe', wedge: '45° end', off: 'Off' };
+
+// a swatch: the band's colour, a part's material patch under it; dashed and empty when there is no stripe
+function stripeSwatch(el, cs) {
+  const b = cs && cs.band;
+  el.classList.toggle('on', !!b);
+  if (!b) { el.style.background = 'transparent'; return; }
+  const a = cs.band_accent;
+  el.style.background = a && a.hex.toLowerCase() !== b.hex.toLowerCase() ? `linear-gradient(to top, ${a.hex} 0 32%, ${b.hex} 32% 100%)` : b.hex;
+}
+function stripeWords(row) {
+  const cs = rowStripe(row), own = row._stripe !== undefined;
+  if (!cs || !cs.band) return row.dataset.hw && own ? 'none (the Part Picker colours are off for this part)' : row.dataset.hw && cs ? 'unassigned (prints in the base colour)' : 'none';
+  return LS.nameOf(cs) + (cs.band_accent ? ` with a ${cs.band_accent.label} patch` : '') + (row.dataset.hw && !own ? ', from the Part Picker' : '');
+}
+function updateStripeBtn(row) {
+  const btn = row.querySelector('.stripe-btn');
+  if (!btn) return;
+  btn.hidden = !LS || !LH;
+  if (btn.hidden) return;
+  stripeSwatch(btn.querySelector('.sw'), rowStripe(row));
+  const off = !stripesOn();
+  const words = stripeWords(row);
+  btn.disabled = off;
+  btn.title = off ? `${labelType.name} labels have no stripes yet` + (words !== 'none' ? `: this one (${words}) is kept for EdgeLabel.` : '.')
+    : words === 'none' ? 'Add a stripe (optional)' : `Stripe: ${words}. Click to change it.`;
+  btn.setAttribute('aria-label', 'Stripe: ' + words);
+}
+function updateStripeButtons() {
+  document.querySelectorAll('#labels .row').forEach(updateStripeBtn);
+  const bulk = document.getElementById('bulk-stripe');
+  if (bulk) { bulk.disabled = !stripesOn(); bulk.title = bulk.disabled ? `${labelType.name} labels have no stripes yet.` : 'Give the selected labels a coloured stripe, or none'; }
+  // the setting says what it does to the stripes there are
+  const note = document.getElementById('stripe-note');
+  if (note) {
+    const rows = [...document.querySelectorAll('#labels .row')];
+    const typed = rows.some(r => !r.dataset.hw && r._stripe);
+    const any = typed || rows.some(r => r.dataset.hw && (rowStripe(r) || {}).band);
+    const set = hwBandSetting();
+    const text = !stripesOn() || !any ? '' : set === 'off' ? 'Stripes are off: no label prints one until you pick a position.'
+      : typed && set !== 'end' ? `Typed labels take the end stripe: at the ${set === 'bottom' ? 'bottom edge' : '45° end'} their words could run onto it.` : '';
+    note.hidden = !text;
+    note.textContent = text;
+  }
+}
+// a row takes a stripe (cleaned): an ordinary row undefined (none) or an object; a part row also null (none, over the Part
+// Picker's colours). A part row is laid out again: its words make room for the stripe, or take the room back.
+function setRowStripe(row, cs) {
+  row._stripe = cs;
+  if (row.dataset.hw && font) layOutHardwareRow(row);
+  updateStripeBtn(row);
+}
+function openStripeMenu(row, anchor) { stripeRow = row; stripeBulk = false; showStripeMenu(anchor); }
+function closeStripeMenu(refocus) {
+  const pop = document.getElementById('stripe-popover');
+  if (!pop || pop.hidden) return;
+  pop.hidden = true;
+  const a = stripeAnchor;
+  stripeRow = null; stripeBulk = false; stripeAnchor = null;
+  if (refocus && a && a.isConnected) a.focus();
+}
+function showStripeMenu(anchor) {
+  closeBadgePopover();
+  stripeAnchor = anchor;
+  const pop = document.getElementById('stripe-popover'), list = document.getElementById('sp-list');
+  const rows = stripeBulk ? selectedRows() : [stripeRow];
+  const own = rows.filter(r => r.dataset.hw && r._hwItem && r._hwItem.colours && typeof r._hwItem.colours === 'object');
+  const cur = stripeBulk ? null : stripeRow._stripe === undefined ? (own.length ? 'picker' : 'none') : stripeRow._stripe === null ? 'none' : stripeRow._stripe.band.colour;
+  document.getElementById('sp-head').textContent = stripeBulk ? `Stripe · ${plural(rows.length, 'selected label', 'selected labels')}` : `Stripe · label ${stripeRow.querySelector('.idx').textContent}`;
+  list.innerHTML = '';
+  const opt = (id, name, cs, small) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sp-opt' + (cur === id ? ' on' : '');
+    b.dataset.stripe = id;
+    const sw = document.createElement('span');
+    sw.className = 'sw';
+    stripeSwatch(sw, cs);
+    b.appendChild(sw);
+    b.appendChild(document.createTextNode(name));
+    if (small) { const sm = document.createElement('small'); sm.textContent = small; b.appendChild(sm); }
+    b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); pickStripe(id); });
+    list.appendChild(b);
+  };
+  if (own.length) opt('picker', "Part Picker's colours", own.length === 1 ? LH.colours(own[0]._hwItem.colours) : null, stripeBulk ? 'part labels' : '');
+  opt('none', 'None', null);
+  LS.COLOURS.forEach(c => opt(c.colour, c.name, LS.stripe(c.colour), c.colour === 'sky-blue' ? 'blue' : c.colour === 'red' ? 'red' : ''));
+  const set = hwBandSetting();
+  document.getElementById('sp-note').textContent = set === 'off' ? 'Stripe position is Off: no stripe prints until you pick a position under Label Settings.'
+    : stripeBulk ? `Typed labels take the end stripe; part labels go where Stripe position says (${STRIPE_POSITION_NAMES[set]}).`
+    : stripeRow.dataset.hw ? `On this part label the stripe goes where Stripe position says (${STRIPE_POSITION_NAMES[set]}); its words make room.`
+    : 'Runs along the left end of the label, clear of its words.';
+  pop.hidden = false;
+  const r = anchor.getBoundingClientRect();
+  pop.style.top = Math.max(8, Math.min(window.innerHeight - pop.offsetHeight - 8, r.bottom + 6)) + 'px';
+  pop.style.left = Math.min(window.innerWidth - pop.offsetWidth - 8, Math.max(8, r.left)) + 'px';
+  (list.querySelector('.sp-opt.on') || list.querySelector('.sp-opt')).focus();
+}
+function pickStripe(id) {
+  const bulk = stripeBulk;
+  const rows = bulk ? selectedRows() : (stripeRow ? [stripeRow] : []);
+  for (const r of rows) {
+    const pickerOwn = !!(r.dataset.hw && r._hwItem && r._hwItem.colours && typeof r._hwItem.colours === 'object');
+    if (id === 'picker') { if (r.dataset.hw) setRowStripe(r, undefined); }      // typed labels are left as they are
+    else if (id === 'none') setRowStripe(r, pickerOwn ? null : undefined);
+    else setRowStripe(r, LS.stripe(id));
+  }
+  closeStripeMenu(true);
+  rebuild();
+  if (!rows.length) return;
+  const name = id === 'picker' ? "the Part Picker's colours" : id === 'none' ? 'no stripe' : LS.nameOf(LS.stripe(id));
+  setStatus(bulk ? `${plural(rows.length, 'selected label', 'selected labels')}: ${name}${id === 'picker' ? ' (part labels)' : ''}.`
+    : `Label ${rows[0].querySelector('.idx').textContent}: stripe ${stripeWords(rows[0])}.`, 'ok');
+}
+function setupStripeMenu() {
+  const pop = document.getElementById('stripe-popover');
+  pop.addEventListener('click', (e) => e.stopPropagation());
+  document.getElementById('sp-close').addEventListener('click', (e) => { e.preventDefault(); closeStripeMenu(true); });
+  document.addEventListener('click', () => closeStripeMenu());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) closeStripeMenu(true); });
+  document.getElementById('bulk-stripe').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selectedRows().length) { setStatus('Select some labels first.', 'err'); return; }
+    if (!stripesOn()) { setStatus(`${labelType.name} labels have no stripes yet.`, 'err'); return; }
+    stripeRow = null; stripeBulk = true;
+    showStripeMenu(e.currentTarget);
+  });
 }
 
 // ---- the icon menu (label-icons.js groups) ----
@@ -2582,10 +2784,8 @@ function setupBulkControls() {
   // Predicted-icon toggle
   document.getElementById('predict-icons').addEventListener('change', applyPredictToggle);
   const relayHardware = () => {
-    if (!font) return;
-    const rows = document.querySelectorAll('#labels .row.hw');
-    rows.forEach(layOutHardwareRow);
-    if (rows.length) rebuild();
+    if (font) document.querySelectorAll('#labels .row.hw').forEach(layOutHardwareRow);
+    rebuild();   // typed labels' stripes follow the setting too (End, or Off)
   };
   document.getElementById('hw-band').addEventListener('change', relayHardware);
   document.getElementById('hw-profile').addEventListener('change', () => {
@@ -2673,6 +2873,7 @@ function captureLabels(linked) {
     const held = parseHeld(row);
     const o = { text: input ? input.value : '', badge: held || badge, manual: row.dataset.badgeManual === '1' };
     if (row.dataset.hw && row._hwItem) o.hw = row._hwItem;
+    if (row._stripe !== undefined) o.colours = row._stripe;   // the label's stripe (label-stripes.js); null = a part told "none"
     if (linked && row.dataset.unit) { o.u = Number(row.dataset.unit); o.n = Number(row.dataset.unitN) || null; }
     if (linked && held) o.held = true;
     if (linked && row.dataset.unit && parseKeep(row)) { o.keep = parseKeep(row); if (row.dataset.badgeUpHeld) o.upHeld = row.dataset.badgeUpHeld === 'missing' ? 'missing' : true; }
@@ -2766,10 +2967,14 @@ function updateTypeUI() {
     const rows = [...document.querySelectorAll('#labels .row[data-hw]')];
     const n = labelType.hardware ? 0 : rows.length;
     const k = labelType.hardware ? rows.filter(r => hwTypeSkips(r._hwItem).length).length : 0;
-    note.hidden = !n && !k;
-    note.textContent = n ? `${n} part label${n === 1 ? ' is' : 's are'} EdgeLabel-only for now: kept here, not printed on ${labelType.name}. Switch back to EdgeLabel to print ${n === 1 ? 'it' : 'them'}.`
-      : k ? `${k} part label${k === 1 ? ' has a drawing or colour band' : 's have drawings or colour bands'}: ${labelType.name} prints the words and the family icon, and the rest stays saved for EdgeLabel.` : '';
+    // typed labels with a stripe: Classic Pro has no stripes yet (label-stripes.js); kept for EdgeLabel
+    const st = labelType.id !== 'edgelabel' ? [...document.querySelectorAll('#labels .row:not([data-hw])')].filter(r => r._stripe).length : 0;
+    note.hidden = !n && !k && !st;
+    note.textContent = (n ? `${n} part label${n === 1 ? ' is' : 's are'} EdgeLabel-only for now: kept here, not printed on ${labelType.name}. Switch back to EdgeLabel to print ${n === 1 ? 'it' : 'them'}.`
+      : k ? `${k} part label${k === 1 ? ' has a drawing or colour band' : 's have drawings or colour bands'}: ${labelType.name} prints the words and the family icon, and the rest stays saved for EdgeLabel.` : '') +
+      (st ? `${n || k ? ' ' : ''}${st} label${st === 1 ? ' has a stripe' : 's have stripes'}: ${labelType.name} labels have no stripes yet, so ${st === 1 ? 'it is' : 'they are'} kept for EdgeLabel.` : '');
   }
+  updateStripeButtons();
 }
 
 function applyLabels(labels) {
@@ -2780,12 +2985,20 @@ function applyLabels(labels) {
 // one saved label (captureLabels' form) as a row at the end of the list; returns the row
 function addSavedLabel(l) {
   const hwItem = l.hw && hardwareItems(l.hw);
-  if (hwItem) return addHardwareRow(hwItem[0]);
+  if (hwItem) return restoreStripe(addHardwareRow(hwItem[0]), l);
   const b = l.badge;
   const badge = (b && b.type && b.type !== 'none') ? b : null;
   const row = addLabelRow(l.text || '', badge).closest('.row');
   if (l.manual) row.dataset.badgeManual = '1';
   else if (isPredictedBadge(badge)) autoAssignIcon(row);
+  return restoreStripe(row, l);
+}
+// a saved label's stripe back on its row (cleaned: it can come from a file); returns the row
+function restoreStripe(row, l) {
+  if (l && LS && 'colours' in l) {
+    const cs = LS.clean(l.colours, { allowNone: !!row.dataset.hw });
+    if (cs !== undefined) setRowStripe(row, cs);
+  }
   return row;
 }
 // A badge the guess put there (not picked, not uploaded) - or none - is guessed again from the words when a set is restored,
@@ -3178,9 +3391,17 @@ const PLANNER_LINK_MAX = 1800000;
 function plannerLabelList() {
   const labels = []; let notReady = 0;
   document.querySelectorAll('#labels .row').forEach(row => {
+    // a label's stripe goes with it (label-stripes.js: `colours`, the shape a part item's colours have; null = a part told
+    // "none"), and `bandPosition` says where it printed here (a typed label: always 'end'), so the 3D Build Studio can match
+    const stripe = (l) => {
+      if (row._stripe !== undefined) l.colours = row._stripe;
+      const pos = !stripesOn() ? null : row.dataset.hw ? (row._hw && row._hw.band) || null : row._stripe ? LS.positionFor('ordinary', hwBandSetting()) : null;
+      if (pos) l.bandPosition = pos;
+      return l;
+    };
     if (row.dataset.hw) {
       if (!row._hw || !row._hw.elements) { notReady++; return; }
-      labels.push({ text: hardwareRowText(row._hwItem, row._hw.record).slice(0, 200), hardware: row._hwItem });
+      labels.push(stripe({ text: hardwareRowText(row._hwItem, row._hw.record).slice(0, 200), hardware: row._hwItem }));
       return;
     }
     const text = (row.querySelector('input.label-text').value || '').trim().slice(0, 200);
@@ -3192,7 +3413,7 @@ function plannerLabelList() {
       else badge = { type: 'none' };
     }
     if (!text && !(badge && badge.type !== 'none')) return;   // an empty row is not a label
-    labels.push(badge ? { text, badge } : { text });
+    labels.push(stripe(badge ? { text, badge } : { text }));
   });
   return { labels, notReady };
 }
@@ -3254,6 +3475,13 @@ function renderLinkBar() {
   const held = allSnaps().filter(x => x.held).length;
   if (held) sub.push(`${plural(held, 'drawer has', 'drawers have')} an icon from the planner that this generator can't show. ${held === 1 ? 'It prints' : 'They print'} without an icon here and ${held === 1 ? 'stays' : 'stay'} unchanged in the planner until you pick another.`);
   gid('lb-sub').textContent = sub.join(' ');
+  // Send to planner carries words and icons (label-link.js); a stripe stays in this tab in this version - said, not dropped quietly
+  const striped = linkRows().filter(r => r.dataset.hw ? r._stripe !== undefined : r._stripe).length;
+  const sn = gid('lb-stripe-note');
+  if (sn) {
+    sn.hidden = !striped;
+    sn.textContent = striped ? `${plural(striped, 'label has a stripe', 'labels have stripes')} set here: Send to planner does not carry stripes yet, so ${striped === 1 ? 'it stays' : 'they stay'} in this tab.` : '';
+  }
   btn.retry.hidden = s !== 'no-planner';
   btn.send.disabled = s !== 'linked' || pendingActive();
 }
@@ -3422,6 +3650,7 @@ function plainRowFromHardware(row) {
   delete row.dataset.hw; delete row.dataset.hwJob;
   row.classList.remove('hw');
   row._hwItem = null; row._hw = null; row._hwBy = null;
+  if (row._stripe === null) row._stripe = undefined;
   const note = row.querySelector('.hw-note'); if (note) note.remove();
   const input = row.querySelector('input.label-text');
   input.readOnly = false; input.title = '';
@@ -3516,6 +3745,7 @@ function addExtraRow(l) {
   const badge = (b && b.type && b.type !== 'none') ? b : null;
   const row = addLabelRow(l.text || '', badge).closest('.row');
   if (l.manual) row.dataset.badgeManual = '1'; else if (isPredictedBadge(badge)) autoAssignIcon(row);
+  restoreStripe(row, l);
 }
 function applyLinkedLabels(labels, textMax) {
   clearLabelRows();
@@ -3523,7 +3753,7 @@ function applyLinkedLabels(labels, textMax) {
     const hwItem = l.hw ? hardwareItems(l.hw) : null;
     if (hwItem) {   // a planner hardware row comes back linked with the job's words and badge; an extra one as a plain hardware row
       const linked = l.u !== undefined && l.u !== null && l.hwJob && typeof l.hwJob.t === 'string';
-      addHardwareRow(hwItem[0], linked ? { u: l.u, n: l.n, textMax, t: l.hwJob.t, b: l.hwJob.b } : undefined);
+      restoreStripe(addHardwareRow(hwItem[0], linked ? { u: l.u, n: l.n, textMax, t: l.hwJob.t, b: l.hwJob.b } : undefined), l);
       return;
     }
     const b = l.badge;
@@ -3538,6 +3768,7 @@ function applyLinkedLabels(labels, textMax) {
       setKept(row, kb, nowHere || (!l.upHeld && badge ? badge : null), l.upHeld === 'missing' ? 'missing' : 'big');
     }
     else if (!l.manual && isPredictedBadge(badge)) autoAssignIcon(row);
+    restoreStripe(row, l);
   });
 }
 // Restore a linked session completely (section 7.1 step 3): ALL settings first, then rows (tags, held badges, extras), the
@@ -3843,6 +4074,7 @@ function setupUI() {
   updatePurgeRow();
 
   setupBadgePicker();
+  setupStripeMenu();
   setupProjectControls();
   setupBulkControls();
 
