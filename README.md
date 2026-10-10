@@ -1,6 +1,6 @@
-# GEN2 EdgeLabel Label Generator · Jerrari3D
+# MODULITH Label Studio
 
-A browser-based tool for creating custom **EdgeLabel** faceplate labels for the GEN2 Modular Storage System. No install, no account — open `index.html` and go.
+A browser-based tool for creating custom drawer labels - **EdgeLabel** and **Classic Pro** - for the MODULITH storage system. No install, no account — open `index.html` and go.
 
 ---
 
@@ -28,7 +28,7 @@ Your work is **auto-saved in the browser**, so it's still there when you come ba
 
 ---
 
-## Linked from the GEN2 Planner
+## Linked from the MODULITH Planner
 
 Open this page from the Planner's **Design your EdgeLabel labels** button and it is *linked* to your build: each row is tagged with its
 Planner drawer (`#1`, `#2`...), and **Send to planner** sends your edits (words, icons, the label settings) back. Nothing changes in
@@ -55,20 +55,20 @@ No server needed, and no internet connection required. Download the repo (or clo
 
 **Startup fails safe.** `init()` builds the label form *before* initialising three.js, then verifies each library actually loaded and names any that didn't. A missing library or a WebGL failure now leaves a working form with a clear message instead of a dead page; the Download button stays disabled because nothing can be exported without three.js.
 
-**The label itself lives in `label-core.js`.** Everything that decides what ONE label looks like - its dimensions and text area, the word wrap against the slanted edge, the auto-shrink to the 3 mm floor, the left badge and the room it takes, the icon library and the icon prediction - is in that one file; `index.html` keeps the page, the form and the printer layout. The GEN2 3D Build Studio vendors `label-core.js` byte-for-byte (and pins its hash), so a drawer label previewed there is the label printed here. Change the label here, then copy the file to the viewer. The split was checked by building 135 labels, 23 icons and a full STL plate before and after it: byte-identical.
+**The label itself lives in `label-core.js`.** Everything that decides what ONE label looks like - its dimensions and text area, the word wrap against the slanted edge, the auto-shrink to the 3 mm floor, the left badge and the room it takes, the icon library and the icon prediction - is in that one file; `index.html` keeps the page, the form and the printer layout. The MODULITH 3D Build Studio vendors `label-core.js` byte-for-byte (and pins its hash), so a drawer label previewed there is the label printed here. Change the label here, then copy the file to the viewer. The split was checked by building 135 labels, 23 icons and a full STL plate before and after it: byte-identical.
 
 **Build-plate fields fit four digits.** They were previously narrow enough to clip a three-digit value, so a 250 mm plate showed as "25" — easily misread as centimetres. This affected every printer preset at or above 100 mm.
 
 **The embedded font is Liberation Sans Narrow Bold 1.07.4** (© 2010 Oracle and/or its affiliates), stored as base64 in `<script id="font-data" type="text/plain">` so the page needs no font request. It is under the [Liberation Fonts license](https://fedoraproject.org/wiki/Licensing/LiberationFontLicense) (GPLv2 with the font exception), not the SIL OFL an older comment claimed, and not this repository's MIT license, which covers the code only. The `type` keeps the browser from trying to run the blob as JavaScript (it used to log a harmless `SyntaxError` on every load).
 
-**A Planner hand-off keeps your previous set.** Opening the generator from the GEN2 Planner (`#labels=…`) used to replace the autosaved session outright. Now the set it replaces is kept as the previous set (**Save / Load › Previous set** swaps it with the current one, and again to swap back), your printer, sizes and colours carry over because the Planner sends label words only, and the `#labels=` hash is cleared so a reload restores your session instead of importing over it again. Only one previous set is kept - the next Planner import replaces it - so use **Export** to keep a set for good.
+**A Planner hand-off keeps your previous set.** Opening the Label Studio from the MODULITH Planner (`#labels=…`) used to replace the autosaved session outright. Now the set it replaces is kept as the previous set (**Save / Load › Previous set** swaps it with the current one, and again to swap back), your printer, sizes and colours carry over because the Planner sends label words only, and the `#labels=` hash is cleared so a reload restores your session instead of importing over it again. Only one previous set is kept - the next Planner import replaces it - so use **Export** to keep a set for good.
 
 ---
 
-Part of the [GEN2 Modular Storage System](https://jerrari3d.com) by Jerrari3D.
+Part of the [MODULITH](https://modulith.systems) storage system.
 
-## More from Jerrari3D
+## More from MODULITH
 
-- 🌐 [jerrari3d.com](https://jerrari3d.com)
+- 🌐 [modulith.systems](https://modulith.systems)
 - 🟧 [Printables](https://www.printables.com/@Jerrari)
 - 📦 [Thangs](https://thangs.com/designer/Jerrari)

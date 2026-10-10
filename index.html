@@ -1596,7 +1596,7 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06">` +
     `<metadata name="Application">${labelType.app}</metadata>` +
-    `<metadata name="Designer">Jerrari3D</metadata>` +
+    `<metadata name="Designer">MODULITH</metadata>` +
     `<metadata name="CreationDate">${new Date().toISOString().slice(0,10)}</metadata>` +
     `<resources>${resources}</resources><build>${builds.join('')}</build></model>`;
   const contentTypes =
@@ -1685,7 +1685,7 @@ async function buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">` +
     `<metadata name="Application">${labelType.app} (PrusaSlicer 3MF)</metadata>` +
-    `<metadata name="Designer">Jerrari3D</metadata>` +
+    `<metadata name="Designer">MODULITH</metadata>` +
     `<metadata name="CreationDate">${new Date().toISOString().slice(0,10)}</metadata>` +
     `<resources>${resources}</resources><build>${builds}</build></model>`;
   const contentTypes =
