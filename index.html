@@ -43,8 +43,24 @@
   /* nothing in the sidebar shrinks: it scrolls instead (#status has a min-height, which let it shrink below its own text
      and spill over the footer once the masthead took 48 px off the sidebar) */
   #sidebar > * { flex-shrink: 0; }
-  #preview { flex: 1; position: relative; background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%); }
-  #preview canvas { display: block; }
+  /* min-width 0 + overflow hidden: the preview shrinks with the window (a flex item will not shrink below its content - the
+     canvas's own pixel width - by default, so narrowing the window cut the plate off); a ResizeObserver resizes the canvas */
+  #preview { flex: 1; min-width: 0; overflow: hidden; position: relative; background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%); }
+  #preview canvas { display: block; touch-action: none; }   /* a pinch on the 3D view is the view's; elsewhere it zooms the page */
+  /* captions in the preview: an empty plate, and the square kept free for the wipe tower (placed on it every frame) */
+  .plate-empty { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: min(340px, 80%); text-align: center; pointer-events: none;
+    padding: 10px 14px; border-radius: 8px; background: rgba(20, 21, 23, 0.72); border: 1px solid var(--border); color: var(--text); font-size: 13px; line-height: 1.45; }
+  .plate-empty small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .plate-empty[hidden], .purge-tag[hidden] { display: none; }
+  .purge-tag { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap; font-size: 11px; font-weight: 600;
+    color: #ffb48a; background: rgba(20, 21, 23, 0.78); border: 1px solid rgba(255, 106, 26, 0.55); border-radius: 5px; padding: 2px 7px; }
+  /* the bar pinned to the bottom of the sidebar: the status line, "5 labels · 1 plate" and Download (on a phone, fixed to the
+     bottom of the screen) */
+  .dock { position: sticky; bottom: -20px; z-index: 5; margin: 14px -20px 0; padding: 10px 20px 14px; background: var(--panel);
+    border-top: 1px solid var(--border); box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.28); }
+  .dock-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .dock-count { flex: 0 1 auto; min-width: 0; font-size: 12px; color: var(--muted); line-height: 1.3; }
+  .dock-row button.primary { flex: 1 0 auto; width: auto; margin-top: 0; padding: 11px 14px; }
   .type-row select { min-width: 9em; }
   .type-note { margin: 6px 0 4px; padding: 8px 10px; border-radius: 6px; font-size: 12px; line-height: 1.4;
     background: rgba(255, 106, 26, 0.12); border: 1px solid rgba(255, 106, 26, 0.45); }
@@ -105,6 +121,15 @@
   .setting input[type="number"], .setting select { padding: 6px 8px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
   .setting input[type="number"] { width: 64px; text-align: right; }
   .setting select { width: 140px; }
+  /* a long choice gets the full width, its name above it (as the Planner lays out its printer picker) */
+  .setting.stack { flex-direction: column; align-items: stretch; gap: 5px; }
+  .setting.stack > span:first-child { font-size: 12px; color: var(--muted); }
+  .setting.stack select { width: 100%; min-width: 0; }
+  .printer-pick { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .printer-pick select { flex: 1 1 auto; }
+  .printer-icon { flex: none; width: 24px; height: 24px; color: var(--muted); display: inline-flex; }
+  .printer-icon svg { width: 100%; height: 100%; }
+  .printer-icon .pi-print { fill: var(--accent); }
   .csv-zone { display: flex; align-items: center; justify-content: center; border: 1px dashed var(--border); padding: 0 10px; border-radius: 5px; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .csv-zone:hover, .csv-zone:focus-visible { border-color: var(--accent-dim); color: var(--accent); outline: none; }
   .csv-zone.drag-over { border-color: var(--accent); background: rgba(238, 122, 48, 0.06); }
@@ -172,7 +197,7 @@
   button.btn-sm:hover { border-color: var(--accent-dim); color: var(--accent); }
   button.btn-sm:active { transform: translateY(1px); background: var(--border); }
   #proj-import { display: none; }
-  #status { padding: 8px 10px; background: var(--panel-2); border-radius: 5px; font-size: 11px; color: var(--muted); margin-top: 10px; min-height: 14px; line-height: 1.4; }
+  #status { font-size: 12px; color: var(--muted); min-height: 1.4em; line-height: 1.4; max-height: 7.2em; overflow-y: auto; }
   #status.ok { color: var(--info); }
   #status.err { color: var(--danger); }
   .footer { margin-top: auto; padding-top: 16px; color: var(--muted); font-size: 10px; text-align: center; }
@@ -244,6 +269,10 @@
     .overlay { font-size: 10px; padding: 6px 9px; }
     .brand { font-size: 9px; bottom: 8px; right: 10px; }
     .footer { padding-top: 12px; }
+    /* the bar is fixed to the bottom of the screen; the sidebar keeps room for it under its last line (--dock-h, measured) */
+    .dock { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; z-index: 20; padding: 8px 16px calc(10px + env(safe-area-inset-bottom)); }
+    #sidebar { padding-bottom: calc(var(--dock-h, 120px) + 16px); }
+    .plate-empty { font-size: 12px; }
   }
 
   /* === Very narrow (≤ 380px) === */
@@ -583,9 +612,19 @@
     <div class="setting-note" id="stripe-note" hidden></div>
 
     <h2>Build Plate</h2>
-    <div class="setting">
-      <span>Printer</span>
-      <select id="bed-preset">
+    <div class="setting stack">
+      <span id="bed-preset-name">Printer</span>
+      <span class="printer-pick">
+      <span class="printer-icon" aria-hidden="true">
+        <svg viewBox="0 0 28 28" fill="none">
+          <rect x="4" y="3.5" width="20" height="21" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+          <line x1="4" y1="10" x2="24" y2="10" stroke="currentColor" stroke-width="1.7"/>
+          <rect x="12.4" y="10" width="3.2" height="3.4" rx="0.6" fill="currentColor"/>
+          <line x1="8.5" y1="20" x2="19.5" y2="20" stroke="currentColor" stroke-width="1.7"/>
+          <rect class="pi-print" x="11.4" y="15.8" width="5.2" height="4.2" rx="0.6"/>
+        </svg>
+      </span>
+      <select id="bed-preset" aria-labelledby="bed-preset-name">
         <option value="250x220">Prusa Core One (250×220)</option>
         <option value="300x300">Prusa Core One L (300×300)</option>
         <option value="250x210">Prusa MK4 / MK3.9 (250×210)</option>
@@ -601,14 +640,15 @@
         <option value="350x350">Voron 2.4 / Trident (350×350)</option>
         <option value="custom">Custom…</option>
       </select>
+      </span>
     </div>
     <div class="setting">
       <span>Plate W × L (mm)</span>
       <span><input type="number" id="bed-w" value="250" min="20" max="1000" step="1" style="width:68px"> × <input type="number" id="bed-l" value="220" min="20" max="1000" step="1" style="width:68px"></span>
     </div>
-    <div class="setting">
-      <span>Export format</span>
-      <select id="export-format">
+    <div class="setting stack">
+      <span id="export-format-name">Export format</span>
+      <select id="export-format" aria-labelledby="export-format-name">
         <option value="3mf-prusa" selected>3MF · multi-color · PrusaSlicer</option>
         <option value="3mf-bambu">3MF · multi-color · Bambu Studio / OrcaSlicer</option>
         <option value="stl">STL · single color</option>
@@ -637,8 +677,14 @@
       </label>
     </div>
 
-    <button class="primary" id="download" disabled>Download .3mf</button>
-    <div id="status">Loading…</div>
+    <!-- pinned to the bottom of the sidebar (on a phone, of the screen): what happened, how many labels, and Download -->
+    <div class="dock" id="dock">
+      <div id="status" role="status" aria-live="polite">Loading…</div>
+      <div class="dock-row">
+        <span class="dock-count" id="dock-count">0 labels</span>
+        <button class="primary" id="download" disabled>Download .3mf</button>
+      </div>
+    </div>
 
     <div class="footer">
       MODULITH Label Studio · for MODULITH (formerly GEN2) drawers<br>
@@ -652,6 +698,8 @@
       <span id="label-count">0 labels</span><span class="hint-desktop"> · Scroll to zoom · Drag to rotate</span><span class="hint-mobile"> · Pinch / drag to navigate</span>
     </div>
     <span class="brand" id="type-version">MODULITH LABEL STUDIO · EdgeLabel v1.02</span>
+    <div class="plate-empty" id="plate-empty" hidden>Your labels appear here as you type them.<small>One label per row in the list; the plate is your printer's.</small></div>
+    <div class="purge-tag" id="purge-tag" hidden>Kept free for the wipe tower</div>
   </div>
 </div>
 
@@ -927,7 +975,8 @@ function init() {
   // no inputs at all, and the status stuck on "Loading..." forever (the Firefox
   // report, 2026-07-24; reproduced exactly by making the scripts unreachable).
   setupUI();
-  const missing = ['THREE', 'opentype', 'JSZip', 'GEN2EdgeLabelCore'].filter(n => typeof window[n] === 'undefined');
+  watchDock();
+  const missing =['THREE', 'opentype', 'JSZip', 'GEN2EdgeLabelCore'].filter(n => typeof window[n] === 'undefined');
   if (missing.length) {
     setStatus('Could not load ' + missing.join(', ') + '. Try a reload; if it keeps happening, an extension or network filter is blocking the page scripts.', 'err');
     return; // download stays disabled - nothing can be built without them
@@ -953,6 +1002,13 @@ function init() {
   }).catch(err => {
     setStatus('Font load failed: ' + err.message, 'err');
   });
+}
+
+// On a phone the bottom bar is fixed over the page: the sidebar keeps its height free under its last line (--dock-h)
+function watchDock() {
+  const d = document.getElementById('dock');
+  if (!d || typeof ResizeObserver === 'undefined') return;
+  new ResizeObserver(() => document.documentElement.style.setProperty('--dock-h', Math.ceil(d.getBoundingClientRect().height) + 'px')).observe(d);
 }
 
 function setupThree() {
@@ -991,21 +1047,54 @@ function setupThree() {
   textMaterial.color.set(document.getElementById('color-text').value);
 
   window.addEventListener('resize', onResize);
+  // the preview's own size, not only the window's: it changes when the sidebar or the window does (UI/UX review B4)
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(onResize).observe(container);
   animate();
 }
 
+let previewWidth = 0;
 function onResize() {
   const container = document.getElementById('preview');
   const w = container.clientWidth, h = container.clientHeight;
+  if (!w || !h) return;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  // a new width refits the plates (a height-only change - a phone's address bar coming and going - leaves your view alone)
+  if (w !== previewWidth) { previewWidth = w; fitCamera(); }
+}
+// The camera on the plates: the distance that always framed them on a wide preview, or more when a narrow preview needs it
+// to show the plates' whole width. rebuild() sets what to fit (rebuild._fit).
+function fitCamera() {
+  const f = rebuild._fit;
+  if (!f || !camera) return;
+  const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const dist = Math.max(f.span * 1.75 + 50, (f.w / 2) * 1.12 / (t * Math.max(0.1, camera.aspect)));
+  camera.position.set(0, -dist * 0.28, dist * 0.95);
+  controls.maxDistance = Math.max(500, dist * 1.5);
+  controls.setTarget(new THREE.Vector3(0, 0, 0));
+}
+
+// the caption on the wipe-tower square: placed on the first plate's square every frame (purgeAnchor, set by rebuild())
+let purgeAnchor = null;
+let purgeV = null;
+function placePurgeTag() {
+  const tag = document.getElementById('purge-tag');
+  if (!tag) return;
+  if (!purgeAnchor) { tag.hidden = true; return; }
+  purgeV = (purgeV || new THREE.Vector3()).copy(purgeAnchor).project(camera);
+  const c = renderer.domElement, w = c.clientWidth, h = c.clientHeight;
+  const x = (purgeV.x + 1) / 2 * w, y = (1 - purgeV.y) / 2 * h;
+  const on = purgeV.z < 1 && x > 60 && x < w - 60 && y > 40 && y < h - 20;
+  tag.hidden = !on;
+  if (on) tag.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -50%)`;
 }
 
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
+  placePurgeTag();
 }
 
 //============================================================
@@ -1528,7 +1617,7 @@ function updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge) {
       const bcx = cx + hw - pw / 2, bcy = hl - pl / 2;
       const pb = new THREE.Mesh(
         new THREE.PlaneGeometry(pw, pl),
-        new THREE.MeshBasicMaterial({ color: 0xee7a30, transparent: true, opacity: 0.18 })
+        new THREE.MeshBasicMaterial({ color: 0xff6a1a, transparent: true, opacity: 0.18 })
       );
       pb.position.set(bcx, bcy, 0.01);
       bedOutline.add(pb);
@@ -1536,7 +1625,7 @@ function updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge) {
       const pp = [px0,py0,0, px1,py0,0, px1,py1,0, px0,py1,0, px0,py0,0];
       const pg = new THREE.BufferGeometry();
       pg.setAttribute('position', new THREE.Float32BufferAttribute(pp, 3));
-      bedOutline.add(new THREE.Line(pg, new THREE.LineBasicMaterial({ color: 0xee7a30 })));
+      bedOutline.add(new THREE.Line(pg, new THREE.LineBasicMaterial({ color: 0xff6a1a })));
     }
   }
   bedOutline.position.z = -0.02;
@@ -1612,6 +1701,9 @@ function rebuild() {
 
   const plateTxt = nPlates > 1 ? ` · ${nPlates} plates` : '';
   document.getElementById('label-count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'}${plateTxt}`;
+  document.getElementById('dock-count').textContent = labels.length ? `${plural(labels.length, 'label', 'labels')} · ${plural(nPlates, 'plate', 'plates')}` : 'No labels yet';
+  document.getElementById('plate-empty').hidden = labels.length > 0;
+  purgeAnchor = purge ? new THREE.Vector3(-platesW / 2 + bedW - purge.w / 2, bedL / 2 - purge.l / 2, 0) : null;
 
   const hwSkipped = hardwareNotPrinted();
   const waiting = iconWaitRows();
@@ -1626,11 +1718,10 @@ function rebuild() {
   }
 
   const span = Math.max(platesW, bedL);
-  if (rebuild._span !== span) {
-    rebuild._span = span;
-    const dist = span * 1.75 + 50;
-    camera.position.set(0, -dist * 0.28, dist * 0.95);
-    controls.setTarget(new THREE.Vector3(0, 0, 0));
+  if (rebuild._span !== span + '|' + platesW) {
+    rebuild._span = span + '|' + platesW;
+    rebuild._fit = { span, w: platesW };
+    fitCamera();
   }
 
   scheduleSave();   // the ordinary autosave - or, while linked, the linked session (never the ordinary one)
