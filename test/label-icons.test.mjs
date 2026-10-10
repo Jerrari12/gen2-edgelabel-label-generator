@@ -291,7 +291,7 @@ test('search finds icons by name, group and the words that predict them', () => 
 });
 
 test('the page builds every label through LabelIcons.resolveBadge, guesses with LabelIcons and offers its icons to planner jobs', () => {
-  assert.match(HTML, /<script src="label-icon-art.js"><\/script>\n<script src="label-icons.js"><\/script>/);
+  assert.match(HTML, /<script src="label-icon-art\.js(\?v=[0-9a-f]{8})?"><\/script>\r?\n<script src="label-icons\.js(\?v=[0-9a-f]{8})?"><\/script>/);
   assert.match(HTML, /prepareLabel\(text, LabelIcons \? LabelIcons\.resolveBadge\(badge, getBadgeSize\(\)\) : badge, capsOn\(\)\)/);
   assert.equal((HTML.match(/prepareLabel\(/g) || []).length, 1, 'one label build path in the page');
   assert.match(HTML, /const guessIconId = \(text\) => \(LabelIcons \? LabelIcons\.guessIconId\(text\) : null\);/);
