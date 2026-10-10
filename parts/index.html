@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1D1E20">
+<title>Part Picker · MODULITH</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="css/picker.css">
+<script>
+  // Opened inside the Label Studio (?embed=1 in a frame): hide this page's own header before the first paint. js/ui.js
+  // then decides for certain (same-origin parent) and shows the header again when the page is not really embedded.
+  if (/[?&]embed=1(&|$)/.test(location.search) && window.parent !== window) document.documentElement.classList.add('embed-pending');
+</script>
+</head>
+<body>
+<header class="top">
+  <span class="brand">PART PICKER</span>
+  <span class="brand-sub">metric + inch hardware · pick your parts, then make their labels</span>
+  <span class="spacer"></span>
+  <div id="header-extra"></div>
+</header>
+<div class="layout">
+  <main id="builder" aria-label="Build a part"></main>
+  <aside id="side" aria-label="Part summary and list"></aside>
+</div>
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+{
+ "schema": "part-picker-overlay/1",
+ "applied": true,
+ "wording": "Corrections applied on top of bd_warehouse at build time. The wheel data is never edited; each correction records the decision, the sources and the ORIGINAL value.",
+ "corrections": [
+  {
+   "id": "ov-iso1580-68",
+   "kind": "list",
+   "list": "iso1580",
+   "original": [
+    68
+   ],
+   "corrected": [
+    6,
+    8
+   ],
+   "status": "verified",
+   "sources": [
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com",
+    "https://cdn.standards.iteh.ai"
+   ],
+   "decision": "The '68' is 6 and 8 run together. The ISO 1580 list is 2, 2.5, 3, 4, 5, 6, 8, 10, 12, (14), 16, 20, 25 ... 80. Replace with 6, 8; report upstream.",
+   "resolves": [
+    [
+     "iso1580",
+     "out-of-order-outlier"
+    ],
+    [
+     "iso1580:M5-0.8",
+     "bound-not-in-list"
+    ],
+    [
+     "iso1580:M6-1",
+     "bound-not-in-list"
+    ]
+   ]
+  },
+  {
+   "id": "ov-iso4762-M20-long",
+   "kind": "size",
+   "std": "iso4762",
+   "diameter": 20,
+   "field": "long",
+   "original": 100,
+   "corrected": 200,
+   "status": "verified",
+   "sources": [
+    "https://fasteners.eu/standards",
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart"
+   ],
+   "decision": "Two sources give M20 a maximum of 200 against M16's 160. Max VERIFIED.",
+   "resolves": [
+    [
+     "iso4762:M20-2.5",
+     "range-long-shrinks"
+    ]
+   ],
+   "standard": "iso4762",
+   "size": "M20-2.5"
+  },
+  {
+   "id": "ov-iso4762-M20-short",
+   "kind": "size",
+   "std": "iso4762",
+   "diameter": 20,
+   "field": "short",
+   "original": 16,
+   "corrected": 30,
+   "status": "single",
+   "sources": [
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart"
+   ],
+   "decision": "Minimum 30 from ONE source (marked single); bd_warehouse's 16 is narrower than M16's 25.",
+   "resolves": [
+    [
+     "iso4762:M20-2.5",
+     "range-short-shrinks"
+    ]
+   ],
+   "standard": "iso4762",
+   "size": "M20-2.5"
+  },
+  {
+   "id": "ov-iso7089-M3-h",
+   "kind": "size",
+   "standard": "iso7089",
+   "size": "M3",
+   "field": "dims.h",
+   "original": 0.55,
+   "corrected": 0.5,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7089-M4-h",
+   "kind": "size",
+   "standard": "iso7089",
+   "size": "M4",
+   "field": "dims.h",
+   "original": 0.9,
+   "corrected": 0.8,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7089-M5-h",
+   "kind": "size",
+   "standard": "iso7089",
+   "size": "M5",
+   "field": "dims.h",
+   "original": 1.1,
+   "corrected": 1,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7089-M6-h",
+   "kind": "size",
+   "standard": "iso7089",
+   "size": "M6",
+   "field": "dims.h",
+   "original": 1.8,
+   "corrected": 1.6,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7089-M8-h",
+   "kind": "size",
+   "standard": "iso7089",
+   "size": "M8",
+   "field": "dims.h",
+   "original": 1.8,
+   "corrected": 1.6,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7089-M10-h",
+   "kind": "size",
+   "standard": "iso7089",
+   "size": "M10",
+   "field": "dims.h",
+   "original": 2.2,
+   "corrected": 2,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7089-M12-h",
+   "kind": "size",
+   "standard": "iso7089",
+   "size": "M12",
+   "field": "dims.h",
+   "original": 2.7,
+   "corrected": 2.5,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7093-M3-h",
+   "kind": "size",
+   "standard": "iso7093",
+   "size": "M3",
+   "field": "dims.h",
+   "original": 0.9,
+   "corrected": 0.8,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7093-M4-h",
+   "kind": "size",
+   "standard": "iso7093",
+   "size": "M4",
+   "field": "dims.h",
+   "original": 1.1,
+   "corrected": 1,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7093-M5-h",
+   "kind": "size",
+   "standard": "iso7093",
+   "size": "M5",
+   "field": "dims.h",
+   "original": 1.4,
+   "corrected": 1,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7093-M6-h",
+   "kind": "size",
+   "standard": "iso7093",
+   "size": "M6",
+   "field": "dims.h",
+   "original": 1.8,
+   "corrected": 1.6,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7093-M8-h",
+   "kind": "size",
+   "standard": "iso7093",
+   "size": "M8",
+   "field": "dims.h",
+   "original": 2.2,
+   "corrected": 2,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7093-M10-h",
+   "kind": "size",
+   "standard": "iso7093",
+   "size": "M10",
+   "field": "dims.h",
+   "original": 2.7,
+   "corrected": 2.5,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7093-M12-h",
+   "kind": "size",
+   "standard": "iso7093",
+   "size": "M12",
+   "field": "dims.h",
+   "original": 3.3,
+   "corrected": 3,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://westfieldfasteners.co.uk/Standards/Washer-ISO7089-M.pdf",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://jcfasteners.com",
+    "https://cdn.standards.iteh.ai",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7094-M5-h",
+   "kind": "size",
+   "standard": "iso7094",
+   "size": "M5",
+   "field": "dims.h",
+   "original": 2.3,
+   "corrected": 2,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7094-M6-h",
+   "kind": "size",
+   "standard": "iso7094",
+   "size": "M6",
+   "field": "dims.h",
+   "original": 2.3,
+   "corrected": 2,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7094-M8-h",
+   "kind": "size",
+   "standard": "iso7094",
+   "size": "M8",
+   "field": "dims.h",
+   "original": 3.6,
+   "corrected": 3,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7094-M10-h",
+   "kind": "size",
+   "standard": "iso7094",
+   "size": "M10",
+   "field": "dims.h",
+   "original": 3.6,
+   "corrected": 3,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso7094-M12-h",
+   "kind": "size",
+   "standard": "iso7094",
+   "size": "M12",
+   "field": "dims.h",
+   "original": 4.6,
+   "corrected": 4,
+   "status": "verified",
+   "sources": [
+    "https://fastenal.com/content/product_specifications",
+    "https://mechcodex.com/reference/flat-washer-dimensions-metric",
+    "https://fasteners.eu/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso4035-M3-pitch",
+   "kind": "size",
+   "standard": "iso4035",
+   "size": "M3-0.45",
+   "field": "pitch",
+   "original": 0.45,
+   "corrected": 0.5,
+   "status": "verified",
+   "sources": [
+    "https://fullerfasteners.com/tech",
+    "https://boltport.com/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "Wrong pitch: 0.5 in three sources; the library's value is a neighbouring size's pitch picked up from a shifted column.",
+   "resolves": [
+    [
+     "iso4035:M3-0.45",
+     "pitch-differs-from-coarse"
+    ]
+   ]
+  },
+  {
+   "id": "ov-iso4035-M10-s",
+   "kind": "size",
+   "standard": "iso4035",
+   "size": "M10-1.5",
+   "field": "dims.s",
+   "original": 17,
+   "corrected": 16,
+   "status": "verified",
+   "sources": [
+    "https://fullerfasteners.com/tech",
+    "https://boltport.com/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  },
+  {
+   "id": "ov-iso4035-M12-s",
+   "kind": "size",
+   "standard": "iso4035",
+   "size": "M12-1.75",
+   "field": "dims.s",
+   "original": 19,
+   "corrected": 18,
+   "status": "verified",
+   "sources": [
+    "https://fullerfasteners.com/tech",
+    "https://boltport.com/standards",
+    "https://globalfastener.com"
+   ],
+   "decision": "The planning session's verified table (two independent sources agree) gives the NOMINAL value; bd_warehouse carries the maximum (or a column slip). The picker shows the nominal value and keeps the original here.",
+   "resolves": []
+  }
+ ]
+}
