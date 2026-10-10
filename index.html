@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1d1e20">
 <title>Label Studio · MODULITH</title>
 <meta name="description" content="MODULITH Label Studio (formerly the GEN2 label generators): make EdgeLabel and Classic Pro labels for your MODULITH drawers, typed or from a part record, ready for your slicer.">
@@ -17,29 +17,39 @@
   @font-face { font-family: "Space Grotesk"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/space-grotesk-500.woff2") format("woff2"); }
   @font-face { font-family: "Space Grotesk"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/space-grotesk-700.woff2") format("woff2"); }
   :root {
-    /* the MODULITH palette (the site's --ml-* tokens, as the Planner's dark mode uses them) */
+    /* the MODULITH palette (the site's --ml-* tokens, as the Planner's dark mode uses them). A name the Planner also uses means
+       the same colour here (UI/UX review B6, 2026-10-10): --panel-2 was LIGHTER here and darker there, so the raised surface
+       here is --raised; --accent-dim was a dark brown here and the bright pressed orange there, so it is the Planner's now. */
     --bg: #1d1e20;              /* --ml-ink */
     --panel: #2c2d31;           /* --ml-charcoal */
-    --panel-2: #3a3b3f;         /* --ml-panel */
-    --border: #4a4b50;          /* --ml-line */
+    --raised: #3a3b3f;          /* --ml-panel: popovers, the start card, the planner link bar */
+    --line: #4a4b50;            /* --ml-line (the Planner's --line) */
     --text: #ececee;            /* --ml-paper */
     --muted: #a6a8ad;           /* --ml-muted */
     --well: #141517;            /* one step below the page: fields and wells (the Planner's --well) */
     --accent: #ff6a1a;          /* MODULITH orange */
     --accent-hover: #ff8340;
-    --accent-dark: #d9550f;     /* --ml-orange-press */
-    --accent-dim: #7a3512;
+    --accent-dim: #d9550f;      /* --ml-orange-press (the Planner's --accent-dim) */
+    --accent-soft: rgba(255, 106, 26, 0.45);   /* a quiet orange edge: a set icon, a warning bar */
+    --on-accent: #1d1e20;       /* text on orange (the Planner's) */
     --info: #5fc3e3;            /* brand blue */
     --info-dark: #3a8aa8;
-    --danger: #e5534b;          /* --ml-bad */
+    --good: #4cc38a;            /* success (the Planner's --good) */
+    --bad: #e5534b;             /* --ml-bad (the Planner's --bad): edges and marks */
+    --bad-text: #ff9088;        /* error WORDS: the red lifted until small text reads on charcoal (6.3:1 on --panel) */
     color-scheme: dark;         /* dark scrollbars and native controls, to match the page */
     accent-color: var(--accent);   /* every checkbox in MODULITH orange (they were part blue, part orange) */
   }
   * { box-sizing: border-box; }
+  button, select, input, textarea { font-family: inherit; }   /* some buttons fell back to Arial */
+  /* keyboard focus: the Planner's orange (UI/UX review B3: the old focus border moved by 1.03:1). Fields: an orange edge and
+     ring; everything else: an orange outline. */
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input:not([type=checkbox]):not([type=radio]):not([type=color]):focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
   body { display: flex; flex-direction: column; }
   #app { display: flex; flex: 1; min-height: 0; }
-  #sidebar { width: 360px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
+  #sidebar { width: 360px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--line); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
   /* nothing in the sidebar shrinks: it scrolls instead (#status has a min-height, which let it shrink below its own text
      and spill over the footer once the masthead took 48 px off the sidebar) */
   #sidebar > * { flex-shrink: 0; }
@@ -49,7 +59,7 @@
   #preview canvas { display: block; touch-action: none; }   /* a pinch on the 3D view is the view's; elsewhere it zooms the page */
   /* captions in the preview: an empty plate, and the square kept free for the wipe tower (placed on it every frame) */
   .plate-empty { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: min(340px, 80%); text-align: center; pointer-events: none;
-    padding: 10px 14px; border-radius: 8px; background: rgba(20, 21, 23, 0.72); border: 1px solid var(--border); color: var(--text); font-size: 13px; line-height: 1.45; }
+    padding: 10px 14px; border-radius: 8px; background: rgba(20, 21, 23, 0.72); border: 1px solid var(--line); color: var(--text); font-size: 13px; line-height: 1.45; }
   .plate-empty small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
   .plate-empty[hidden], .purge-tag[hidden] { display: none; }
   .purge-tag { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap; font-size: 11px; font-weight: 600;
@@ -57,7 +67,7 @@
   /* the bar pinned to the bottom of the sidebar: the status line, "5 labels · 1 plate" and Download (on a phone, fixed to the
      bottom of the screen) */
   .dock { position: sticky; bottom: -20px; z-index: 5; margin: 14px -20px 0; padding: 10px 20px 14px; background: var(--panel);
-    border-top: 1px solid var(--border); box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.28); }
+    border-top: 1px solid var(--line); box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.28); }
   .dock-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
   .dock-count { flex: 0 1 auto; min-width: 0; font-size: 12px; color: var(--muted); line-height: 1.3; }
   .dock-row button.primary { flex: 1 0 auto; width: auto; margin-top: 0; padding: 11px 14px; }
@@ -70,10 +80,9 @@
   #sidebar > .type-row:first-of-type { margin-top: 2px; }
   .row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
   .row .idx { color: var(--muted); font-size: 11px; width: 18px; text-align: right; }
-  .row input[type="text"] { flex: 1; padding: 9px 11px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
-  .row input[type="text"]:focus { outline: none; border-color: var(--accent-dim); }
+  .row input[type="text"] { flex: 1; padding: 9px 11px; background: var(--well); border: 1px solid var(--line); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
   .row .remove { width: 26px; height: 26px; background: transparent; border: 1px solid transparent; color: var(--muted); border-radius: 4px; cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
-  .row .remove:hover { color: var(--danger); border-color: var(--danger); }
+  .row .remove:hover { color: var(--bad); border-color: var(--bad); }
   .row .row-sel { width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; accent-color: var(--accent); margin: 0; }
   .row .idx { cursor: grab; user-select: none; touch-action: none; }
   .row .idx:hover { color: var(--text); }
@@ -82,7 +91,7 @@
   .row.hw .badge-btn { visibility: hidden; }
   .row.hw input[type="text"] { background: #14161b; cursor: default; min-width: 0; }   /* shrinks, so the remove button stays on the row */
   .row .hw-note { flex-basis: 100%; margin: -2px 0 2px 45px; font-size: 11px; line-height: 1.35; color: var(--muted); }
-  .row .hw-note.bad { color: var(--danger); }
+  .row .hw-note.bad { color: var(--bad-text); }
   .row.dragging { opacity: 0.45; }
   /* Bulk selection bar + actions */
   .labels-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
@@ -90,35 +99,41 @@
   .labels-bar .sel-all input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
   .bulk-actions { display: flex; gap: 6px; flex-wrap: wrap; }
   .bulk-actions[hidden] { display: none; }
-  .bulk-actions button { padding: 5px 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 11px; font-family: inherit; transition: all 0.15s; }
-  .bulk-actions button:hover { border-color: var(--accent-dim); color: var(--accent); }
-  .bulk-actions button.danger:hover { border-color: #c0392b; color: #e74c3c; }
+  .bulk-actions button { padding: 5px 9px; font-size: 11.5px; }
+  .bulk-actions button.danger { color: var(--bad-text); border-color: var(--bad); }
+  .bulk-actions button.danger:hover { background: rgba(229, 83, 75, 0.14); color: var(--bad-text); border-color: var(--bad-text); }
   /* Add-label + sort tools row, and preset dropdown */
   .row-tools { display: flex; gap: 6px; align-items: stretch; margin-top: 4px; }
   .row-tools .add { margin-top: 0; flex: 1; }
-  button.tool-btn { padding: 7px 12px; background: transparent; border: 1px dashed var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 12px; white-space: nowrap; }
-  button.tool-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+  button.tool-btn { padding: 7px 12px; white-space: nowrap; }
   /* Predicted-icon toggle + the dashed cue that marks an auto-predicted badge */
   .opt-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 8px; cursor: pointer; user-select: none; }
   .opt-toggle input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; margin: 0; }
   .row .badge-btn.predicted { border-style: dashed; }
   /* Inline prefix/suffix panel (bulk) */
-  .affix-panel { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 8px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; }
+  .affix-panel { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 8px; background: var(--raised); border: 1px solid var(--line); border-radius: 6px; }
   .affix-panel[hidden] { display: none; }
-  .affix-panel input { flex: 1 1 80px; min-width: 0; padding: 6px 8px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
-  .affix-panel input:focus { outline: none; border-color: var(--accent-dim); }
+  .affix-panel input { flex: 1 1 80px; min-width: 0; padding: 6px 8px; background: var(--well); border: 1px solid var(--line); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
   .affix-panel button { flex: 0 0 auto; }
-  #affix-apply { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
-  #affix-apply:hover { background: var(--accent-hover); color: #1a1a1c; border-color: var(--accent-hover); }
   /* All-caps rendering cue in the label inputs */
   #labels.caps .label-text { text-transform: uppercase; }
-  button.add { padding: 7px 10px; background: transparent; border: 1px dashed var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%; margin-top: 4px; }
-  button.add:hover { color: var(--accent); border-color: var(--accent-dim); }
-  button.primary { width: 100%; padding: 13px; background: var(--accent); color: #1a1a1c; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 14px; letter-spacing: 0.3px; transition: background 0.15s; box-shadow: 0 2px 8px rgba(238, 122, 48, 0.25); }
-  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
-  button.primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  /* THE BUTTONS: the Planner's three looks (UI/UX review B7; its .btn / .btn.ghost and the dashed add). Solid orange for the
+     one thing to do next (Download, Apply, Send, a dialog's answer); an orange outline for every other button; one dashed
+     "+ Add label". Disabled: grey. */
+  button.primary, button.btn-sm.primary-sm, #affix-apply, #link-send {
+    background: var(--accent); color: var(--on-accent); border: 2px solid var(--accent); border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+  button.primary:hover:not(:disabled), button.btn-sm.primary-sm:hover:not(:disabled), #affix-apply:hover:not(:disabled), #link-send:hover:not(:disabled) {
+    background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
+  button.primary { width: 100%; padding: 12px; font-size: 14px; margin-top: 14px; letter-spacing: 0.3px; }
+  button.btn-sm, .bulk-actions button, button.tool-btn, .bp-section button:not(.bp-icon), .csv-zone, .af-buttons .af-parts {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent-dim); border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+  button.btn-sm:hover:not(:disabled), .bulk-actions button:hover, button.tool-btn:hover, .bp-section button:not(.bp-icon):hover, .csv-zone:hover, .af-buttons .af-parts:hover:not(:disabled) {
+    background: rgba(255, 106, 26, 0.12); border-color: var(--accent); color: var(--accent); }
+  button.primary:disabled, button.btn-sm:disabled, #link-send:disabled, .bulk-actions button:disabled { background: transparent; border-color: var(--line); color: var(--muted); cursor: not-allowed; }
+  button.add { padding: 8px 10px; background: transparent; border: 1px dashed var(--muted); color: var(--text); border-radius: 7px; cursor: pointer; font-size: 12.5px; font-weight: 600; width: 100%; margin-top: 4px; }
+  button.add:hover { color: var(--accent); border-color: var(--accent); background: rgba(255, 106, 26, 0.08); }
   .setting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; }
-  .setting input[type="number"], .setting select { padding: 6px 8px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
+  .setting input[type="number"], .setting select { padding: 6px 8px; background: var(--well); border: 1px solid var(--line); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
   .setting input[type="number"] { width: 64px; text-align: right; }
   .setting select { width: 140px; }
   /* a long choice gets the full width, its name above it (as the Planner lays out its printer picker) */
@@ -130,28 +145,27 @@
   .printer-icon { flex: none; width: 24px; height: 24px; color: var(--muted); display: inline-flex; }
   .printer-icon svg { width: 100%; height: 100%; }
   .printer-icon .pi-print { fill: var(--accent); }
-  .csv-zone { display: flex; align-items: center; justify-content: center; border: 1px dashed var(--border); padding: 0 10px; border-radius: 5px; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-  .csv-zone:hover, .csv-zone:focus-visible { border-color: var(--accent-dim); color: var(--accent); outline: none; }
-  .csv-zone.drag-over { border-color: var(--accent); background: rgba(238, 122, 48, 0.06); }
+  .csv-zone { display: flex; align-items: center; justify-content: center; padding: 0 10px; white-space: nowrap; }
+  .csv-zone.drag-over { border-color: var(--accent); background: rgba(255, 106, 26, 0.06); }
   /* "Add labels from": the Part Picker, a preset collection, a CSV / TXT file - every source in one row */
   .add-from { margin-top: 10px; }
   .af-label { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
   .af-buttons { display: flex; gap: 6px; align-items: stretch; }
   .af-buttons > * { min-width: 0; min-height: 32px; }
-  .af-buttons .af-parts { flex: 1.1 1 0; font-weight: 600; border-color: var(--accent-dim); color: var(--accent); }
-  .af-buttons .af-parts:disabled { border-color: var(--border); color: var(--muted); cursor: not-allowed; opacity: 0.7; }
-  .af-buttons select { flex: 1.3 1 0; padding: 6px 6px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 12px; }
+  .af-buttons .af-parts { flex: 1.1 1 0; }
+  .af-buttons .af-parts:disabled { border-color: var(--line); color: var(--muted); cursor: not-allowed; opacity: 0.7; }
+  .af-buttons select { flex: 1.3 1 0; padding: 6px 6px; background: var(--well); border: 1px solid var(--line); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 12px; }
   .af-buttons .csv-zone { flex: 1 1 0; }
   .af-note { margin-top: 6px; font-size: 11.5px; line-height: 1.4; color: var(--muted); }
   /* the empty list: two ways to start */
-  .start-card { margin: 2px 0 10px; padding: 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; }
+  .start-card { margin: 2px 0 10px; padding: 10px; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; }
   .start-card[hidden] { display: none; }
   .sc-title { font: 700 11px "Space Grotesk", -apple-system, "Segoe UI", sans-serif; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
   .sc-choices { display: flex; gap: 8px; }
-  .sc-choice { flex: 1 1 0; display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 10px; background: var(--well); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; cursor: pointer; }
+  .sc-choice { flex: 1 1 0; display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 10px; background: var(--well); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-family: inherit; cursor: pointer; }
   .sc-choice b { font-size: 13px; }
   .sc-choice span { font-size: 11px; line-height: 1.35; color: var(--muted); }
-  .sc-choice:hover:not(:disabled), .sc-choice:focus-visible { border-color: var(--accent); outline: none; }
+  .sc-choice:hover:not(:disabled), .sc-choice:focus-visible { border-color: var(--accent); }
   .sc-choice:disabled { opacity: 0.55; cursor: not-allowed; }
   /* "Added 5 part labels · Undo", beside the list; the rows just added flash */
   .list-note { margin: 2px 0 6px; padding: 7px 10px; border: 1px solid #2e7d4f; background: rgba(46, 160, 90, 0.12); border-radius: 6px; font-size: 12px; color: var(--text); }
@@ -161,16 +175,16 @@
   @keyframes row-flash { 0%, 30% { background: rgba(255, 106, 26, 0.32); } 100% { background: transparent; } }
   .row.flash { animation: row-flash 2.4s ease-out; border-radius: 6px; }
   /* the stripe button on a row (beside the badge) and its menu */
-  .row .stripe-btn { width: 18px; height: 28px; flex-shrink: 0; padding: 4px 5px; background: var(--well); border: 1px solid var(--border); border-radius: 5px; cursor: pointer; display: flex; align-items: stretch; justify-content: center; }
-  .row .stripe-btn:hover:not(:disabled), .row .stripe-btn:focus-visible { border-color: var(--accent-dim); outline: none; }
+  .row .stripe-btn { width: 18px; height: 28px; flex-shrink: 0; padding: 4px 5px; background: var(--well); border: 1px solid var(--line); border-radius: 5px; cursor: pointer; display: flex; align-items: stretch; justify-content: center; }
+  .row .stripe-btn:hover:not(:disabled) { border-color: var(--accent-dim); }
   .row .stripe-btn:disabled { cursor: not-allowed; opacity: 0.5; }
-  .stripe-btn .sw, .sp-opt .sw { display: block; width: 6px; border-radius: 2px; border: 1px dashed var(--border); }
+  .stripe-btn .sw, .sp-opt .sw { display: block; width: 6px; border-radius: 2px; border: 1px dashed var(--line); }
   .stripe-btn .sw.on, .sp-opt .sw.on { border: 1px solid rgba(255, 255, 255, 0.35); }
   .stripe-popover { width: 236px; }
   .sp-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
   .sp-opt { display: flex; align-items: center; gap: 9px; width: 100%; padding: 6px 7px; background: none; border: 1px solid transparent; border-radius: 5px; color: var(--text); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
   .sp-opt .sw { width: 22px; height: 12px; flex: none; }
-  .sp-opt:hover, .sp-opt:focus-visible { border-color: var(--accent-dim); outline: none; }
+  .sp-opt:hover { border-color: var(--accent-dim); }
   .sp-opt.on { border-color: var(--accent); }
   .sp-opt small { color: var(--muted); font-size: 11px; margin-left: auto; }
   .setting-note { margin: -4px 0 10px; font-size: 11.5px; line-height: 1.4; color: var(--muted); }
@@ -178,9 +192,9 @@
   .link-bar .lb-note { flex-basis: 100%; font-size: 11px; color: var(--muted); }
   .link-bar .lb-note[hidden] { display: none; }
   /* the Part Picker sheet: full width under the masthead (top set from the masthead's bottom), the page behind it inert */
-  .parts-sheet { position: fixed; left: 0; right: 0; bottom: 0; top: 48px; z-index: 60; display: flex; flex-direction: column; background: var(--bg); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
+  .parts-sheet { position: fixed; left: 0; right: 0; bottom: 0; top: 48px; z-index: 60; display: flex; flex-direction: column; background: var(--bg); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
   .parts-sheet[hidden] { display: none; }
-  .ps-bar { flex: none; display: flex; align-items: center; gap: 12px; padding: 7px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .ps-bar { flex: none; display: flex; align-items: center; gap: 12px; padding: 7px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
   .ps-title { font: 700 0.95rem "Space Grotesk", -apple-system, "Segoe UI", sans-serif; white-space: nowrap; }
   .ps-hint { font-size: 12px; color: var(--muted); flex: 1; min-width: 0; }
   .ps-bar #ps-done { flex: none; margin-left: auto; padding: 7px 18px; font-size: 13px; }
@@ -192,18 +206,19 @@
   html.sheet-open, html.sheet-open body { overflow: hidden; }
   #csv-input { display: none; }
   /* Save / load project controls */
-  .proj-actions { display: flex; gap: 6px; margin-bottom: 6px; }
-  button.btn-sm { flex: 1; padding: 8px 8px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.15s; }
-  button.btn-sm:hover { border-color: var(--accent-dim); color: var(--accent); }
-  button.btn-sm:active { transform: translateY(1px); background: var(--border); }
+  .proj-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }   /* wraps a whole button to the next line, never its words */
+  button.btn-sm { flex: 1 1 auto; padding: 8px 10px; white-space: nowrap; }
+  button.btn-sm:active:not(:disabled) { transform: translateY(1px); }
   #proj-import { display: none; }
   #status { font-size: 12px; color: var(--muted); min-height: 1.4em; line-height: 1.4; max-height: 7.2em; overflow-y: auto; }
-  #status.ok { color: var(--info); }
-  #status.err { color: var(--danger); }
+  /* success in the Planner's green with a check (blue means metric on a stripe); errors in readable red words */
+  #status.ok { color: var(--good); }
+  #status.ok::before { content: "\2713\00a0"; font-weight: 700; }
+  #status.err { color: var(--bad-text); font-weight: 600; }
   .footer { margin-top: auto; padding-top: 16px; color: var(--muted); font-size: 10px; text-align: center; }
   .footer a { color: var(--muted); text-decoration: none; }
   .footer a:hover { color: var(--accent); }
-  .overlay { position: absolute; top: 12px; left: 12px; background: rgba(20, 22, 26, 0.85); backdrop-filter: blur(6px); padding: 8px 12px; border-radius: 5px; font-size: 11px; color: var(--muted); border: 1px solid var(--border); }
+  .overlay { position: absolute; top: 12px; left: 12px; background: rgba(20, 22, 26, 0.85); backdrop-filter: blur(6px); padding: 8px 12px; border-radius: 5px; font-size: 11px; color: var(--muted); border: 1px solid var(--line); }
   .hint-desktop { display: inline; }
   .hint-mobile { display: none; }
   @media (max-width: 760px) {
@@ -213,9 +228,9 @@
   .overlay strong { color: var(--text); }
   .brand { position: absolute; bottom: 12px; right: 14px; color: var(--muted); font-size: 10px; letter-spacing: 1px; opacity: 0.6; }
   .color-swatches { display: flex; gap: 8px; margin-top: 4px; }
-  .swatch { flex: 1; display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: var(--well); border: 1px solid var(--border); border-radius: 4px; font-size: 11px; cursor: pointer; }
+  .swatch { flex: 1; display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: var(--well); border: 1px solid var(--line); border-radius: 4px; font-size: 11px; cursor: pointer; }
   .swatch:hover { border-color: var(--accent-dim); }
-  .swatch .dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+  .swatch .dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #8a8c92; flex-shrink: 0; }   /* a dark Text colour read 1.05:1 against the well without it */
   .swatch input[type="color"] { width: 0; height: 0; padding: 0; border: 0; opacity: 0; position: absolute; }
   /* === Mobile / responsive (≤ 760px) === */
   @media (max-width: 760px) {
@@ -226,7 +241,7 @@
       width: 100%;
       max-height: none;
       border-right: none;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--line);
       padding: 16px;
       order: 2;            /* preview on top, controls below */
       overflow-y: visible;
@@ -280,22 +295,24 @@
     #preview { height: 45vh; min-height: 280px; }
   }
   /* === Left badge (icon / letter) === */
-  .row .badge-btn { width: 28px; height: 28px; flex-shrink: 0; background: var(--well); border: 1px solid var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .row .badge-btn { width: 28px; height: 28px; flex-shrink: 0; background: var(--well); border: 1px solid var(--line); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .row .badge-btn:hover { border-color: var(--accent-dim); color: var(--text); }
-  .row .badge-btn.set { border-color: var(--accent-dim); color: var(--accent); }
+  .row .badge-btn.set { border-color: var(--accent-soft); color: var(--accent); }
   .row .badge-btn svg { width: 18px; height: 18px; fill: currentColor; }
-  .badge-popover { position: fixed; z-index: 50; width: 286px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 11px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
+  .badge-popover { position: fixed; z-index: 50; width: 286px; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 11px; box-shadow: 0 10px 34px rgba(0,0,0,0.55);
+    display: flex; flex-direction: column; overflow: hidden; }   /* held to the room on its side (placeMenu): the icon list scrolls */
+  .badge-popover > * { flex-shrink: 0; }
+  .badge-popover > .bp-icons { flex: 0 1 auto; min-height: 60px; }
   .badge-popover[hidden] { display: none; }
   .bp-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 9px; }
   .bp-close { background: none; border: none; color: var(--muted); font-size: 17px; line-height: 1; cursor: pointer; padding: 0; }
   .bp-label { font-size: 10px; color: var(--muted); margin: 2px 0 5px; text-transform: uppercase; letter-spacing: 0.6px; }
   .bp-section { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
-  .bp-section input[type="text"], .bp-section input[type="search"] { flex: 1; min-width: 0; padding: 7px 9px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
-  .bp-section button:not(.bp-icon) { padding: 7px 10px; background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 12px; white-space: nowrap; }
-  .bp-section button:not(.bp-icon):hover { border-color: var(--accent-dim); color: var(--accent); }
+  .bp-section input[type="text"], .bp-section input[type="search"] { flex: 1; min-width: 0; padding: 7px 9px; background: var(--well); border: 1px solid var(--line); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
+  .bp-section button:not(.bp-icon) { padding: 7px 10px; white-space: nowrap; }
   /* the icon menu: collapsible groups in a box that scrolls (label-icons.js GROUPS) */
   .bp-icons { max-height: min(46vh, 330px); overflow-y: auto; margin: 0 -4px 10px; padding: 0 4px; }
-  .bp-group { border-top: 1px solid var(--border); }
+  .bp-group { border-top: 1px solid var(--line); }
   .bp-group:first-child { border-top: none; }
   .bp-ghead { display: flex; align-items: center; gap: 7px; width: 100%; background: none; border: none; color: var(--text); font: inherit; font-size: 12px; font-weight: 600; padding: 7px 2px; cursor: pointer; text-align: left; }
   .bp-ghead:hover { color: var(--accent); }
@@ -306,7 +323,7 @@
   .bp-group.open .bp-cells { display: grid; }
   .bp-icon.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
   .bp-empty { font-size: 12px; color: var(--muted); padding: 8px 2px 4px; line-height: 1.45; }
-  .bp-icon { aspect-ratio: 1 / 1; background: var(--well); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
+  .bp-icon { aspect-ratio: 1 / 1; background: var(--well); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
   .bp-icon:hover { border-color: var(--accent); color: var(--accent); }
   .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
   .bp-caption { min-height: 1.45em; font-size: 12px; color: var(--muted); padding: 6px 2px 0; line-height: 1.45; }
@@ -323,33 +340,30 @@
   .svg-mask { display: block; width: 18px; height: 18px; background: currentColor; -webkit-mask-size: contain; mask-size: contain;
     -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
   /* === Planner link (Step 3) === */
-  .link-bar { margin: 0 0 14px; padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; line-height: 1.45; }
+  .link-bar { margin: 0 0 14px; padding: 10px 12px; background: var(--raised); border: 1px solid var(--line); border-radius: 6px; font-size: 12px; line-height: 1.45; }
   .link-bar[hidden] { display: none; }
   .link-bar.linked { border-color: var(--info-dark); }
-  .link-bar.warn { border-color: var(--accent-dim); }
+  .link-bar.warn { border-color: var(--accent-soft); }
   .link-bar .lb-sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
   .link-bar .lb-sub:empty { display: none; }
   .link-bar .lb-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
   .link-bar .lb-actions button[hidden] { display: none; }
   .link-bar .lb-actions button:disabled { opacity: 0.45; cursor: not-allowed; }
-  #link-send { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
-  #link-send:hover:not(:disabled) { background: var(--accent-hover); color: #1a1a1c; }
   .row .utag { flex-shrink: 0; font-size: 10px; line-height: 1; color: var(--info); border: 1px solid var(--info-dark); border-radius: 3px; padding: 2px 3px; }
   .row.has-note { flex-wrap: wrap; }
   .row.has-note input.label-text { min-width: 0; }   /* a row with a note wraps its note onto a second line, not its remove button */
   .row .row-note { flex: 1 0 100%; font-size: 11px; color: var(--muted); padding-left: 24px; }
-  .row input.label-text.over { border-color: var(--danger); }
-  .row.has-note input.label-text.over ~ .row-note { color: var(--danger); }
+  .row input.label-text.over { border-color: var(--bad); }
+  .row.has-note input.label-text.over ~ .row-note { color: var(--bad-text); }
   .row .badge-btn.held { border-style: dashed; color: var(--info); }
   .veil { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(10, 11, 14, 0.62); padding: 16px; }
   .veil[hidden] { display: none; }
   #gen-modal { z-index: 95; }
-  .veil-card { width: min(380px, 100%); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
+  .veil-card { width: min(380px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
   .veil-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
   .veil-sub { font-size: 12px; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
   .veil-sub:empty { display: none; }
   .veil-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
-  button.btn-sm.primary-sm { background: var(--accent); color: #1a1a1c; border-color: var(--accent); font-weight: 600; }
 
   /* ---------- the MODULITH masthead, SLIM (Joey 2026-10-09: "maybe a slim version so that it doesn't eat up a ton of
      realestate"). The Planner's masthead (its css/style.css "the MODULITH masthead", from the site's header) at about
@@ -385,7 +399,7 @@
   .mnhelp:hover { color: #ff6a1a; }
   .mnsection { margin: 16px 0 2px; color: #a6a8ad; font: 700 0.72rem "Space Grotesk", sans-serif; letter-spacing: 1.5px; }
   /* the Help panel */
-  dialog.helpdlg { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px 20px; width: min(560px, 92vw); max-height: 86vh; overflow-y: auto; font-size: 13px; line-height: 1.5; }
+  dialog.helpdlg { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px 20px; width: min(560px, 92vw); max-height: 86vh; overflow-y: auto; font-size: 13px; line-height: 1.5; }
   dialog.helpdlg::backdrop { background: rgba(0,0,0,.55); }
   .hd-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .helpdlg h3 { font: 700 1.05rem "Space Grotesk", -apple-system, "Segoe UI", sans-serif; margin: 0; }
@@ -2359,19 +2373,33 @@ function applyCapsToggle() {
   rebuild();
 }
 
+// The icon menu opens below its button, or above it when there is more room there, and never runs off the screen: it is
+// held to the room on that side (its icon list scrolls inside it, so Upload SVG… and No icon stay in reach, also once a
+// group is opened). Escape, ×, or a choice puts the keyboard back on the button that opened it (UI/UX review B13).
+let badgeAnchor = null;
+function placeMenu(pop, anchorEl) {
+  const r = anchorEl.getBoundingClientRect();
+  const below = window.innerHeight - r.bottom - 14, above = r.top - 14;
+  pop.style.maxHeight = 'none';
+  const need = Math.min(pop.offsetHeight, 520);   // its whole height (an opened group may make it taller later: it then scrolls)
+  const up = below < need && above > below;
+  pop.style.maxHeight = Math.max(160, up ? above : below) + 'px';
+  if (up) { pop.style.top = 'auto'; pop.style.bottom = (window.innerHeight - r.top + 6) + 'px'; }
+  else { pop.style.bottom = 'auto'; pop.style.top = Math.max(8, r.bottom + 6) + 'px'; }
+  pop.style.left = Math.min(window.innerWidth - pop.offsetWidth - 8, Math.max(8, r.left)) + 'px';
+}
 function positionPopover(anchorEl, charPrefill) {
   closeStripeMenu();
   const pop = document.getElementById('badge-popover');
   const charInput = document.getElementById('bp-char');
   charInput.value = charPrefill;
   document.getElementById('bp-search').value = '';
+  badgeAnchor = anchorEl;
   renderIconMenu();
   pop.hidden = false;
-  const r = anchorEl.getBoundingClientRect();
-  const top = Math.min(window.innerHeight - pop.offsetHeight - 8, r.bottom + 6);
-  const left = Math.min(window.innerWidth - pop.offsetWidth - 8, Math.max(8, r.left));
-  pop.style.top = Math.max(8, top) + 'px';
-  pop.style.left = left + 'px';
+  placeMenu(pop, anchorEl);
+  const grid = document.getElementById('bp-icons'), sec = renderIconMenu.hintSec;   // the matching group at the top of the list
+  grid.scrollTop = sec ? Math.max(0, sec.offsetTop - grid.offsetTop) : 0;
   charInput.focus();
 }
 
@@ -2388,10 +2416,14 @@ function openBulkBadgePopover(anchorEl) {
   positionPopover(anchorEl, '');
 }
 
-function closeBadgePopover() {
-  document.getElementById('badge-popover').hidden = true;
+function closeBadgePopover(refocus) {
+  const pop = document.getElementById('badge-popover');
+  const wasOpen = !pop.hidden, a = badgeAnchor;
+  pop.hidden = true;
   activeBadgeRow = null;
   bulkBadgeMode = false;
+  badgeAnchor = null;
+  if (refocus && wasOpen && a && a.isConnected && !a.disabled) a.focus();
 }
 
 //============================================================
@@ -2545,6 +2577,19 @@ function menuCurrentIcon() {
   if (bulkBadgeMode || !activeBadgeRow) return null;
   return activeBadgeRow.dataset.badgeType === 'icon' ? (activeBadgeRow.dataset.badgeIcon || null) : null;
 }
+// The group the menu opens on (UI/UX review B13: it opened with every group shut): the label's own icon's group, else the
+// group of the icon its words suggest (the selected labels' words, for Set icon), else the first group.
+function menuHintGroup(curIcon) {
+  if (curIcon) return curIcon.group;
+  const rows = bulkBadgeMode ? selectedRows() : activeBadgeRow ? [activeBadgeRow] : [];
+  for (const r of rows) {
+    const t = r.querySelector('input.label-text');
+    const id = t && t.value.trim() && LabelIcons.guessIconId(t.value);
+    const it = id && LabelIcons.find(id);
+    if (it) return it.group;
+  }
+  return LabelIcons.GROUPS.length ? LabelIcons.GROUPS[0].id : null;
+}
 function renderIconMenu() {
   const grid = document.getElementById('bp-icons');
   const q = document.getElementById('bp-search').value;
@@ -2556,14 +2601,17 @@ function renderIconMenu() {
   const curIcon = current && LabelIcons.find(current);
   resetIconCaption();
   const saved = openIconGroups();
+  const hint = menuHintGroup(curIcon);
+  renderIconMenu.hintSec = null;
   let any = false;
   for (const g of LabelIcons.GROUPS) {
     const items = found.filter(i => i.group === g.id);
     if (!items.length) continue;
     any = true;
-    const open = searching || (saved ? saved.includes(g.id) : false) || (curIcon && curIcon.group === g.id);
+    const open = searching || (saved ? saved.includes(g.id) : false) || hint === g.id;
     const sec = document.createElement('div');
     sec.className = 'bp-group' + (open ? ' open' : '');
+    if (hint === g.id && !searching) renderIconMenu.hintSec = sec;
     const head = document.createElement('button');
     head.type = 'button';
     head.className = 'bp-ghead';
@@ -2603,7 +2651,7 @@ function renderIconMenu() {
       cell.addEventListener('click', (e) => {
         e.preventDefault();
         setActiveRowBadge('icon', it.id, null);
-        closeBadgePopover();
+        closeBadgePopover(true);
       });
       cells.appendChild(cell);
     }
@@ -2637,13 +2685,13 @@ function setupBadgePicker() {
   const applyChar = () => {
     const v = charInput.value.trim();
     setActiveRowBadge(v ? 'char' : 'none', v);
-    closeBadgePopover();
+    closeBadgePopover(true);
   };
   document.getElementById('bp-char-apply').addEventListener('click', (e) => { e.preventDefault(); applyChar(); });
   charInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyChar(); } });
 
-  document.getElementById('bp-none').addEventListener('click', (e) => { e.preventDefault(); setActiveRowBadge('none'); closeBadgePopover(); });
-  document.getElementById('bp-close').addEventListener('click', (e) => { e.preventDefault(); closeBadgePopover(); });
+  document.getElementById('bp-none').addEventListener('click', (e) => { e.preventDefault(); setActiveRowBadge('none'); closeBadgePopover(true); });
+  document.getElementById('bp-close').addEventListener('click', (e) => { e.preventDefault(); closeBadgePopover(true); });
 
   // Custom SVG upload
   const upload = document.getElementById('bp-upload');
@@ -2663,7 +2711,7 @@ function setupBadgePicker() {
         return;
       }
       setActiveRowBadge('icon', null, svg);   // the status line names it ("uploaded icon")
-      closeBadgePopover();
+      closeBadgePopover(true);
     };
     reader.onerror = () => setStatus('Failed to read SVG file.', 'err');
     reader.readAsText(f);
@@ -2672,7 +2720,7 @@ function setupBadgePicker() {
   // Close on click-away / Escape
   pop.addEventListener('click', (e) => e.stopPropagation());
   document.addEventListener('click', () => { if (!pop.hidden) closeBadgePopover(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) closeBadgePopover(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) closeBadgePopover(true); });
 }
 
 function renumberRows() {

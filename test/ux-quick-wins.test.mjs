@@ -67,3 +67,46 @@ test('B11: an empty plate says what goes on it, and the wipe-tower square is cap
   assert.match(rb, /purgeAnchor = purge \?/);
   assert.match(fnSource('animate'), /placePurgeTag\(\)/);
 });
+
+test('B6: colour names mean what the Planner\'s mean (--accent-dim the pressed orange, no lighter --panel-2), no old orange', () => {
+  assert.match(CSS, /--accent-dim: #d9550f;/);
+  assert.match(CSS, /--line: #4a4b50;/);
+  assert.match(CSS, /--good: #4cc38a;/);
+  assert.match(CSS, /--on-accent: #1d1e20;/);
+  assert.doesNotMatch(HTML, /var\(--panel-2\)|--panel-2:|var\(--border\)|var\(--danger\)/, 'the old names are gone');
+  assert.doesNotMatch(HTML, /238, 122, 48|0xee7a30|#1a1a1c/, 'the old orange and the old text-on-orange are gone');
+});
+
+test('B3, B7, B9, B14: orange keyboard focus, the three button looks, green success with a check, readable errors, page zoom', () => {
+  assert.match(CSS, /:focus-visible \{ outline: 2px solid var\(--accent\);/);
+  assert.match(CSS, /select:focus, textarea:focus \{ outline: none; border-color: var\(--accent\); box-shadow: 0 0 0 1px var\(--accent\); \}/);
+  assert.doesNotMatch(CSS, /focus-visible[^{]*\{[^}]*outline: none/, 'nothing hides the keyboard outline');
+  assert.match(CSS, /button\.primary, button\.btn-sm\.primary-sm, #affix-apply, #link-send \{\s*background: var\(--accent\)/, 'solid orange');
+  assert.match(CSS, /button\.btn-sm, \.bulk-actions button, button\.tool-btn, \.bp-section button:not\(\.bp-icon\), \.csv-zone, \.af-buttons \.af-parts \{\s*background: transparent; color: var\(--accent\); border: 1px solid var\(--accent-dim\)/, 'orange outline');
+  assert.equal((CSS.match(/dashed var\(--muted\)/g) || []).length, 1, 'one dashed button: + Add label');
+  assert.match(CSS, /#status\.ok \{ color: var\(--good\); \}\s*#status\.ok::before \{ content: "\\2713/);
+  assert.match(CSS, /#status\.err \{ color: var\(--bad-text\);/);
+  assert.match(CSS, /\.swatch \.dot \{[^}]*border: 1\.5px solid #8a8c92/);
+  assert.match(HTML, /<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">/, 'the page can be zoomed');
+  assert.match(CSS, /#preview canvas \{ display: block; touch-action: none; \}/, 'the 3D view keeps its own pinch');
+});
+
+test('B13: the icon menu opens on the matching group, is held to the room on its side, and Escape returns the keyboard to its button', () => {
+  // menuHintGroup on its own: the label's icon's group, else the guess from its words, else the first group
+  const GROUPS = [{ id: 'screws' }, { id: 'tools' }, { id: 'general' }];
+  const icons = { wrench: { group: 'tools' }, 'storage-box': { group: 'general' } };
+  const row = (t) => ({ querySelector: () => ({ value: t }) });
+  const hint = (cur, rows, bulk = false) => new Function('LabelIcons', 'bulkBadgeMode', 'activeBadgeRow', 'selectedRows',
+    fnSource('menuHintGroup') + '; return menuHintGroup;')(
+    { GROUPS, find: (id) => icons[id] || null, guessIconId: (t) => (/allen/i.test(t) ? 'wrench' : /box/i.test(t) ? 'storage-box' : null) },
+    bulk, bulk ? null : rows[0] || null, () => rows)(cur);
+  assert.equal(hint({ group: 'general' }, [row('Allen keys')]), 'general', 'its own icon first');
+  assert.equal(hint(null, [row('Allen keys')]), 'tools', 'the icon its words suggest');
+  assert.equal(hint(null, [row('Odds'), row('Box of bits')], true), 'general', 'Set icon: the first selected label with a guess');
+  assert.equal(hint(null, [row('Odds')]), 'screws', 'nothing suggested: the first group');
+  const place = fnSource('placeMenu');
+  assert.match(place, /pop\.style\.maxHeight = Math\.max\(160, up \? above : below\) \+ 'px'/);
+  assert.match(CSS, /\.badge-popover > \.bp-icons \{ flex: 0 1 auto; min-height: 60px; \}/, 'the icon list is what gives way');
+  assert.match(HTML, /if \(e\.key === 'Escape' && !pop\.hidden\) closeBadgePopover\(true\)/);
+  assert.match(fnSource('closeBadgePopover'), /if \(refocus && wasOpen && a && a\.isConnected && !a\.disabled\) a\.focus\(\)/);
+});
