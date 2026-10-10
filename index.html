@@ -106,7 +106,7 @@
 
   function status(t, cls) { $('status').textContent = t; $('status').className = cls || ''; }
 
-  // Download a backup: each stored set as the .json file Save writes (Upload in the new Label Studio opens it as it is)
+  // Download a backup: each stored set as the .json file Save writes (Open set file in the new Label Studio opens it as it is)
   $('backup').addEventListener('click', function () {
     ['draft', 'previous'].forEach(function (k, i) {
       if (!sets[k]) return;
@@ -118,7 +118,7 @@
         setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
       }, i * 400);
     });
-    status('Backup downloaded. In the new Label Studio, Save / Load › Upload opens it.', 'ok');
+    status('Backup downloaded. In the new Label Studio, Save / Open › Open set file opens it.', 'ok');
   });
 
   // the move: one attempt at a time, tied to the window it opened and a one-time token
