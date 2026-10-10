@@ -82,8 +82,6 @@
   .row-tools .add { margin-top: 0; flex: 1; }
   button.tool-btn { padding: 7px 12px; background: transparent; border: 1px dashed var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 12px; white-space: nowrap; }
   button.tool-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
-  .preset-row { margin-top: 8px; }
-  .preset-row select { width: 140px; }
   /* Predicted-icon toggle + the dashed cue that marks an auto-predicted badge */
   .opt-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 8px; cursor: pointer; user-select: none; }
   .opt-toggle input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; margin: 0; }
@@ -107,10 +105,49 @@
   .setting input[type="number"], .setting select { padding: 6px 8px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: inherit; font-size: 12px; }
   .setting input[type="number"] { width: 64px; text-align: right; }
   .setting select { width: 140px; }
-  .csv-zone { border: 1px dashed var(--border); padding: 10px; text-align: center; border-radius: 5px; font-size: 11px; color: var(--muted); margin-top: 6px; cursor: pointer; transition: all 0.15s; }
-  .csv-zone:hover { border-color: var(--accent-dim); color: var(--text); }
+  .csv-zone { display: flex; align-items: center; justify-content: center; border: 1px dashed var(--border); padding: 0 10px; border-radius: 5px; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .csv-zone:hover, .csv-zone:focus-visible { border-color: var(--accent-dim); color: var(--accent); outline: none; }
   .csv-zone.drag-over { border-color: var(--accent); background: rgba(238, 122, 48, 0.06); }
-  .csv-zone strong { color: var(--accent); }
+  /* "Add labels from": the Part Picker, a preset collection, a CSV / TXT file - every source in one row */
+  .add-from { margin-top: 10px; }
+  .af-label { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .af-buttons { display: flex; gap: 6px; align-items: stretch; }
+  .af-buttons > * { min-width: 0; min-height: 32px; }
+  .af-buttons .af-parts { flex: 1.1 1 0; font-weight: 600; border-color: var(--accent-dim); color: var(--accent); }
+  .af-buttons .af-parts:disabled { border-color: var(--border); color: var(--muted); cursor: not-allowed; opacity: 0.7; }
+  .af-buttons select { flex: 1.3 1 0; padding: 6px 6px; background: var(--well); border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 12px; }
+  .af-buttons .csv-zone { flex: 1 1 0; }
+  .af-note { margin-top: 6px; font-size: 11.5px; line-height: 1.4; color: var(--muted); }
+  /* the empty list: two ways to start */
+  .start-card { margin: 2px 0 10px; padding: 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; }
+  .start-card[hidden] { display: none; }
+  .sc-title { font: 700 11px "Space Grotesk", -apple-system, "Segoe UI", sans-serif; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
+  .sc-choices { display: flex; gap: 8px; }
+  .sc-choice { flex: 1 1 0; display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 10px; background: var(--well); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; cursor: pointer; }
+  .sc-choice b { font-size: 13px; }
+  .sc-choice span { font-size: 11px; line-height: 1.35; color: var(--muted); }
+  .sc-choice:hover:not(:disabled), .sc-choice:focus-visible { border-color: var(--accent); outline: none; }
+  .sc-choice:disabled { opacity: 0.55; cursor: not-allowed; }
+  /* "Added 5 part labels · Undo", beside the list; the rows just added flash */
+  .list-note { margin: 2px 0 6px; padding: 7px 10px; border: 1px solid #2e7d4f; background: rgba(46, 160, 90, 0.12); border-radius: 6px; font-size: 12px; color: var(--text); }
+  .list-note[hidden] { display: none; }
+  button.link-btn { appearance: none; background: none; border: none; padding: 0; color: var(--accent); font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; }
+  button.link-btn:hover { color: var(--accent-hover); }
+  @keyframes row-flash { 0%, 30% { background: rgba(255, 106, 26, 0.32); } 100% { background: transparent; } }
+  .row.flash { animation: row-flash 2.4s ease-out; border-radius: 6px; }
+  /* the Part Picker sheet: full width under the masthead (top set from the masthead's bottom), the page behind it inert */
+  .parts-sheet { position: fixed; left: 0; right: 0; bottom: 0; top: 48px; z-index: 60; display: flex; flex-direction: column; background: var(--bg); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(0,0,0,0.45); }
+  .parts-sheet[hidden] { display: none; }
+  .ps-bar { flex: none; display: flex; align-items: center; gap: 12px; padding: 7px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .ps-title { font: 700 0.95rem "Space Grotesk", -apple-system, "Segoe UI", sans-serif; white-space: nowrap; }
+  .ps-hint { font-size: 12px; color: var(--muted); flex: 1; min-width: 0; }
+  .ps-bar #ps-done { flex: none; margin-left: auto; padding: 7px 18px; font-size: 13px; }
+  .ps-body { flex: 1; min-height: 0; position: relative; }
+  .ps-body iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--bg); }
+  .ps-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; }
+  @media (max-width: 560px) { .ps-hint { display: none; } }
+  .mast [data-parts]:disabled, .mobilenav [data-parts]:disabled { opacity: 0.45; cursor: not-allowed; }
+  html.sheet-open, html.sheet-open body { overflow: hidden; }
   #csv-input { display: none; }
   /* Save / load project controls */
   .proj-actions { display: flex; gap: 6px; margin-bottom: 6px; }
@@ -185,7 +222,8 @@
       font-size: 16px;   /* prevent iOS zoom */
       padding: 8px 10px;
     }
-    .csv-zone { padding: 14px; font-size: 12px; }
+    .af-buttons > * { min-height: 40px; }
+    .af-buttons select { font-size: 16px; }   /* prevent iOS zoom */
     .overlay { font-size: 10px; padding: 6px 9px; }
     .brand { font-size: 9px; bottom: 8px; right: 10px; }
     .footer { padding-top: 12px; }
@@ -313,8 +351,8 @@
   .hd-close:hover { color: var(--accent); }
   .skip { position: absolute; left: -9999px; top: 0; z-index: 200; padding: 8px 14px; background: #ff6a1a; color: #1d1e20; font: 700 0.9rem "Space Grotesk", sans-serif; border-radius: 0 0 10px 0; text-decoration: none; }
   .skip:focus { left: 0; }
-  /* the menu by the masthead's own width (the wordmark, the name, Help, two tools and the MODULITH menu need ~600 px) */
-  @container (max-width: 620px) {
+  /* the menu by the masthead's own width (the wordmark, the name, Help, three tools and the MODULITH menu need ~700 px) */
+  @container (max-width: 720px) {
     .mast .mainnav { display: none; }
     .mast .mobilebtn { display: block; }
   }
@@ -331,7 +369,8 @@
 <!-- THE MODULITH MASTHEAD, SLIM AND TOOL FIRST (2026-10-09, Joey: the MODULITH Label Studio with the site menu "but maybe a
      slim version so that it doesn't eat up a ton of realestate"; then, since "How It Works" first in a tool reads as this
      tool's own help: Help, the two other tools, and one MODULITH menu holding the site's pages). Every link opens a new tab, so
-     the labels you are working on stay open. The site pages and their order are the site's navItems() (MODULITH
+     the labels you are working on stay open. The Part Picker (2026-10-10, this site's own parts/) is a button that opens it in a
+     sheet over the labels, between Help and the Planner. The site pages and their order are the site's navItems() (MODULITH
      src/components.js) as the Planner's masthead mirrors them; test/masthead.test.mjs checks them against the Planner's
      index.html when its checkout is beside this one. ⚠ A site nav change is an edit here too. -->
 <header class="mast" id="mast">
@@ -352,6 +391,7 @@
     <span class="product">Label Studio</span>
     <nav aria-label="Primary" class="mainnav">
       <button type="button" class="navhelp" data-help>Help</button>
+      <button type="button" class="navhelp" data-parts>Part Picker</button>
       <a target="_blank" rel="noopener" href="https://gen2planner.jerrari3d.com/">Planner</a>
       <a target="_blank" rel="noopener" href="https://gen2build.jerrari3d.com/builds/">Build Studio</a>
       <div class="navmenu">
@@ -376,6 +416,7 @@
 <dialog class="mobilenav" aria-label="Menu">
   <div class="mnhead"><span>Menu</span><button type="button" class="mnclose" aria-label="Close menu">&#10005;</button></div>
   <button type="button" class="mnhelp" data-help>Help</button>
+  <button type="button" class="mnhelp" data-parts>Part Picker</button>
   <a target="_blank" rel="noopener" href="https://gen2planner.jerrari3d.com/">Planner</a>
   <a target="_blank" rel="noopener" href="https://gen2build.jerrari3d.com/builds/">Build Studio</a>
   <div class="mnsection">MODULITH</div>
@@ -429,14 +470,29 @@
     <label class="opt-toggle" title="Automatically suggest an icon based on each label's text. Icons you choose yourself are never changed.">
       <input type="checkbox" id="predict-icons" checked> Predict icons from text
     </label>
+    <!-- an empty list: the two ways to start (the UI/UX review 2026-10-10, section A) -->
+    <div class="start-card" id="start-card" hidden>
+      <div class="sc-title">Start here</div>
+      <div class="sc-choices">
+        <button type="button" class="sc-choice" id="sc-type"><b>Type your own labels</b><span>Words and an icon, one label per row.</span></button>
+        <button type="button" class="sc-choice" id="sc-parts" data-parts-entry><b>Label hardware parts</b><span>Screws, nuts and washers from the Part Picker, drawn and sized for you.</span></button>
+      </div>
+    </div>
     <div id="labels"></div>
+    <div class="list-note" id="list-note" role="status" aria-live="polite" hidden><span id="list-note-text"></span> · <button type="button" class="link-btn" id="list-undo">Undo</button></div>
     <div class="row-tools">
       <button class="add" id="add-label">+ Add label</button>
       <button class="tool-btn" id="sort-labels" title="Sort rows in natural order (M3×6 before M3×10)">Sort</button>
     </div>
-    <div class="setting preset-row">
-      <span>Preset collection</span>
-      <select id="preset-select"></select>
+    <!-- every source of labels in one row, the Part Picker first -->
+    <div class="add-from">
+      <div class="af-label">Add labels from</div>
+      <div class="af-buttons">
+        <button type="button" class="btn-sm af-parts" id="open-parts" data-parts-entry title="Choose screws, nuts and washers in the Part Picker: they are added to the end of your list as part labels.">Part Picker</button>
+        <select id="preset-select" aria-label="Preset collection" title="Add a preset collection of labels"></select>
+        <div class="csv-zone" id="csv-zone" tabindex="0" role="button" title="Import a CSV or TXT file, one label per row (it replaces your list). You can also drop the file here.">CSV / TXT</div>
+      </div>
+      <div class="af-note" id="parts-reason" hidden></div>
     </div>
 
     <!-- Shared badge picker popover -->
@@ -458,9 +514,6 @@
       </div>
     </div>
 
-    <div class="csv-zone" id="csv-zone" tabindex="0">
-      Drop or click to import <strong>CSV / TXT</strong> (one label per row)
-    </div>
     <input type="file" id="csv-input" accept=".csv,.txt,text/csv,text/plain">
 
     <h2>Save / Load</h2>
@@ -587,10 +640,13 @@
   <div class="hd-head"><h3 id="help-title">How to use the Label Studio</h3><button type="button" class="hd-close" aria-label="Close help">&#10005;</button></div>
   <ol class="hd-steps">
     <li><b>Pick the label type</b> your faceplates take: EdgeLabel or Classic Pro. Your labels are kept when you switch; each type keeps its own label settings.</li>
-    <li><b>Type your labels</b>, one per row, or drop in a CSV / TXT file (one label per line), or start from a preset collection. An icon is suggested from the words; click the badge at the left of a row to choose an icon, a letter or no badge.</li>
+    <li><b>Type your labels</b>, one per row, or add them from the Part Picker, a preset collection or a CSV / TXT file (one label per line). An icon is suggested from the words; click the badge at the left of a row to choose an icon, a letter or no badge.</li>
     <li><b>Set your printer</b> under Build Plate, so the labels are laid out on plates that fit it.</li>
     <li><b>Download</b> and open the file in your slicer: 3MF for a two-color print, STL for one color.</li>
   </ol>
+  <h4 id="help-parts">Labels for screws, nuts and washers</h4>
+  <p>Press <b>Part Picker</b> (at the top, or under your labels) and choose your parts: size, head, material and the rest. <b>Add part labels</b> puts them at the end of your list; <b>Undo</b> beside the list takes them back out. A part that is already in your list is updated, not added twice.</p>
+  <p>A part label is laid out from the part itself. A socket-cap or button-head screw, a hex nut or a nylon-insert nut is drawn head-on and from the side above its size (<b>Screw and nut drawings</b> turns that off). With the Part Picker's label colours, a stripe along the label shows the thread: blue for metric, red for SAE (inch); the short patch at its start shows the material.</p>
   <h4>From the Planner</h4>
   <p>Labels you open from the Planner arrive linked to your build: edit them here and press <b>Send to planner</b>. <b>Add to planner build</b> sends a list from here to the Planner's Labels tray, where you tap a label and then a drawer.</p>
   <h4 id="help-two-color">Two-color printing</h4>
@@ -604,6 +660,16 @@
     <div class="veil-sub" id="gm-body"></div>
     <div class="veil-buttons" id="gm-buttons"></div>
   </div>
+</div>
+<!-- THE PART PICKER SHEET (2026-10-10): full width under the masthead, the Part Picker (parts/, published from its own repo)
+     in a frame made on first open. Its "Add part labels" posts the parts here; they are added to the end of the list. -->
+<div id="parts-sheet" class="parts-sheet" role="dialog" aria-modal="true" aria-labelledby="ps-title" hidden>
+  <div class="ps-bar">
+    <span class="ps-title" id="ps-title">Part Picker</span>
+    <span class="ps-hint">Choose parts, then <b>Add part labels</b>: they go to the end of your list.</span>
+    <button type="button" class="btn-sm primary-sm" id="ps-done">Done</button>
+  </div>
+  <div class="ps-body" id="ps-body"></div>
 </div>
 
 <!-- Libraries -->
@@ -630,6 +696,7 @@
 <script src="hardware-layout.js?v=e496ddf0"></script>
 <script src="label-hardware.js?v=be221a77"></script>
 <script src="label-link.js?v=c04966dd"></script>
+<script src="part-picker-link.js?v=2e4b8128"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
 class MiniOrbit {
@@ -844,6 +911,7 @@ function init() {
   loadFont().then(() => {
     document.getElementById('download').disabled = false;
     rebuild();
+    if (bootStatusTaken) return;   // a question asked at boot (a #hw= link into a list with labels) was answered first
     if (importedHardware && !linkBootStatus) { setStatus(hardwareStatus(importedHardware) + (linkBootExtra ? ' ' + linkBootExtra : ''), hardwareNotPrinted() ? 'err' : 'ok'); return; }
     // rebuild() sets its own status; override it only when it didn't warn.
     if (!document.getElementById('status').classList.contains('err')) {
@@ -999,25 +1067,19 @@ if (!HW_CP) LABEL_TYPES.classicpro.hardware = false;     // its rows are then ke
 function hwTypeSkips(item) { return LH ? LH.typeSkips(item, labelType.id) : []; }
 const HW_INK_DEPTH = LH ? LH.inkDepth : 0.45;
 const HW_ITEM = 'part-picker-label-item/1', HW_ITEMS = 'part-picker-label-items/1', HW_MAX_ITEMS = 200;
-// Size limits on an item, far above any saved one (the largest so far: 5 pinned + optional attributes, 2 fields, 11
-// characters). They bound the layout's search - it tries every below/beside placement of the attributes it prints, 3^n
-// arrangements - so an oversized item from a link cannot freeze the page.
-const HW_MAX = { printable: 8, attributes: 24, fields: 6, text: 60 };
+// The checks an item must pass (its schema, its words, and size limits far above any saved one that bound the layout's search -
+// it tries every below/beside placement of the attributes it prints, 3^n arrangements - so an oversized item from a link cannot
+// freeze the page) live in part-picker-link.js (GEN2PartPickerLink.itemOk), shared by a #hw= link, a label-items file and the
+// Part Picker sheet. A link or a file is taken whole or not at all; the sheet's parts are checked one by one.
+const PPL = window.GEN2PartPickerLink || null;
 let importedHardware = 0, hwKeptPrevious = false;
 
 // a label-items file, an array of items or one item -> the items; null when it is not hardware label items
 function hardwareItems(doc) {
   const list = (doc && doc.schema === HW_ITEMS && Array.isArray(doc.items)) ? doc.items
     : Array.isArray(doc) ? doc : (doc && doc.schema === HW_ITEM) ? [doc] : null;
-  if (!HW || !list || !list.length || list.length > HW_MAX_ITEMS) return null;
-  const strs = (a, max) => Array.isArray(a) && a.length <= max && a.every(x => typeof x === 'string' && x.length <= HW_MAX.text);
-  const good = it => it && it.schema === HW_ITEM && typeof it.id === 'string' && strs(it.fields, HW_MAX.fields) &&
-    Array.isArray(it.attributes) && it.attributes.length <= HW_MAX.attributes &&
-    it.attributes.every(a => a && typeof a.path === 'string' && typeof a.text === 'string' && a.text.length <= HW_MAX.text) &&
-    (it.pinned === undefined || strs(it.pinned, HW_MAX.printable)) && (it.optional === undefined || strs(it.optional, HW_MAX.printable)) &&
-    (it.pinned || []).length + (it.optional || []).length <= HW_MAX.printable &&
-    [...(it.pinned || []), ...(it.optional || [])].every(p => it.attributes.some(a => a.path === p));
-  return list.every(good) ? list : null;
+  if (!HW || !PPL || !list || !list.length || list.length > HW_MAX_ITEMS) return null;
+  return list.every(PPL.itemOk) ? list : null;
 }
 function hardwareFromUrl() {          // null: no hw= in the link; undefined: there is one and it cannot be read
   const m = (location.hash || '').match(/(?:^#|&)hw=([^&]+)/);
@@ -1059,17 +1121,27 @@ function addHardwareRow(item, opts) {
   if (linked) row.dataset.hwJob = JSON.stringify({ t: String(o.t || ''), b: o.b === undefined ? null : o.b });
   row.dataset.hw = '1';
   row.classList.add('hw');
-  row._hwItem = item;
-  row._hw = null;
   input.readOnly = true;
-  input.title = (item.title ? item.title + '. ' : '') +
-    item.attributes.map(a => a.meaning && a.meaning.toLowerCase() !== a.text.toLowerCase() ? `${a.text} = ${a.meaning}` : a.text).join('; ');
   const note = document.createElement('div');
   note.className = 'hw-note';
-  note.textContent = 'Laying out…';
   row.appendChild(note);
-  if (font) layOutHardwareRow(row);
+  setHardwareItem(row, item);
   return row;
+}
+// a part row takes an item: on creation, and when the Part Picker sends the same part again (it is updated in place)
+function setHardwareItem(row, item) {
+  const input = row.querySelector('input.label-text');
+  row._hwItem = item;
+  row._hw = null;
+  row._hwBy = null;
+  input.value = item.fields.map(f => HW.printable(f)).join(' ');
+  input.title = (item.title ? item.title + '. ' : '') +
+    item.attributes.map(a => a.meaning && a.meaning.toLowerCase() !== a.text.toLowerCase() ? `${a.text} = ${a.meaning}` : a.text).join('; ');
+  const note = row.querySelector('.hw-note');
+  note.textContent = 'Laying out…';
+  note.title = '';
+  note.classList.remove('bad');
+  if (font) layOutHardwareRow(row);
 }
 // replaces the rows; the set it replaces is kept as the previous set, as a planner import keeps it
 function importHardware(items) {
@@ -1091,6 +1163,190 @@ function hardwareStatus(n, from) {
   return `Loaded ${n} hardware label${n === 1 ? '' : 's'}${from ? ' from ' + from : ''}.` +
     (bad ? ` ${bad} can't print - see the red note on ${bad === 1 ? 'its row' : 'their rows'}.` : '') +
     (hwKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '');
+}
+
+//============================================================
+// THE PART PICKER SHEET (2026-10-10; the UI/UX review's design, section A, with the owner's answers: the Part Picker ships
+// inside this site under parts/, and picked parts are ADDED, with Undo). Four ways in, one name: the masthead (and the phone
+// menu), "Add labels from" under the list, the start card of an empty list. The sheet is full width under the masthead, the
+// Part Picker in a frame made the first time it opens; the page behind is inert. Its "Add part labels" posts the parts
+// (part-picker-link.js has the contract): each is checked on its own, added to the END of the list - a part already in the
+// list is updated in place - and "Added N part labels · Undo" shows beside the list until the list changes again.
+// A planner-linked tab does not take part labels yet: the entries are greyed out, the reason written under "Add labels from".
+//============================================================
+const PARTS_URL = 'parts/?embed=1';
+let partsFrame = null, partsOpener = null;
+let listUndo = null;          // { labels, sig }: the rows before the last add, kept while the list is as that add left it
+let pendingHwLink = null;     // a #hw= link that arrived at boot into a list with labels: asked about once the page is up
+let bootStatusTaken = false;  // ...and answered: init() then leaves the status line to the answer
+
+function rowHasContent(r) {
+  return !!(r.dataset.hw || r.querySelector('input.label-text').value.trim() || (r.dataset.badgeType && r.dataset.badgeType !== 'none') ||
+    r.dataset.badgeHeld || r.dataset.badgeKeep);
+}
+function listHasLabels() { return [...document.querySelectorAll('#labels .row')].some(rowHasContent); }
+function partsBlockedReason() {
+  if (typeof link !== 'undefined' && link) return "Part labels can't go into a planner-linked list yet. To put them on a planner build, add them in a Label Studio tab that is not linked, then use Add to planner build.";
+  if (!HW || !PPL) return 'The part-label layout did not load. Reload the page to add part labels.';
+  return '';
+}
+function updatePartsEntry() {
+  const why = partsBlockedReason();
+  document.querySelectorAll('[data-parts], [data-parts-entry]').forEach(b => {
+    if (b.dataset.title === undefined) b.dataset.title = b.title || '';
+    b.disabled = !!why;
+    b.title = why || b.dataset.title;
+  });
+  const r = document.getElementById('parts-reason');
+  if (r) { r.hidden = !why; r.textContent = why; }
+}
+function updateStartCard() {
+  const c = document.getElementById('start-card');
+  if (c) c.hidden = (typeof link !== 'undefined' && !!link) || listHasLabels();
+}
+function placePartsSheet() {
+  const s = document.getElementById('parts-sheet');
+  if (!s.hidden) s.style.top = Math.max(0, Math.round(document.getElementById('mast').getBoundingClientRect().bottom)) + 'px';
+}
+function focusPartsFrame() { try { partsFrame.focus(); partsFrame.contentWindow.focus(); } catch (e) {} }
+// Escape inside the Part Picker closes the sheet too - except in a text field, where Escape is the field's own (the Picker's
+// "your own value" box cancels with it)
+function hookPartsKeys(f) {
+  try {
+    f.contentWindow.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      const t = e.target;
+      if (t && t.matches && t.matches('input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]), textarea, select')) return;
+      closePartsSheet();
+    });
+  } catch (e) { /* not the same origin: Done still closes it */ }
+}
+function openPartsSheet(trigger) {
+  const why = partsBlockedReason();
+  if (why) { setStatus(why, 'err'); return; }
+  closeBadgePopover();
+  const mn = document.querySelector('dialog.mobilenav'); if (mn && mn.open) mn.close();
+  const help = document.getElementById('help'); if (help && help.open) help.close();
+  const sheet = document.getElementById('parts-sheet');
+  // focus goes back where it came from on Done (the phone menu's button is gone with its menu: its menu button instead)
+  partsOpener = trigger && trigger.closest && trigger.closest('dialog.mobilenav') ? document.querySelector('.mobilebtn') : (trigger || document.activeElement);
+  sheet.hidden = false;
+  placePartsSheet();
+  for (const el of [document.getElementById('app'), document.getElementById('mast'), document.querySelector('.skip')]) if (el) el.inert = true;
+  document.documentElement.classList.add('sheet-open');
+  if (!partsFrame) {
+    const body = document.getElementById('ps-body');
+    const wait = document.createElement('div');
+    wait.className = 'ps-wait'; wait.textContent = 'Opening the Part Picker…';
+    body.appendChild(wait);
+    const f = document.createElement('iframe');
+    f.title = 'Part Picker';
+    f.addEventListener('load', () => { wait.remove(); hookPartsKeys(f); if (!sheet.hidden) focusPartsFrame(); });
+    f.src = PARTS_URL;
+    body.appendChild(f);
+    partsFrame = f;
+  }
+  focusPartsFrame();
+}
+function closePartsSheet() {
+  const sheet = document.getElementById('parts-sheet');
+  if (sheet.hidden) return;
+  sheet.hidden = true;
+  for (const el of [document.getElementById('app'), document.getElementById('mast'), document.querySelector('.skip')]) if (el) el.inert = false;
+  document.documentElement.classList.remove('sheet-open');
+  const o = partsOpener; partsOpener = null;
+  if (o && document.contains(o) && !o.disabled && o.focus) o.focus({ preventScroll: true });
+}
+
+// the list as captured for a set (every row); its string tells whether the list changed since an add
+const listSignature = () => JSON.stringify(captureLabels(false));
+function showListNote(text) {
+  document.getElementById('list-note-text').textContent = text;
+  document.getElementById('list-note').hidden = false;
+}
+function dropListUndo() {
+  listUndo = null;
+  const n = document.getElementById('list-note'); if (n) n.hidden = true;
+}
+// rebuild() calls this: an edit, a removal, an import - anything that changes the list - ends the add's Undo
+function checkListUndo() { if (listUndo && listUndo.sig !== null && listSignature() !== listUndo.sig) dropListUndo(); }
+function flashRows(rows) {
+  rows.forEach(r => { r.classList.remove('flash'); void r.offsetWidth; r.classList.add('flash'); });
+  setTimeout(() => rows.forEach(r => r.classList.remove('flash')), 2600);
+}
+// Add part items to the END of the list: a part already in it (the same part id) is updated in place, an item that cannot be
+// read is skipped and counted. Blank rows at the end of the list (the three a new list starts with) make way first. Undo
+// restores exactly the rows before. -> { count, skipped, rows }
+function addPartItems(items) {
+  const before = captureLabels(false);
+  const rows = [...document.querySelectorAll('#labels .row')];
+  const plan = PPL.planAdd(rows.map(r => (r.dataset.hw && r._hwItem && typeof r._hwItem.id === 'string') ? r._hwItem.id : null), items);
+  const count = plan.add.length + plan.update.length;
+  if (!count) return { count: 0, skipped: plan.skipped, rows: [] };
+  if (!labelType.hardware) setLabelType('edgelabel');   // the type in use cannot print part labels (its face data did not load)
+  const touched = plan.update.map(u => { setHardwareItem(rows[u.index], u.item); return rows[u.index]; });
+  if (plan.add.length) {
+    for (let i = rows.length - 1; i >= 0 && !rowHasContent(rows[i]); i--) { if (activeBadgeRow === rows[i]) closeBadgePopover(); rows[i].remove(); }
+    plan.add.forEach(it => touched.push(addHardwareRow(it)));
+  }
+  renumberRows();
+  updateBulkBar();
+  listUndo = { labels: before, sig: null };
+  rebuild();
+  listUndo.sig = listSignature();
+  const bad = touched.filter(r => r.querySelector('.hw-note.bad')).length;
+  showListNote((plan.add.length ? `Added ${plural(plan.add.length, 'part label', 'part labels')}` : '') +
+    (plan.add.length && plan.update.length ? `, updated ${plan.update.length} already in your list` : '') +
+    (!plan.add.length ? `Updated ${plural(plan.update.length, 'part label', 'part labels')} already in your list` : '') +
+    (plan.skipped ? ` (${plural(plan.skipped, 'part', 'parts')} could not be read and ${plan.skipped === 1 ? 'was' : 'were'} skipped)` : '') +
+    (bad ? `. ${bad} can't print yet: see the red note` : ''));
+  flashRows(touched);
+  const first = touched.find(r => r.isConnected);
+  if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  return { count, skipped: plan.skipped, rows: touched };
+}
+function addSavedLabels(labels) { labels.forEach(addSavedLabel); }
+function undoListAdd() {
+  if (!listUndo) return;
+  const u = listUndo;
+  dropListUndo();
+  closeBadgePopover();
+  clearLabelRows();
+  addSavedLabels(u.labels);
+  renumberRows();
+  updateBulkBar();
+  rebuild();
+  setStatus('Undone: your list is back as it was before the parts were added.', 'ok');
+}
+// the Part Picker's "Add part labels": only from the sheet's own frame, on this site (part-picker-link.js readAdd)
+window.addEventListener('message', (e) => {
+  if (!PPL || !partsFrame) return;
+  const m = PPL.readAdd(e, partsFrame.contentWindow, location.origin);
+  if (!m) return;
+  const reply = (msg) => { try { e.source.postMessage(msg, location.origin); } catch (err) { /* the frame went away */ } };
+  const why = m.refused || partsBlockedReason();
+  if (why) { reply(PPL.refused(why)); return; }
+  const r = addPartItems(m.items);
+  reply(PPL.added(r.count, r.skipped));
+  if (r.count) closePartsSheet();   // nothing added: the sheet stays, and the Part Picker says why
+});
+// An old-style #hw= link (the Part Picker opened on its own) into a list that already has labels asks first; an empty list
+// takes it as it always did.
+async function askHardwareLink(items) {
+  const n = items.length;
+  const c = await askModal({ title: `Add ${plural(n, 'part label', 'part labels')} to your labels?`,
+    body: `This link brings ${plural(n, 'part label', 'part labels')} from the Part Picker, and your list already has labels. Add them to the end of your list, or replace your labels with them (yours are kept as the Previous set).`,
+    buttons: [{ id: 'add', label: 'Add to my labels', primary: true }, { id: 'replace', label: 'Replace them' }, { id: 'cancel', label: 'Cancel' }] });
+  bootStatusTaken = true;
+  if (c === 'add') {
+    const r = addPartItems(items);
+    setStatus(r.count ? `Added ${plural(r.count, 'part label', 'part labels')} from the link to the end of your list.` : 'None of the part labels in the link could be read.', r.count ? 'ok' : 'err');
+  } else if (c === 'replace') {
+    autosave();
+    importHardware(items);
+    rebuild();
+    setStatus(hardwareStatus(n), hardwareNotPrinted() ? 'err' : 'ok');
+  } else setStatus('Kept your labels: the part labels in the link were not added.', 'ok');
 }
 // a part label's ink (z 0..depth, placed at the label's top face like any label text) and its band pieces: label-hardware.js
 function meshesFor(data, capH, depth, badgeSize, bold) {
@@ -1229,6 +1485,8 @@ function updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge) {
 function rebuild() {
   updateTypeUI();
   if (LINK) { updateRowFlags(); renderLinkBar(); }
+  updateStartCard();
+  checkListUndo();
   if (!font) return;   // font loads async; init() calls rebuild() once it's ready
   layOutPendingHardware();
   if (labelGroup) {
@@ -2204,7 +2462,7 @@ function populatePresetSelect() {
   if (!sel) return;
   sel.innerHTML = '';
   const ph = document.createElement('option');
-  ph.value = ''; ph.textContent = 'Load a collection…';
+  ph.value = ''; ph.textContent = 'Presets…';
   sel.appendChild(ph);
   const groups = {};
   LABEL_PRESETS.forEach(p => { (groups[p.group] = groups[p.group] || []).push(p); });
@@ -2517,15 +2775,18 @@ function updateTypeUI() {
 function applyLabels(labels) {
   clearLabelRows();
   if (!labels || !labels.length) { for (let i = 0; i < 3; i++) addLabelRow(''); return; }
-  labels.forEach(l => {
-    const hwItem = l.hw && hardwareItems(l.hw);
-    if (hwItem) { addHardwareRow(hwItem[0]); return; }
-    const b = l.badge;
-    const badge = (b && b.type && b.type !== 'none') ? b : null;
-    const row = addLabelRow(l.text || '', badge).closest('.row');
-    if (l.manual) row.dataset.badgeManual = '1';
-    else if (isPredictedBadge(badge)) autoAssignIcon(row);
-  });
+  labels.forEach(addSavedLabel);
+}
+// one saved label (captureLabels' form) as a row at the end of the list; returns the row
+function addSavedLabel(l) {
+  const hwItem = l.hw && hardwareItems(l.hw);
+  if (hwItem) return addHardwareRow(hwItem[0]);
+  const b = l.badge;
+  const badge = (b && b.type && b.type !== 'none') ? b : null;
+  const row = addLabelRow(l.text || '', badge).closest('.row');
+  if (l.manual) row.dataset.badgeManual = '1';
+  else if (isPredictedBadge(badge)) autoAssignIcon(row);
+  return row;
 }
 // A badge the guess put there (not picked, not uploaded) - or none - is guessed again from the words when a set is restored,
 // so a corrected guess (label-icons.js CORRECTIONS) reaches saved sets too. A letter or an upload is never re-guessed.
@@ -2588,6 +2849,9 @@ const autosaveLater = debounce(() => { autosavePending = false; autosave(); }, 8
 const scheduleAutosave = () => { autosavePending = true; autosaveLater(); };
 window.addEventListener('pagehide', () => { if (autosavePending) { autosavePending = false; autosave(); } });
 
+function autosaveHasLabels() {
+  try { return setHasContent(JSON.parse(localStorage.getItem(LS_AUTOSAVE))); } catch (e) { return false; }
+}
 function restoreAutosave() {
   let snap;
   try { snap = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) { return false; }
@@ -2896,7 +3160,7 @@ function plainProject(p) {
 // a hardware import into a linked set is not built yet; from a planner tab older than the label list it never will be (Release B)
 function linkedHardwareRefusal() {
   return link && !LINK.canEditPartLabels(link.job) ? "This planner tab is an older version: part labels can't be edited from it. Refresh the planner tab to edit part labels."
-    : "Hardware labels can't go into a planner-linked set yet - open the generator on its own.";
+    : "Part labels can't go into a planner-linked set yet: add them in a Label Studio tab that is not linked, then use Add to planner build.";
 }
 
 // ---- the bar ----
@@ -2953,6 +3217,8 @@ function addToPlanner() {
 }
 
 function renderLinkBar() {
+  updatePartsEntry();   // a linked tab greys out the Part Picker
+  updateStartCard();
   const bar = gid('link-bar');
   if (!bar) return;
   const tp = gid('to-planner'); if (tp) tp.hidden = !!link;   // linked: the link bar's Send to planner is the way back
@@ -3428,6 +3694,7 @@ window.addEventListener('hashchange', () => {
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   if (!hw) { setStatus("Couldn't read the hardware labels in that link (it may have been cut short).", 'err'); return; }
   if (link) { setStatus(linkedHardwareRefusal(), 'err'); return; }
+  if (listHasLabels()) { askHardwareLink(hw); return; }   // add to them, replace them, or cancel
   autosave();
   importHardware(hw);
   rebuild();
@@ -3459,6 +3726,8 @@ function bootRows() {
     const hw = hardwareFromUrl();
     if (hw !== null) {
       try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      // a list with labels in it (the autosave) is restored first, and asked about the link once the page is up (setupUI)
+      if (hw && autosaveHasLabels() && restoreAutosave()) { restoredFromAutosave = true; pendingHwLink = hw; return; }
       if (hw) { importHardware(hw); return; }
       linkBootExtra = (linkBootExtra + " Couldn't read the hardware labels in the link (it may have been cut short).").trim();
     }
@@ -3645,10 +3914,31 @@ function setupUI() {
   // session's colours never make it to the 3D preview). Priority (bootRows, Step 3 section 7.1): a planner
   // #job= link > a legacy #labels= link > this tab's LINKED session > the autosaved session > 3 blank rows.
   setupLinkControls();
+  setupPartsSheet();
   bootRows();
   const wanted = new URLSearchParams(location.search).get('type');
   if (wanted && !(typeof link !== 'undefined' && link) && Object.prototype.hasOwnProperty.call(LABEL_TYPES, wanted)) setLabelType(wanted);
   updateTypeUI();
+  updatePartsEntry();
+  updateStartCard();
+  if (pendingHwLink) { const hw = pendingHwLink; pendingHwLink = null; askHardwareLink(hw); }
+}
+
+// The Part Picker's four entries, the sheet's Done and Escape, the start card's two choices, Undo beside the list.
+function setupPartsSheet() {
+  document.querySelectorAll('[data-parts], [data-parts-entry]').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); openPartsSheet(el); }));
+  document.getElementById('ps-done').addEventListener('click', closePartsSheet);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('parts-sheet').hidden) { e.preventDefault(); closePartsSheet(); }
+  }, true);
+  window.addEventListener('resize', placePartsSheet);
+  window.addEventListener('scroll', placePartsSheet, { passive: true });
+  document.getElementById('list-undo').addEventListener('click', undoListAdd);
+  document.getElementById('sc-type').addEventListener('click', () => {
+    const blank = [...document.querySelectorAll('#labels .row')].find(r => !r.dataset.hw && !r.querySelector('input.label-text').value.trim());
+    const input = blank ? blank.querySelector('input.label-text') : addLabelRow('');
+    input.focus();
+  });
 }
 
 function handleCsv(file) {

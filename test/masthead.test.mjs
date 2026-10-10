@@ -16,6 +16,10 @@ const nav = () => between(PAGE, '<nav aria-label="Primary" class="mainnav">', '<
 const phone = () => between(PAGE, '<dialog class="mobilenav"', '</dialog>');
 const siteMenu = () => links(between(PAGE, '<div class="dropdown" id="prodmenu">', '</div>'));
 
+// The Part Picker (2026-10-10) is this site's own tool, published under parts/: its masthead item is a BUTTON that opens it in
+// a sheet over the labels (not a link to a new tab), between Help and the Planner, in the bar and in the phone menu.
+const PARTS_BTN = /<button type="button" class="(navhelp|mnhelp)" data-parts>Part Picker<\/button>/;
+
 test('the bar leads with the tool: Help, then the Planner and the Build Studio, then the MODULITH menu', () => {
   const n = nav();
   assert.ok(n.indexOf('data-help>Help</button>') < n.indexOf('>Planner</a>'));
@@ -28,6 +32,16 @@ test('the phone menu holds the same links as the bar, in the same order', () => 
   const p = phone();
   assert.match(p, /data-help>Help<\/button>/);
   assert.deepEqual(links(p).map(l => [l.href, l.text]), links(nav()).map(l => [l.href, l.text]));
+});
+
+test('the Part Picker sits between Help and the Planner, in the bar and in the phone menu, and opens the sheet', () => {
+  for (const [where, html] of [['bar', nav()], ['phone menu', phone()]]) {
+    const m = html.match(PARTS_BTN);
+    assert.ok(m, `${where}: a Part Picker button`);
+    assert.ok(html.indexOf('data-help>Help</button>') < m.index && m.index < html.indexOf('>Planner</a>'), `${where}: between Help and the Planner`);
+  }
+  assert.ok(!links(nav()).some(l => l.text === 'Part Picker'), 'not a new-tab link: the sheet keeps the labels in view');
+  assert.match(PAGE, /const PARTS_URL = 'parts\/\?embed=1';/);
 });
 
 test('every masthead link opens a new tab, so the labels being made stay open', () => {
