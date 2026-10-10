@@ -628,6 +628,7 @@
 <script src="hardware-v5-data.js?v=3c7283b4"></script>
 <script src="hardware-band-data.js?v=0ed77c4b"></script>
 <script src="hardware-layout.js?v=e496ddf0"></script>
+<script src="label-hardware.js?v=be221a77"></script>
 <script src="label-link.js?v=c04966dd"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
@@ -925,9 +926,7 @@ function loadFont() {
       for (let i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
       font = opentype.parse(buf);
       Object.values(LABEL_TYPES).forEach(t => { if (t.core) t.core.setFont(font); });
-      if (HW) HW.setFont(font);
-      if (HW_CP) HW_CP.setFont(font);
-      Object.values(HW_BAND).forEach(h => h.setFont(font));
+      if (LH) LH.setFont(font);
       resolve();
     } catch (e) { reject(e); }
   });
@@ -970,8 +969,13 @@ function capsOn() {
 // governs every ordinary label. A label item comes in through Save / Load > Upload (a label-items .json the Part Picker
 // saved) or a #hw=<base64 JSON> link.
 //============================================================
-const HW = (window.GEN2HardwareLayout && window.GEN2HardwareData)
-  ? GEN2HardwareLayout.create({ data: GEN2HardwareData, v5: window.GEN2HardwareV5Data || null }) : null;
+// The layout itself, the raised ink, the colour-band pieces and the row note live in label-hardware.js (GEN2LabelHardware),
+// shared byte-for-byte with the 3D Build Studio so a part label there is the one printed here; this page reads its own
+// settings (the label type, the drawings switch, the band position) and passes them in.
+const LH = window.GEN2LabelHardware ? GEN2LabelHardware.create({ THREE: window.THREE, layout: window.GEN2HardwareLayout || null,
+  data: window.GEN2HardwareData || null, v5: window.GEN2HardwareV5Data || null, classicpro: window.GEN2HardwareDataClassicPro || null,
+  bands: window.GEN2HardwareBandData || null, mergeGeoms: (geos) => LabelCore.mergeGeoms(geos) }) : null;
+const HW = LH ? LH.layouts.edgelabel : null;
 // profile labels (the screw or nut drawn head-on and from the side, label tool 2026-10-07) are the default; the
 // "Screw and nut drawings" setting turns them off for the set
 function hwProfileOn() { const el = document.getElementById('hw-profile'); return !el || el.checked; }
@@ -981,80 +985,19 @@ function hwProfileOn() { const el = document.getElementById('hw-profile'); retur
 // out in the face less the band and its 0.8 mm gap: one layout instance per band position. hardware-band-data.js holds the
 // usable areas and the label cut into base / band / accent pieces (made in Python from this page's own label mesh;
 // D:/MODULITH/handoffs/hardware-library/v5/export_bands.py). An item with no colours (no scheme) keeps the whole face.
-const HW_BANDS = window.GEN2HardwareBandData || null;
-const HW_BAND = {};
-if (HW && HW_BANDS && HW_BANDS.format === 'modulith-hardware-bands') for (const tr of Object.keys(HW_BANDS.treatments)) {
-  HW_BAND[tr] = GEN2HardwareLayout.create({ data: Object.assign({}, GEN2HardwareData, { usable: HW_BANDS.treatments[tr].usable }),
-    v5: window.GEN2HardwareV5Data || null });
-}
-function hwBandFor(item) {
-  const el = document.getElementById('hw-band'), v = el ? el.value : 'bottom';
-  return item && item.colours && typeof item.colours === 'object' && HW_BAND[v] ? v : null;
-}
+// The setting's value ('bottom' | 'end' | 'wedge' | 'off'); label-hardware.js decides which rows it applies to.
+function hwBandSetting() { const el = document.getElementById('hw-band'); return el ? el.value : 'bottom'; }
 // CLASSIC PRO PART LABELS (label types step 3, 2026-10-09). The same layout on Classic Pro's own face (hardware-data-classicpro.js,
 // made by export_hw_data_classicpro.py from this page's Classic Pro label body: the printing face less a 1.8 mm margin, kept
 // from the two slits that make its lower corners springy too - Joey: "avoid the compliant mechanisms at all cost"), every row
 // centred, as its plain labels are (Joey 2026-10-09). It prints the words and the family icon; the screw and nut drawings and
 // the colour band are EdgeLabel-only for now (Astra: optional, after measuring) and stay saved, named in the row's note. Its
 // text sizes are EdgeLabel's until Astra decides whether the 45 degree face (it reads at 71% from in front) needs larger ones.
-const HW_CP = (window.GEN2HardwareLayout && window.GEN2HardwareDataClassicPro)
-  ? GEN2HardwareLayout.create({ data: GEN2HardwareDataClassicPro }) : null;
+const HW_CP = LH ? LH.layouts.classicpro : null;
 if (!HW_CP) LABEL_TYPES.classicpro.hardware = false;     // its rows are then kept, dimmed and named (updateTypeUI)
-// the layout a part label gets on the current type, its band position (EdgeLabel only) and its ink depth
-function hwLayoutFor(item) {
-  if (labelType.id === 'classicpro') return { L: HW_CP, band: null, depth: HW_CP ? GEN2HardwareDataClassicPro.rules.inkDepth : HW_INK_DEPTH };
-  const band = hwBandFor(item);
-  return { L: band ? HW_BAND[band] : HW, band, depth: HW_INK_DEPTH };
-}
 // what a part label carries that Classic Pro does not print yet (it prints again on EdgeLabel)
-function hwTypeSkips(item) {
-  if (labelType.id !== 'classicpro' || !item) return [];
-  const out = [];
-  if (HW && HW.profileCovered(item)) out.push('drawing');
-  if (item.colours && typeof item.colours === 'object') out.push('colour band');
-  return out;
-}
-// an item's colours, cleaned (they can come from a link): per slot a colour {colour, hex, label, pattern}, null when the
-// scheme leaves it UNASSIGNED (the record does not hold the value - printed in the base colour, never a guess), or
-// undefined when the scheme has no such slot (no band accent: the band's colour covers the whole band)
-function hwColour(c) {
-  if (c === null || c === undefined) return undefined;
-  if (typeof c !== 'object' || typeof c.colour !== 'string' || !/^[a-z0-9-]{1,30}$/i.test(c.colour) ||
-      typeof c.hex !== 'string' || !/^#[0-9a-f]{6}$/i.test(c.hex)) return null;
-  return { colour: c.colour, hex: c.hex, label: typeof c.label === 'string' ? c.label.slice(0, 40) : c.colour,
-           pattern: c.pattern === 'dashed' ? 'dashed' : 'solid' };
-}
-function hwColours(cs) { return { band: hwColour(cs.band), band_accent: hwColour(cs.band_accent) }; }
-let bandGeoCache = new Map();          // cleared with the preview's geometries (rebuild disposes them)
-function bandGeo(tr, kind, piece) {
-  const key = tr + '/' + kind + '/' + piece;
-  if (!bandGeoCache.has(key)) {
-    const m = HW_BANDS.treatments[tr][kind][piece], g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(m.v, 3));
-    g.setIndex(m.t);
-    g.computeVertexNormals();
-    bandGeoCache.set(key, g);
-  }
-  return bandGeoCache.get(key);
-}
-// the label body of a banded row: base / band / accent pieces, each with its colour (null = the base colour)
-function bandParts(hw) {
-  const b = hw.colours.band || null, a = hw.colours.band_accent;
-  const kind = b && b.pattern === 'dashed' ? 'dashed' : 'solid';
-  return [
-    { piece: 'base', geo: bandGeo(hw.band, kind, 'base'), colour: null },
-    { piece: 'band', geo: bandGeo(hw.band, kind, 'band'), colour: b },
-    { piece: 'accent', geo: bandGeo(hw.band, kind, 'accent'), colour: a === undefined ? b : a },
-  ];
-}
-function bandNote(r) {
-  if (!r.band) return '';
-  const b = r.colours.band, a = r.colours.band_accent;
-  const bits = [b ? `${b.label} band` : 'band unassigned'];
-  if (a !== undefined) bits.push(a ? `${a.label} accent` : 'accent unassigned');
-  return ` ${bits.join(', ')}.`;
-}
-const HW_INK_DEPTH = (window.GEN2HardwareData && GEN2HardwareData.rules.inkDepth) || 0.45;
+function hwTypeSkips(item) { return LH ? LH.typeSkips(item, labelType.id) : []; }
+const HW_INK_DEPTH = LH ? LH.inkDepth : 0.45;
 const HW_ITEM = 'part-picker-label-item/1', HW_ITEMS = 'part-picker-label-items/1', HW_MAX_ITEMS = 200;
 // Size limits on an item, far above any saved one (the largest so far: 5 pinned + optional attributes, 2 fields, 11
 // characters). They bound the layout's search - it tries every below/beside placement of the attributes it prints, 3^n
@@ -1086,59 +1029,21 @@ function hardwareRowText(item, rec) { // what the row shows: the printed words, 
   if (rec && rec.main_lines) return rec.main_lines.join(' ') + (rec.attributes.length ? ' · ' + rec.attributes.join(' · ') : '');
   return item.fields.map(f => HW.printable(f)).join(' ') || item.title || item.id;
 }
-function hardwareNoteText(r) {
-  const rec = r.record;
-  if (rec.not_ready) return `Not ready: ${rec.not_ready}. Nothing is printed - complete the part record first.`;
-  if (rec.nonfit) {
-    const p = r.proposal;
-    return `Doesn't fit: ${rec.nonfit}.` + (p && p.omit ? ` It fits without ${p.omit.join(', ')} - unpin ${p.omit_paths.join(', ')} to print it.` : '');
-  }
-  // a person's line (Astra: the old "Hardware label · value at 9.8 mm caps · screw icon" read like debug text); the layout
-  // numbers are in the note's tooltip (hardwareNoteDetail)
-  const fellBack = r.covered && hwProfileOn() && rec.layout !== 'v5' ? ' No drawing: its pinned words do not fit beside it.' : '';
-  return (rec.layout === 'v5' ? `Part label with the ${rec.kind} drawing, laid out from the part record.` : 'Part label, laid out from the part record.' + fellBack) +
-    bandNote(r) +
-    (r.typeSkips ? ` Its ${r.typeSkips.join(' and ')} print${r.typeSkips.length === 1 ? 's' : ''} on EdgeLabel only, for now.` : '') +
-    (rec.icon_left_off ? ` No room for the ${rec.icon_left_off} icon beside the words.` : '') +   // never left off silently (Astra 2026-10-09)
-    (rec.not_shown.length ? ` Left off to fit: ${rec.not_shown.join(', ')}.` : '') +
-    (rec.value_missing.length ? ` ${rec.value_missing.map(m => m.why).join('; ').replace(/^./, c => c.toUpperCase())}.` : '');   // each why already says it ("length not recorded")
-}
-function hardwareNoteDetail(r) {
-  const rec = r.record;
-  if (rec.not_ready || rec.nonfit || !rec.main_cap) return '';
-  if (rec.layout === 'v5') return `Main value ${rec.main_cap} mm tall, ${rec.kind} drawing ${rec.H} mm tall` +
-    (rec.head_as_drawing ? `; the drawing stands for ${rec.head_as_drawing}, which is not printed` : '') +
-    '. The layout is decided by the part record: text size, bold, caps and icon settings do not apply to this row.';
-  return `Main value ${rec.main_cap} mm tall` + (rec.icon ? `, ${rec.icon} icon` : ', no icon') + (rec.profile_why && r.covered ? ` (no drawing: ${rec.profile_why})` : '') +
-    '. The layout is decided by the part record: text size, bold, caps and icon settings do not apply to this row.';
-}
+// lays the row's item out for the current type and settings (label-hardware.js: the layout, its band and the note's words)
 function layOutHardwareRow(row) {
   const item = row._hwItem;
   let r;
-  const opts = { profile: hwProfileOn() };
-  const { L, band, depth } = hwLayoutFor(item);
-  const key = labelType.id + '|' + (band || '') + '|' + opts.profile;
+  const type = labelType.id, profile = hwProfileOn(), setting = hwBandSetting();
+  const { band } = LH.layoutFor(item, type, setting);
+  const key = type + '|' + (band || '') + '|' + profile;
   if (!row._hwBy) row._hwBy = {};
   if (row._hwBy[key]) r = row._hwBy[key];   // laid out before on this type with these settings (switching back is instant)
-  else {
-    try {
-      if (!L) throw new Error('the Classic Pro part-label layout did not load');
-      r = L.layOut(item, opts);
-      r.covered = L.profileCovered ? L.profileCovered(item) : false;
-      if (band && r.elements) { r.band = band; r.colours = hwColours(item.colours); }
-    }
-    catch (e) { r = { elements: null, record: { not_ready: 'the label item could not be read (' + e.message + ')' } }; }
-    if (r.record.nonfit && (item.pinned || []).length > 1) { try { r.proposal = L.propose(item, opts).record; } catch (e) {} }
-    r.inkDepth = depth;
-    const skips = hwTypeSkips(item);
-    if (skips.length) r.typeSkips = skips;
-    row._hwBy[key] = r;
-  }
+  else row._hwBy[key] = r = LH.layOut(item, { type, profile, band: setting });
   row._hw = r;
   row.querySelector('input.label-text').value = hardwareRowText(item, r.record);
   const note = row.querySelector('.hw-note');
-  note.textContent = hardwareNoteText(r);
-  note.title = hardwareNoteDetail(r);
+  note.textContent = LH.noteText(r, profile);   // a person's line; the layout numbers are in its tooltip
+  note.title = LH.noteDetail(r);
   note.classList.toggle('bad', !r.elements);
 }
 function layOutPendingHardware() {    // rows added before the font loaded are laid out on the first rebuild after it
@@ -1187,48 +1092,9 @@ function hardwareStatus(n, from) {
     (bad ? ` ${bad} can't print - see the red note on ${bad === 1 ? 'its row' : 'their rows'}.` : '') +
     (hwKeptPrevious ? ' Your previous set is kept: Save / Load › Previous set.' : '');
 }
-function hwInPoly(p, loop) {
-  let inside = false;
-  for (let i = 0, j = loop.length - 1; i < loop.length; j = i++) {
-    const a = loop[i], b = loop[j];
-    if ((a.y > p.y) !== (b.y > p.y) && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x) inside = !inside;
-  }
-  return inside;
-}
-// A hole pulled in towards its centre by 0.00001 mm before it is triangulated. three's triangulator (earcut) drops points
-// it finds exactly collinear once a hole is bridged to its outline, so a hole edge on the same line as an outline edge -
-// the centre square of the '#' glyph sits on the line of its bars - left the caps without two vertices the side walls
-// use: T-junctions, an ink solid that is not closed (8 open edges on "#10-24"). Far below the 0.0001 mm the exports write.
-function hwPullIn(L) {
-  let cx = 0, cy = 0;
-  for (const p of L) { cx += p.x; cy += p.y; }
-  cx /= L.length; cy /= L.length;
-  return L.map(p => { const dx = cx - p.x, dy = cy - p.y, d = Math.hypot(dx, dy) || 1; return new THREE.Vector2(p.x + 1e-5 * dx / d, p.y + 1e-5 * dy / d); });
-}
-// the laid-out outlines as one extruded geometry (z 0..depth, placed at the label's top face like any label text)
-function hardwareMeshes(hw, depth) {
-  const geos = [];
-  for (const parts of Object.values(hw.elements)) {
-    for (const rings of parts) {
-      const loops = rings.map(r => { const o = []; for (let i = 0; i < r.length; i += 2) o.push(new THREE.Vector2(r[i], r[i + 1])); return o; });
-      // even-odd, as the outlines are filled: a ring inside an odd number of the others is a hole in the innermost one around it
-      const lvl = loops.map((L, i) => loops.reduce((n, M, j) => n + (j !== i && hwInPoly(L[0], M) ? 1 : 0), 0));
-      const outers = [];
-      loops.forEach((L, i) => { if (lvl[i] % 2 === 0) outers.push({ i, shape: new THREE.Shape(L) }); });
-      loops.forEach((L, i) => {
-        if (lvl[i] % 2 === 0) return;
-        const host = outers.find(o => lvl[o.i] === lvl[i] - 1 && hwInPoly(L[0], loops[o.i]));
-        if (host) host.shape.holes.push(new THREE.Path(hwPullIn(L)));
-      });
-      for (const o of outers) geos.push(new THREE.ExtrudeGeometry(o.shape, { depth, bevelEnabled: false, curveSegments: 1 }));
-    }
-  }
-  const textGeo = geos.length ? LabelCore.mergeGeoms(geos) : null;
-  geos.forEach(g => g.dispose());
-  return { textGeo, badgeGeo: null, textFits: true, baseParts: hw.band ? bandParts(hw) : null };
-}
+// a part label's ink (z 0..depth, placed at the label's top face like any label text) and its band pieces: label-hardware.js
 function meshesFor(data, capH, depth, badgeSize, bold) {
-  return data.hardware ? hardwareMeshes(data.hardware, data.hardware.inkDepth || HW_INK_DEPTH) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
+  return data.hardware ? LH.meshes(data.hardware, data.hardware.inkDepth || HW_INK_DEPTH) : buildLabelMeshes(data, capH, depth, badgeSize, bold);
 }
 
 function getLabelData() {
@@ -1371,7 +1237,7 @@ function rebuild() {
     });
     scene.remove(labelGroup);
   }
-  bandGeoCache = new Map();
+  if (LH) LH.resetBandGeometry();      // the band pieces were disposed with the preview's geometries just above
   labelGroup = new THREE.Group();
   scene.add(labelGroup);
 
@@ -1766,7 +1632,7 @@ function filamentPlan(labels) {
   const used = new Map();
   for (const d of labels) {
     if (!d.hardware || !d.hardware.band) continue;
-    for (const p of bandParts(d.hardware)) {
+    for (const p of LH.bandParts(d.hardware.band, d.hardware.colours)) {
       if (!p.colour) continue;
       const u = used.get(p.colour.colour) || { hex: p.colour.hex, labels: new Set() };
       u.labels.add(p.colour.label);

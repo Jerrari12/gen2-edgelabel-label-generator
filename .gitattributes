@@ -39,3 +39,7 @@ label-core-classicpro.js text eol=lf
 # copied byte-for-byte into the 3D Build Studio and sha-pinned there: a fixed LF keeps every copy the same bytes on every OS.
 label-icons.js text eol=lf
 label-icon-art.js text eol=lf
+
+# label-hardware.js (part labels and colour bands in 3D: the ink, the band pieces, the colours, the row note) is copied
+# byte-for-byte into the 3D Build Studio and sha-pinned there: a fixed LF keeps every copy the same bytes on every OS.
+label-hardware.js text eol=lf

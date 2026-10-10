@@ -1,7 +1,7 @@
-/* The raised ink of every reference part label is a closed solid (every edge shared by exactly two triangles), built by the
-   page's own hardwareMeshes (taken from index.html and run with the vendored three.js). The '#' glyph's centre hole sits
-   on the line of its bars, and three's triangulator dropped those collinear points: 8 open edges on "#10-24" until holes
-   were pulled in by 0.00001 mm (hwPullIn). Run:  node --test test/*.test.mjs */
+/* The raised ink of every reference part label is a closed solid (every edge shared by exactly two triangles), built by
+   label-hardware.js's inkGeometry (the page's part-label ink, run with the vendored three.js). The '#' glyph's centre hole
+   sits on the line of its bars, and three's triangulator dropped those collinear points: 8 open edges on "#10-24" until
+   holes were pulled in by 0.00001 mm (hwPullIn). Run:  node --test test/*.test.mjs */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -13,20 +13,13 @@ const ot = require('../vendor/opentype.min.js');
 require('../hardware-data.js');
 require('../hardware-v5-data.js');
 require('../hardware-layout.js');
+require('../label-hardware.js');
 const HTML = readFileSync(new URL('../index.html', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
-function fnSrc(name) {
-  const i = HTML.indexOf(`function ${name}(`);
-  assert.ok(i >= 0, name);
-  let depth = 0;
-  for (let k = HTML.indexOf('{', i); k < HTML.length; k++) {
-    if (HTML[k] === '{') depth++;
-    else if (HTML[k] === '}' && --depth === 0) return HTML.slice(i, k + 1);
-  }
-  throw new Error(name);
-}
-// the page's functions; mergeGeoms stands in as "keep the pieces" so each extruded piece is checked on its own
-const hardwareMeshes = new Function('THREE', 'LabelCore', 'bandParts',
-  `${fnSrc('hwInPoly')}\n${fnSrc('hwPullIn')}\n${fnSrc('hardwareMeshes')}\nreturn hardwareMeshes;`)(THREE, { mergeGeoms: (g) => g.map((x) => x.clone()) }, null);
+// the page's part-label module; mergeGeoms stands in as "keep the pieces" so each extruded piece is checked on its own, and
+// holePullIn 0 builds the ink without the pull-in
+const LH = (merge, pull) => globalThis.GEN2LabelHardware.create({ THREE, data: globalThis.GEN2HardwareData, v5: globalThis.GEN2HardwareV5Data,
+  mergeGeoms: merge, ...(pull === undefined ? {} : { holePullIn: pull }) });
+const hardwareMeshes = (hw, depth) => LH((g) => g.map((x) => x.clone())).meshes(hw, depth);
 
 function pageFont() {
   const b64 = HTML.match(/<script id="font-data"[^>]*>([\s\S]*?)<\/script>/)[1].replace(/\/\*.*?\*\//g, '').trim();
@@ -71,9 +64,7 @@ test('INK-2 the # glyph: closed with the pull-in, open without it (the check can
   const g = HW._glyphPart('#', 6.4);
   const els = { 'main spec': [g.rings] };
   const withFix = hardwareMeshes({ elements: els }, 0.45).textGeo.reduce((n, x) => n + openEdges(x), 0);
-  const noFix = new Function('THREE', 'LabelCore', 'bandParts',
-    `${fnSrc('hwInPoly')}\nfunction hwPullIn(L) { return L; }\n${fnSrc('hardwareMeshes')}\nreturn hardwareMeshes;`)(THREE, { mergeGeoms: (x) => x }, null)({ elements: els }, 0.45)
-    .textGeo.reduce((n, x) => n + openEdges(x), 0);
+  const noFix = LH((x) => x, 0).meshes({ elements: els }, 0.45).textGeo.reduce((n, x) => n + openEdges(x), 0);
   assert.equal(withFix, 0);
   assert.ok(noFix > 0, 'without the pull-in the # ink has open edges');
 });
