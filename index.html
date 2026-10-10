@@ -453,6 +453,7 @@
     <span class="product">Label Studio</span>
     <nav aria-label="Primary" class="mainnav">
       <button type="button" class="navhelp" data-help>Help</button>
+      <button type="button" class="navhelp" data-feedback aria-haspopup="dialog">Feedback</button>
       <button type="button" class="navhelp" data-parts>Part Picker</button>
       <a target="_blank" rel="noopener" href="https://gen2planner.jerrari3d.com/">Planner</a>
       <a target="_blank" rel="noopener" href="https://gen2build.jerrari3d.com/builds/">Build Studio</a>
@@ -478,6 +479,7 @@
 <dialog class="mobilenav" aria-label="Menu">
   <div class="mnhead"><span>Menu</span><button type="button" class="mnclose" aria-label="Close menu">&#10005;</button></div>
   <button type="button" class="mnhelp" data-help>Help</button>
+  <button type="button" class="mnhelp" data-feedback aria-haspopup="dialog">Feedback &amp; support</button>
   <button type="button" class="mnhelp" data-parts>Part Picker</button>
   <a target="_blank" rel="noopener" href="https://gen2planner.jerrari3d.com/">Planner</a>
   <a target="_blank" rel="noopener" href="https://gen2build.jerrari3d.com/builds/">Build Studio</a>
@@ -706,6 +708,7 @@
     <div class="footer">
       MODULITH Label Studio · for MODULITH (formerly GEN2) drawers<br>
       <a href="#" id="help-link">How to print in two colors →</a><br>
+      <a href="#" data-feedback>Feedback &amp; support</a><br>
       <a target="_blank" rel="noopener" href="https://modulith.systems/" style="opacity: 0.6;">modulith.systems</a>
     </div>
   </div>
@@ -789,6 +792,8 @@
 <script src="hardware-band-data.js?v=0ed77c4b"></script>
 <script src="hardware-layout.js?v=e496ddf0"></script>
 <script src="label-hardware.js?v=be221a77"></script>
+<!-- Feedback & support: the shared MODULITH dialog, the planner's js/modulith-feedback.js byte for byte (test/feedback-vendor.test.mjs) -->
+<script src="modulith-feedback.js?v=b5e41b40"></script>
 <script src="label-stripes.js?v=4b6e5cc5"></script>
 <script src="label-link.js?v=c04966dd"></script>
 <script src="part-picker-link.js?v=2e4b8128"></script>
@@ -4332,6 +4337,14 @@ function setupUI() {
   helpDlg.querySelector('.hd-close').addEventListener('click', () => helpDlg.close());
   helpDlg.addEventListener('click', (e) => { if (e.target === helpDlg) helpDlg.close(); });
   document.getElementById('help-link').addEventListener('click', (e) => { e.preventDefault(); openHelp('help-two-color'); });
+  // Feedback & support (Astra 2026-10-10): the same dialog, kinds and email wording as every MODULITH tool; nothing about the
+  // labels goes in the message (the user can attach a saved set file or a screenshot)
+  document.querySelectorAll('[data-feedback]').forEach(el => el.addEventListener('click', (e) => {
+    e.preventDefault();
+    const mn = document.querySelector('dialog.mobilenav'); if (mn && mn.open) mn.close();
+    if (window.MODULITHFeedback) window.MODULITHFeedback.open({ tool: 'Label Studio' });
+    else location.href = 'mailto:support@jerrari3d.com?subject=' + encodeURIComponent('[MODULITH Label Studio]');
+  }));
 
   // Populate label rows LAST — after every settings/colour/bed/purge listener
   // above is registered — so the sync events dispatched by restoreAutosave()'s

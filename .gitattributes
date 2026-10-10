@@ -55,3 +55,4 @@ part-picker-link.js text eol=lf
 # label-stripes.js (stripes on any label: the colours, the cleaning, which position a label takes) is executed by node --test like
 # the page runs it: a fixed LF keeps the served file and the checkout the same bytes on every OS, like its neighbours.
 label-stripes.js text eol=lf
+modulith-feedback.js text eol=lf
