@@ -20,7 +20,7 @@ export const TIER = Object.freeze({
   CONFLICT: 'conflict',     // sources disagree: a suggestion
   UNVERIFIED: 'unverified', // our own knowledge, not checked: a suggestion
   // a TERM the user picks ("dome head", "hammer-head drop-in"): not data and not an inference, so it reads as plain
-  // Listed. Never prefills anything (Astra 2026-10-04: Suggested means an inference, not "has no ISO number")
+  // Listed. Never prefills anything (design review 2026-10-04: Suggested means an inference, not "has no ISO number")
   VOCABULARY: 'vocabulary',
   USER: 'user',
 });
@@ -30,7 +30,7 @@ export const PREFILL_TIERS = new Set([TIER.DOCUMENTED, TIER.VERIFIED]);
 export const unknown = () => ({ value: null, status: STATUS.UNKNOWN, source: null });
 
 // A record saved before a field existed gains it as Unknown (2026-10-04: material.colour). A set value never changes:
-// "existing labels must not silently change because new catalog content or prediction rules arrived" (Astra).
+// "existing labels must not silently change because new catalog content or prediction rules arrived" (design review).
 export function upgradeRecord(r) {
   if (r && r.material && typeof r.material === 'object' && !r.material.colour) r.material.colour = unknown();
   return r;

@@ -1,12 +1,12 @@
 // Feedback & support: modulith-feedback.js is the planner's js/modulith-feedback.js byte for byte (the planner owns it), so
-// every MODULITH tool shows the same three kinds and the same email wording (Astra 2026-10-10). Re-vendor: copy the planner's
+// every MODULITH tool shows the same three kinds and the same email wording (design review 2026-10-10). Re-vendor: copy the planner's
 // file here, update PIN, run node tools/stamp-scripts.mjs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
-const PIN = 'b5e41b406e55cfde4b688a5fa2dea2e73c59bb954d78a98c1aedb09ff2907c32';
+const PIN = 'c90fd913acbcb688f230addc8c61ff3a7142f34abcac2a69b80029ac0e4b2539';
 const here = readFileSync(new URL('../modulith-feedback.js', import.meta.url));
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 

@@ -1,4 +1,4 @@
-// DATA-DRIVEN FAMILIES (2026-10-04, Astra's library expansion brief). One entry per family: its types (heads), fields,
+// DATA-DRIVEN FAMILIES (2026-10-04, the library expansion brief). One entry per family: its types (heads), fields,
 // glyphs, label rule and picture paths. picker.js registers them, ui.js draws them with the generic sections, batch.js
 // describes them, glyphs.js draws their symbols, hwimage.js finds their rendered pictures. A family added here needs no
 // edit anywhere else.
@@ -113,7 +113,7 @@ export const DATA_FAMILIES = [
   },
   {
     // batch 2 (2026-10-05): wire-to-board connectors. Series, component and POSITION COUNT are identity - a 4-way
-    // picture is never shown for a 5-way record. Mating is not inferred from a series name (Astra: "mating needs
+    // picture is never shown for a 5-way record. Mating is not inferred from a series name (design review: "mating needs
     // evidence"); a manufacturer name alone does not identify a series.
     id: 'connector', label: 'Connectors (wire-to-board)', short: 'Connectors', ns: 'connector', glyph: 'conn-housing', thread: null,
     headTitle: 'Component',
@@ -166,7 +166,7 @@ export const DATA_GLYPHS = {
   'thumb-knob': '<path d="M10 14c0-6 6-10 14-10s14 4 14 10-6 6-14 6-14 0-14-6z"/><path d="M20 20V44M28 20V44M20 26l8 3M20 31l8 3M20 36l8 3"/>',
 };
 
-// The label rule's text for a record (Astra: "large value plus attributes"): { big, small[] }. Pure: it reads the
+// The label rule's text for a record (design review: "large value plus attributes"): { big, small[] }. Pure: it reads the
 // record's own values - a thread as M<d>, a number as typed, a vocabulary value by its label - and the type's label.
 export function labelText(rec, headLabel) {
   const fam = DATA_FAMILY.get(rec.family);

@@ -1,4 +1,4 @@
-// Label pins (2026-10-05, Astra: "Let users pin fields that must appear. If a pinned field doesn't fit, report the
+// Label pins (2026-10-05, design review: "Let users pin fields that must appear. If a pinned field doesn't fit, report the
 // non-fit. If another selected field is omitted, show 'Not shown on label: BLK OX' in the preview. Preserve the complete
 // part record regardless of what appears on the label.")
 //
@@ -7,11 +7,11 @@
 // A record with no `label_pins` uses the defaults: the type (head) and the material in its most specific recorded form
 // (the property class, else the base material - defaultMaterialPin below) - what tells two drawers apart.
 // Toggling any pin writes the full list explicitly, so a later change of the defaults never changes a saved choice.
-// Automatic comparison against the neighbouring drawers is deliberately NOT done here (Astra: a later pass).
+// Automatic comparison against the neighbouring drawers is deliberately NOT done here (design review: a later pass).
 
 export const DEFAULT_PINS = Object.freeze(['head', 'material.base']);
 
-// The default material pin names the MOST SPECIFIC material field the record holds (Astra 2026-10-05: on an M8 socket
+// The default material pin names the MOST SPECIFIC material field the record holds (design review 2026-10-05: on an M8 socket
 // cap "the broad material word is consuming space that could identify the grade and finish"; SHCS · 12.9 · BLK OX was
 // measured to fit at M3-M12): a property class (12.9 - it implies the steel) before the base material (STEEL, BRASS).
 // Stainless keeps the base path: its printed text is already the group when one is known (A2, js/labelitem.js).

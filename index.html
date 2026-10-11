@@ -330,7 +330,7 @@
   .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
   .bp-caption { min-height: 1.45em; font-size: 12px; color: var(--muted); padding: 6px 2px 0; line-height: 1.45; }
   /* A touch screen has no hover: there every icon shows its name under it, so the name is read BEFORE the tap that
-     chooses it (ChatGPT's second review via Joey). A mouse keeps the compact grid and its caption. */
+     chooses it (a second design review). A mouse keeps the compact grid and its caption. */
   .bp-iname { display: none; }
   @media (hover: none), (any-pointer: coarse) {
     .bp-cells { grid-template-columns: repeat(3, 1fr); }
@@ -367,7 +367,7 @@
   .veil-sub:empty { display: none; }
   .veil-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* ---------- the MODULITH masthead, SLIM (Joey 2026-10-09: "maybe a slim version so that it doesn't eat up a ton of
+  /* ---------- the MODULITH masthead, SLIM (Jerrari 2026-10-09: "maybe a slim version so that it doesn't eat up a ton of
      realestate"). The Planner's masthead (its css/style.css "the MODULITH masthead", from the site's header) at about
      two thirds of its height, with the product name beside the wordmark. Its colours are the site's FIXED ink bar.
      Not sticky: the app below it is a full-height workspace. ---------- */
@@ -428,7 +428,7 @@
 </head>
 <body>
 <a class="skip" href="#sidebar">Skip to the labels</a>
-<!-- THE MODULITH MASTHEAD, SLIM AND TOOL FIRST (2026-10-09, Joey: the MODULITH Label Studio with the site menu "but maybe a
+<!-- THE MODULITH MASTHEAD, SLIM AND TOOL FIRST (2026-10-09, Jerrari: the MODULITH Label Studio with the site menu "but maybe a
      slim version so that it doesn't eat up a ton of realestate"; then, since "How It Works" first in a tool reads as this
      tool's own help: Help, the two other tools, and one MODULITH menu holding the site's pages). Every link opens a new tab, so
      the labels you are working on stay open. The Part Picker (2026-10-10, this site's own parts/) is a button that opens it in a
@@ -784,18 +784,18 @@
 <script src="label-core-classicpro.js?v=bbb53c7c"></script>
 <!-- the label icon catalog: groups, the MODULITH icon family's drawings and the wider word -> icon guess, built on
      label-core.js's own 23 icons and rules (label-icons.js says how; both are shared with the 3D Build Studio) -->
-<script src="label-icon-art.js?v=6cda5bd2"></script>
-<script src="label-icons.js?v=75647f3d"></script>
-<script src="hardware-data.js?v=147507eb"></script>
-<script src="hardware-data-classicpro.js?v=523d28f1"></script>
-<script src="hardware-v5-data.js?v=3c7283b4"></script>
-<script src="hardware-band-data.js?v=0ed77c4b"></script>
-<script src="hardware-layout.js?v=e496ddf0"></script>
-<script src="label-hardware.js?v=be221a77"></script>
+<script src="label-icon-art.js?v=d24118c3"></script>
+<script src="label-icons.js?v=8db74ae1"></script>
+<script src="hardware-data.js?v=b97c422e"></script>
+<script src="hardware-data-classicpro.js?v=6a5c2431"></script>
+<script src="hardware-v5-data.js?v=73b3895d"></script>
+<script src="hardware-band-data.js?v=865744a3"></script>
+<script src="hardware-layout.js?v=d807991c"></script>
+<script src="label-hardware.js?v=d1c0eb6b"></script>
 <!-- Feedback & support: the shared MODULITH dialog, the planner's js/modulith-feedback.js byte for byte (test/feedback-vendor.test.mjs) -->
-<script src="modulith-feedback.js?v=b5e41b40"></script>
+<script src="modulith-feedback.js?v=c90fd913"></script>
 <script src="label-stripes.js?v=4b6e5cc5"></script>
-<script src="label-link.js?v=c04966dd"></script>
+<script src="label-link.js?v=37fbe4a2"></script>
 <script src="part-picker-link.js?v=2e4b8128"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
@@ -941,7 +941,7 @@ const CP_BASE_TRIS = [0,1,2,2,1,3,0,2,4,4,2,5,4,5,6,6,5,7,6,7,8,8,7,9,8,9,10,10,
 // with their word rules - lives in label-core.js, shared byte-for-byte with the GEN2 3D Build Studio so a label previewed on a
 // drawer there is the label printed here (the wider icon catalog and guess build on it in label-icons.js, shared the same way). If the file is missing, init() names it and nothing is built.
 //
-// LABEL TYPES (Astra, 2026-10-09: "one app with selectable label types ... Classic Pro should become another supported output
+// LABEL TYPES (design review, 2026-10-09: "one app with selectable label types ... Classic Pro should become another supported output
 // for the same label collection"). The labels - words, icons, part records, pins - are shared; each type brings its own label
 // body, label core (face, wrap, alignment), file names and its own layout and print settings (TYPE_SETTING_IDS below).
 // Switching never touches the labels, and a feature the selected type cannot print (a part label's drawing and colour band on
@@ -1174,7 +1174,7 @@ function capsOn() {
 // plate was laid out with (same font outlines, same fit rules, the measured label face) - then drawn and exported like any
 // other label. The layout decides the value size, the line split, the attributes and the family icon, so the Text size,
 // Bold, All caps and icon controls do not apply to these rows. Their ink is 0.45 mm proud (HW_INK_DEPTH), the depth the
-// printed hardware plates were made and judged at (Astra 2026-10-06); the Text depth setting keeps its default and still
+// printed hardware plates were made and judged at (design review 2026-10-06); the Text depth setting keeps its default and still
 // governs every ordinary label. A label item comes in through Save / Open > Open set file (a label-items .json the Part Picker
 // saved) or a #hw=<base64 JSON> link.
 //============================================================
@@ -1188,12 +1188,12 @@ const HW = LH ? LH.layouts.edgelabel : null;
 // profile labels (the screw or nut drawn head-on and from the side, label tool 2026-10-07) are the default; the
 // "Screw and nut drawings" setting turns them off for the set
 function hwProfileOn() { const el = document.getElementById('hw-profile'); return !el || el.checked; }
-// COLOUR BANDS (label tool 2026-10-07; Joey: "include the color accents to represent metric vs SAE, and material"). A part
+// COLOUR BANDS (label tool 2026-10-07; Jerrari: "include the color accents to represent metric vs SAE, and material"). A part
 // label whose item carries colours - the Part Picker's collection colour scheme: the band = metric blue / SAE red, the band
 // accent (its first 8 mm) = the material - gets a band along the edge the "Colour band" setting picks, and its words are laid
 // out in the face less the band and its 0.8 mm gap: one layout instance per band position. hardware-band-data.js holds the
 // usable areas and the label cut into base / band / accent pieces (made in Python from this page's own label mesh;
-// D:/MODULITH/handoffs/hardware-library/v5/export_bands.py). An item with no colours (no scheme) keeps the whole face.
+// MODULITH/handoffs/hardware-library/v5/export_bands.py). An item with no colours (no scheme) keeps the whole face.
 // The setting's value ('bottom' | 'end' | 'wedge' | 'off'); label-hardware.js decides which rows it applies to.
 function hwBandSetting() { const el = document.getElementById('hw-band'); return el ? el.value : 'bottom'; }
 // STRIPES ON ANY LABEL (2026-10-10, the owner). label-stripes.js holds the rules: a label's stripe is its `colours` (the shape a
@@ -1212,10 +1212,10 @@ function rowStripe(row) {
 }
 // CLASSIC PRO PART LABELS (label types step 3, 2026-10-09). The same layout on Classic Pro's own face (hardware-data-classicpro.js,
 // made by export_hw_data_classicpro.py from this page's Classic Pro label body: the printing face less a 1.8 mm margin, kept
-// from the two slits that make its lower corners springy too - Joey: "avoid the compliant mechanisms at all cost"), every row
-// centred, as its plain labels are (Joey 2026-10-09). It prints the words and the family icon; the screw and nut drawings and
-// the colour band are EdgeLabel-only for now (Astra: optional, after measuring) and stay saved, named in the row's note. Its
-// text sizes are EdgeLabel's until Astra decides whether the 45 degree face (it reads at 71% from in front) needs larger ones.
+// from the two slits that make its lower corners springy too - Jerrari: "avoid the compliant mechanisms at all cost"), every row
+// centred, as its plain labels are (Jerrari 2026-10-09). It prints the words and the family icon; the screw and nut drawings and
+// the colour band are EdgeLabel-only for now (design review: optional, after measuring) and stay saved, named in the row's note. Its
+// text sizes are EdgeLabel's until a design review decides whether the 45 degree face (it reads at 71% from in front) needs larger ones.
 const HW_CP = LH ? LH.layouts.classicpro : null;
 if (!HW_CP) LABEL_TYPES.classicpro.hardware = false;     // its rows are then kept, dimmed and named (updateTypeUI)
 // what a part label carries that Classic Pro does not print yet (it prints again on EdgeLabel)
@@ -2112,7 +2112,7 @@ function partName(name, p) { return p.piece === 'base' ? 'Base' : `${name} ${p.p
 // Export everything: one file per plate (3MF or STL), zipped together if >1 plate.
 async function doExport() {
   // A drawer's icon still in the planner (too big for the link) would print as a blank badge - an icon-only label as
-  // nothing at all - so the export waits for it, and says how to go on (ChatGPT's second review via Joey: "block the
+  // nothing at all - so the export waits for it, and says how to go on (a second design review: "block the
   // affected export ... with a clear explanation"). The planner keeps its icon whatever happens here.
   const waiting = iconWaitRows();
   if (waiting.length) {
@@ -2300,8 +2300,8 @@ function updateBadgeBtn(row) {
   }
 }
 
-// The words for a row's badge: its button's name, the icon menu's caption and the status line after a pick (ChatGPT's review,
-// relayed by Joey: every icon has a readable name on hover, keyboard focus and selection). On a touch screen the menu shows
+// The words for a row's badge: its button's name, the icon menu's caption and the status line after a pick (a design review,
+// asking: every icon has a readable name on hover, keyboard focus and selection). On a touch screen the menu shows
 // every icon's name under it (CSS .bp-iname), so the name is read before the tap, not after.
 function badgeName(row) {
   if (!row) return '';
@@ -2322,7 +2322,7 @@ function badgeName(row) {
 function svgMaskEl(svg) {
   const el = document.createElement('span');
   el.className = 'svg-mask';
-  // a lone surrogate (valid JSON, so possible in a saved set or a link) would make encodeURIComponent throw (Sol 01a1234d)
+  // a lone surrogate (valid JSON, so possible in a saved set or a link) would make encodeURIComponent throw (a code review)
   let enc = '';
   try { enc = encodeURIComponent(typeof svg.toWellFormed === 'function' ? svg.toWellFormed() : svg); } catch (e) { /* drawn empty */ }
   const url = `url("data:image/svg+xml;charset=utf-8,${enc}")`;
@@ -2378,7 +2378,7 @@ function autoAssignIcon(row) {
   if (!predictionsOn()) return;                          // predictions toggled off
   const id = guessIconId(row.querySelector('input.label-text').value);
   // a row already wearing the OTHER drawing of the same part keeps it (label-icons.js TWINS): a later change of which drawing
-  // the guess prefers must not redraw labels a set already holds (ChatGPT's second review via Joey)
+  // the guess prefers must not redraw labels a set already holds (a second design review)
   if (id && row.dataset.badgeType === 'icon' && LabelIcons && LabelIcons.twinOf(id) === row.dataset.badgeIcon) return;
   if (id) applyBadge(row, { type: 'icon', value: id });
   else if (row.dataset.badgeType === 'icon') applyBadge(row, { type: 'none' });  // clear a stale auto-icon
@@ -3074,7 +3074,7 @@ function captureProject(opts) {
 }
 
 // -- Label types: each type's own layout and print settings --------------------------------------------------------
-// Per type (Astra 2026-10-09: "per-type layout and print settings"): the label's text size, depth, badge size, bold,
+// Per type (design review 2026-10-09: "per-type layout and print settings"): the label's text size, depth, badge size, bold,
 // caps, drawings, band, and its preview colours. Shared: icon prediction (it fills in the labels, which are shared) and
 // the printer, plate and export format.
 const TYPE_SETTING_IDS = ['font-size', 'text-depth', 'badge-size', 'bold-text', 'all-caps', 'hw-profile', 'hw-band', 'color-base', 'color-text'];
@@ -3526,7 +3526,7 @@ function saveLinkedNow() {
   try { sessionStorage.setItem(LS_LINKED, JSON.stringify(linkedSession())); } catch (e) { /* the session lives on in the tab; a reload would lose it */ }
 }
 const scheduleSaveLinked = debounce(saveLinkedNow, 800);
-// Linked mode NEVER writes the ordinary autosave - not even the printer preferences (Astra): the ordinary session stays as it was
+// Linked mode NEVER writes the ordinary autosave - not even the printer preferences (design review): the ordinary session stays as it was
 // until Unlink. rebuild() calls this where it used to call scheduleAutosave().
 function scheduleSave() { if (link) scheduleSaveLinked(); else scheduleAutosave(); }
 function readStoredSession() {
@@ -3695,7 +3695,7 @@ function takeUploads(rows) {
   }
   if (!got) return;
   rebuild();
-  const left = iconWaitRows();   // a partial answer must not read as all done (Sol 01a123c3)
+  const left = iconWaitRows();   // a partial answer must not read as all done (a code review)
   setStatus((got === 1 ? "The planner sent the icon that was too big for the link." : `The planner sent the ${got} icons that were too big for the link.`)
     + (left.length ? ` ${rowsText(left)} ${left.length === 1 ? 'is' : 'are'} still waiting - see the note on ${left.length === 1 ? 'the row' : 'each row'}.` : ''), left.length ? 'err' : 'ok');
 }
@@ -4337,7 +4337,7 @@ function setupUI() {
   helpDlg.querySelector('.hd-close').addEventListener('click', () => helpDlg.close());
   helpDlg.addEventListener('click', (e) => { if (e.target === helpDlg) helpDlg.close(); });
   document.getElementById('help-link').addEventListener('click', (e) => { e.preventDefault(); openHelp('help-two-color'); });
-  // Feedback & support (Astra 2026-10-10): the same dialog, kinds and email wording as every MODULITH tool; nothing about the
+  // Feedback & support (design review 2026-10-10): the same dialog, kinds and email wording as every MODULITH tool; nothing about the
   // labels goes in the message (the user can attach a saved set file or a screenshot)
   document.querySelectorAll('[data-feedback]').forEach(el => el.addEventListener('click', (e) => {
     e.preventDefault();
@@ -4364,7 +4364,7 @@ function setupUI() {
 }
 
 // The Part Picker's four entries, the sheet's Done and Escape, the start card's two choices, Undo beside the list.
-// ---- labels moved from the old address (MODULITH handoffs/label-release/move/MOVE-DESIGN.md; Astra 2026-10-10) ----
+// ---- labels moved from the old address (MODULITH handoffs/label-release/move/MOVE-DESIGN.md; design review 2026-10-10) ----
 // The old page (edgelabel.jerrari3d.com) opens this one with ?move=<one-time token>. This page says it is ready; the sets
 // arrive only from that opener window, only from an old address on the list, only for that token - never in a URL. They are
 // shown before anything is saved. Into an empty Label Studio they become the labels and the Previous set; where work is

@@ -52,7 +52,7 @@ registerFamily({
 registerFamily({
   id: 'nut', label: 'Nuts', category: 'hardware',
   varying: { path: 'thread.diameter', label: 'Thread sizes' },
-  // 2026-10-05: inch nuts (Astra: "Extend inch support to washers and nuts") - the thread as on a screw; no length
+  // 2026-10-05: inch nuts (design review: "Extend inch support to washers and nuts") - the thread as on a screw; no length
   units: true,
   paths: [HEAD('Nut type'), p('thread.system', 'Thread system', 'select', 'main'), DIA('Thread'), PITCH,
     p('thread.tpi', 'Threads per inch', 'select', 'main', true), p('specific.locking_feature', 'Locking feature', 'select', 'main'),
@@ -95,7 +95,7 @@ registerFamily({
     specific: { insert: { brand_dataset: unknown(), outer_diameter: unknown(), length: unknown() } } }),
 });
 
-// ---- the next families (2026-10-04, docs/FAMILIES-PLAN-2026-10-04.md): Joey's actual stock first. No reference
+// ---- the next families (2026-10-04, docs/FAMILIES-PLAN-2026-10-04.md): Jerrari's actual stock first. No reference
 // tables: every choice is VOCABULARY, nothing is inferred, and any value can be typed as Custom.
 const v = (value, label) => ({ value, label });
 const BASE_FINISH = [MATERIAL[0], MATERIAL[3], MATERIAL[4]];
@@ -140,7 +140,7 @@ registerFamily({
     HEAD('Head style'),
     p('specific.rivet.diameter', 'Body diameter (mm)', 'select', 'main', true, [2.4, 3, 3.2, 4, 4.8, 5, 6, 6.4]),
     p('specific.rivet.length', 'Body length (mm)', 'select', 'main', true, [4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25]),
-    // grip range is kept SEPARATE from body length (Astra): it is typed from the package, never derived
+    // grip range is kept SEPARATE from body length (design review): it is typed from the package, never derived
     p('specific.rivet.grip_min', 'Grip range, min (mm)', 'select', 'main', true),
     p('specific.rivet.grip_max', 'Grip range, max (mm)', 'select', 'main', true),
     p('specific.rivet.type', 'Type', 'select', 'main', false, ['open end', 'closed end', 'multi-grip', 'peel', 'structural']),
@@ -170,7 +170,7 @@ for (const df of DATA_FAMILIES) {
     },
   });
 }
-// OTHER PART (Astra): save it NOW - name, photo, package text, dimensions, supplier - and give it a family later
+// OTHER PART (design review): save it NOW - name, photo, package text, dimensions, supplier - and give it a family later
 // (reassignFamily keeps its id, so its label and drawer association survive). Its details live in record.label /
 // record.meta, which every family may carry.
 registerFamily({
@@ -190,9 +190,9 @@ export function pathsFor(familyId) { return FAMILIES.get(familyId).paths; }
 // label_pins (2026-10-05): the field paths the user pinned to the printed label - js/labelpins.js
 // label_pins_removed: the pins a family change removed ([{path, family}]) - written by reassignFamily only; setMeta can
 // only dismiss it (null)
-// label_words (Astra 2026-10-05: "Keep the short forms provisional ... allow custom wording"): {path: text}, the person's
+// label_words (design review 2026-10-05: "Keep the short forms provisional ... allow custom wording"): {path: text}, the person's
 // own printed form for a field (STAR WASHER for TOOTH LW); never a value - it replaces the short form of a recorded one
-// label_colours (Astra 2026-10-06: "Allow an intentional manual override"): {band?, band_accent?}, a colour key of the
+// label_colours (design review 2026-10-06: "Allow an intentional manual override"): {band?, band_accent?}, a colour key of the
 // collection's label scheme (labelstyle.js) that wins over the scheme's rule for this part, shown as set by hand
 export const META_KEYS = ['label', 'meta', 'photo', 'tags', 'label_pins', 'label_pins_removed', 'label_words', 'label_colours'];
 export const LABEL_WORD_MAX = 24;
@@ -505,7 +505,7 @@ export function createPicker(D, opts = {}) {
       }
       case 'material.base': case 'material.stainless_group': case 'material.property_class': case 'material.finish': case 'material.colour': {
         const key = path.split('.')[1];
-        // a colour is read off the part or the bag: VOCABULARY (Astra: plain Listed, never "unverified")
+        // a colour is read off the part or the bag: VOCABULARY (design review: plain Listed, never "unverified")
         const tier = key === 'colour' ? TIER.VOCABULARY : TIER.UNVERIFIED;
         out.options = D.own.material[key].map((r) => opt(r.value, r.value, tier, `own/material/${key}/${r.value}`));
         if (key === 'stainless_group' && rec.material.base.value !== 'stainless') {
@@ -818,7 +818,7 @@ export function createPicker(D, opts = {}) {
     rec.standard_changed_from = null;
     rec.spec_status = rec.head.status === STATUS.UNKNOWN ? STATUS.UNKNOWN : (stdId ? STATUS.LISTED : STATUS.CUSTOM);
     // the type's source names the standard the system uses (an inch hex nut's head reads from asme_hex_nut, not ISO
-    // 4032), so type -> inch and inch -> type give the same record (Astra 2026-10-05: selection order)
+    // 4032), so type -> inch and inch -> type give the same record (design review 2026-10-05: selection order)
     reresolve(rec, 'head');
   }
 
@@ -1002,7 +1002,7 @@ export function createPicker(D, opts = {}) {
     return finalize(r);
   }
 
-  // A type change KEEPS the size, thread and length already chosen (Astra 2026-10-05: "Selection order shouldn't change
+  // A type change KEEPS the size, thread and length already chosen (design review 2026-10-05: "Selection order shouldn't change
   // the result. Picking size -> type should produce the same valid options and defaults as type -> size ... without
   // overwriting an explicitly chosen TPI"). setHead starts a fresh record; each choice is then re-applied through set(),
   // exactly as a pick on the new type would be: listed if the new type lists the value, else Custom (value kept, never
@@ -1093,7 +1093,7 @@ export function createPicker(D, opts = {}) {
     return finalize(r);
   }
 
-  // Give a part another family (Astra: an Other part gets its real family later). The record keeps its ID - so its label
+  // Give a part another family (design review: an Other part gets its real family later). The record keeps its ID - so its label
   // and drawer association survive - and its name, package text, supplier, photo, collections, notes and material; the
   // typed fields start over, because they belong to the old family.
   function reassignFamily(rec, familyId) {
@@ -1103,7 +1103,7 @@ export function createPicker(D, opts = {}) {
     fresh.notes = rec.notes;
     for (const k of META_KEYS) if (rec[k] !== undefined) fresh[k] = clone(rec[k]);
     fresh.reassigned_from = rec.family;
-    // label pins (Astra 2026-10-05: "retain applicable pins and flag or remove incompatible ones"): a pin names a FIELD
+    // label pins (design review 2026-10-05: "retain applicable pins and flag or remove incompatible ones"): a pin names a FIELD
     // PATH; one the new family has no such field for is removed and recorded, so the screen can say what was unpinned
     if (Array.isArray(rec.label_pins)) {
       const has = new Set(pathsFor(familyId).map((d) => d.path));

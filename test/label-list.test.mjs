@@ -1,12 +1,12 @@
-/* The label list (label-list.js), executed. Spec: D:/MODULITH/handoffs/label-release/LABEL-LIST-FORMAT.md.
+/* The label list (label-list.js), executed. Spec: MODULITH/handoffs/label-release/LABEL-LIST-FORMAT.md.
    Run:  node --test test/
 
-   The rules under test, from Joey and Astra (vault decisions.md, "The label tool"):
+   The rules under test, from Jerrari and design review (vault decisions.md, "The label tool"):
    - old builds convert WITHOUT changing their appearance: words, an explicit "no icon", an absent (predicted) badge;
    - identical labels are NOT deduplicated;
    - removing a drawer removes its assignment, not the label; a label with no words cannot be assigned;
    - editing a shared label offers this-drawer-only or all-linked; independent drawers never change;
-   - the mirror an older tool edits is reconciled per drawer, in the planner's drawer order (Sol 01a11238). */
+   - the mirror an older tool edits is reconciled per drawer, in the planner's drawer order (a code review). */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -199,14 +199,14 @@ test('LL-14: inside a build (compact) there is no part photo but the uploaded ic
   const doc = { format: 'modulith-labels', version: 1, style: { capMm: 5, depth: 99 }, output: { printer: 'xl' },
     labels: [{ text: 'Custom', badge: { type: 'icon', svg } }, { text: 'Washers', part }] };
   const b = L.cleanLabelList(doc, { inBuild: true });
-  assert.deepEqual(b.labels[0].badge, { type: 'icon', svg }, 'an uploaded icon is label content: a build keeps it (Astra 2026-10-06)');
+  assert.deepEqual(b.labels[0].badge, { type: 'icon', svg }, 'an uploaded icon is label content: a build keeps it (design review 2026-10-06)');
   assert.equal(b.labels[1].part.photo, undefined); assert.equal(b.labels[1].part.family, 'washer');
   assert.equal(b.style, undefined); assert.equal(b.output, undefined);
   const s = L.cleanLabelList(doc);
   assert.deepEqual(s.labels[0].badge, { type: 'icon', svg });
   assert.deepEqual(s.style, { capMm: 5 }, 'an out-of-range value is dropped, never clamped');
   assert.deepEqual(s.output, { printer: 'xl' });
-  assert.equal(s.labels[1].part.photo, part.photo, 'the FULL project (the backup) keeps the photo (Astra: never discarded silently)');
+  assert.equal(s.labels[1].part.photo, part.photo, 'the FULL project (the backup) keeps the photo (design review: never discarded silently)');
   assert.deepEqual(L.validateLabelList(doc).filter((m) => /Label 2/.test(m)), [], 'a 50 KB JPEG data URL is a valid photo');
   // a malformed photo: the part record is kept, the photo is left out, and validation says so
   const badPhoto = { format: 'modulith-labels', version: 1, labels: [{ text: 'W', part: { schema: 'part-record/1', family: 'washer', photo: 'http://x/y.jpg' } }] };
@@ -250,7 +250,7 @@ test('LL-17: a legacy generator project converts - predicted badges become absen
   assert.deepEqual(c.output, { 'printer-preset': 'xl', 'plate-w': '360' });
 });
 
-/* ---------------------------------------------------------------- icon-only labels (Astra 2026-10-06) */
+/* ---------------------------------------------------------------- icon-only labels (design review 2026-10-06) */
 
 test('LL-18: text only, icon only, and text with an icon are labels; neither is EMPTY and is never assigned', () => {
   const st = { list: L.cleanLabelList({ labels: [

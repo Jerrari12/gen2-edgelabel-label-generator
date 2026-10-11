@@ -1,4 +1,4 @@
-// The printable LABEL ITEM of a part record (2026-10-05, Astra: "Demonstrate one complete pinned-field workflow from
+// The printable LABEL ITEM of a part record (2026-10-05, design review: "Demonstrate one complete pinned-field workflow from
 // saved/exported record to generated label"). Pure and read-only: the record is never changed, and nothing it holds is
 // lost when a field is left off a label.
 //
@@ -21,7 +21,7 @@ export const LABEL_ITEM_SCHEMA = 'part-picker-label-item/1';
 // and TOOTH WASHER do not fit even alone, so they are CHEESE HD, SPLIT LW and TOOTH LW.
 export const TYPE_SHORT = {
   screw: { 'socket-cap': 'SHCS', button: 'BHCS', countersunk: 'FHCS', hex: 'HEX BOLT', pan: 'PAN HEAD', cheese: 'CHEESE HD' },
-  // nylon-insert locknuts are NYLOC and THIN NYLOC (2026-10-06, Astra: "Thin and regular nylon-insert nuts need a visible
+  // nylon-insert locknuts are NYLOC and THIN NYLOC (2026-10-06, design review: "Thin and regular nylon-insert nuts need a visible
   // distinction ... both shouldn't simply say LOCKNUT"). Measured on the engine with STEEL / A2 / SS pinned at M5, M8,
   // #10-32, 1/4-20, 1/2-13 and 5/16-18: THIN LOCKNUT fits NONE of them, THIN NYLOC and NYLOC fit all (MODULITH
   // icons-v1/colour-bank). NYLOC is the picker's own name for the type ('Nyloc, thin' / 'Nyloc, regular').
@@ -36,7 +36,7 @@ export const TYPE_SHORT = {
   insert: { 'heat-set': 'INSERT', 'press-in': 'INSERT', 'self-tapping': 'INSERT' },
 };
 // Every short form is a proposal (decisions.md, "What a hardware label prints"). These carry a stronger note, shown beside
-// the printed form in the label words so the wording is never quietly made permanent (Astra 2026-10-06):
+// the printed form in the label words so the wording is never quietly made permanent (design review 2026-10-06):
 //   trial    - approved as a TRIAL abbreviation ("Approve FLG NUT as a trial abbreviation ... Keep 'Flange nut' in the
 //              picker and record; show the abbreviation in the label preview")
 //   proposed - a proposed change to wording used before (NYLOC / THIN NYLOC replace LOCKNUT, the v5 test labels' word:
@@ -56,7 +56,7 @@ const POINT_SHORT = { flat: 'FLAT PT', cup: 'CUP PT', cone: 'CONE PT', dog: 'DOG
 // READING order: where the attributes read on the label, left to right, top to bottom
 export const ATTRIBUTE_ORDER = ['head', 'material.base', 'material.property_class', 'material.finish', 'material.colour',
   'thread.series', 'specific.point_type'];
-// KEEP priority, apart from the reading order (Astra 2026-10-05): the optional attributes are offered to the engine in
+// KEEP priority, apart from the reading order (design review 2026-10-05): the optional attributes are offered to the engine in
 // this order and it drops from the END - so the grade and the finish outrank the broad base material (STEEL), which a
 // grade already implies. Pins always win: a pinned field prints or the label is a non-fit.
 export const KEEP_PRIORITY = ['head', 'material.property_class', 'material.finish', 'material.base', 'material.colour',
@@ -97,7 +97,7 @@ export function standardText(rec, path) {
 }
 
 // the value: '5/16-18' + '× 1-1/2"' (a screw: thread and length, each an unbreakable field), or 'M5' alone.
-// NEVER a placeholder (2026-10-05, the first labels made from Joey's saved records printed 'M?'): a size that is not
+// NEVER a placeholder (2026-10-05, the first labels made from Jerrari's saved records printed 'M?'): a size that is not
 // recorded gives no value at all, an inch thread with no threads per inch prints its designation alone, and an
 // unrecorded length is left off - each one listed by valueMissing() so the preview says so.
 export function valueFields(rec) {
@@ -147,7 +147,7 @@ export function labelItem(rec, { describe = (path, value) => String(value), styl
     value_missing: valueMissing(rec),   // empty fields + a missing size = not ready to print, never a placeholder
     attributes: attrs,              // [{path, text, meaning, custom?, proposed?}] in READING order - every field that prints
     pinned: attrs.filter((a) => pins.includes(a.path)).map((a) => a.path),
-    // the pins in KEEP priority (2026-10-06, Astra: on a non-fit "try prioritizing FLANGE NUT over generic STEEL, with the
+    // the pins in KEEP priority (2026-10-06, design review: on a non-fit "try prioritizing FLANGE NUT over generic STEEL, with the
     // omission shown for approval. Don't silently remove a pinned field"): the engine may PROPOSE leaving off the last
     // ones, never print without them until the person approves (unpins)
     pinned_by_priority: attrs.filter((a) => pins.includes(a.path)).map((a) => a.path).sort((x, y) => rank(x) - rank(y)),

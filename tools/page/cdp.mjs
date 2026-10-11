@@ -1,9 +1,9 @@
 /* CDP plumbing for the hand-run browser checks (not part of `node --test`; this folder is tools/, on purpose: node --test runs
    every .mjs under test/). One headed Chrome with its OWN profile (an ABSOLUTE --user-data-dir, created before launch - a
-   relative one once popped an error dialog on Joey's desktop), one browser websocket, flattened sessions per tab, and a tiny
+   relative one once popped an error dialog on Jerrari's desktop), one browser websocket, flattened sessions per tab, and a tiny
    no-store static server per folder. Everything it starts is stopped by close().
 
-   Adapted from the step-2 e2e helper (D:/MODULITH/handoffs/label-plan-step2/e2e/cdp.mjs). */
+   Adapted from the step-2 e2e helper (MODULITH/handoffs/label-plan-step2/e2e/cdp.mjs). */
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';

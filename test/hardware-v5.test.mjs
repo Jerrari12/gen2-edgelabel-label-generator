@@ -1,8 +1,8 @@
 /* Profile labels (v5): hardware-layout.js with hardware-v5-data.js, executed against the Python layout it ports.
    Run:  node --test test/*.test.mjs
 
-   test/fixtures/hardware-v5-ref.json is v5_items.lay_out's answer (D:/MODULITH/handoffs/hardware-library/v5, on
-   labels_v5.py - the engine of Joey's printed v5 sheet) for every covered saved item plus a synthetic set, exported by
+   test/fixtures/hardware-v5-ref.json is v5_items.lay_out's answer (MODULITH/handoffs/hardware-library/v5, on
+   labels_v5.py - the engine of Jerrari's printed v5 sheet) for every covered saved item plus a synthetic set, exported by
    v5/export_v5_data.py, which also writes hardware-v5-data.js. The browser must give the SAME profile label: the same value
    size, nut group height, attribute line, the same "left off" list, and the same outlines (each element's box and area); an
    item Python cannot lay out as a profile label gets the text layout, with the reason. */
@@ -194,7 +194,7 @@ test('V5-9 the v5 spacing table decides: 0.01 mm inside a required gap fails, 0.
   }
 });
 
-test('V5-10 two nuts whose size and word differ only in where a NUL falls are laid out separately (Sol 01a117f6)', () => {
+test('V5-10 two nuts whose size and word differ only in where a NUL falls are laid out separately (a code review)', () => {
   const hw = layout();
   const base = FX.items.find((x) => x.id === 'v5-m5-nut-zinc').item;
   const itemB = { ...base, id: 'b', fields: ['M5\u0000N'], attributes: [{ path: 'head', text: 'UT' }, { path: 'finish', text: 'ZINC' }] };

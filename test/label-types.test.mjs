@@ -1,4 +1,4 @@
-/* Label types (Astra 2026-10-09: one app, Classic Pro as another output for the same labels). What the page relies on:
+/* Label types (design review 2026-10-09: one app, Classic Pro as another output for the same labels). What the page relies on:
    - the icon library and its prediction are the same in both cores, because the page takes them once (from EdgeLabel's)
      while it swaps everything else with the type - a divergence would put one type's icons on the other's labels;
    - both cores start from the same defaults, so a type's first visit (the form's defaults) means the same in both;
@@ -17,7 +17,7 @@ const require = createRequire(import.meta.url);
 require('../label-core.js');
 require('../label-core-classicpro.js');
 const HTML = readFileSync(new URL('../index.html', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
-const CP_REPO = new URL('../../../GEN2 Classic Label Generator/', import.meta.url);   // D:/Code Projects/GEN2 Classic Label Generator
+const CP_REPO = new URL('../../../GEN2 Classic Label Generator/', import.meta.url);   // GEN2 Classic Label Generator
 
 const stubTHREE = {};   // create() only keeps the reference; nothing here builds geometry
 const EL = globalThis.GEN2EdgeLabelCore.create({ THREE: stubTHREE });

@@ -1,4 +1,4 @@
-// The rendered picture for a record (Astra 2026-10-04: "changing size, length or drive retrieves the corresponding
+// The rendered picture for a record (design review 2026-10-04: "changing size, length or drive retrieves the corresponding
 // asset, with a clear fallback when there isn't one"). Pure: no DOM, no fetch - give it the parsed
 // img/hw/v2/assets.json (written by tools/sync_hw_assets.py from the hardware visual library's manifest) and the
 // picker's own head -> standard table (data/own_tables.json heads), which names each type's primary standard.
@@ -6,14 +6,14 @@
 // A picture is a REFERENCE MODEL, never a claim about the part in someone's hand. It matches on what the record says
 // (rec.standard is only a tie-break: a drive change detaches it in picker.js setDriveType).
 //
-// Round 6 (Astra): a generic picture beats a misleading near-match.
+// Round 6 (design review): a generic picture beats a misleading near-match.
 //   - IDENTITY must match or no render is shown (kind 'generic': the UI keeps the glyph and says why):
 //     the type, a drive the record states, a set-screw point it states, a thread extent it states.
 //   - SIZE and LENGTH may be near: within NEAR (25 %) of the record's value, with one note. Further off: generic.
 //   - At most ONE note under a picture. A failed CAD build shows its nearest rendered size under the same rules.
 // Unknown fields show the type's reference model, labelled as such (nothing is claimed for the record).
 //
-// Finish (2026-10-04, Astra's library expansion brief): the record's base / finish / colour pick an APPEARANCE preset
+// Finish (2026-10-04, the library expansion brief): the record's base / finish / colour pick an APPEARANCE preset
 // (presetFor) and the geometry's rendered finish variant when there is one. Appearance never decides identity: a part
 // with no picture in its finish shows the reference finish, with one note when nothing else needed saying.
 
@@ -36,7 +36,7 @@ const far = (got, want) => Math.abs(got - want) > NEAR * want;
 const ANOD = new Set(['black', 'blue', 'red', 'gold', 'purple', 'green']);
 // the size fields of an OWN family whose size is not a thread (the data families carry theirs in families-data.js)
 const OWN_PICTURE = { rivet: { d: 'specific.rivet.diameter', L: 'specific.rivet.length', prefix: '\u2300' } };
-// PICTURE NOTES (Astra 2026-10-06): one short VISIBLE line per picture that names every identity-affecting difference
+// PICTURE NOTES (design review 2026-10-06): one short VISIBLE line per picture that names every identity-affecting difference
 // ("Reference model - different length", "Generic fitting"); the standard, geometry class, verification, deviations and
 // the full sentence go in `details`, behind an expandable "Source" line. The reason a picture does not match is never
 // hidden: `short` lists every difference, even where the one-note rule keeps a second one out of `notes`.
@@ -54,12 +54,12 @@ export function presetFor(m) {
   if (b === 'stainless') return plain && (f === null || f === 'plain' || f === 'passivated') ? 'stainless' : null;
   if (b === 'steel' || (b === null && f !== null && f !== 'anodized')) {
     // "natural" is the finish's own colour, not a dye: black oxide's natural colour IS the black-oxide look, and clear
-    // zinc's is the clear look (Joey 2026-10-10: black oxide + colour natural fell back to the reference steel)
+    // zinc's is the clear look (Jerrari 2026-10-10: black oxide + colour natural fell back to the reference steel)
     if (f === 'black oxide') return plain || c === 'black' ? 'black-oxide' : null;
     if (f === 'zinc') return plain || c === 'clear/blue' ? 'zinc-clear' : null;
     if (!plain) return null;
     // "plain" 12.9 is sold as SELF COLOUR, which the heat treatment commonly leaves dark - neither the grey plain-steel
-    // look nor black oxide (a different, named process). Astra 2026-10-05: show the NEUTRAL reference steel and say
+    // look nor black oxide (a different, named process). design review 2026-10-05: show the NEUTRAL reference steel and say
     // "Finish appearance unspecified" (appearanceUnspecified); no 12.9 look is invented. A source photo may refine it.
     if (appearanceUnspecified(m)) return 'steel';
     if (f === 'plain') return 'steel-plain';
@@ -76,7 +76,7 @@ export function presetFor(m) {
   return null;
 }
 // The colours that choose a DIFFERENT picture for this base + finish: what the Material section offers as Colour
-// (Joey 2026-10-08: "hide it if it's not available"). Elsewhere a colour picks nothing - zinc's clear/blue and black
+// (Jerrari 2026-10-08: "hide it if it's not available"). Elsewhere a colour picks nothing - zinc's clear/blue and black
 // oxide's black show the same picture as no colour at all - so the row is hidden there. presetFor() stays the rule;
 // test/hwimage.test.mjs checks this list against it over every base, finish and colour.
 export function pictureColours(m) {
@@ -162,7 +162,7 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
   const generic = (reason) => ({ kind: 'generic', match: 'generic', notes: [reason], caption: reason, short: reason, details: [],
     exact: false, asset: null, image: null, src: null, srcSm: null, srcHead: null });
 
-  // GENERIC ILLUSTRATIONS (2026-10-05, Astra: "Keep a separate, explicitly illustrative fallback path"): never a
+  // GENERIC ILLUSTRATIONS (2026-10-05, design review: "Keep a separate, explicitly illustrative fallback path"): never a
   // reference model, never matched to a documented standard's part. One is offered only where the record has no
   // reference picture, only for the type (and drive / spring) its rule names, and it always says what it is.
   const illus = index.illustrations || [];
@@ -222,7 +222,7 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
       pool = sub;
     }
     // METRIC OR INCH is identity: an inch record never shows a metric picture and a metric record never an inch one
-    // (Astra 2026-10-05: no automatic substitution between approximately similar metric and inch parts)
+    // (design review 2026-10-05: no automatic substitution between approximately similar metric and inch parts)
     const inch = isUnified(rec);
     pool = pool.filter((a) => (a.units === 'in') === inch);
     if (!pool.length) return generic(inch ? 'No inch reference picture of this type yet' : 'No metric reference picture of this type yet');
@@ -322,7 +322,7 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
     }
     let atD = pool.filter((a) => a.d === dd && a.tpi === tpi);
     // a thread with no render of its own (a fine thread) shows the designation's COARSE render, said in one plain
-    // sentence; the record's own designation and TPI stay authoritative (Astra 2026-10-05)
+    // sentence; the record's own designation and TPI stay authoritative (design review 2026-10-05)
     let threadNote = null;
     if (!atD.length) {
       const sameD = pool.filter((a) => a.d === dd);

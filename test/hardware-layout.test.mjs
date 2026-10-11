@@ -2,8 +2,8 @@
    Run:  node --test test/*.test.mjs
 
    test/fixtures/hardware-ref.json is the Python engine's answer (label_from_items.lay_out, the engine every printed
-   hardware plate was laid out with) for every saved label-items file - 65 items: Joey's own records, the inch bank, the pin
-   demo, the first print and the colour bank - exported by D:/MODULITH/handoffs/hardware-library/icons-v1/export_hw_data.py
+   hardware plate was laid out with) for every saved label-items file - 65 items: Jerrari's own records, the inch bank, the pin
+   demo, the first print and the colour bank - exported by MODULITH/handoffs/hardware-library/icons-v1/export_hw_data.py
    (which also writes hardware-data.js). The browser layout must give the SAME label: the same value size, line split,
    attribute placement, icon and "not shown" list, and the same outlines (each element's box and area). */
 import { test } from 'node:test';

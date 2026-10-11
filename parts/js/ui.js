@@ -1,5 +1,5 @@
 // Part Picker v2 UI (2026-10-04): A's picture tiles, C's editable summary strip and per-part "Will add" rows.
-// Direction chosen by Astra from the design canvas; this file only draws. Every rule (menus, prefill, statuses, the
+// Direction chosen in design review from the design canvas; this file only draws. Every rule (menus, prefill, statuses, the
 // drive-change standard drop and offer) is the v1 engine in picker.js / batch.js / fields.js, unchanged and tested.
 // The v1 form (v1.html, a development page that is not published) shares this page's saved list.
 // Published inside the Label Studio site under parts/ (2026-10-10); js/embed.js holds the contract with the Studio.
@@ -79,7 +79,7 @@ const DRIVE_SHORT = { 'hex-socket': 'Hex socket', 'external-hex': 'External hex'
   pozidriv: 'Pozidriv', slotted: 'Slotted', none: 'None' };
 const TOOL_WORD = { 'hex-socket': (v) => `hex key ${v} mm`, 'external-hex': (v) => `${v} mm across flats`, hexalobular: (v) => `${v}` };
 
-// The four status words, defined precisely (Astra: keep the words, make the definitions exact).
+// The four status words, defined precisely (design review: keep the words, make the definitions exact).
 const STATUS_INFO = {
   listed: { word: 'Listed', def: 'In the picker\'s reference data or vocabulary. The tier after it says how far that goes: documented = in '
     + 'the bd_warehouse library data; verified = two independent public sources agree; single = one source; conflict = sources '
@@ -171,9 +171,9 @@ function save() {
     if (!storageWarned) { storageWarned = true; setTimeout(() => setStatus('The browser would not save the list (storage blocked or full - photos take space). Export JSON to keep it.', 'err'), 0); }
   }
 }
-// The WORKSHOP scheme (Astra 2026-10-06: "the working default should still be your agreed workshop-wide scheme"): one
+// The WORKSHOP scheme (design review 2026-10-06: "the working default should still be your agreed workshop-wide scheme"): one
 // per browser, the scheme a new or cleared list starts with. A list keeps its own (saved with it and with its export).
-// A browser that has never chosen one starts with the combined scheme (Joey 2026-10-07: labels include the colour
+// A browser that has never chosen one starts with the combined scheme (Jerrari 2026-10-07: labels include the colour
 // accents - metric blue / SAE red, the material as the band accent); choosing "off" as the workshop scheme is stored
 // as null, so it stays off.
 const WORKSHOP_STYLE = 'gen2-part-picker/workshop-label-style';
@@ -387,7 +387,7 @@ function chooseDrive(id) {
   } catch (e) { setStatus(e.message, 'err'); }
 }
 
-// Each family keeps its OWN draft (Astra, 2026-10-04): browsing from an unfinished screw to the rivets and back restores the
+// Each family keeps its OWN draft (design review, 2026-10-04): browsing from an unfinished screw to the rivets and back restores the
 // screw, and no screw field can ride into a rivet record. A fresh draft takes only the material fields the new family
 // SHOWS - a value the user cannot see on the form must not be saved with the part.
 const drafts = {};
@@ -448,13 +448,13 @@ function previews() {
 // ------------------------------------------------------------------ building blocks
 // Rendered pictures (v2, 2026-10-04): the MODULITH hardware visual library (its render-v2 library),
 // synced into img/hw/v2/ (pictures + assets.json) by tools/sync_hw_assets.py. js/hwimage.js picks the asset for a
-// record's type, drive, point, size, length and thread extent, and says when a picture is a stand-in (Astra: a
+// record's type, drive, point, size, length and thread extent, and says when a picture is a stand-in (design review: a
 // change of size, length or drive retrieves the corresponding asset, with a clear fallback when there isn't one).
 // Tiles show the type's own picture (the Head section its head crop); drives keep their vector glyphs.
 const IMG_NOTE = 'Rendered example - shape for recognition, illustrative finish';
 let HW = createHwImages({ assets: [] });               // replaced once img/hw/v2/assets.json loads; empty = glyphs only
 const tileImg = (p, head = false) => (p ? (head && p.srcHead) || p.src : null);
-// one short visible line naming what the picture differs in; the source detail behind it (Astra 2026-10-06)
+// one short visible line naming what the picture differs in; the source detail behind it (design review 2026-10-06)
 const picTitle = (p) => [p.short || p.caption, ...(p.details || p.notes)].join('\n');
 // a reference render, or a generic illustration (2026-10-05) - shown the same way, but never as exact
 const hasPic = (p) => !!p && (p.kind === 'render' || p.kind === 'illustration');
@@ -604,7 +604,7 @@ function driveSection(key, idx) {
 }
 
 // Shown when the drive no longer matches the head's standard. Makes the standard change explicit, and rechecks what a
-// different standard would change BEFORE it is accepted (Astra: never swap the standard number and keep incompatible picks).
+// different standard would change BEFORE it is accepted (design review: never swap the standard number and keep incompatible picks).
 function driveChangePanel() {
   const t = T();
   const own = headStdOf(t);
@@ -833,7 +833,7 @@ function materialSection(key, idx, only = null) {
     const f = getPath(t, path);
     let options = info.options; let note = null;
     if (path === 'material.colour') {
-      // Joey 2026-10-08: offer only the colours that pick a picture (nylon; anodized aluminium). The record still
+      // Jerrari 2026-10-08: offer only the colours that pick a picture (nylon; anodized aluminium). The record still
       // accepts any colour - this narrows the screen only. A colour already held stays visible, so nothing hidden
       // goes on affecting the picture or the label.
       const want = pictureColours(t.material);
@@ -878,7 +878,7 @@ function batchSection(e, idx) {
   if (off.length) body.push(h('div', { class: 'note' }, `Not in the list: ${off.map(fmtNum).join(', ')}${u} - saved as Custom.`));
   return sectionEl(e.key, idx, e.title, e.hint || 'tick several - one part each', ...body);
 }
-// rivet grip range: two typed numbers, never derived from the body length (Astra)
+// rivet grip range: two typed numbers, never derived from the body length (design review)
 function gripSection(e, idx) {
   const t = T();
   if (batching() && state.sel.length > 1) {
@@ -1180,7 +1180,7 @@ function summaryTail(card) {
     card.append(h('div', { class: 'pinnote muted' }, 'Pinned fields must appear on the label: one that does not fit is reported as a non-fit. ',
       'Other fields go on while they fit; the label preview lists the rest as "Not shown on label". The record keeps every field.'));
   }
-  // LABEL WORDS (Astra 2026-10-05: "Keep the short forms provisional ... Show their full meanings in the editor and
+  // LABEL WORDS (design review 2026-10-05: "Keep the short forms provisional ... Show their full meanings in the editor and
   // allow custom wording"): every field that prints, its printed form beside its full meaning, and the person's own word
   if (T().family !== 'other') {
     const it = labelItem(T(), { describe: describeValue });
@@ -1200,7 +1200,7 @@ function summaryTail(card) {
     }
     const lc = labelColoursBox(); if (lc) card.append(lc);
   }
-  // a family change removed pins this family has no field for (Astra 2026-10-05: flag them, never carry them blindly)
+  // a family change removed pins this family has no field for (design review 2026-10-05: flag them, never carry them blindly)
   const gone = T().label_pins_removed;
   if (gone && gone.length) {
     const fam = (P.FAMILIES.get(T().family) || {}).label || T().family;
@@ -1208,7 +1208,7 @@ function summaryTail(card) {
       `Unpinned when the part changed family: ${gone.map((g) => g.path).join(', ')} - ${fam} have no such field. `,
       h('button', { type: 'button', class: 'btn ghost', onclick: () => { state.template = P.setMeta(T(), { label_pins_removed: null }); save(); render(); } }, 'OK')));
   }
-  // Will add: one row per part, so a batch can never read as one part spec (Astra)
+  // Will add: one row per part, so a batch can never read as one part spec (design review)
   const recs = previews();
   const add = h('div', { class: 'willadd' }, h('div', { class: 'card-k' }, batching() ? `WILL ADD · ${recs.length}` : 'WILL SAVE'));
   for (const r of recs) add.append(willRow(r));
@@ -1298,7 +1298,7 @@ function listCard() {
   const card = h('section', { class: 'card list', 'aria-label': 'On the list' });
   card.append(h('div', { class: 'card-k' }, `ON THE LIST · ${state.records.length}`));
   if (!state.records.length) card.append(h('div', { class: 'muted' }, 'Nothing yet. Pick a family and type, tick the lengths or sizes, then Add.'));
-  // collections are a FILTER over one list, never copies (Astra)
+  // collections are a FILTER over one list, never copies (design review)
   const tags = [...new Set(state.records.flatMap((r) => r.tags || []))].sort();
   if (state.listFilter && !tags.includes(state.listFilter)) state.listFilter = null;
   if (tags.length) {
@@ -1340,7 +1340,7 @@ function listCard() {
       const { records, problems, labelStyle } = importDoc(await file.text());
       imp.value = '';
       // The list's scheme decides the colours of what it holds. When the file's scheme would print any of its parts in
-      // other colours than their existing labels, nothing is applied until the person has seen which ones (Astra
+      // other colours than their existing labels, nothing is applied until the person has seen which ones (design review
       // 2026-10-06: "Import review should show that consequence before applying it")
       const changes = sameStyle(labelStyle, state.labelStyle) ? [] : colourChanges(records, labelStyle, state.labelStyle);
       if (changes.length) { state.importReview = { records, problems, fileStyle: labelStyle, changes, name: file.name }; render(); return; }
@@ -1458,7 +1458,7 @@ function importReviewBox() {
       h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.importReview = null; render(); setStatus('Import cancelled - nothing changed.', 'ok'); } }, 'Cancel')));
   return box;
 }
-// The list's label colour scheme (2026-10-06, Astra: "Users should choose a scheme for a collection, with the mapping
+// The list's label colour scheme (2026-10-06, design review: "Users should choose a scheme for a collection, with the mapping
 // staying consistent thereafter"). Off, one of the proposed presets, or a scheme read from a file, kept as it is; and
 // the workshop scheme a new or cleared list starts with.
 function styleControl() {
@@ -1490,7 +1490,7 @@ function styleControl() {
   return wrap;
 }
 // The label colours of the part being edited, under the list's scheme. A colour set by hand is marked as such, with what
-// the legend would give, so it never quietly contradicts the legend (Astra 2026-10-06).
+// the legend would give, so it never quietly contradicts the legend (design review 2026-10-06).
 function labelColoursBox() {
   const st = state.labelStyle; if (!st) return null;
   const t = T(); const cols = labelColours(t, st);
@@ -1508,7 +1508,7 @@ function labelColoursBox() {
   });
   return h('details', { class: 'lw lc' }, h('summary', {}, `Label colours - ${styleName(st)}`), ...rows);
 }
-// "Make it a ..." on an Other part (Astra): same record id, so its label and drawer association survive
+// "Make it a ..." on an Other part (design review): same record id, so its label and drawer association survive
 function reassignControl(r) {
   const sel = h('select', { class: 'reassign', 'aria-label': `Give ${r.label || 'this part'} a family` });
   sel.append(h('option', { value: '' }, 'Make it a…'));
@@ -1602,7 +1602,7 @@ function renderSide() {
 async function main() {
   LEGEND = legend();
   if (!EMBED) $('header-extra').append(LEGEND);
-  // Feedback & support (Astra 2026-10-10): the shared MODULITH dialog. Not when embedded - the Label Studio around it has its own
+  // Feedback & support (design review 2026-10-10): the shared MODULITH dialog. Not when embedded - the Label Studio around it has its own
   if (!EMBED && !$('feedback-btn')) $('header-extra').append(h('button', { type: 'button', id: 'feedback-btn', class: 'btn sm ghost', 'aria-haspopup': 'dialog',
     onclick: () => (window.MODULITHFeedback ? window.MODULITHFeedback.open({ tool: 'Part Picker' })
       : (location.href = 'mailto:support@jerrari3d.com?subject=' + encodeURIComponent('[MODULITH Part Picker]'))) }, 'Feedback'));

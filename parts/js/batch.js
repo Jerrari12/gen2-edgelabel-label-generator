@@ -190,7 +190,7 @@ export function listText(P, records) {
 
 // ---------------------------------------------------------------- export / import
 // `labelStyle`: the collection's label colour scheme (labelstyle.js). It is saved WITH the records so reopening or
-// importing the file never changes what a colour means (Astra 2026-10-06); a file without one has no colours.
+// importing the file never changes what a colour means (design review 2026-10-06); a file without one has no colours.
 export function exportDoc(P, records, { labelStyle = null } = {}) {
   return JSON.stringify({ schema: 'part-records/1', data_version: P.D.version, ...(labelStyle ? { label_style: labelStyle } : {}), records }, null, 1);
 }

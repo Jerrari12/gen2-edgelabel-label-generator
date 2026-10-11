@@ -1,4 +1,4 @@
-/* Part Picker v2: MODULITH charcoal + orange (the design canvas look Astra approved, 2026-10-04). */
+/* Part Picker v2: MODULITH charcoal + orange (the design canvas look approved in design review, 2026-10-04). */
 /* Fonts are the Label Studio's: the system UI font, plus Space Grotesk hosted here (fonts/, SIL OFL 1.1) - nothing is
    loaded from another host (2026-10-10; its text fonts came from Google Fonts before). */
 @font-face { font-family: "Space Grotesk"; font-style: normal; font-weight: 500; font-display: swap; src: url("../fonts/space-grotesk-500.woff2") format("woff2"); }
@@ -109,7 +109,7 @@ html.embed .embed-addbar .status { margin: 0; flex: 1 1 220px; min-width: 0; }
 .tile.on { border: 2px solid var(--accent); background: var(--accent-bg); }
 .tile.on .tg { color: var(--accent-ink); }
 .tile.state { border-style: dashed; background: transparent; }
-/* rendered pictures: 128 CSS px on the main tiles (Astra: all families read at 128), from 256 px images */
+/* rendered pictures: 128 CSS px on the main tiles (design review: all families read at 128), from 256 px images */
 .tiles.cols-5:has(.has-img), .tiles.cols-6:has(.has-img) { grid-template-columns: repeat(auto-fill, minmax(152px, 1fr)); }
 .tile .timg { display: block; width: 128px; height: 128px; border-radius: 10px; object-fit: cover; }
 .tile.on .timg { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
@@ -161,7 +161,7 @@ html.embed .embed-addbar .status { margin: 0; flex: 1 1 220px; min-width: 0; }
 .len { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; min-height: 52px;
   padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--panel); text-align: left; }
 .len .mono { font-weight: 600; font-size: 16px; }
-/* inch lengths read 1-1/4": a designation is never broken across lines - fewer, wider columns instead (Astra
+/* inch lengths read 1-1/4": a designation is never broken across lines - fewer, wider columns instead (design review
    2026-10-05: "keep each designation together; fewer columns would be preferable to fragmented fractions") */
 .len-grid.inch { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
 .len-grid.inch .mono { font-size: 15px; }

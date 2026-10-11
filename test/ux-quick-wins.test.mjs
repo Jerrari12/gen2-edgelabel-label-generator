@@ -1,4 +1,4 @@
-/* The UI/UX review's quick wins (D:/MODULITH/handoffs/label-release/label-studio/UX-REVIEW-2026-10-10.md, section B):
+/* The UI/UX review's quick wins (MODULITH/handoffs/label-release/label-studio/UX-REVIEW-2026-10-10.md, section B):
    what the page must keep - read from index.html, and the small functions run on their own.
    Run:  node --test test/*.test.mjs */
 import { test } from 'node:test';

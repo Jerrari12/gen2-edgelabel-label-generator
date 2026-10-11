@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 
 const PAGE = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const PLANNER = new URL('../../../GEN2 Planner/gen2-planner-main/index.html', import.meta.url);   // D:/Code Projects/GEN2 Planner/...
+const PLANNER = new URL('../../../GEN2 Planner/gen2-planner-main/index.html', import.meta.url);   // GEN2 Planner/...
 
 const between = (s, from, to) => { const i = s.indexOf(from); assert.ok(i >= 0, `missing ${from}`); const j = s.indexOf(to, i); assert.ok(j > i, `missing ${to}`); return s.slice(i, j); };
 const links = (html) => [...html.matchAll(/<a\b([^>]*)>([^<]*)<\/a>/g)].map(m => ({ attrs: m[1], href: (m[1].match(/href="([^"]*)"/) || [])[1], text: m[2] }));
@@ -46,7 +46,7 @@ test('the Part Picker sits between Help and the Planner, in the bar and in the p
 
 test('every masthead link opens a new tab, so the labels being made stay open', () => {
   for (const l of [...links(nav()), ...links(phone())]) assert.match(l.attrs, /target="_blank" rel="noopener"/, l.text);
-  // and the other ways off the page: the wordmark, and the footer's site link (Terra 01a12280)
+  // and the other ways off the page: the wordmark, and the footer's site link (a code review)
   assert.match(between(PAGE, '<header class="mast"', '</header>'), /<a class="brandlink" target="_blank" rel="noopener" href="https:\/\/modulith\.systems\/"/);
   for (const l of links(between(PAGE, '<div class="footer">', '</div>')).filter(l => l.href !== '#')) assert.match(l.attrs, /target="_blank" rel="noopener"/, l.text);
 });

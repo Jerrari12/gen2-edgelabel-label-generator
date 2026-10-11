@@ -1,6 +1,6 @@
 // The label icon catalog (label-icons.js, 2026-10-09): what the menu offers, which drawing a badge prints, and the
-// guess - a word keeps the icon it predicts today unless it is on the documented corrections list (Sol 01a122f1 reviewed
-// the design; the corrections follow ChatGPT's review, relayed by Joey; its second review put both drawings of each near
+// guess - a word keeps the icon it predicts today unless it is on the documented corrections list (a code review reviewed
+// the design; the corrections follow a design review; its second review put both drawings of each near
 // twin in the menu, named apart, and asked for the corrections to be tested narrowly).
 
 // Ids in the menu's order, group by group (the core's icons first, each family twin right after its partner).
@@ -12,6 +12,7 @@ const MENU_ORDER = [
   'scissors', 'sewing-needle', 'paper-clip',
   'star', 'arrow', 'plus', 'storage-box',
 ];
+import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -183,7 +184,7 @@ test('near twins: both drawings in every menu, side by side and named apart; onl
   assert.deepEqual(LI.TWINS, [['nut', 'hex-nut'], ['washer', 'flat-washer'], ['resistor', 'resistor-axial']]);
   const menuIds = LI.menu().map((i) => i.id);
   assert.deepEqual(menuIds, LI.icons.map((i) => i.id), 'every selectable icon is offered');
-  // the names: the same part first, then what tells the two drawings apart (ChatGPT's second review: "selectable now, with names")
+  // the names: the same part first, then what tells the two drawings apart (a second design review: "selectable now, with names")
   assert.deepEqual(LI.TWINS.map(([a, b]) => [LI.find(a).name, LI.find(b).name]),
     [['Hex nut, plain', 'Hex nut, chamfered'], ['Washer, wide ring', 'Washer, thin ring'], ['Resistor, plain', 'Resistor, banded']]);
   for (const [first, other] of LI.TWINS) {
@@ -213,7 +214,7 @@ test('the Label Studio keeps the drawing a row already wears when the guess woul
     'the guard runs before the guess is applied');
 });
 
-test('the corrections stay narrow (ChatGPT\'s second review): each phrase works inside a longer label, a removed phrase predicts nothing of its own, the words beside it still count, and single words keep their old guess', () => {
+test('the corrections stay narrow (a second design review): each phrase works inside a longer label, a removed phrase predicts nothing of its own, the words beside it still count, and single words keep their old guess', () => {
   for (const [keys, id] of LI.CORRECTIONS) {
     for (const k of keys) {
       for (const t of [k, `M3 ${k}`, `${k} box`, k.toUpperCase(), k[0].toUpperCase() + k.slice(1)]) {
@@ -269,7 +270,7 @@ test('every new rule: its examples match it, its counter-examples do not; it nev
   }
   for (const t of CORPUS) {
     const g = LI.guessIconId(t);
-    if (g) assert.notEqual(g, 'screw-side', `"${t}"`);   // Joey: the generic screw is never put on a label by itself
+    if (g) assert.notEqual(g, 'screw-side', `"${t}"`);   // Jerrari: the generic screw is never put on a label by itself
   }
   assert.equal(LI.guessIconId('screws'), null, 'a plain "screw" still maps to nothing');
 });
@@ -300,7 +301,9 @@ test('the page builds every label through LabelIcons.resolveBadge, guesses with 
 });
 
 test('the art is the icon family\'s drawings, re-encoded losslessly (when the vault is here)', (t) => {
-  const SVG = 'D:/MODULITH/handoffs/hardware-library/icons-v1/svg/';
+  const SVG = [process.env.GEN2_ICON_SVG_DIR, '../../../MODULITH/', '../../../../MODULITH/'].filter(Boolean)
+    .map((p) => p.startsWith('.') ? fileURLToPath(new URL(p + 'handoffs/hardware-library/icons-v1/svg/', import.meta.url)) : p)
+    .find((p) => existsSync(p)) || '';
   if (!existsSync(SVG)) { t.skip('no icon family checkout'); return; }
   const nums = (s) => (s.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
   const pathOf = (svg) => svg.match(/ d="([^"]+)"/)[1];

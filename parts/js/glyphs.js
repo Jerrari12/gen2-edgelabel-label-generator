@@ -1,7 +1,7 @@
 // Line glyphs for the picker (screen illustrations, not print-tested label symbols).
 // Heads, nuts, set screws and inserts are drawn side-on; drives, washers and nut tops are drawn looking down.
 // 48 x 48 viewBox, stroked in currentColor so a tile's colour state carries into its picture.
-// Redrawn 2026-10-04 after Astra's symbol review: the 6-lobe recess is the T25 outline bd_warehouse builds from
+// Redrawn 2026-10-04 after the symbol review: the 6-lobe recess is the T25 outline bd_warehouse builds from
 // its ISO 10664 table (the library's table, not checked against a copy of the standard), Phillips arms taper
 // and Pozidriv arms are parallel with its 45-degree marks, the external hex has no centre dot, and nuts gain top views.
 
@@ -41,7 +41,7 @@ export const GLYPHS = {
   'nyloc-thin': '<rect x="7" y="22" width="34" height="9" rx="1"/><path d="M18 22V31M30 22V31"/><path d="M11 22C13 15 35 15 37 22"/>',
   'nyloc-regular': '<rect x="7" y="19" width="34" height="16" rx="1"/><path d="M18 19V35M30 19V35"/><path d="M11 19C13 12 35 12 37 19"/>',
   'flange-nut': '<rect x="12" y="13" width="24" height="17" rx="1"/><path d="M20 13V30M28 13V30"/><path d="M5 35L12 30H36L43 35Z"/>',
-  // batch 5 types (2026-10-05). Screen tiles only - the printed MODULITH icon family is unchanged while Astra prints it.
+  // batch 5 types (2026-10-05). Screen tiles only - the printed MODULITH icon family is unchanged while it is print-tested.
   // A square nut seen corner-on shows TWO faces (one line), a hex nut three; a cap nut is a hex with a dome.
   'square-nut': '<rect x="7" y="16" width="34" height="16" rx="1"/><path d="M24 16V32"/>',
   'square-thin-nut': '<rect x="7" y="20" width="34" height="8" rx="1"/><path d="M24 20V28"/>',

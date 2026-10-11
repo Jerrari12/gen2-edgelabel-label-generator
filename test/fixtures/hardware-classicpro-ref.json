@@ -1,5 +1,5 @@
 {
- "source": "hardware-layout.js on hardware-data-classicpro.js, every item of hardware-ref.json; checked independently in shapely by D:/MODULITH/handoffs/label-release/label-types/step3/check-cp.py",
+ "source": "hardware-layout.js on hardware-data-classicpro.js, every item of hardware-ref.json; checked independently in shapely by MODULITH/handoffs/label-release/label-types/step3/check-cp.py",
  "items": [
   {
    "set": "colour-bank/label-items-material.json",

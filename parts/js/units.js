@@ -1,4 +1,4 @@
-// Units for the part picker (2026-10-05, Astra: "a units-aware data model - metric diameter/pitch and inch diameter/TPI,
+// Units for the part picker (2026-10-05, design review: "a units-aware data model - metric diameter/pitch and inch diameter/TPI,
 // fractional input and display, correct length units, existing metric records preserved, no automatic substitution
 // between approximately similar metric and inch parts").
 //

@@ -561,7 +561,7 @@ test('G-caps-3: a capable job still validates exactly as before (caps is an unkn
   assert.deepEqual(r.job.caps, ['label-list'], 'returned verbatim');
 });
 
-/* ---------------------------------------------------------------- G-up: a drawer's uploaded icon (ChatGPT's review via Joey) */
+/* ---------------------------------------------------------------- G-up: a drawer's uploaded icon (a design review) */
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><path d="M0 0H10V10H0Z"/></svg>';
 
 test('G-up-1: a row carrying the drawer\'s uploaded icon shows it and KEEPS the job\'s badge; `up: true` says it has one; anything else is no upload', () => {
@@ -627,7 +627,7 @@ test('G-up-4: a saved linked session brings the keep back (snapsFromProject)', (
   assert.deepEqual(s.map((x) => L.badgeRep(x, ICONS)), [null, null, null]);
 });
 
-// ChatGPT's second review, relayed by Joey 2026-10-09: an icon the job could not carry is ASKED for over the link, and an
+// a second design review: an icon the job could not carry is ASKED for over the link, and an
 // icon-only planner label reaches the generator instead of arriving as an empty row.
 test('G-up-5: the request for the icons a job could not carry, and the answer it accepts', () => {
   const link = { job: mkJob([{ t: 'Big logo', up: true }]) };
