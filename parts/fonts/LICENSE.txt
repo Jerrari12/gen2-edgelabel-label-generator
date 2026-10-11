@@ -1,0 +1,9 @@
+Space Grotesk (space-grotesk-500.woff2, space-grotesk-700.woff2)
+
+Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
+
+Licensed under the SIL Open Font License, Version 1.1: https://openfontlicense.org
+(the font files name this licence in their own metadata: https://scripts.sil.org/OFL).
+
+The two files are unmodified copies of the ones the MODULITH site and the Label Studio serve. They are hosted here
+so the page loads nothing from another host.

@@ -1,0 +1,58 @@
+# Vendored third-party libraries: keep them byte-for-byte as published.
+# Without this, Git's Windows autocrlf rewrites every line of the minified
+# files, which churns diffs and makes them impossible to compare against
+# upstream.
+vendor/** -text -diff linguist-vendored
+
+# Site icons are binary — autocrlf must never rewrite them.
+*.ico binary
+*.png binary
+
+# label-core.js is vendored byte-for-byte into the GEN2 3D Build Studio and hash-pinned there:
+# a fixed LF keeps the served file, the checkout and the viewer's copy the same bytes on every OS.
+label-core.js text eol=lf
+
+# label-link.js is copied byte-for-byte into the GEN2 Planner repo (test/vendor/) and sha-pinned there:
+# a fixed LF keeps the checkout and that copy the same bytes on every OS.
+label-link.js text eol=lf
+
+# hardware-layout.js and its generated data (hardware-data.js, written by the Python print engine's export_hw_data.py) are
+# shared across tools the way label-core.js is: a fixed LF keeps every copy the same bytes on every OS.
+hardware-layout.js text eol=lf
+hardware-data.js text eol=lf
+hardware-data-classicpro.js text eol=lf
+hardware-v5-data.js text eol=lf
+hardware-band-data.js text eol=lf
+
+# label-list.js is copied byte-for-byte into the GEN2 Planner repo and sha-pinned there (the label list format):
+# a fixed LF keeps the checkout and that copy the same bytes on every OS.
+label-list.js text eol=lf
+
+# label-core-classicpro.js is the Classic Pro generator's label core (its classicpro-label-core branch, f0ef3c6), byte for byte and
+# sha-pinned in test/label-types.test.mjs: a fixed LF keeps it the same bytes on every OS.
+label-core-classicpro.js text eol=lf
+
+# The MODULITH fonts (Space Grotesk, copied from the Planner with its masthead) are binary, like the site icons.
+*.woff2 binary
+
+# label-icons.js and its generated artwork (label-icon-art.js, written by the icon family's export_label_icon_art.py) are
+# copied byte-for-byte into the 3D Build Studio and sha-pinned there: a fixed LF keeps every copy the same bytes on every OS.
+label-icons.js text eol=lf
+label-icon-art.js text eol=lf
+
+# label-hardware.js (part labels and colour bands in 3D: the ink, the band pieces, the colours, the row note) is copied
+# byte-for-byte into the 3D Build Studio and sha-pinned there: a fixed LF keeps every copy the same bytes on every OS.
+label-hardware.js text eol=lf
+
+# parts/ is the Part Picker, copied in by its own tools/publish.mjs (parts/SOURCE.json names the commit it came from):
+# kept byte-for-byte as published, so Git never rewrites its line endings and a re-publish diffs cleanly.
+parts/** -text
+
+# part-picker-link.js (the Part Picker sheet's message contract and the part-item check) is executed by node --test like the
+# page runs it: a fixed LF keeps the served file and the checkout the same bytes on every OS, like its neighbours.
+part-picker-link.js text eol=lf
+
+# label-stripes.js (stripes on any label: the colours, the cleaning, which position a label takes) is executed by node --test like
+# the page runs it: a fixed LF keeps the served file and the checkout the same bytes on every OS, like its neighbours.
+label-stripes.js text eol=lf
+modulith-feedback.js text eol=lf

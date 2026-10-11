@@ -1,0 +1,12 @@
+Part Picker data notice
+=======================
+
+Sizes, dimensions and nominal length lists in bd_standards.json and lengths_all.json are extracted from
+bd_warehouse 0.3.0 (https://github.com/gumyr/bd_warehouse), (c) its authors, licensed under the
+Apache License, Version 2.0 (full text: LICENSE-bd_warehouse.txt in this folder).
+The data was transformed (parsed, filtered, restructured as JSON) and corrected by overlay.json (each
+correction keeps the original value). No bd_warehouse code is included.
+Source wheel sha256: 291c40f3ed04ac6dac2fbd7592eb0da3193a6aa93e3d3b741d915ca190dc99fc
+
+own_tables.json and overlay.json are written by this project; every row carries its own source and status.
+No McMaster-Carr data of any kind is used.

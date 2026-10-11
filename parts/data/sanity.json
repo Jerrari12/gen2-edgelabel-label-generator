@@ -1,0 +1,279 @@
+{
+ "schema": "part-picker-sanity/2",
+ "policy": "Flag, never correct silently. A flagged value stays exactly as the library has it unless an overlay correction (overlay.json) records the decision, the sources and the original; corrected flags say so.",
+ "statuses": {
+  "suspect": "looks wrong, not checked",
+  "conflict": "sources disagree, kept as listed",
+  "corrected": "an overlay correction was applied; the original is kept"
+ },
+ "checked_lists": [
+  "OpenBuilds",
+  "din1662",
+  "din1665",
+  "din931",
+  "din967",
+  "din968",
+  "iso10642",
+  "iso1207",
+  "iso14579",
+  "iso14580",
+  "iso14581",
+  "iso14582",
+  "iso14583",
+  "iso14584",
+  "iso1580",
+  "iso2009",
+  "iso2010",
+  "iso4014",
+  "iso4017",
+  "iso4026",
+  "iso4762",
+  "iso7045",
+  "iso7046",
+  "iso7047",
+  "iso7048",
+  "iso7380_1",
+  "iso7380_2"
+ ],
+ "flags": [
+  {
+   "kind": "duplicate",
+   "subject": "asme_b18.3",
+   "message": "6.25 appears twice; the second entry (index 24) is dropped",
+   "status": "corrected",
+   "index": 24,
+   "value": 6.25,
+   "offered": true
+  },
+  {
+   "kind": "two-decimal-fraction",
+   "subject": "asme_b18.3",
+   "message": "0.88 read as 0.875 (7/8 to two decimals)",
+   "status": "corrected",
+   "index": 1,
+   "value": 0.88,
+   "offered": true
+  },
+  {
+   "kind": "duplicate-row",
+   "subject": "din1665:M12-1.5",
+   "message": "hex_nut_with_flange_parameters.csv lists M12-1.5 twice with the same values; one kept",
+   "status": "suspect",
+   "standard": "din1665",
+   "size": "M12-1.5",
+   "offered": true
+  },
+  {
+   "kind": "bound-not-in-list",
+   "subject": "iso10642:M24-3",
+   "message": "long bound 110 is not in the iso10642 nominal length list",
+   "status": "suspect",
+   "standard": "iso10642",
+   "size": "M24-3",
+   "offered": true
+  },
+  {
+   "kind": "out-of-order-outlier",
+   "subject": "iso1580",
+   "message": "68 sits between 5 and 10: breaks ascending order and is 13.6x its predecessor. Kept as listed; needs a human decision.",
+   "status": "corrected",
+   "index": 5,
+   "value": 68,
+   "offered": true,
+   "overlay": "ov-iso1580-68",
+   "original": [
+    68
+   ],
+   "corrected_to": [
+    6,
+    8
+   ],
+   "overlay_status": "verified"
+  },
+  {
+   "kind": "bound-not-in-list",
+   "subject": "iso1580:M5-0.8",
+   "message": "short bound 6 is not in the iso1580 nominal length list",
+   "status": "corrected",
+   "standard": "iso1580",
+   "size": "M5-0.8",
+   "offered": true,
+   "overlay": "ov-iso1580-68",
+   "original": [
+    68
+   ],
+   "corrected_to": [
+    6,
+    8
+   ],
+   "overlay_status": "verified"
+  },
+  {
+   "kind": "bound-not-in-list",
+   "subject": "iso1580:M6-1",
+   "message": "short bound 8 is not in the iso1580 nominal length list",
+   "status": "corrected",
+   "standard": "iso1580",
+   "size": "M6-1",
+   "offered": true,
+   "overlay": "ov-iso1580-68",
+   "original": [
+    68
+   ],
+   "corrected_to": [
+    6,
+    8
+   ],
+   "overlay_status": "verified"
+  },
+  {
+   "kind": "range-long-shrinks",
+   "subject": "iso4017:M20-2.5",
+   "message": "listed upper length 160 for M20 is smaller than 200 for M18. Kept as listed; the real range for the larger size is probably wider - needs review.",
+   "status": "suspect",
+   "standard": "iso4017",
+   "size": "M20-2.5",
+   "offered": true
+  },
+  {
+   "kind": "range-long-shrinks",
+   "subject": "iso4017:M24-3",
+   "message": "listed upper length 180 for M24 is smaller than 200 for M22. Kept as listed; the real range for the larger size is probably wider - needs review.",
+   "status": "suspect",
+   "standard": "iso4017",
+   "size": "M24-3",
+   "offered": true
+  },
+  {
+   "kind": "range-long-shrinks",
+   "subject": "iso4017:M27-3",
+   "message": "listed upper length 100 for M27 is smaller than 180 for M24. Kept as listed; the real range for the larger size is probably wider - needs review.",
+   "status": "suspect",
+   "standard": "iso4017",
+   "size": "M27-3",
+   "offered": true
+  },
+  {
+   "kind": "range-check-mismatch",
+   "subject": "iso4017:M3-0.5",
+   "message": "bd_warehouse lists 5-30 for M3; the planning session's research gives 6-30 (single source for every size). Kept as listed; a person decides.",
+   "status": "conflict",
+   "sources": [
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart"
+   ],
+   "standard": "iso4017",
+   "size": "M3-0.5",
+   "offered": true
+  },
+  {
+   "kind": "range-check-mismatch",
+   "subject": "iso4017:M4-0.7",
+   "message": "bd_warehouse lists 6-40 for M4; the planning session's research gives 8-40 (single source for every size). Kept as listed; a person decides.",
+   "status": "conflict",
+   "sources": [
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart"
+   ],
+   "standard": "iso4017",
+   "size": "M4-0.7",
+   "offered": true
+  },
+  {
+   "kind": "range-short-shrinks",
+   "subject": "iso4017:M4-0.7",
+   "message": "listed lower length 6 for M4 is smaller than 8 for M3.5. Kept as listed; needs review.",
+   "status": "conflict",
+   "standard": "iso4017",
+   "size": "M4-0.7",
+   "offered": true,
+   "sources": [
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart"
+   ]
+  },
+  {
+   "kind": "range-short-shrinks",
+   "subject": "iso4017:M42-4.5",
+   "message": "listed lower length 70 for M42 is smaller than 80 for M39. Kept as listed; needs review.",
+   "status": "suspect",
+   "standard": "iso4017",
+   "size": "M42-4.5",
+   "offered": true
+  },
+  {
+   "kind": "range-check-mismatch",
+   "subject": "iso4017:M5-0.8",
+   "message": "bd_warehouse lists 8-50 for M5; the planning session's research gives 10-50 (single source for every size). Kept as listed; a person decides.",
+   "status": "conflict",
+   "sources": [
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart"
+   ],
+   "standard": "iso4017",
+   "size": "M5-0.8",
+   "offered": true
+  },
+  {
+   "kind": "pitch-differs-from-coarse",
+   "subject": "iso4035:M3-0.45",
+   "message": "iso4035 lists M3 with pitch 0.45 but iso4762 lists 0.5. Kept as listed; needs review.",
+   "status": "corrected",
+   "standard": "iso4035",
+   "size": "M3-0.45",
+   "offered": true,
+   "overlay": "ov-iso4035-M3-pitch",
+   "original": 0.45,
+   "corrected_to": 0.5,
+   "overlay_status": "verified"
+  },
+  {
+   "kind": "range-long-shrinks",
+   "subject": "iso4762:M20-2.5",
+   "message": "listed upper length 100 for M20 is smaller than 160 for M16. Kept as listed; the real range for the larger size is probably wider - needs review.",
+   "status": "corrected",
+   "standard": "iso4762",
+   "size": "M20-2.5",
+   "offered": true,
+   "overlay": "ov-iso4762-M20-long",
+   "original": 100,
+   "corrected_to": 200,
+   "overlay_status": "verified"
+  },
+  {
+   "kind": "range-short-shrinks",
+   "subject": "iso4762:M20-2.5",
+   "message": "listed lower length 16 for M20 is smaller than 25 for M16. Kept as listed; needs review.",
+   "status": "corrected",
+   "standard": "iso4762",
+   "size": "M20-2.5",
+   "offered": true,
+   "overlay": "ov-iso4762-M20-short",
+   "original": 16,
+   "corrected_to": 30,
+   "overlay_status": "single"
+  },
+  {
+   "kind": "range-check-mismatch",
+   "subject": "iso4762:M6-1",
+   "message": "bd_warehouse lists 8-60 for M6; the planning session's research gives 10-60 (max verified, min single). Kept as listed; a person decides.",
+   "status": "conflict",
+   "sources": [
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart",
+    "https://fasteners.eu/standards"
+   ],
+   "standard": "iso4762",
+   "size": "M6-1",
+   "offered": true
+  },
+  {
+   "kind": "range-check-mismatch",
+   "subject": "iso4762:M8-1.25",
+   "message": "bd_warehouse lists 10-80 for M8; the planning session's research gives 12-80 (max verified, min single). Kept as listed; a person decides.",
+   "status": "conflict",
+   "sources": [
+    "https://ekinsun.com/custom-fasteners/bolt-length-chart",
+    "https://fasteners.eu/standards"
+   ],
+   "standard": "iso4762",
+   "size": "M8-1.25",
+   "offered": true
+  }
+ ]
+}
