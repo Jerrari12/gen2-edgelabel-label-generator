@@ -3554,7 +3554,15 @@ function pendingActive() { return !!(link && link.pending && (link.pending.state
 // left out, so the planner predicts it the same way. The list carries a batchId: the planner adds a batch once, however often
 // the link is opened. Too big for a link (uploaded icons are large) -> the same list as a file for the planner's Add labels.
 const PLANNER_URL = (() => {
-  const q = new URLSearchParams(location.search).get('dev_planner');
+  const qs = new URLSearchParams(location.search);
+  // ?return=<url>: the planner that opened this tab says where its labels go back to (the merged MODULITH planner lives on
+  // another address than the old one); honoured only for an allowed planner origin, with the path kept and no query or hash
+  // The return address is a URL, so it is matched to the exact planner PATHS, not an origin: a Pages origin is a whole
+  // account (code review 2026-10-13), and the postMessage origin list (label-link.js PLANNER_ORIGINS) stays as it is.
+  const PLANNER_RETURNS = ['https://gen2planner.jerrari3d.com/', 'https://jerrari12.github.io/modulith-planner/'];
+  const ret = qs.get('return');
+  if (ret) { try { const u = new URL(ret); const addr = u.origin + u.pathname; const okLocal = SERVED_LOCAL && /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}\//.test(addr); if (PLANNER_RETURNS.some((p) => addr === p || addr === p.replace(/\/$/, '') + '/index.html') || okLocal) return addr + (u.search || ''); } catch (e) { /* not a URL: the default planner */ } }
+  const q = qs.get('dev_planner');
   if (SERVED_LOCAL && q && /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}\/?$/.test(q)) return q.replace(/\/?$/, '/');
   return SERVED_LOCAL ? 'http://localhost:8124/' : 'https://gen2planner.jerrari3d.com/';
 })();
