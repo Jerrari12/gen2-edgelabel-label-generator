@@ -16,7 +16,9 @@
 'use strict';
 
 /* ---- constants (pinned equal to the Planner's label-return.js by the contract test, C-3 / C-4 / C-5 / C-6) ---- */
-const PLANNER_ORIGINS = ['https://gen2planner.jerrari3d.com'];
+// the planners: the old one, and the merged MODULITH planner at its own address (Joey, 2026-10-13: planner.modulith.systems);
+// never a GitHub Pages origin - that would admit every Pages site of the account (code review 2026-10-13)
+const PLANNER_ORIGINS = ['https://gen2planner.jerrari3d.com', 'https://planner.modulith.systems'];
 const LOOPBACK_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/;
 const JOB_ROWS_MAX = 400;
 const JOB_JSON_MAX = 256 * 1024;      // UTF-8 bytes of the job JSON
