@@ -795,7 +795,7 @@
 <!-- Feedback & support: the shared MODULITH dialog, the planner's js/modulith-feedback.js byte for byte (test/feedback-vendor.test.mjs) -->
 <script src="modulith-feedback.js?v=c90fd913"></script>
 <script src="label-stripes.js?v=4b6e5cc5"></script>
-<script src="label-link.js?v=37fbe4a2"></script>
+<script src="label-link.js?v=39375dab"></script>
 <script src="part-picker-link.js?v=2e4b8128"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
@@ -3559,7 +3559,7 @@ const PLANNER_URL = (() => {
   // another address than the old one); honoured only for an allowed planner origin, with the path kept and no query or hash
   // The return address is a URL, so it is matched to the exact planner PATHS, not an origin: a Pages origin is a whole
   // account (code review 2026-10-13), and the postMessage origin list (label-link.js PLANNER_ORIGINS) stays as it is.
-  const PLANNER_RETURNS = ['https://gen2planner.jerrari3d.com/', 'https://jerrari12.github.io/modulith-planner/'];
+  const PLANNER_RETURNS = ['https://gen2planner.jerrari3d.com/', 'https://planner.modulith.systems/', 'https://jerrari12.github.io/modulith-planner/'];
   const ret = qs.get('return');
   if (ret) { try { const u = new URL(ret); const addr = u.origin + u.pathname; const okLocal = SERVED_LOCAL && /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}\//.test(addr); if (PLANNER_RETURNS.some((p) => addr === p || addr === p.replace(/\/$/, '') + '/index.html') || okLocal) return addr + (u.search || ''); } catch (e) { /* not a URL: the default planner */ } }
   const q = qs.get('dev_planner');
