@@ -273,6 +273,8 @@ function selSize(x) {
 }
 // a length in the record's own unit: 20 (mm) or 1-1/4" (an inch record)
 const fmtLen = (rec, v) => (isUnified(rec) ? `${fracInch(v)}"` : fmtNum(v));
+// ...and as a length tile's accessible name, its unit in words: "20 mm", "1-1/4 inch"
+const lenName = (rec, v) => (isUnified(rec) ? `${fracInch(v)} inch` : `${fmtNum(v)} mm`);
 function fine(rec) {
   const p = rec.thread && rec.thread.pitch;
   return p && p.status !== UNKNOWN && !(rec.thread.pitch_class.status === LISTED && rec.thread.pitch_class.value === 'coarse');
@@ -740,7 +742,10 @@ function driveChangePanel() {
 function circlePx(d) { return Math.round(Math.min(56, 6 + 11 * Math.log(d + 1))); }
 function threadButton(o, on, onClick, check) {
   const d = typeof o.value === 'number' ? o.value : (o.major_in || 0.2) * 25.4;   // an inch size is drawn at its major diameter
-  return h('button', { type: 'button', class: `thr ${on ? 'on' : ''}`, 'aria-pressed': String(on), onclick: onClick, title: `${o.label} - ${o.tier}` },
+  // the accessible NAME is the value; the tier stays in the title, which then reads as the description (the planner
+  // session's check, 2026-10-14: the size and length tiles were named "documented", ten identical buttons). Every name
+  // here STARTS with the visible text, so voice control can say what it sees ("coarse 0.7", "UNC 20 TPI"; Terra 01a13c69)
+  return h('button', { type: 'button', class: `thr ${on ? 'on' : ''}`, 'aria-pressed': String(on), 'aria-label': String(o.label), onclick: onClick, title: `${o.label} - ${o.tier}` },
     check ? h('span', { class: 'chk', 'aria-hidden': 'true' }, on ? '✓' : '') : null,
     h('span', { class: 'circ', 'aria-hidden': 'true', style: `width:${circlePx(d)}px;height:${circlePx(d)}px` }),
     h('span', { class: 'tl mono' }, o.label));
@@ -798,7 +803,7 @@ function sizesSection(key, idx, title) {
   const offLabel = (v) => (uni ? String(v) : `M${fmtNum(v)}`);
   const body = [systemRow(key), h('div', { class: row },
     info.options.map((o) => threadButton(o, state.sel.includes(o.value), () => toggleSel(o.value), true)),
-    off.map((v) => h('button', { type: 'button', class: 'thr on off', 'aria-pressed': 'true', title: 'not listed for this type: saved as Custom. Click to remove.', onclick: () => toggleSel(v) },
+    off.map((v) => h('button', { type: 'button', class: 'thr on off', 'aria-pressed': 'true', 'aria-label': `${offLabel(v)}, custom`, title: 'not listed for this type: saved as Custom. Click to remove.', onclick: () => toggleSel(v) },
       h('span', { class: 'chk' }, '✓'), h('span', { class: 'tl mono' }, offLabel(v)), h('span', { class: 'ts' }, 'custom'))))];
   body.push(selTools(key, 'size', vals));
   if (off.length) body.push(h('div', { class: 'note' }, `Not listed for this type: ${off.map(offLabel).join(', ')} - saved as Custom.`));
@@ -832,7 +837,7 @@ function tpiSection(key, idx) {
   const info = P.optionsFor(t, 'thread.tpi');
   const f = t.thread.tpi;
   const btn = (o) => h('button', { type: 'button', class: `pitch ${f.status === LISTED && f.value === o.value ? 'on' : ''}`,
-    'aria-pressed': String(f.status === LISTED && f.value === o.value), onclick: () => pick(key, 'thread.tpi', o.value), title: `${o.tier}: ${o.ref}` },
+    'aria-pressed': String(f.status === LISTED && f.value === o.value), 'aria-label': `${o.series || 'other'} ${o.value} TPI (threads per inch)`, onclick: () => pick(key, 'thread.tpi', o.value), title: `${o.tier}: ${o.ref}` },
     h('span', { class: 'tg', html: glyph(o.series === 'UNF' ? 'fine' : 'coarse', 28) }),
     h('span', {}, `${o.series || 'other'} `, h('span', { class: 'mono' }, `${o.value} TPI`)));
   const body = [h('div', { class: 'row wrap' }, info.options.map(btn), stateButtons(key, 'thread.tpi', { numeric: true }))];
@@ -848,7 +853,7 @@ function pitchSection(key, idx) {
   const info = P.optionsFor(t, 'thread.pitch');
   const f = t.thread.pitch;
   const btn = (o) => h('button', { type: 'button', class: `pitch ${f.status === LISTED && f.value === o.value ? 'on' : ''}`,
-    'aria-pressed': String(f.status === LISTED && f.value === o.value), onclick: () => pick(key, 'thread.pitch', o.value), title: `${o.tier}: ${o.ref}` },
+    'aria-pressed': String(f.status === LISTED && f.value === o.value), 'aria-label': `${o.pitch_class === 'fine' ? 'fine' : 'coarse'} ${fmtNum(o.value)} mm pitch`, onclick: () => pick(key, 'thread.pitch', o.value), title: `${o.tier}: ${o.ref}` },
     h('span', { class: 'tg', html: glyph(o.pitch_class === 'fine' ? 'fine' : 'coarse', 28) }),
     h('span', {}, o.pitch_class === 'fine' ? 'fine ' : 'coarse ', h('span', { class: 'mono' }, fmtNum(o.value))));
   const coarse = info.options.filter((o) => o.group === 'coarse');
@@ -888,7 +893,7 @@ function lengthsSection(key, idx) {
     const f = t.length.value;
     body.push(h('div', { class: `len-grid${isUnified(t) ? ' inch' : ''}` }, opts.map((o) => {
       const on = f.status === LISTED && f.value === o.value;
-      return h('button', { type: 'button', class: `len ${on ? 'on' : ''}`, 'aria-pressed': String(on), onclick: () => pick(key, 'length.value', o.value), title: `${o.tier}` },
+      return h('button', { type: 'button', class: `len ${on ? 'on' : ''}`, 'aria-pressed': String(on), 'aria-label': lenName(t, o.value), onclick: () => pick(key, 'length.value', o.value), title: `${o.tier}` },
         h('span', { class: 'mono' }, fmtLen(t, o.value)), bar(o.value, on));
     })), h('div', { class: 'row' }, stateButtons(key, 'length.value', { numeric: true })), customBox(key, 'length.value', isUnified(t) ? 'Length (inches)' : 'Length (mm)', true));
   } else {
@@ -896,10 +901,10 @@ function lengthsSection(key, idx) {
     body.push(h('div', { class: `len-grid${isUnified(t) ? ' inch' : ''}` },
       opts.map((o) => {
         const on = state.sel.includes(o.value);
-        return h('button', { type: 'button', class: `len ${on ? 'on' : ''}`, 'aria-pressed': String(on), onclick: () => toggleSel(o.value), title: `${o.tier}` },
+        return h('button', { type: 'button', class: `len ${on ? 'on' : ''}`, 'aria-pressed': String(on), 'aria-label': lenName(t, o.value), onclick: () => toggleSel(o.value), title: `${o.tier}` },
           h('span', { class: 'chk', 'aria-hidden': 'true' }, on ? '✓' : ''), h('span', { class: 'mono' }, fmtLen(t, o.value)), bar(o.value, on));
       }),
-      off.map((v) => h('button', { type: 'button', class: 'len on off', 'aria-pressed': 'true', onclick: () => toggleSel(v), title: 'not listed here: saved as Custom. Click to remove.' },
+      off.map((v) => h('button', { type: 'button', class: 'len on off', 'aria-pressed': 'true', 'aria-label': `${lenName(t, v)}, custom`, onclick: () => toggleSel(v), title: 'not listed here: saved as Custom. Click to remove.' },
         h('span', { class: 'chk' }, '✓'), h('span', { class: 'mono' }, fmtLen(t, v)), h('span', { class: 'ts' }, 'custom')))),
     selTools(key, 'length', vals));
     if (off.length) {
