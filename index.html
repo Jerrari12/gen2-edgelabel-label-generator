@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1d1e20">
+<script>/* the planner's embed (?embed=planner in a frame, plate-link.js): this page's own chrome goes before first paint */
+if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window) document.documentElement.classList.add('embed-planner');</script>
 <title>Label Studio · MODULITH</title>
 <meta name="description" content="MODULITH Label Studio (formerly the GEN2 label generators): make EdgeLabel and Classic Pro labels for your MODULITH drawers, typed or from a part record, ready for your slicer.">
 <!-- Site icon: the MODULITH square, the same three files as the MODULITH site and the Planner (copied from the
@@ -57,6 +59,19 @@
      canvas's own pixel width - by default, so narrowing the window cut the plate off); a ResizeObserver resizes the canvas */
   #preview { flex: 1; min-width: 0; overflow: hidden; position: relative; background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%); }
   #preview canvas { display: block; touch-action: none; }   /* a pinch on the 3D view is the view's; elsewhere it zooms the page */
+  /* THE LABEL PLATE INSIDE THE PLANNER (?embed=planner, plate-link.js): the planner's chrome is around this frame, so none of
+     ours; the list is read-only (the planner edits it); the printer settings and Download stay live */
+  html.embed-planner #mast, html.embed-planner .mobilenav, html.embed-planner #link-bar, html.embed-planner .labels-bar,
+  html.embed-planner .row-tools, html.embed-planner .add-from, html.embed-planner #start-card, html.embed-planner .list-note,
+  html.embed-planner .affix-panel, html.embed-planner .type-note, html.embed-planner .proj-actions,
+  html.embed-planner #sidebar > h2:has(+ .proj-actions), html.embed-planner .footer { display: none !important; }
+  html.embed-planner .row .row-sel, html.embed-planner .row .remove { display: none; }
+  html.embed-planner .row .idx { cursor: default; pointer-events: none; }
+  html.embed-planner .row .badge-btn, html.embed-planner .row .stripe-btn { pointer-events: none; }
+  html.embed-planner .row input[type="text"] { cursor: default; }
+  html.embed-planner .row { cursor: pointer; border-radius: 6px; }
+  html.embed-planner .row.sel { outline: 2px solid var(--accent); outline-offset: 2px; }
+  html.embed-planner #sidebar { padding-top: 12px; }
   /* captions in the preview: an empty plate, and the square kept free for the wipe tower (placed on it every frame) */
   .plate-empty { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: min(340px, 80%); text-align: center; pointer-events: none;
     padding: 10px 14px; border-radius: 8px; background: rgba(20, 21, 23, 0.72); border: 1px solid var(--line); color: var(--text); font-size: 13px; line-height: 1.45; }
@@ -797,6 +812,9 @@
 <script src="label-stripes.js?v=4b6e5cc5"></script>
 <script src="label-link.js?v=39375dab"></script>
 <script src="part-picker-link.js?v=2e4b8128"></script>
+<!-- the shared label-list format (the planner's vendored copy is this file): the plate's snapshot is read through it -->
+<script src="label-list.js?v=a8667353"></script>
+<script src="plate-link.js?v=28c50bb4"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
 class MiniOrbit {
@@ -1010,8 +1028,9 @@ function init() {
     return;
   }
   loadFont().then(() => {
-    document.getElementById('download').disabled = false;
+    document.getElementById('download').disabled = !!(EMBED && !EMBED.rows);   // the embed downloads once the planner's labels are in
     rebuild();
+    if (EMBED) return;   // the embed's status is the planner's connection, set by its own messages
     if (bootStatusTaken) return;   // a question asked at boot (a #hw= link into a list with labels) was answered first
     if (importedHardware && !linkBootStatus) { setStatus(hardwareStatus(importedHardware) + (linkBootExtra ? ' ' + linkBootExtra : ''), hardwareNotPrinted() ? 'err' : 'ok'); return; }
     // rebuild() sets its own status; override it only when it didn't warn.
@@ -1377,7 +1396,7 @@ function updatePartsEntry() {
 }
 function updateStartCard() {
   const c = document.getElementById('start-card');
-  if (c) c.hidden = (typeof link !== 'undefined' && !!link) || listHasLabels();
+  if (c) c.hidden = !!EMBED || (typeof link !== 'undefined' && !!link) || listHasLabels();
 }
 function placePartsSheet() {
   const s = document.getElementById('parts-sheet');
@@ -1508,6 +1527,95 @@ window.addEventListener('message', (e) => {
   reply(PPL.added(r.count, r.skipped));
   if (r.count) closePartsSheet();   // nothing added: the sheet stays, and the Part Picker says why
 });
+//============================================================
+// THE LABEL PLATE INSIDE THE PLANNER (plate-link.js holds the rules; the planner's docs/redesign/LABELS-INTEGRATION.md, step B1).
+// Asked for by ?embed=planner in a frame: this page shows the planner's committed label list as it lays it out, read-only,
+// and downloads its print file. The planner speaks first (a hello with a session); the first hello from the parent window
+// at a planner origin binds it; every message after carries the session and is read from that window at that origin only.
+// The standalone list's storage (the autosave, the previous set, the linked session) is never read or written here.
+//============================================================
+function bootEmbed() {
+  document.documentElement.classList.add('embed-planner');
+  setStatus('Waiting for the planner…');
+  // the type and the six label settings are the planner's (its faceplate, its Label settings): shown, not edited here
+  ['label-type', 'font-size', 'text-depth', 'badge-size', 'bold-text', 'all-caps', 'predict-icons'].forEach(id => { const el = gid(id); if (el) el.disabled = true; });
+  window.addEventListener('message', onPlannerMessage);
+  gid('labels').addEventListener('click', (e) => {   // a row clicked here is the selected label in the planner too
+    if (!EMBED.bind || !EMBED.snap) return;
+    const row = e.target.closest('.row'); if (!row || !row.dataset.labelId) return;
+    highlightRow(row.dataset.labelId);
+    plateSend(PLATE.selectedMessage(EMBED.bind, row.dataset.labelId, EMBED.snap));
+  });
+}
+// to the bound planner window only (not postToPlanner: that is the tab link's, to the opener)
+function plateSend(msg) { try { window.parent.postMessage(msg, EMBED.bind.origin); } catch (e) { /* the parent went away */ } }
+function onPlannerMessage(e) {
+  if (!EMBED.bind) {
+    const b = PLATE.readHello(e, window);
+    if (!b) return;
+    EMBED.bind = b;
+    plateSend(PLATE.readyMessage(b));
+    setStatus('Connected to the planner. Waiting for its labels…');
+    return;
+  }
+  const d = PLATE.fromPlanner(e, window, EMBED.bind);
+  if (!d) return;
+  if (d.gen2plate === 'hello') { plateSend(PLATE.readyMessage(EMBED.bind)); return; }   // asked again (the first ready was lost); the binding stays
+  if (d.gen2plate === 'snapshot') { applySnapshot(d); return; }
+  if (d.gen2plate === 'select') { const s = PLATE.readSelect(d, EMBED.snap); if (s) highlightRow(s.id); }
+}
+// the planner's committed list, replacing whatever this page showed (another build's snapshot replaces it the same way)
+function applySnapshot(d) {
+  const r = PLATE.readSnapshot(d, window.GEN2LabelList || null);
+  if (!r.ok) { setStatus(`The planner sent labels this page could not read (${r.reason}). Reload the planner page for the latest Label Studio.`, 'err'); return; }
+  const snap = r.snap;
+  EMBED.snap = snap;
+  if (activeBadgeRow) closeBadgePopover();
+  clearLabelRows();
+  const rows = PLATE.rowPlan(snap);
+  for (const p of rows) {
+    let row;
+    if (p.kind === 'hw') {
+      const items = hardwareItems([p.item]);
+      row = items ? addHardwareRow(items[0]) : addLabelRow(p.text).closest('.row');   // a part this version cannot lay out: its words
+    } else {
+      row = addLabelRow(p.text, p.badge && p.badge.type !== 'none' ? p.badge : null).closest('.row');
+      if (p.manual) row.dataset.badgeManual = '1'; else autoAssignIcon(row);
+    }
+    row.dataset.labelId = p.id;
+    if (p.drawers.length) {   // the drawers it sits on in the planner build, as the linked job tags a drawer row
+      const tag = document.createElement('span');
+      tag.className = 'utag';
+      tag.textContent = p.drawers.map(n => '#' + n).join(' ');
+      tag.title = (p.drawers.length === 1 ? 'Drawer ' : 'Drawers ') + p.drawers.join(', ') + ' in the planner build';
+      row.querySelector('.idx').after(tag);
+    }
+    row.querySelector('input.label-text').readOnly = true;
+    row.querySelectorAll('button, input.row-sel').forEach(b => { b.disabled = true; });
+  }
+  EMBED.rows = rows.length;
+  if (snap.type) setLabelType(snap.type, { remember: false });
+  // the six label settings: the planner's where it set them, the defaults where it did not (a setting a previous snapshot
+  // carried must not outlive it)
+  applySettings(Object.assign(PLATE.styleSettings((LINK && LINK.STYLE_DEFAULTS) || { capMm: 5, depth: 0.6, badgeSize: 14, bold: false, allCaps: true, predictIcons: true }), PLATE.styleSettings(snap.style)));
+  rebuild();
+  if (snap.reason) { gid('download').disabled = true; setStatus(snap.reason, 'err'); }
+  else {
+    gid('download').disabled = !font || !rows.length;   // before the font is in, init() enables it once rows exist
+    setStatus(rows.length ? `${plural(rows.length, 'label', 'labels')} from the planner build. Edit them in the planner; the print file downloads here.` : 'No labels in this build yet. Add them in the planner.', 'ok');
+  }
+  highlightRow(snap.selected);
+}
+function highlightRow(id) {
+  EMBED.sel = id || null;
+  document.querySelectorAll('#labels .row.sel').forEach(r => r.classList.remove('sel'));
+  if (!id) return;
+  const row = document.querySelector(`#labels .row[data-label-id="${id}"]`);   // ids are [a-z0-9]: safe in a selector
+  if (!row) return;
+  row.classList.add('sel');
+  try { row.scrollIntoView({ block: 'nearest' }); } catch (e) { /* an older browser */ }
+}
+
 // An old-style #hw= link (the Part Picker opened on its own) into a list that already has labels asks first; an empty list
 // takes it as it always did.
 async function askHardwareLink(items) {
@@ -3222,6 +3330,7 @@ function applyProject(p) {
 }
 
 function autosave() {
+  if (EMBED) return;   // the planner's embed shows the planner's list: it never becomes this browser's standalone list
   if (typeof link !== 'undefined' && link) return;   // linked mode NEVER writes the ordinary autosave (Step 3 section 4.8)
   try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify(captureProject())); } catch (e) {}
 }
@@ -3237,6 +3346,7 @@ function autosaveHasLabels() {
   try { return setHasContent(JSON.parse(localStorage.getItem(LS_AUTOSAVE))); } catch (e) { return false; }
 }
 function restoreAutosave() {
+  if (EMBED) return false;   // the embed never shows this browser's standalone list in the planner's place
   let snap;
   try { snap = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch (e) { return false; }
   if (!snap || !Array.isArray(snap.labels) || !snap.labels.length) return false;
@@ -3269,6 +3379,7 @@ function readPreviousSet() {
 // Keep p (a set in the autosave format) as the previous set. Returns true when kept; a blank or
 // unreadable set is not kept and leaves the slot as it was.
 function keepPreviousSet(p) {
+  if (EMBED) return false;   // nothing the embed shows is this browser's to keep
   if (!setHasContent(p)) return false;
   let ok = false;
   try { localStorage.setItem(LS_PREVIOUS_SET, JSON.stringify(p)); ok = true; } catch (e) {}
@@ -3380,6 +3491,10 @@ function setupProjectControls() {
 //   #labels= link, no hash at all) is the ordinary one-way page it always was.
 //============================================================
 const LINK = window.GEN2EdgeLabelLink || null;
+// THE PLANNER'S EMBED (plate-link.js, the merged planner's Label plate view): set once at load from the address and the frame;
+// who the planner is comes from its hello. EMBED short-circuits every write to, and read of, the standalone list's storage.
+const PLATE = window.GEN2PlateLink || null;
+const EMBED = PLATE && PLATE.plannerAsked(window) ? { bind: null, snap: null, rows: 0, sel: null } : null;
 const LS_LINKED = 'edgelabel.linked.v1';   // sessionStorage: tab-scoped, so two tabs never share a linked session (section 4.8)
 // The window that opened this tab, captured ONCE at load. `window.opener` is not a stable identity: Chrome re-points it at any window that
 // re-targets this one by name (window.open('', name)) - verified, a same-origin helper window took it over and its forged `applied` was
@@ -4144,6 +4259,7 @@ window.addEventListener('hashchange', () => {
 
 // ---- boot order (section 7.1): an explicit incoming import ALWAYS wins; nothing older silently replaces it ----
 function bootRows() {
+  if (EMBED) { bootEmbed(); return; }   // the planner's plate: no rows, no link, no restore until the planner's snapshot
   const ordinary = () => {
     const hw = hardwareFromUrl();
     if (hw !== null) {
