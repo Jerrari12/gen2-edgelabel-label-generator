@@ -9,7 +9,9 @@ const require = createRequire(import.meta.url);
 const P = require('../plate-link.js');
 const LINK = require('../label-link.js');
 const LL = (() => { const mod = { exports: {} }; new Function('module', 'window', readFileSync(new URL('../label-list.js', import.meta.url), 'utf8'))(mod, undefined); return mod.exports; })();
-const HTML = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const HTML = readFileSync(new URL('../index.html', import.meta.url), 'utf8').replace(/
+/g, '
+');   // a checkout with CRLF on disk reads the same
 
 const PARENT = { name: 'the planner window' }, OTHER = { name: 'another window' };
 const PLANNER = 'https://planner.modulith.systems';
