@@ -5,7 +5,8 @@
 // Published inside the Label Studio site under parts/ (2026-10-10); js/embed.js holds the contract with the Studio.
 import { loadDataAsync } from './data.js';
 import { isEmbedded, labelStudioUrl, addMessage, readReply, replyStatus, labelStudioProblem, labelsButtonText,
-  LABEL_STUDIO_MAX_ITEMS, CUSTOM_TEXT_MAX, plannerAsked, readHello, readyMessage, addMessageFor, readPlannerReply } from './embed.js';
+  LABEL_STUDIO_MAX_ITEMS, CUSTOM_TEXT_MAX, plannerAsked, readHello, readyMessage, addMessageFor, readPlannerReply,
+  newBatch, creditsPending } from './embed.js';
 import { createPicker, FAMILIES, LABEL_WORD_MAX, pathDef as pathDefOf } from './picker.js';
 import { expandBatch, listText, exportDoc, importDoc, fmtStandard, fmtStandardOf } from './batch.js';
 import { STATUS, getPath, leaves, parseNumber, clone, upgradeRecord } from './fields.js';
@@ -408,10 +409,20 @@ function goStage(id, { focus = true } = {}) {
   userMoved();
   render();
   if (!focus) return;
-  const panel = $('stage-panel'); const hd = $('stage-h');
-  if (panel) { const r = panel.getBoundingClientRect(); if (r.top < 0 || r.top > innerHeight * 0.6) panel.scrollIntoView({ block: 'start' }); }
+  revealStage();
+  const hd = $('stage-h');
   if (hd) hd.focus({ preventScroll: true });
   const live = $('flow-live'); if (live) live.textContent = `${st.title}. ${stageHint(st)}`;
+}
+// the stage's heading and its instruction line clear the sticky strip: measured against the strip's own bottom, not the
+// window's top (Astra, 2026-10-14: after Add 3 the strip covered "Type" and its hint). Scrolls only when the panel's top
+// is under the strip or far down the screen.
+function revealStage() {
+  const panel = $('stage-panel'); if (!panel) return;
+  const strip = document.querySelector('nav.stages');
+  const sb = strip ? Math.max(0, strip.getBoundingClientRect().bottom) : 0;
+  const top = panel.getBoundingClientRect().top;
+  if (top < sb + 4 || top > innerHeight * 0.6) window.scrollBy(0, top - sb - 12);
 }
 // the hint names what the stage holds: circles only where circles are drawn (a screw's thread, a batch of thread sizes),
 // position counts for a connector (the stress test found the circle hint on rivets, pins and shoulder screws)
@@ -1341,6 +1352,12 @@ function summaryTail(card, facts) {
   const pd = h('details', { class: 'pd', open: detailsOpen() || null });
   pd.addEventListener('toggle', () => setDetailsOpen(pd.open));
   pd.append(h('summary', {}, 'Part details', h('span', { class: 'muted' }, ' - status words, pins, label words and colours')));
+  // how much of the record is left open - in Part details, softly worded: the part is already enough for its label (Astra)
+  const tl = tally(previews()[0] || T());
+  if (tl.unknown || tl.custom) {
+    pd.append(h('div', { class: 'muted small tally' }, [tl.unknown ? `${tl.unknown} unspecified detail${tl.unknown === 1 ? '' : 's'}` : null,
+      tl.custom ? `${tl.custom} typed by you` : null].filter(Boolean).join(' · ')));
+  }
   pd.append(facts);
   card.append(pd);
   if (T().family !== 'other') {
@@ -1466,7 +1483,7 @@ function addParts() {
   if (MODE === 'standalone') {                 // the list is the product: Add puts the batch on it
     if (!r.ready) return;
     const recs = batchRecords();
-    commitBatch(recs); save(); render();
+    commitBatch(recs); save(); render(); revealStage();   // the next batch starts with its heading in view
     setStatus(recs.length === 1 ? `Added ${shortSpec(recs[0])} to the list.` : `Added ${recs.length} parts to the list: ${recs.map(shortSpec).join(', ')}.`, 'ok');
     return;
   }
@@ -1483,7 +1500,7 @@ function addParts() {
   // held until the destination answers: a refusal or silence leaves them for Try again (Sol 01a13c2c)
   state.held = send.map((x) => ({ id: x.id, hold: false }));
   state.retry = false;
-  save(); render();
+  save(); render(); revealStage();
   sendItems(items, send.map((x) => x.id), { bar: true });
 }
 // Hold, pick more (the embeds; Sol 01a13c2c): both embeds close after an add, so the expert collects several batches first
@@ -1494,7 +1511,8 @@ function holdBatch() {
   state.held.push(...recs.map((x) => ({ id: x.id, hold: true })));
   save();
   goStage(stageBeforeBatch(stages()));   // Hold, unlike Add, opens the stage BEFORE the batch (§4)
-  setStatus(`Holding ${recs.map(shortSpec).join(', ')}. Pick more, then add them all at once.`, 'ok');
+  const n = liveHeld().length;
+  setStatus(`${heldText(n)}: they go with your next Add.`, 'ok');
 }
 // the held parts' ×: parts held by Hold were never sent, so they leave the list too; a failed send's stay on it
 function dropHeld() {
@@ -1502,7 +1520,7 @@ function dropHeld() {
   state.records = state.records.filter((r) => !gone.has(r.id));
   state.held = []; state.retry = false;
   save(); render();
-  setStatus(gone.size ? `Dropped ${gone.size} held part${gone.size === 1 ? '' : 's'}; nothing was sent.` : 'Nothing is held now; those parts stay on your list.', 'ok');
+  setStatus(gone.size ? `Cleared ${gone.size} pending part${gone.size === 1 ? '' : 's'}; nothing was sent.` : 'Nothing is pending now; those parts stay on your list.', 'ok');
 }
 function editRecord(id) {
   const rec = state.records.find((r) => r.id === id); if (!rec) return;
@@ -1561,7 +1579,6 @@ function listCard() {
   }
   state.records.forEach((r, i) => {
     if (state.listFilter && !(r.tags || []).includes(state.listFilter)) return;
-    const c = tally(r);
     const sub = [headLabel(r), stdText(r), toolText(r), materialText(r, true)].filter(Boolean).join(' · ');
     const g2 = secondaryGlyph(r);
     const lp = r.photo ? null : HW.resolve(r);
@@ -1573,10 +1590,11 @@ function listCard() {
       h('span', { class: 'lmain' }, h('span', { class: 'mono lspec' }, shortSpec(r),
         // the list as the review of what went in (the flow refine §5-6): sent = the destination took it in full, this session
         state.sent.has(r.id) ? h('span', { class: 'lmark sent', title: 'Sent this session: the destination added or updated its label' }, 'sent') : null,
-        heldIds.has(r.id) ? h('span', { class: 'lmark held', title: 'Held: it goes with the next add' }, 'held') : null),
+        heldIds.has(r.id) ? h('span', { class: 'lmark held', title: 'Pending: it goes with your next Add' }, 'pending') : null),
         h('span', { class: 'lsub' }, sub || FAMILY_LABEL[r.family]),
-        r.tags && r.tags.length ? h('span', { class: 'ltags' }, r.tags.join(' · ')) : null,
-        h('span', { class: 'lst' }, c.custom ? `${c.custom} custom` : null, c.custom && c.unknown ? ' · ' : null, c.unknown ? `${c.unknown} unknown` : null)),
+        // (the "N custom · N unknown" counts left the row's face for Part details, 2026-10-14, Astra: a part that can be
+        // labelled is not "6 unknown"; Edit shows them)
+        r.tags && r.tags.length ? h('span', { class: 'ltags' }, r.tags.join(' · ')) : null),
       h('span', { class: 'lact' },
         h('button', { type: 'button', class: 'btn sm ghost', onclick: () => editRecord(r.id), disabled: state.editing === r.id || null }, 'Edit'),
         h('button', { type: 'button', class: 'btn sm ghost', title: 'duplicate', onclick: () => { const x = clone(r); x.id = P.idgen(); state.records.splice(i + 1, 0, x); save(); render(); } }, 'Copy'),
@@ -1638,9 +1656,10 @@ let toolsOpen = false;    // List tools stays open across re-renders once opened
 let addWait = null;       // a batch posted and not answered yet: { ids, bar, missingNote, timer }
 // the list's send-everything button: "Add all N ..." inside the embeds (List tools), "Make labels (N)" on its own (the bar).
 // Keeps id make-labels: the planner's e2e suite and the Studio's sheet check press it.
-function labelsButton() {
+// prominent: in the bar on its own page, when it is the only live action (the add waits), it reads as THE action (Astra)
+function labelsButton({ prominent = false, inBar = false } = {}) {
   const n = shownRecords().length;
-  return h('button', { type: 'button', class: 'btn sm', id: 'make-labels', disabled: !n || (PLANNER && !planner) || !!addWait || null, onclick: makeLabels,
+  return h('button', { type: 'button', class: prominent ? 'btn primary' : inBar ? 'btn' : 'btn sm', id: 'make-labels', disabled: !n || (PLANNER && !planner) || !!addWait || null, onclick: makeLabels,
     title: PLANNER ? (planner ? 'Send a part label for every part shown here (the collection filter applies) to your planner build: new ones are added, ones already there updated.' : 'Waiting for the planner to connect.')
       : EMBED ? 'Send a part label for every part shown here (the collection filter applies) to your list in the Label Studio: new ones are added, ones already there updated.'
       : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
@@ -1655,14 +1674,15 @@ function sendItems(items, ids, { bar }) {
   // ONE send at a time: every send control is disabled while one waits (the code review found a second send replacing the
   // single wait, so the first reply was matched to the wrong ids)
   if (addWait) { setStatus('Still waiting for the answer to the last send.', 'err'); return; }
+  // every send its own batch id, a retry included: the reply is credited only when it echoes this one (js/embed.js)
+  const batch = newBatch();
   if (PLANNER) {
     if (!planner) { setStatus('The planner has not connected yet; try again in a moment.', 'err'); if (bar) { state.retry = true; renderBar(); } return; }
-    window.parent.postMessage(addMessageFor(items, planner), planner.origin);
-  } else window.parent.postMessage(addMessage(items), location.origin);
-  lateWait = null;
-  const w = { ids, bar, missingNote };
+    window.parent.postMessage(addMessageFor(items, planner, batch), planner.origin);
+  } else window.parent.postMessage(addMessage(items, batch), location.origin);
+  const w = { ids, bar, missingNote, batch };
   w.timer = setTimeout(() => {
-    addWait = null; lateWait = w;   // a reply that comes after all is still reconciled (the reply handler)
+    addWait = null;           // the batch is RETIRED: a reply that comes after all matches nothing (Astra, 2026-10-14)
     if (bar) state.retry = true;
     render();
     setStatus(PLANNER ? 'The planner did not answer, so the labels may not have been added. Check its label list, then Try again.' : 'The Label Studio did not answer, so the labels may not have been added. Check your list there, then Try again.', 'err');
@@ -1671,7 +1691,6 @@ function sendItems(items, ids, { bar }) {
   render();                 // every send control reads addWait: redraw them all, not only the bar
   setStatus(PLANNER ? `Adding ${n} to your build…` : `Adding ${n} to your list…`);
 }
-let lateWait = null;        // the last send that timed out: its reply may still come
 function makeLabels() {
   const recs = shownRecords();
   if (!recs.length) return;
@@ -1696,10 +1715,13 @@ if (EMBED) {
   window.addEventListener('message', (e) => {
     const r = PLANNER ? readPlannerReply(e, window, planner) : readReply(e, window);
     if (!r) return;
-    const w = addWait || lateWait;
-    const note = w && r.kind === 'added' && r.count ? w.missingNote : '';
-    if (w) {
-      clearTimeout(w.timer); addWait = null; lateWait = null;
+    // ONLY the pending send's own reply counts: it must echo that send's batch. A reply without a batch, for a retired
+    // send (timed out), or for an earlier one changes nothing at all - not even the status line (js/embed.js, THE BATCH)
+    if (!creditsPending(addWait, r)) return;
+    const w = addWait;
+    const note = r.kind === 'added' && r.count ? w.missingNote : '';
+    {
+      clearTimeout(w.timer); addWait = null;
       const done = new Set(w.ids);
       const full = r.kind === 'added' && r.count === w.ids.length && !r.skipped;
       // the reply carries counts, not row ids (Sol 01a13c2c): "sent" only on a full acknowledgement - and a part sent in full
@@ -1975,8 +1997,8 @@ function renderBar() {
   if (held.length) {
     const fromHold = state.held.some((x) => x.hold);
     kids.push(h('span', { class: 'heldchip' }, heldText(held.length),
-      h('button', { type: 'button', class: 'x', 'data-k': 'drop-held', onclick: dropHeld, 'aria-label': fromHold ? 'Drop the held parts (nothing was sent)' : 'Stop holding these parts (they stay on your list)',
-        title: fromHold ? 'Drop the held parts: nothing was sent' : 'Stop holding these parts: they stay on your list' }, '×')));
+      h('button', { type: 'button', class: 'x', 'data-k': 'drop-held', onclick: dropHeld, 'aria-label': 'Clear pending parts',
+        title: fromHold ? 'Clear pending parts: nothing was sent, and they leave your list' : 'Clear pending parts: they stay on your list, not sent' }, '×')));
   }
   // the primary is ONE element for the page's life, updated in place: replaced on every render, a click whose mousedown
   // blurred a field (whose change re-rendered the bar) landed on a dead button (the stress test: Other part's first Add
@@ -1989,9 +2011,9 @@ function renderBar() {
   if (editing) more.push(h('button', { type: 'button', class: 'btn ghost', 'data-k': 'cancel-edit', onclick: cancelEdit }, 'Cancel'));
   else if (MODE !== 'standalone' && r.ready && !retry && !(state.retry && held.length) && !connecting && !addWait) {
     more.push(h('button', { type: 'button', class: 'btn ghost hold', 'data-k': 'hold', onclick: holdBatch,
-      title: 'Keep these parts here, pick another size or type, then add them all at once' }, HOLD_TEXT));
+      title: 'Keep these parts pending and pick another size or type: your next Add sends them all at once' }, HOLD_TEXT));
   }
-  if (MODE === 'standalone' && !editing) more.push(labelsButton());
+  if (MODE === 'standalone' && !editing) more.push(labelsButton({ inBar: true, prominent: !can && shownRecords().length > 0 }));
   act.querySelector('.bar-held').replaceChildren(...kids);
   act.querySelector('.bar-more').replaceChildren(...more);
   if (key && key !== 'add-parts') { const again = act.querySelector(`#${CSS.escape(key)}, [data-k="${CSS.escape(key)}"]`); if (again && !again.disabled) again.focus({ preventScroll: true }); }
