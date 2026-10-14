@@ -11,9 +11,27 @@
 //                      { gen2parts: 'refused', v: 1, reason }          reason = a sentence the Picker shows as it is
 //                      accepted only from window.parent with event.origin === location.origin
 //   Opened on its own (the site's parts/ page), Make labels opens the Label Studio at '../#hw=...' in a new tab.
+//
+// THE PLANNER'S EMBED (2026-10-13, the MODULITH planner's Part Picker modal; docs/redesign/LABELS-INTEGRATION.md there):
+//   asked for   = ?embed=planner in this page's address AND window.parent !== window (the parent is ANOTHER origin, so
+//                 nothing about it can be read; the page looks embedded at once and waits for the planner to speak)
+//   Planner -> Picker   { gen2parts: 'hello', v: 1, session }   from window.parent, from an origin on PLANNER_ORIGINS (an
+//                       exact match; a loopback origin only while this page is itself served from loopback). The first
+//                       hello that passes binds the session: its origin is where the parts go, its session rides on every
+//                       message both ways. Anything before it, or from anywhere else, is ignored. The referrer is not
+//                       consulted: it can be absent, and it is not the planner speaking.
+//   Picker -> Planner   { gen2parts: 'ready', v: 1, session }   the answer to the hello
+//                       { gen2parts: 'add', v: 1, session, items } the parts, posted to the bound origin only
+//   Planner -> Picker   the same 'added' / 'refused' replies as the Studio's, carrying the session, read only from
+//                       window.parent at the bound origin with the bound session.
 
 export const PARTS_KEY = 'gen2parts';
 export const PARTS_V = 1;
+// the planners that may embed this page (pinned equal to the Label Studio's label-link.js by its contract test; never a
+// GitHub Pages origin, which would admit every Pages site of an account)
+export const PLANNER_ORIGINS = Object.freeze(['https://gen2planner.jerrari3d.com', 'https://planner.modulith.systems']);
+export const LOOPBACK_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/;
+export const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
 export const LABEL_STUDIO_MAX_ITEMS = 200;
 // What the Label Studio accepts in one item (its hardwareItems(), index.html HW_MAX). One item past a limit used to make
 // the Studio refuse the WHOLE batch, so a typed word is capped where it is typed and the batch is checked before it goes.
@@ -28,6 +46,34 @@ export function isEmbedded(win) {
     const o = win.parent.location.origin;
     return typeof o === 'string' && o !== 'null' && o === win.location.origin;
   } catch { return false; }
+}
+
+// true inside a frame that asked for the planner's embed (?embed=planner); who the parent is comes from its hello, not from here
+export function plannerAsked(win) {
+  try { return new URLSearchParams(win.location.search).get('embed') === 'planner' && !!win.parent && win.parent !== win; } catch { return false; }
+}
+// a planner origin this page may be bound to: exact, from the list; loopback only while this page is itself on loopback
+export function plannerOriginAllowed(origin, win) {
+  if (typeof origin !== 'string') return false;
+  if (PLANNER_ORIGINS.includes(origin)) return true;
+  let own = ''; try { own = win.location.origin; } catch { own = ''; }
+  return LOOPBACK_ORIGIN.test(own) && LOOPBACK_ORIGIN.test(origin);
+}
+// the planner's hello: the binding { origin, session }, or null for anything else
+export function readHello(e, win) {
+  if (!e || e.source !== win.parent || !plannerOriginAllowed(e.origin, win)) return null;
+  const d = e.data;
+  if (!d || typeof d !== 'object' || d[PARTS_KEY] !== 'hello' || d.v !== PARTS_V || typeof d.session !== 'string' || !SESSION_RE.test(d.session)) return null;
+  return { origin: e.origin, session: d.session };
+}
+export const readyMessage = (link) => ({ [PARTS_KEY]: 'ready', v: PARTS_V, session: link.session });
+export const addMessageFor = (items, link) => ({ [PARTS_KEY]: 'add', v: PARTS_V, session: link.session, items });
+// a reply from the bound planner: the same bodies as the Studio's replies, from window.parent at the bound origin with the bound session
+export function readPlannerReply(e, win, link) {
+  if (!link || !e || e.source !== win.parent || e.origin !== link.origin) return null;
+  const d = e.data;
+  if (!d || typeof d !== 'object' || d.session !== link.session) return null;
+  return readReplyBody(d);
 }
 
 // the Label Studio this page opens when it is NOT embedded: the same site, one folder up (parts/ -> the site root).
@@ -73,7 +119,9 @@ export function labelStudioProblem(item) {
 // a message from the Label Studio, checked: { kind: 'added', count, skipped } | { kind: 'refused', reason } | null
 export function readReply(e, win) {
   if (!e || e.source !== win.parent || e.origin !== win.location.origin) return null;
-  const d = e.data;
+  return readReplyBody(e.data);
+}
+function readReplyBody(d) {
   if (!d || typeof d !== 'object' || d.v !== PARTS_V) return null;
   const n = (x) => (Number.isInteger(x) && x >= 0 ? x : null);
   if (d[PARTS_KEY] === 'added') {
