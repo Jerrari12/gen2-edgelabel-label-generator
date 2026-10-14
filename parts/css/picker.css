@@ -49,6 +49,10 @@ html.embed .embed-addbar { position: fixed; left: 0; right: 0; bottom: 0; z-inde
   padding: 10px 16px; background: var(--panel); border-top: 1px solid var(--line-2); box-shadow: 0 -6px 18px rgba(0,0,0,.18); }
 html.embed .embed-addbar .btn.primary { min-height: 44px; padding: 4px 20px; font-size: 15px; }
 html.embed .embed-addbar .status { margin: 0; flex: 1 1 220px; min-width: 0; }
+/* in an embed (the Studio's sheet, the planner's modal) the summary column flows with the page: sticky with its own
+   scroll, its bottom sat under the pinned bar and the wheel scrolled the column or the page by where the pointer was
+   (Joey's hands-on pass, 2026-10-14: "a scroll within a scroll") */
+html.embed #side { position: static; max-height: none; overflow: visible; }
 
 .layout { display: flex; flex-wrap: wrap; gap: 28px; padding: 20px 28px 60px; max-width: 1500px; }
 #builder { flex: 999 1 660px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
