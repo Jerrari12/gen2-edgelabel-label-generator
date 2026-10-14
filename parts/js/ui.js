@@ -5,7 +5,7 @@
 // Published inside the Label Studio site under parts/ (2026-10-10); js/embed.js holds the contract with the Studio.
 import { loadDataAsync } from './data.js';
 import { isEmbedded, labelStudioUrl, addMessage, readReply, replyStatus, labelStudioProblem, labelsButtonText,
-  LABEL_STUDIO_MAX_ITEMS, CUSTOM_TEXT_MAX } from './embed.js';
+  LABEL_STUDIO_MAX_ITEMS, CUSTOM_TEXT_MAX, plannerAsked, readHello, readyMessage, addMessageFor, readPlannerReply } from './embed.js';
 import { createPicker, FAMILIES, LABEL_WORD_MAX, pathDef as pathDefOf } from './picker.js';
 import { expandBatch, listText, exportDoc, importDoc, fmtStandard, fmtStandardOf } from './batch.js';
 import { STATUS, getPath, leaves, parseNumber, clone, upgradeRecord } from './fields.js';
@@ -35,9 +35,22 @@ function describeValue(path, value) {
 const $ = (id) => document.getElementById(id);
 // Inside the Label Studio's sheet (?embed=1 in a same-origin frame): no header of its own, and the parts go to the Studio
 // by message. Decided once, before the first render; index.html hid the header early and this settles it either way.
-const EMBED = isEmbedded(window);
+// Inside the MODULITH planner's modal (?embed=planner, another origin): the same look, but the parts go to the planner
+// that says hello first (js/embed.js, the planner's embed); until then the add button waits.
+const PLANNER = plannerAsked(window);
+let planner = null;   // { origin, session } once the planner's hello passed
+const EMBED = isEmbedded(window) || PLANNER;
 document.documentElement.classList.toggle('embed', EMBED);
 document.documentElement.classList.remove('embed-pending');
+if (PLANNER) {
+  window.addEventListener('message', (e) => {
+    const h = readHello(e, window);
+    if (!h || planner) return;   // the first hello that passes binds the session; a second one is not a new planner
+    planner = h;
+    try { e.source.postMessage(readyMessage(planner), planner.origin); } catch { /* the parent went away */ }
+    render();
+  });
+}
 function h(tag, attrs = {}, ...kids) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -1347,8 +1360,9 @@ function listCard() {
       applyImport(records, problems, labelStyle, false);
     } catch (err) { setStatus(`Import failed: ${err.message}`, 'err'); }
   });
-  const labelsBtn = h('button', { type: 'button', class: EMBED ? 'btn primary' : 'btn sm', id: 'make-labels', disabled: !shownRecords().length || null, onclick: makeLabels,
-      title: EMBED ? 'Add a part label for every part shown here (the collection filter applies) to the end of your list in the Label Studio.'
+  const labelsBtn = h('button', { type: 'button', class: EMBED ? 'btn primary' : 'btn sm', id: 'make-labels', disabled: !shownRecords().length || (PLANNER && !planner) || null, onclick: makeLabels,
+      title: PLANNER ? (planner ? 'Add a part label for every part shown here (the collection filter applies) to your planner build.' : 'Waiting for the planner to connect.')
+        : EMBED ? 'Add a part label for every part shown here (the collection filter applies) to the end of your list in the Label Studio.'
         : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
     labelsButtonText(shownRecords().length, EMBED));
   const labelsStatus = h('div', { id: 'labels-status', class: `status ${labelsMsg ? labelsMsg.cls : ''}`, role: 'status' }, labelsMsg ? labelsMsg.text : '');
@@ -1402,11 +1416,14 @@ function makeLabels() {
   const missingNote = missing ? ` ${missing} ${missing === 1 ? 'is' : 'are'} missing a size and will not print until completed.` : '';
   const n = `${items.length} part label${items.length === 1 ? '' : 's'}`;
   if (EMBED) {
-    window.parent.postMessage(addMessage(items), location.origin);
+    if (PLANNER) {
+      if (!planner) { setLabelsStatus('The planner has not connected yet; try again in a moment.', 'err'); return; }
+      window.parent.postMessage(addMessageFor(items, planner), planner.origin);
+    } else window.parent.postMessage(addMessage(items), location.origin);
     if (addWait) clearTimeout(addWait.timer);
     addWait = { missingNote, timer: setTimeout(() => { addWait = null;
-      setLabelsStatus('The Label Studio did not answer, so the labels may not have been added. Check your list there.', 'err'); }, 5000) };
-    setLabelsStatus(`Adding ${n} to your list…`);
+      setLabelsStatus(PLANNER ? 'The planner did not answer, so the labels may not have been added. Check its label list.' : 'The Label Studio did not answer, so the labels may not have been added. Check your list there.', 'err'); }, 5000) };
+    setLabelsStatus(PLANNER ? `Adding ${n} to your build…` : `Adding ${n} to your list…`);
     return;
   }
   const doc = { schema: LABEL_ITEMS_SCHEMA, items };
@@ -1417,7 +1434,7 @@ function makeLabels() {
 // the Label Studio's answer to a posted batch (only from the parent frame, same origin: js/embed.js readReply)
 if (EMBED) {
   window.addEventListener('message', (e) => {
-    const r = readReply(e, window);
+    const r = PLANNER ? readPlannerReply(e, window, planner) : readReply(e, window);
     if (!r) return;
     const note = addWait && r.kind === 'added' && r.count ? addWait.missingNote : '';
     if (addWait) { clearTimeout(addWait.timer); addWait = null; }
