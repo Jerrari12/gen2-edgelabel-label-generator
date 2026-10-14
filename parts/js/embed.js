@@ -147,8 +147,10 @@ export function replyStatus(r) {
   return { text: `Added ${labels(r.count)} to your list.${sk}`, cls: r.skipped ? 'err' : 'ok' };
 }
 
-// the button that hands the shown parts over: 'Add N part labels' inside the Studio, 'Make labels (N)' on its own
-export function labelsButtonText(n, embedded) {
+// the button that hands the shown parts over: 'Add N part labels' inside the Studio, 'Add N labels to the planner' inside
+// the planner, 'Make labels (N)' on its own
+export function labelsButtonText(n, embedded, planner = false) {
+  if (planner) return n ? `Add ${n} ${n === 1 ? 'label' : 'labels'} to the planner` : 'Add labels to the planner';
   if (embedded) return n ? `Add ${labels(n)}` : 'Add part labels';
   return `Make labels${n ? ` (${n})` : ''}`;
 }
