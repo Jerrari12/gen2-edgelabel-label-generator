@@ -406,6 +406,7 @@ function chooseDrive(id) {
 const drafts = {};
 function switchFamily(id) {
   if (id === state.family) return;
+  if (!D || !T()) return;   // the data is not in yet: the tiles are disabled until then, and a click that slips through does nothing (2026-10-13)
   const old = T();
   drafts[state.family] = { template: old, sel: state.sel, explicit: [...state.explicit] };
   if (drafts[id]) {
@@ -1227,8 +1228,9 @@ function summaryTail(card) {
   for (const r of recs) add.append(willRow(r));
   card.append(add);
   const vp = varyPath();
-  const label = !batching() ? 'Save part' : recs.length > 1 ? `Add ${recs.length} parts`
-    : (state.sel.length || !vp ? 'Add 1 part' : `Add 1 part (${vp === 'length.value' || vp === 'specific.rivet.length' ? 'length' : 'size'} Unknown)`);
+  const verb = PLANNER ? 'Queue' : 'Add';   // inside the planner the list is a queue for Add N labels to the planner
+  const label = !batching() ? 'Save part' : recs.length > 1 ? `${verb} ${recs.length} parts`
+    : (state.sel.length || !vp ? `${verb} 1 part` : `${verb} 1 part (${vp === 'length.value' || vp === 'specific.rivet.length' ? 'length' : 'size'} Unknown)`);
   // inside the Label Studio the one orange button is Add part labels (end-to-end check 2026-10-10: this one only fills the
   // Picker's own list, and read as the next thing to press)
   card.append(h('button', { type: 'button', class: EMBED ? 'btn big' : 'btn primary big', onclick: batching() ? addParts : saveEdit }, label));
@@ -1364,7 +1366,7 @@ function listCard() {
       title: PLANNER ? (planner ? 'Add a part label for every part shown here (the collection filter applies) to your planner build.' : 'Waiting for the planner to connect.')
         : EMBED ? 'Add a part label for every part shown here (the collection filter applies) to the end of your list in the Label Studio.'
         : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
-    labelsButtonText(shownRecords().length, EMBED));
+    labelsButtonText(shownRecords().length, EMBED, PLANNER));
   const labelsStatus = h('div', { id: 'labels-status', class: `status ${labelsMsg ? labelsMsg.cls : ''}`, role: 'status' }, labelsMsg ? labelsMsg.text : '');
   card.append(h('div', { class: 'row wrap list-tools' },
     h('button', { type: 'button', class: 'btn sm ghost', onclick: () => copyText(listText(P, state.records), 'List') }, 'Copy list as text'),
@@ -1555,7 +1557,7 @@ function legend() {
   return det;
 }
 function familyTiles() {
-  return h('div', { class: 'tiles cols-5 fam' }, [...FAMILIES.values()].map((f) => tile({ g: FAMILY_GLYPH[f.id], img: tileImg(HW.familyPicture(f.id)), label: FAMILY_LABEL[f.id] || f.label,
+  return h('div', { class: 'tiles cols-5 fam' }, [...FAMILIES.values()].map((f) => tile({ g: FAMILY_GLYPH[f.id], img: tileImg(HW.familyPicture(f.id)), label: FAMILY_LABEL[f.id] || f.label, disabled: !D || null,
     on: f.id === state.family, onClick: () => switchFamily(f.id), disabled: !batching() && f.id !== state.family ? true : null,
     title: !batching() && f.id !== state.family ? 'Finish or cancel editing first' : f.label })));
 }
