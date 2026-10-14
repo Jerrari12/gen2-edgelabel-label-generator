@@ -36,7 +36,11 @@ test('itemOk takes a Part Picker item and refuses one the layout cannot take (th
 
 test('readAdd takes only the sheet\'s own frame on this site, and only an add of 1 to 200 items', () => {
   const add = (items) => ({ gen2parts: 'add', v: 1, items });
-  assert.deepEqual(P.readAdd(ev(add([item()])), FRAME, ORIGIN), { items: [item()] });
+  assert.deepEqual(P.readAdd(ev(add([item()])), FRAME, ORIGIN), { items: [item()], batch: undefined });
+  // the batch id the Picker's flow refine mints per send is carried through, checked; a bad one is dropped, never refused
+  assert.deepEqual(P.readAdd(ev({ ...add([item()]), batch: 'batch_0001-aB' }), FRAME, ORIGIN), { items: [item()], batch: 'batch_0001-aB' });
+  assert.deepEqual(P.readAdd(ev({ ...add([item()]), batch: 'x y' }), FRAME, ORIGIN), { items: [item()], batch: undefined }, 'a malformed batch id is dropped');
+  assert.deepEqual(P.readAdd(ev({ ...add([]), batch: 'batch_0001-aB' }), FRAME, ORIGIN), { refused: 'There were no part labels in it.', batch: 'batch_0001-aB' }, 'a refusal carries it too');
   assert.equal(P.readAdd(ev(add([item()]), { source: OTHER }), FRAME, ORIGIN), null, 'another window');
   assert.equal(P.readAdd(ev(add([item()]), { origin: 'https://evil.example' }), FRAME, ORIGIN), null, 'another origin');
   assert.equal(P.readAdd(ev(add([item()])), null, ORIGIN), null, 'no sheet open yet');
@@ -73,7 +77,10 @@ test('the published Part Picker (parts/js/embed.js) speaks this contract: its ad
   const E = await import(EMBED.href);
   // Picker -> Studio
   const items = [item(), item({ id: 'r2' })];
-  assert.deepEqual(P.readAdd(ev(E.addMessage(items)), FRAME, ORIGIN), { items });
+  const msg = E.addMessage(items);   // a Picker from its flow refine on mints a batch id per send; an older one sends none: either way it comes back as sent
+  const got = P.readAdd(ev(msg), FRAME, ORIGIN);
+  assert.deepEqual(got.items, items);
+  assert.equal(got.batch, msg.batch);
   assert.equal(E.PARTS_KEY, P.KEY); assert.equal(E.PARTS_V, P.V); assert.equal(E.LABEL_STUDIO_MAX_ITEMS, P.MAX_ITEMS);
   assert.deepEqual({ ...E.LABEL_STUDIO_LIMITS }, { ...P.LIMITS });
   // Studio -> Picker: its readReply takes our replies from its parent on its own origin
@@ -98,7 +105,7 @@ test('parts/ is a publish of the Part Picker (SOURCE.json names its commit), ope
 test('the page: one item check for links, files and the sheet; the sheet listens only to its own frame and adds, never replaces', () => {
   assert.match(HTML, /return list\.every\(PPL\.itemOk\) \? list : null;/);
   assert.match(HTML, /PPL\.readAdd\(e, partsFrame\.contentWindow, location\.origin\)/);
-  assert.match(HTML, /e\.source\.postMessage\(msg, location\.origin\)/);
+  assert.match(HTML, /e\.source\.postMessage\(m\.batch \? \{ \.\.\.msg, batch: m\.batch \} : msg, location\.origin\)/, 'the reply goes to the frame on this origin, with the Picker\'s batch id echoed when it sent one');
   assert.doesNotMatch(HTML, /postMessage\([^)]*['"]\*['"]\)/, 'never posts to "*"');
   const add = HTML.slice(HTML.indexOf('function addPartItems('), HTML.indexOf('function addSavedLabels('));
   assert.ok(add.length > 100);
