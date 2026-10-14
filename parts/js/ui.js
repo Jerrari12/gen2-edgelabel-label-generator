@@ -16,6 +16,9 @@ import { isUnified, parseInch, fracInch } from './units.js';
 import { PRESETS, cleanStyle, labelColours, colourChanges, sameStyle, SLOTS, SLOT_NAME } from './labelstyle.js';
 import { isPinned, togglePin } from './labelpins.js';
 import { labelItem } from './labelitem.js';
+import { PLAN, planKey, planEntries } from './plan.js';
+import { stagesFor, stageOfEntry, nextStage, prevStage, stageBeforeBatch, shouldAdvance, readiness, primaryText,
+  HOLD_TEXT, heldText, addAllText, colourHint } from './flow.js';
 // a field value's full meaning for the label-words editor: a type id reads as its name ('tooth-internal' -> 'Internal
 // tooth lock washer (DIN 6797 J)'); anything else as stored
 function describeValue(path, value) {
@@ -40,6 +43,8 @@ const $ = (id) => document.getElementById(id);
 const PLANNER = plannerAsked(window);
 let planner = null;   // { origin, session } once the planner's hello passed
 const EMBED = isEmbedded(window) || PLANNER;
+// where the bar's one add action sends the parts (docs/FLOW-REFINE-2026-10-14.md §4)
+const MODE = PLANNER ? 'planner' : EMBED ? 'studio' : 'standalone';
 document.documentElement.classList.toggle('embed', EMBED);
 document.documentElement.classList.remove('embed-pending');
 if (PLANNER) {
@@ -104,48 +109,7 @@ const STATUS_INFO = {
   unknown: { word: 'Unknown', def: 'You do not know it. It stays empty and nothing fills it in later.' },
 };
 
-// family -> builder sections, in order: [key, title]
-const PLAN = {
-  screw: [['head', 'Head'], ['drive', 'Drive'], ['thread', 'Thread'], ['pitch', 'Pitch'], ['lengths', 'Lengths'], ['extent', 'Thread extent'], ['material', 'Material']],
-  setscrew: [['point', 'Point'], ['drive', 'Drive'], ['thread', 'Thread'], ['pitch', 'Pitch'], ['lengths', 'Lengths'], ['material', 'Material']],
-  nut: [['head', 'Type'], ['sizes', 'Thread sizes'], ['locking', 'Locking'], ['material', 'Material']],
-  washer: [['head', 'Type'], ['sizes', 'Nominal sizes'], ['material', 'Material']],
-  insert: [['head', 'Type'], ['sizes', 'Internal thread'], ['brand', 'Brand dataset'], ['material', 'Material']],
-  // the vocabulary families (2026-10-04): { key, title, kind, path, hint } - drawn by the generic sections
-  fitting: [{ key: 'head', title: 'Shape', kind: 'head' },
-    { key: 'tube-a', title: 'Tube OD, end A', kind: 'batch', path: 'specific.fitting.tube_a', unit: 'mm', noun: 'tube sizes' },
-    { key: 'tube-b', title: 'Tube OD, end B', kind: 'choice', path: 'specific.fitting.tube_b', hint: 'unions and reducers; leave Unknown for a male fitting' },
-    { key: 'fthread', title: 'Thread designation', kind: 'choice', path: 'specific.fitting.thread', hint: 'the FULL designation: G1/8 (parallel) and R1/8 (taper) are different parts' },
-    { key: 'construction', title: 'Construction', kind: 'choice', path: 'specific.fitting.construction', hint: 'tube stop, or pass-through (the tube runs right through)' },
-    { key: 'material', title: 'Material', kind: 'material', paths: ['material.base', 'material.finish', 'material.colour'] }],
-  tnut: [{ key: 'head', title: 'Insertion type', kind: 'head' },
-    { key: 'profile', title: 'Profile / interface', kind: 'choice', path: 'specific.tnut.profile' },
-    { key: 'slot', title: 'Slot width', kind: 'choice', path: 'specific.tnut.slot', unit: 'mm' },
-    { key: 'sizes', title: 'Thread sizes', kind: 'sizes' },
-    { key: 'spring', title: 'Spring / ball', kind: 'choice', path: 'specific.tnut.spring' },
-    { key: 'material', title: 'Material', kind: 'material', paths: ['material.base', 'material.finish', 'material.colour'] }],
-  rivet: [{ key: 'head', title: 'Head style', kind: 'head' },
-    { key: 'diameter', title: 'Body diameter', kind: 'choice', path: 'specific.rivet.diameter', unit: 'mm' },
-    { key: 'rlength', title: 'Body lengths', kind: 'batch', path: 'specific.rivet.length', unit: 'mm', noun: 'lengths', hint: 'common lengths to pick from - type any other' },
-    { key: 'grip', title: 'Grip range', kind: 'grip', hint: 'from the package - kept separate from the body length, never worked out from it' },
-    { key: 'rtype', title: 'Type', kind: 'choice', path: 'specific.rivet.type' },
-    { key: 'body', title: 'Body material', kind: 'choice', path: 'specific.rivet.body_material' },
-    { key: 'mandrel', title: 'Mandrel material', kind: 'choice', path: 'specific.rivet.mandrel_material', hint: 'aluminium / steel is not aluminium / aluminium' }],
-  other: [],
-};
-// the data families' sections, from families-data.js: type, each field (a batch field as a batch), material
-for (const df of DATA_FAMILIES) {
-  PLAN[df.id] = [{ key: 'head', title: df.headTitle, kind: 'head' },
-    ...df.fields.map((f) => (f.thread ? (f.batch ? { key: 'sizes', title: f.title, kind: 'sizes' }
-      : { key: f.key, title: f.title, kind: 'choice', path: 'thread.diameter', hint: f.hint })
-      : f.batch ? { key: f.key, title: f.title, kind: 'batch', path: f.path, unit: f.unit, noun: f.key === 'length' ? 'lengths' : 'sizes', hint: f.hint }
-        : { key: f.key, title: f.title, kind: 'choice', path: f.path, unit: f.unit, hint: f.hint })),
-    { key: 'material', title: 'Material', kind: 'material', paths: ['material.base', 'material.finish', 'material.colour'] }];
-}
-// every family ends with the record's own details: name, package text, supplier, photo, collections
-for (const f of Object.keys(PLAN)) PLAN[f].push({ key: 'details', title: 'Name, package, supplier, photo', kind: 'details' });
-const planKey = (e) => (Array.isArray(e) ? e[0] : e.key);
-const planTitle = (e) => (Array.isArray(e) ? e[1] : e.title);
+// family -> builder sections, in order: js/plan.js (shared with the flow's tests)
 // paths the sections above edit; everything else in the family goes under "More detail"
 const SECTION_PATHS = new Set(['head', 'thread.system', 'thread.diameter', 'thread.tpi', 'length.value', 'specific.thread_extent', 'specific.point_type',
   'specific.locking_feature', 'specific.insert.brand_dataset', 'material.base', 'material.stainless_group',
@@ -165,6 +129,12 @@ const state = {
   listFilter: null,      // a collection (tag) the list is filtered to, or null
   labelStyle: null,      // the collection's label colour scheme (labelstyle.js), saved with the list and the export
   importReview: null,    // an import whose colours would change, waiting for the person's decision
+  // the flow (2026-10-14, docs/FLOW-REFINE-2026-10-14.md)
+  chosen: false,         // a family has been chosen (a first visit asks; a returning one restores it)
+  stage: 'family',       // the stage whose panel is drawn
+  held: [],              // [{ id, hold }] parts on the list waiting to go with the next add (Hold, or a failed send to retry)
+  retry: false,          // the last send of the held parts failed: the primary reads Try again
+  sent: new Set(),       // ids the destination took in full, this session (the list's "sent" mark)
 };
 const T = () => state.template;
 const fam = () => FAMILIES.get(state.family);
@@ -173,11 +143,10 @@ const batching = () => state.editing === null;
 
 // ------------------------------------------------------------------ persistence
 let storageWarned = false;
-let labelsMsg = null; let labelsTimer = null;   // the Make labels status line (setLabelsStatus, under the list)
 function save() {
-  // a Make labels / Add part labels message describes the list as it was: any change to the list or the part clears it
-  if (labelsMsg) { labelsMsg = null; clearTimeout(labelsTimer); }
-  try { localStorage.setItem(STORE, JSON.stringify({ family: state.family, template: state.saved ? state.saved.template : state.template, records: state.records, label_style: state.labelStyle })); storageWarned = false; }
+  // chosen is saved as such: an import on a first visit saves the template too, and must not make the next visit skip the
+  // family question (the code review, 2026-10-14)
+  try { localStorage.setItem(STORE, JSON.stringify({ family: state.family, template: state.saved ? state.saved.template : state.template, records: state.records, label_style: state.labelStyle, chosen: state.chosen })); storageWarned = false; }
   catch {
     // private mode, blocked storage - or FULL: photos are kept in the records, and the browser allows ~5 MB. Say so once,
     // so a long session is not lost silently.
@@ -208,17 +177,25 @@ function restore() {
     state.records = s.records.map(upgradeRecord);
     // a list saved before label colours existed has no label_style key: it takes the workshop scheme
     if ('label_style' in s) state.labelStyle = cleanStyle(s.label_style) || null;
-    if (s.template && FAMILIES.has(s.template.family) && s.template.id === 'template') { state.template = upgradeRecord(s.template); state.family = s.template.family; }
+    // a returning visitor's family is restored: the flow then starts past the Family stage
+    // (a list saved before the flow refine has no chosen key: its template was a choice, so it counts)
+    if (s.template && FAMILIES.has(s.template.family) && s.template.id === 'template') { state.template = upgradeRecord(s.template); state.family = s.template.family; state.chosen = 'chosen' in s ? !!s.chosen : true; }
   } catch { /* ignore */ }
 }
 
-let statusTimer = null;
+// ONE status line, in the bar (it used to be two: under the summary's button and under Make labels, both out of sight
+// above a long list). What it says wins over the bar's own reason line until it fades ('ok') or the next change ('err').
+let barMsg = null; let barTimer = null;
 function setStatus(msg, cls = '') {
-  const el = $('status'); if (!el) return;
-  el.textContent = msg; el.className = 'status ' + cls;
-  clearTimeout(statusTimer);
-  if (msg && cls !== 'err') statusTimer = setTimeout(() => { el.textContent = ''; }, 6000);
+  barMsg = msg ? { text: msg, cls } : null;
+  clearTimeout(barTimer);
+  if (msg && cls !== 'err') barTimer = setTimeout(() => { barMsg = null; renderBar(); }, 6000);
+  renderBar();
 }
+const setLabelsStatus = setStatus;
+// the person did something: what the last action said gives way to the bar's own reason or warning (the stress test found
+// an "Added ..." or a partial reply hiding the next part's warning) - except while a send still waits for its answer
+function userMoved() { if (!addWait && barMsg) { barMsg = null; clearTimeout(barTimer); } }
 
 // ------------------------------------------------------------------ small readers
 const fmtNum = (v) => (typeof v === 'number' ? String(+v.toFixed(3)) : String(v));
@@ -364,11 +341,101 @@ function apply(section, path, input) {
     if (input.mode === UNKNOWN) state.explicit.add(path); else state.explicit.delete(path);
     state.customOpen = null;
     if (path === 'drive.type') state.offerKept = false;
-    setStatus('');
+    userMoved();
     afterChange();
+    if (input.mode === LISTED && !NO_ADVANCE.has(path)) maybeAdvance(section);
   } catch (e) { setStatus(e.message, 'err'); }
 }
 const pick = (section, path, value) => apply(section, path, { mode: LISTED, value });
+
+// ------------------------------------------------------------------ stages (js/flow.js; docs/FLOW-REFINE-2026-10-14.md §3)
+const stages = () => stagesFor(state.family, planEntries(state.family));
+function stageOfKey(key) {
+  if (key === 'family') return 'family';
+  if (key === 'more') return state.family === 'other' ? 'part' : 'details';
+  const e = planEntries(state.family).find((x) => x.key === key);
+  return e ? stageOfEntry(state.family, e) : 'details';
+}
+const STAGE_HINT = {
+  family: 'What kind of part is it?',
+  type: 'Which one? Pick the picture that matches.',
+  size: 'The thread size. The circles show relative size, not a gauge.',
+  sizePlain: 'The size: pick the one on the part or its bag.',
+  sizes: 'Tick every size you have: each makes its own label.',
+  positions: 'Tick every position count you have: each makes its own label.',
+  lengths: 'Tick every length you have: each makes its own label.',
+  details: 'Optional: drive, material, finish, a name or a photo. Nothing here is required.',
+  part: 'Name it or add a photo: it gets a family later, from the list.',
+};
+// the units, pitch and threads-per-inch buttons never move on (they refine the size the person already chose)
+const NO_ADVANCE = new Set(['thread.system', 'thread.pitch', 'thread.tpi']);
+// the field a single-choice section answers, for "is this stage complete"
+function sectionPath(key) {
+  const t = T();
+  const e = PLAN[t.family].find((x) => planKey(x) === key);
+  if (e && !Array.isArray(e) && e.path) return e.path;
+  if (key === 'head') return 'head';
+  if (key === 'point') return 'specific.point_type';
+  if (key === 'thread') return 'thread.diameter';
+  if (key === 'pitch') return isUnified(t) ? 'thread.tpi' : 'thread.pitch';
+  return null;
+}
+// answered: a value, or Unknown ON PURPOSE (a shoulder screw's thread set to Unknown, then its diameter, moves on)
+function sectionAnswered(key) {
+  const p = sectionPath(key); const f = p ? getPath(T(), p) : null;
+  return !!f && (f.status !== UNKNOWN || state.explicit.has(p));
+}
+function maybeAdvance(section) {
+  if (!batching()) return;                          // editing one part: no jumping about
+  const sid = stageOfKey(section);
+  if (sid !== state.stage || sid === 'family' || sid === 'details' || sid === 'part') return;
+  const st = stages().find((s) => s.id === sid);
+  if (!st) return;
+  const entries = planEntries(state.family);
+  const secs = st.keys.map((k) => { const e = entries.find((x) => x.key === k); return { multi: !!(e && e.multi), known: sectionAnswered(k) }; });
+  if (!shouldAdvance(secs)) return;
+  const nx = nextStage(stages(), sid);
+  if (nx && nx !== 'details') goStage(nx);          // Details never opens by itself
+}
+function goStage(id, { focus = true } = {}) {
+  if (!state.chosen) id = 'family';   // before a family, every stage is the family's question (render() would force it anyway)
+  const st = stages().find((s) => s.id === id);
+  if (!st) return;
+  state.stage = id;
+  state.section = st.keys[0];
+  userMoved();
+  render();
+  if (!focus) return;
+  const panel = $('stage-panel'); const hd = $('stage-h');
+  if (panel) { const r = panel.getBoundingClientRect(); if (r.top < 0 || r.top > innerHeight * 0.6) panel.scrollIntoView({ block: 'start' }); }
+  if (hd) hd.focus({ preventScroll: true });
+  const live = $('flow-live'); if (live) live.textContent = `${st.title}. ${stageHint(st)}`;
+}
+// the hint names what the stage holds: circles only where circles are drawn (a screw's thread, a batch of thread sizes),
+// position counts for a connector (the stress test found the circle hint on rivets, pins and shoulder screws)
+function stageHint(st) {
+  if (st.id !== 'size') return STAGE_HINT[st.id] || '';
+  if (st.keys.includes('positions')) return STAGE_HINT.positions;
+  if (st.multi) return STAGE_HINT.sizes;
+  return st.keys.includes('thread') && ['screw', 'setscrew'].includes(state.family) ? STAGE_HINT.size : STAGE_HINT.sizePlain;
+}
+// a stage with nothing left to ask: every choice in it answered, and no multi-select (a shoulder screw's one type comes
+// preselected; a returning draft may have its type and size)
+function stageAnswered(id) {
+  const st = stages().find((s) => s.id === id);
+  if (!st || st.multi) return false;
+  return st.keys.every((k) => sectionAnswered(k));
+}
+function chooseFamily(id) {
+  if (!D || !T()) return;   // the data is not in yet (the tiles are disabled until then)
+  state.chosen = true;
+  if (id !== state.family) switchFamily(id); else save();
+  // the first stage still asking something: an already-answered Type is passed over (the stress test, shoulder screws)
+  const sts = stages();
+  let nx = nextStage(sts, 'family');
+  while (nx && nx !== 'details' && stageAnswered(nx) && nextStage(sts, nx) && nextStage(sts, nx) !== 'details') nx = nextStage(sts, nx);
+  goStage(nx || 'family');
+}
 
 // A fresh record on the head's OWN standard, carrying over the thread, pitch, extent and point. Used before any drive
 // change so the engine's standard-drop rule always starts from the head's standard (the engine only drops a standard it
@@ -439,6 +506,8 @@ function varyOptions() { return varyPath() ? P.optionsFor(T(), varyPath()).optio
 function toggleSel(v, section) {
   const i = state.sel.findIndex((x) => x === v);
   if (i >= 0) state.sel.splice(i, 1); else state.sel.push(v);
+  state.explicit.delete(varyPath());   // a ticked value replaces "Unknown on purpose"
+  userMoved();
   state.sel.sort((a, b) => a - b);
   state.section = section || (varyPath() === 'length.value' ? 'lengths' : 'sizes');
   render();
@@ -451,6 +520,7 @@ function addCustomSel(text, label) {
     return false;
   }
   if (!state.sel.includes(v)) { state.sel.push(v); state.sel.sort((a, b) => a - b); }
+  state.explicit.delete(varyPath());
   return true;
 }
 function previews() {
@@ -556,7 +626,7 @@ function notes(info) {
 // ------------------------------------------------------------------ sections
 function sectionEl(key, idx, title, hint, ...body) {
   return h('section', { id: `sec-${key}`, class: `sec ${state.section === key ? 'editing' : ''}`, 'aria-labelledby': `sec-${key}-h` },
-    h('h3', { id: `sec-${key}-h` }, h('span', { class: 'num' }, idx), title, hint ? h('span', { class: 'hint' }, hint) : null),
+    h('h3', { id: `sec-${key}-h` }, idx !== null && idx !== undefined ? h('span', { class: 'num' }, idx) : null, title, hint ? h('span', { class: 'hint' }, hint) : null),
     ...body);
 }
 
@@ -688,8 +758,9 @@ function systemRow(key) {
     if ((value === 'unified') === uni) return;
     state.sel = [];
     apply(key, 'thread.system', { mode: LISTED, value });
+    // (the flow refine: a size pick moves on with its UNC threads per inch chosen, so say that rather than "then the TPI")
     setStatus(value === 'unified' ? (washer ? 'Inch size: pick the size (#10, 1/4 ...).'
-      : `Inch thread: pick the size, then the threads per inch.${lengths ? ' Lengths are in inches.' : ''}`) : 'Metric.', 'ok');
+      : `Inch thread: pick the size; its coarse UNC threads per inch come with it, and UNF stays here under Size.${lengths ? ' Lengths are in inches.' : ''}`) : 'Metric.', 'ok');
   };
   return h('div', { class: 'row wrap' }, h('span', { class: 'muted' }, 'Units '),
     textBtn({ label: 'Metric (M)', on: !uni, onClick: () => go('metric') }),
@@ -744,9 +815,15 @@ function selTools(section, noun, vals) {
     maxlength: String(CUSTOM_TEXT_MAX), placeholder: noun === 'length' ? (isUnified(T()) ? 'your own length, e.g. 5/8' : 'your own length, e.g. 33') : 'your own size, e.g. 5.5' });
   const add = () => { if (box.value.trim() && addCustomSel(box.value, noun === 'length' ? 'Length' : 'Size')) { state.section = section; render(); focusCustom(`sel:${section}`); } };
   box.addEventListener('keydown', (e) => { if (e.key === 'Enter') add(); });
+  // Unknown ON PURPOSE (2026-10-14, the flow refine §5): one part whose length or size nobody knows - a bag of mixed lengths.
+  // It adds, with a warning; nothing ticked and nothing chosen does not.
+  const vp = varyPath();
+  const unkOn = !state.sel.length && state.explicit.has(vp);
   return h('div', { class: 'row tools' },
-    h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.sel = [...new Set([...state.sel, ...vals])].sort((a, b) => a - b); state.section = section; render(); } }, 'All'),
-    h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.sel = []; state.section = section; render(); } }, 'None'),
+    h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.sel = [...new Set([...state.sel, ...vals])].sort((a, b) => a - b); state.explicit.delete(vp); state.section = section; userMoved(); render(); } }, 'All'),
+    h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.sel = []; state.section = section; userMoved(); render(); } }, 'None'),
+    textBtn({ label: 'Unknown', on: unkOn, cls: 'state sm', title: `One part with the ${noun} Unknown. ${STATUS_INFO.unknown.def}`,
+      onClick: () => { state.sel = []; if (unkOn) state.explicit.delete(vp); else state.explicit.add(vp); state.section = section; userMoved(); render(); } }),
     h('span', { class: 'spacer' }), box, h('button', { type: 'button', class: 'btn sm', onclick: add }, `Add ${noun}`));
 }
 
@@ -795,6 +872,18 @@ function lengthsSection(key, idx) {
   const bar = (v, on) => h('span', { class: `bar ${on ? 'on' : ''}`, 'aria-hidden': 'true', style: `width:${Math.max(6, Math.round((v / maxL) * 100))}%` });
   const stdName = fmtStandard(t.standard || t.table_basis);
   const body = [];
+  // the lists come from the type's standard and the size (the flow refine §3, Sol 01a13c2c): an empty list says what
+  // unlocks it before it offers your own length
+  let unlock = false;
+  if (!opts.length && t.head.status === UNKNOWN) {
+    unlock = true;
+    body.push(h('div', { class: 'note unlock' }, 'Choose a type to see the listed lengths for it. ',
+      h('button', { type: 'button', class: 'btn sm', onclick: () => goStage('type') }, '◂ Type'), ' Or type your own length below.'));
+  } else if (!opts.length && t.thread.diameter.status === UNKNOWN) {
+    unlock = true;
+    body.push(h('div', { class: 'note unlock' }, 'Choose a size to see its listed lengths. ',
+      h('button', { type: 'button', class: 'btn sm', onclick: () => goStage('size') }, '◂ Size'), ' Or type your own length below.'));
+  }
   if (!batching()) {
     const f = t.length.value;
     body.push(h('div', { class: `len-grid${isUnified(t) ? ' inch' : ''}` }, opts.map((o) => {
@@ -820,7 +909,7 @@ function lengthsSection(key, idx) {
   }
   if (opts.length) body.push(h('div', { class: 'note' }, `Our reference list${stdName ? ' for ' + stdName : ''} ${threadText(t)} (bd_warehouse) - the library's coverage, not every length made or listed by the standard.`
     + (info.note ? ' ' + info.note + '.' : '')));
-  else body.push(h('div', { class: 'note' }, info.note || 'No listed lengths for this selection: add your own.'));
+  else if (!unlock) body.push(h('div', { class: 'note' }, info.note || 'No listed lengths for this selection: add your own.'));   // the unlock note already says it
   body.push(...notes(info));
   return sectionEl(key, idx, 'Lengths', batching() ? 'tick several - one part each · bars show relative length' : 'one part', ...body);
 }
@@ -934,12 +1023,15 @@ function detailsSection(e, idx) {
   // typing does not re-render the builder (focus would jump); only the summary card follows
   const quiet = (changes) => { state.template = P.setMeta(T(), changes); state.section = e.key; save(); renderSide(); };
   const loud = (changes) => { state.template = P.setMeta(T(), changes); state.section = e.key; afterChange(); };
-  const field = (label, val, onSet, ph, wide) => {
+  const field = (label, val, onSet, ph, wide, live) => {
     const i = h(wide ? 'textarea' : 'input', { type: wide ? null : 'text', rows: wide ? 2 : null, placeholder: ph, 'aria-label': label });
     i.value = val || '';
     i.addEventListener('change', () => onSet(i.value));
+    if (live) i.addEventListener('input', () => live(i.value));
     return h('label', { class: 'dl' }, h('span', { class: 'dl-k' }, label), i);
   };
+  // an Other part is ready once it has a name: the bar follows each keystroke, not only the field's change on blur
+  const liveName = (val) => { state.template = P.setMeta(T(), { label: val }); renderBar(); };
   const metaSet = (k) => (val) => quiet({ meta: { ...(T().meta || {}), [k]: val } });
   const photoIn = h('input', { type: 'file', accept: 'image/*', hidden: true });
   photoIn.addEventListener('change', async () => {
@@ -962,7 +1054,7 @@ function detailsSection(e, idx) {
           t.photo ? h('button', { type: 'button', class: 'btn sm ghost', onclick: () => loud({ photo: null }) }, 'Remove') : null),
         photoIn),
       h('div', { class: 'dl-grid' },
-        field(isOther ? 'Name' : 'Name (optional)', t.label, (val) => quiet({ label: val }), isOther ? 'what you call it, e.g. "blue push fitting"' : 'e.g. "Voron frame screws"'),
+        field(isOther ? 'Name' : 'Name (optional)', t.label, (val) => quiet({ label: val }), isOther ? 'what you call it, e.g. "blue push fitting"' : 'e.g. "Voron frame screws"', false, isOther ? liveName : null),
         field('Package text', m.package_text, metaSet('package_text'), 'copy what the bag says', true),
         field('Dimensions', m.dimensions, metaSet('dimensions'), 'anything you measured'),
         field('Supplier', m.supplier, metaSet('supplier'), 'shop or brand'),
@@ -1077,25 +1169,48 @@ function tokens() {
   }
   return list;
 }
-function tokenStrip() {
-  const wrap = h('nav', { class: 'tokens', 'aria-label': 'Part so far - choose a field to change it' });
+// THE STAGE STRIP (2026-10-14, the flow refine §3): one button per stage, its value so far, the current one marked, a stage
+// still owing a required answer reading "choose" - in words, not colour alone. Navigation and progress, never a gate.
+// It replaces the token grid; the tokens still say what each stage holds.
+function stageValues() {
+  const out = {};
+  if (!state.chosen) return out;
   for (const tk of tokens()) {
-    const editing = state.section === tk.key && !tk.sub;
-    const btn = h('button', { type: 'button', class: `tok ${editing ? 'editing' : ''} ${tk.v ? 'set' : 'empty'}`, 'aria-current': editing ? 'true' : null,
-      onclick: () => goSection(tk.key) },
-      tk.g ? h('span', { class: 'tg', html: glyph(tk.g, 28) }) : h('span', { class: 'tg blank' }),
-      h('span', { class: 'tk' }, h('span', { class: 'tk-k' }, tk.k, editing ? h('span', { class: 'tk-edit' }, ' · editing') : null),
-        h('span', { class: 'tk-v', title: tk.v || null }, tk.v || '-'),
-        tk.st && tk.key !== 'family' ? statusChip(tk.st) : null));
-    wrap.append(btn);
+    if (!tk.v) continue;
+    const sid = tk.key === 'family' ? 'family' : stageOfKey(tk.key);
+    (out[sid] = out[sid] || []).push(tk.v);
   }
-  return wrap;
+  for (const k of Object.keys(out)) out[k] = out[k].join(' · ');
+  return out;
 }
-function goSection(key) {
-  state.section = key;
-  render();
-  const el = $(`sec-${key}`);
-  if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); const b = el.querySelector('button, input, select'); if (b) setTimeout(() => b.focus({ preventScroll: true }), 300); }
+// a screw with no type has no listed lengths (its standard gives them): Type is needed for the lists, if not for the add
+const typeNeeded = () => state.chosen && batching() && T().family === 'screw' && T().head.status === UNKNOWN && !state.explicit.has('head');
+function stageStrip(sts, r) {
+  const vals = stageValues();
+  const need = new Set(r.missing.map((m) => m.stage));
+  if (typeNeeded()) need.add('type');
+  const nav = h('nav', { class: 'stages', 'aria-label': 'Stages: choose one to open it' });
+  sts.forEach((s, i) => {
+    const cur = s.id === state.stage;
+    const v = vals[s.id] || null;
+    const owes = need.has(s.id);
+    const optional = s.id === 'details';
+    const word = owes ? 'choose' : v || (optional ? 'optional' : '–');
+    const said = owes ? 'required, not answered' : v ? `${v}, answered` : optional ? 'optional' : 'not answered';
+    nav.append(h('button', { type: 'button', class: `stg${cur ? ' cur' : ''}${owes ? ' need' : v ? ' done' : ''}`, 'aria-current': cur ? 'step' : null,
+      'aria-label': `${i + 1}. ${s.title}: ${said}`, title: v || null, onclick: () => goStage(s.id) },
+      h('span', { class: 'stg-n', 'aria-hidden': 'true' }, v && !owes ? '✓' : String(i + 1)),
+      h('span', { class: 'stg-tx', 'aria-hidden': 'true' }, h('span', { class: 'stg-t' }, s.title), h('span', { class: 'stg-v' }, word))));
+  });
+  return nav;
+}
+function stageFoot(sts, cur) {
+  const prev = prevStage(sts, cur.id); const next = nextStage(sts, cur.id);
+  const title = (id) => sts.find((s) => s.id === id).title;
+  return h('div', { class: 'stage-foot' },
+    prev ? h('button', { type: 'button', class: 'btn ghost', onclick: () => goStage(prev) }, `◂ ${title(prev)}`) : h('span'),
+    next ? h('button', { type: 'button', class: 'btn', onclick: () => goStage(next) }, `Next: ${title(next)} ▸`)
+      : h('span', { class: 'muted small' }, 'That is everything. Add with the button below.'));
 }
 
 // ------------------------------------------------------------------ part summary + will add
@@ -1113,6 +1228,11 @@ function pinButton(path, label) {
 }
 function summaryCard() {
   const t = T();
+  if (!state.chosen) {      // a first visit: nothing is pre-chosen, so there is no part to summarise yet
+    return h('section', { class: 'card summary', 'aria-label': 'This part' },
+      h('div', { class: 'card-k' }, 'THIS PART'),
+      h('p', { class: 'welcome' }, 'Pick a family to start. Then the type, the size and the lengths: each length you tick makes its own label.'));
+  }
   const perSize = batching() && varyPath() === 'thread.diameter';
   const g1 = primaryGlyph(t); const g2 = secondaryGlyph(t);
   const n = batching() ? state.sel.length : 1;
@@ -1127,8 +1247,8 @@ function summaryCard() {
   } else {
     headline = batching() ? (n > 1 ? `${n} sizes selected` : n === 1 ? selSize(state.sel[0]) : (isUnified(t) ? '?' : 'M?')) : threadText(t);
   }
-  const card = h('section', { class: 'card summary', 'aria-label': 'Part summary' });
-  card.append(h('div', { class: 'card-k' }, 'PART SUMMARY', h('span', { class: 'muted' }, ' - what will be saved, not the printed label')));
+  const card = h('section', { class: 'card summary', 'aria-label': 'This part' });
+  card.append(h('div', { class: 'card-k' }, 'THIS PART', h('span', { class: 'muted' }, ' - what will be saved, not the printed label')));
   // the picture follows what will be SAVED: with lengths or sizes selected, the first record the batch will add
   const pic = t.photo ? null : HW.resolve(previews()[0] || t);
   card.append(h('div', { class: 'glyphs' },
@@ -1146,9 +1266,10 @@ function summaryCard() {
   }
   card.append(h('div', { class: 'headline mono' }, headline));
   card.append(h('div', { class: 'typeline' }, t.family === 'other' ? 'Other part - give it a family later from the list'
-    : [headLabel(t, false) || `${FAMILY_LABEL[t.family]} - type unknown`, stdText(t)].filter(Boolean).join(' · '),
-    t.family === 'other' ? null : pinButton('head', 'Type')));
+    : [headLabel(t, false) || `${FAMILY_LABEL[t.family]} - type unknown`, stdText(t)].filter(Boolean).join(' · ')));
   const facts = h('div', { class: 'facts' });
+  // the type's own row, with its pin (the pin sat on the type line before Part details held them all)
+  if (t.family !== 'other') facts.append(factRow('Type', t.head, headLabel(t, false), { pin: 'head' }));
   if (NEW_FAMILIES.has(t.family)) {          // every typed field, by its own label (the batch field shows in Will add)
     for (const d of fam().paths) {
       if (d.path === 'head' || (batching() && d.path === varyPath())) continue;
@@ -1161,8 +1282,7 @@ function summaryCard() {
     const mm = t.meta || {};
     for (const [k, lbl] of [['package_text', 'Package'], ['supplier', 'Supplier'], ['supplier_part', 'Part no.']]) if (mm[k]) facts.append(factRow(lbl, null, mm[k]));
     if (t.tags && t.tags.length) facts.append(factRow('Collections', null, t.tags.join(', ')));
-    card.append(facts);
-    return summaryTail(card);
+    return summaryTail(card, facts);
   }
   const sugg = (path) => P.suggestions(t).filter((s) => s.path === path).map((s) =>
     h('button', { type: 'button', class: 'btn sm', title: `${s.tier}${s.hint ? ' - ' + s.hint : ''}`, onclick: () => { state.template = P.acceptSuggestion(T(), path, s.value); afterChange(); } }, `Use ${suggText(s)}`));
@@ -1186,12 +1306,40 @@ function summaryCard() {
   const mm = t.meta || {};
   for (const [k, lbl] of [['package_text', 'Package'], ['supplier', 'Supplier'], ['supplier_part', 'Part no.']]) if (mm[k]) facts.append(factRow(lbl, null, mm[k]));
   if (t.tags && t.tags.length) facts.append(factRow('Collections', null, t.tags.join(', ')));
-  card.append(facts);
-  return summaryTail(card);
+  return summaryTail(card, facts);
 }
-function summaryTail(card) {
+// PART DETAILS (2026-10-14, the flow refine §6): what the expert reads - the fields with their status words and tiers, the
+// pins, the label words, the label colours, the legend - behind one disclosure whose open state each browser remembers.
+const DETAILS_OPEN = 'gen2-part-picker/part-details-open';
+function detailsOpen() { try { return localStorage.getItem(DETAILS_OPEN) === '1'; } catch { return false; } }
+function setDetailsOpen(on) { try { localStorage.setItem(DETAILS_OPEN, on ? '1' : '0'); } catch { /* storage blocked: closed next time */ } }
+function summaryTail(card, facts) {
+  // Will add: one row per part, so a batch can never read as one part spec (design review). Nothing ticked (and no Unknown
+  // on purpose) adds nothing: say so, rather than show the "M5 × ?" a press could once add (Joey's pass, 2026-10-14)
+  const recs = previews();
+  const vp = varyPath();
+  const empty = batching() && vp && !state.sel.length && !state.explicit.has(vp);
+  const add = h('div', { class: 'willadd' }, h('div', { class: 'card-k' }, batching() ? `WILL ADD · ${empty ? 0 : recs.length}` : 'WILL SAVE'));
+  if (empty) {
+    const m = ready().missing.find((x) => x.path === vp);
+    add.append(h('div', { class: 'muted willnone' }, `Nothing to add yet. ${m ? m.text : 'Tick one or more'}: each makes its own label.`));
+  } else for (const r of recs) add.append(willRow(r));
+  card.append(add);
+  // a family change removed pins this family has no field for (design review 2026-10-05: flag them, never carry them blindly)
+  const gone = T().label_pins_removed;
+  if (gone && gone.length) {
+    const fam = (P.FAMILIES.get(T().family) || {}).label || T().family;
+    card.append(h('div', { class: 'pinnote warn', role: 'status' },
+      `Unpinned when the part changed family: ${gone.map((g) => g.path).join(', ')} - ${fam} have no such field. `,
+      h('button', { type: 'button', class: 'btn ghost', onclick: () => { state.template = P.setMeta(T(), { label_pins_removed: null }); save(); render(); } }, 'OK')));
+  }
+  const pd = h('details', { class: 'pd', open: detailsOpen() || null });
+  pd.addEventListener('toggle', () => setDetailsOpen(pd.open));
+  pd.append(h('summary', {}, 'Part details', h('span', { class: 'muted' }, ' - status words, pins, label words and colours')));
+  pd.append(facts);
+  card.append(pd);
   if (T().family !== 'other') {
-    card.append(h('div', { class: 'pinnote muted' }, 'Pinned fields must appear on the label: one that does not fit is reported as a non-fit. ',
+    pd.append(h('div', { class: 'pinnote muted' }, 'Pinned fields must appear on the label: one that does not fit is reported as a non-fit. ',
       'Other fields go on while they fit; the label preview lists the rest as "Not shown on label". The record keeps every field.'));
   }
   // LABEL WORDS (design review 2026-10-05: "Keep the short forms provisional ... Show their full meanings in the editor and
@@ -1208,36 +1356,36 @@ function summaryTail(card) {
           h('b', { class: 'lw-t' }, a.text), h('span', { class: 'muted lw-m' }, a.custom ? `your word for ${a.meaning} (proposed: ${a.proposed})` : `= ${a.meaning}`,
             a.wording_note ? h('span', { class: `lw-note ${a.wording}` }, ` - ${a.wording_note}`) : null), inp);
       });
-      card.append(h('details', { class: 'lw' }, h('summary', {}, 'Label words - what prints, and your own wording'),
+      pd.append(h('details', { class: 'lw' }, h('summary', {}, 'Label words - what prints, and your own wording'),
         h('div', { class: 'muted pinnote' }, 'The short forms are proposals. Type your own word to print instead; leave it blank to use the proposal.'),
         ...rows));
     }
-    const lc = labelColoursBox(); if (lc) card.append(lc);
+    pd.append(colourLine());
   }
-  // a family change removed pins this family has no field for (design review 2026-10-05: flag them, never carry them blindly)
-  const gone = T().label_pins_removed;
-  if (gone && gone.length) {
-    const fam = (P.FAMILIES.get(T().family) || {}).label || T().family;
-    card.append(h('div', { class: 'pinnote warn', role: 'status' },
-      `Unpinned when the part changed family: ${gone.map((g) => g.path).join(', ')} - ${fam} have no such field. `,
-      h('button', { type: 'button', class: 'btn ghost', onclick: () => { state.template = P.setMeta(T(), { label_pins_removed: null }); save(); render(); } }, 'OK')));
-  }
-  // Will add: one row per part, so a batch can never read as one part spec (design review)
-  const recs = previews();
-  const add = h('div', { class: 'willadd' }, h('div', { class: 'card-k' }, batching() ? `WILL ADD · ${recs.length}` : 'WILL SAVE'));
-  for (const r of recs) add.append(willRow(r));
-  card.append(add);
-  const vp = varyPath();
-  const verb = PLANNER ? 'Queue' : 'Add';   // inside the planner the list is a queue for Add N labels to the planner
-  const label = !batching() ? 'Save part' : recs.length > 1 ? `${verb} ${recs.length} parts`
-    : (state.sel.length || !vp ? `${verb} 1 part` : `${verb} 1 part (${vp === 'length.value' || vp === 'specific.rivet.length' ? 'length' : 'size'} Unknown)`);
-  // inside the Label Studio the one orange button is Add part labels (end-to-end check 2026-10-10: this one only fills the
-  // Picker's own list, and read as the next thing to press)
-  card.append(h('button', { type: 'button', class: EMBED ? 'btn big' : 'btn primary big', onclick: batching() ? addParts : saveEdit }, label));
-  if (!batching()) card.append(h('button', { type: 'button', class: 'btn ghost', onclick: cancelEdit }, 'Cancel editing'));
-  card.append(h('div', { id: 'status', class: 'status', role: 'status' }));
+  if (LEGEND) pd.append(LEGEND);       // the same element each time, so an open legend stays open
+  // the add itself is the bar's (renderBar): one action, always in view (the flow refine §4)
   return card;
 }
+// THE LABEL COLOURS IN ONE LINE (the flow refine §6, brief point 6): what this part's label carries under the list's scheme,
+// and Change. The stripe switch is not the Picker's: it belongs to whatever prints the labels (colourHint, by mode).
+function colourLine() {
+  const st = state.labelStyle;
+  let words = 'off';
+  if (st) {
+    const cols = labelColours(T(), st);
+    words = SLOTS.filter((s) => st[s]).map((s) => {
+      const c = cols[s];
+      if (!c) return null;
+      return c.colour ? `${SLOT_NAME[s]} ${c.label} (${c.colour.replace(/-/g, ' ')})` : `${SLOT_NAME[s]} not set (${c.unassigned})`;
+    }).filter(Boolean).join(' · ') || 'none for this part';
+  }
+  const box = h('details', { class: 'lcol', open: colourOpen || null },
+    h('summary', {}, `Label colours: ${words}`, h('span', { class: 'muted' }, ` · scheme: ${styleName(st)} · Change`)),
+    h('div', { class: 'muted small lc-hint' }, colourHint(MODE)), styleControl(), labelColoursBox());
+  box.addEventListener('toggle', () => { colourOpen = box.open; });   // a scheme change re-renders: stay open
+  return box;
+}
+let colourOpen = false;
 function willRow(r) {
   const vp = varyPath();
   const vf = vp ? getPath(r, vp) : null;
@@ -1271,35 +1419,120 @@ function willRow(r) {
     suggs.length ? h('span', { class: 'muted small', title: STATUS_INFO.suggested.def }, `suggested: ${suggs.join(', ')}`) : null);
 }
 
-function addParts() {
-  const recs = state.sel.length ? expandBatch(P, T(), state.sel) : [(() => { const r = clone(T()); r.id = P.idgen(); return r; })()];
+// ------------------------------------------------------------------ the one add action (the flow refine §4)
+// What an add would make right now, and whether it may: js/flow.js decides, from the would-be records
+function ready() {
+  const t = T();
+  // a family with no Pitch section draws no threads-per-inch control: an inch nut's own size may leave it Unknown
+  const unsettable = PLAN[t.family].some((e) => planKey(e) === 'pitch') ? new Set() : new Set(['thread.tpi']);
+  return readiness({ family: t.family, chosen: state.chosen, template: t, records: previews(), sel: batching() ? state.sel : [],
+    explicit: state.explicit, varyPath: batching() ? varyPath() : null, unsettable });
+}
+const liveHeld = () => state.held.filter((x) => state.records.some((r) => r.id === x.id));
+const recordOf = (id) => state.records.find((r) => r.id === id);
+// the current batch, made into records with their own ids (nothing is on the list yet)
+function batchRecords() {
+  return state.sel.length ? expandBatch(P, T(), state.sel) : [(() => { const r = clone(T()); r.id = P.idgen(); return r; })()];
+}
+// put a batch on the list and start the next one: the ticks and the batch's own Unknown go; the part's choices stay, and
+// the batch stage opens (the flow refine §3 "Coming back": another length of the same screw is the likeliest next thing)
+function commitBatch(recs) {
   state.records.push(...recs);
   state.sel = [];
+  state.explicit.delete(varyPath());
+  const bs = stages().find((s) => s.multi);
+  if (bs) state.stage = bs.id;
   // name, photo, package text and supplier describe ONE bag: clear them so the next bag cannot inherit them (collections stay)
   if (T().label || T().photo || T().meta) state.template = P.setMeta(T(), { label: null, photo: null, meta: null });
+}
+// the label items for records, or null after naming the one the destination could not take (nothing is sent then)
+function itemsFor(recs) {
+  if (recs.length > LABEL_STUDIO_MAX_ITEMS) { setStatus(`At most ${LABEL_STUDIO_MAX_ITEMS} labels go at once; this is ${recs.length}. Hold fewer, or tick fewer, and add the rest after.`, 'err'); return null; }
+  const items = recs.map((r) => labelItem(r, { describe: describeValue, style: state.labelStyle }));
+  for (let i = 0; i < items.length; i++) {
+    const why = labelStudioProblem(items[i]);
+    if (why) { setStatus(`${shortSpec(recs[i])} cannot become a label: ${why}. Change it, then add again.`, 'err'); return null; }
+  }
+  return items;
+}
+function addParts() {
+  if (!batching()) return;
+  const r = ready();
+  if (MODE === 'standalone') {                 // the list is the product: Add puts the batch on it
+    if (!r.ready) return;
+    const recs = batchRecords();
+    commitBatch(recs); save(); render();
+    setStatus(recs.length === 1 ? `Added ${shortSpec(recs[0])} to the list.` : `Added ${recs.length} parts to the list: ${recs.map(shortSpec).join(', ')}.`, 'ok');
+    return;
+  }
+  // the embeds: the held parts, plus the current batch when it is ready, go in ONE message
+  const held = liveHeld().map((x) => recordOf(x.id));
+  // a batch ready now goes too, even while a failed one waits for Try again (the stress test found the button counting
+  // it and the add leaving it behind)
+  const fresh = r.ready ? batchRecords() : [];
+  const send = [...held, ...fresh];
+  if (!send.length) return;
+  const items = itemsFor(send);
+  if (!items) return;
+  if (fresh.length) commitBatch(fresh);
+  // held until the destination answers: a refusal or silence leaves them for Try again (Sol 01a13c2c)
+  state.held = send.map((x) => ({ id: x.id, hold: false }));
+  state.retry = false;
   save(); render();
-  setStatus(recs.length === 1 ? `Added ${shortSpec(recs[0])}.` : `Added ${recs.length} parts: ${recs.map(shortSpec).join(', ')}.`, 'ok');
+  sendItems(items, send.map((x) => x.id), { bar: true });
+}
+// Hold, pick more (the embeds; Sol 01a13c2c): both embeds close after an add, so the expert collects several batches first
+function holdBatch() {
+  if (!batching() || MODE === 'standalone' || !ready().ready) return;
+  const recs = batchRecords();
+  commitBatch(recs);
+  state.held.push(...recs.map((x) => ({ id: x.id, hold: true })));
+  save();
+  goStage(stageBeforeBatch(stages()));   // Hold, unlike Add, opens the stage BEFORE the batch (§4)
+  setStatus(`Holding ${recs.map(shortSpec).join(', ')}. Pick more, then add them all at once.`, 'ok');
+}
+// the held parts' ×: parts held by Hold were never sent, so they leave the list too; a failed send's stay on it
+function dropHeld() {
+  const gone = new Set(state.held.filter((x) => x.hold).map((x) => x.id));
+  state.records = state.records.filter((r) => !gone.has(r.id));
+  state.held = []; state.retry = false;
+  save(); render();
+  setStatus(gone.size ? `Dropped ${gone.size} held part${gone.size === 1 ? '' : 's'}; nothing was sent.` : 'Nothing is held now; those parts stay on your list.', 'ok');
 }
 function editRecord(id) {
   const rec = state.records.find((r) => r.id === id); if (!rec) return;
-  if (!state.saved) state.saved = { template: state.template, family: state.family, sel: state.sel, section: state.section };
+  if (!state.saved) state.saved = { template: state.template, family: state.family, sel: state.sel, section: state.section, stage: state.stage, explicit: [...state.explicit], chosen: state.chosen };
   const t = clone(rec); t.id = 'template';
-  state.template = t; state.family = rec.family; state.sel = []; state.editing = id;
+  state.template = t; state.family = rec.family; state.sel = []; state.editing = id; state.chosen = true;
   state.explicit = new Set(rec.user_unknown || []); state.customOpen = null; state.section = planKey(PLAN[rec.family][0]);
+  state.stage = nextStage(stages(), 'family') || 'family';
   render(); window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function saveEdit() {
   const i = state.records.findIndex((r) => r.id === state.editing);
   const r = clone(T()); r.id = state.editing;
   if (i >= 0) state.records[i] = r;
+  // the label it was sent as is now out of date: no "sent" until the destination takes this version (code review)
+  state.sent.delete(r.id);
   leaveEdit();
-  setStatus(`Saved ${shortSpec(r)}.`, 'ok'); // after the re-render, which rebuilds the status line
+  // in the embeds the edit goes on to the label: the destination updates it in place by row id (or adds it, if it was
+  // removed). It goes as the bar's own send, held until taken, so a refusal or silence leaves Try again (Sol 01a13c5f)
+  if (MODE !== 'standalone') {
+    const items = itemsFor([r]);
+    if (items) {
+      if (!state.held.some((x) => x.id === r.id)) state.held.push({ id: r.id, hold: false });
+      sendItems(items, [r.id], { bar: true });
+    }
+  }
+  else setStatus(`Saved ${shortSpec(r)}.`, 'ok');
 }
 function cancelEdit() { leaveEdit(); }
 function leaveEdit() {
   const s = state.saved; state.saved = null; state.editing = null;
-  if (s) { state.template = s.template; state.family = s.family; state.sel = s.sel; state.section = s.section; }
-  state.explicit.clear(); state.customOpen = null;
+  state.explicit.clear();
+  // a first visit that edited an imported row and came back has still not chosen a family (Sol 01a13c5f)
+  if (s) { state.template = s.template; state.family = s.family; state.sel = s.sel; state.section = s.section; state.stage = s.stage; state.explicit = new Set(s.explicit); state.chosen = s.chosen; }
+  state.customOpen = null;
   save(); render();
 }
 
@@ -1310,9 +1543,10 @@ function tally(rec) {
   return { custom, unknown };
 }
 function listCard() {
-  const card = h('section', { class: 'card list', 'aria-label': 'On the list' });
-  card.append(h('div', { class: 'card-k' }, `ON THE LIST · ${state.records.length}`));
-  if (!state.records.length) card.append(h('div', { class: 'muted' }, 'Nothing yet. Pick a family and type, tick the lengths or sizes, then Add.'));
+  const card = h('section', { class: 'card list', 'aria-label': 'Your parts' });
+  card.append(h('div', { class: 'card-k' }, `YOUR PARTS · ${state.records.length}`));
+  if (!state.records.length) card.append(h('div', { class: 'muted' }, 'Nothing added yet.'));
+  const heldIds = new Set(liveHeld().map((x) => x.id));
   // collections are a FILTER over one list, never copies (design review)
   const tags = [...new Set(state.records.flatMap((r) => r.tags || []))].sort();
   if (state.listFilter && !tags.includes(state.listFilter)) state.listFilter = null;
@@ -1331,7 +1565,11 @@ function listCard() {
       r.photo ? h('img', { class: 'limg', src: r.photo, alt: 'photo of the part', width: 64, height: 64, loading: 'lazy' })
         : hasPic(lp) ? h('img', { class: `limg ${lp.exact ? '' : 'approx'}${lp.kind === 'illustration' ? ' illus' : ''}`, src: lp.srcSm, alt: '', width: 64, height: 64, loading: 'lazy', title: picTitle(lp) })
           : h('span', { class: 'lg', html: glyph(primaryGlyph(r), 26) + (g2 ? glyph(g2, 26) : '') }),
-      h('span', { class: 'lmain' }, h('span', { class: 'mono lspec' }, shortSpec(r)), h('span', { class: 'lsub' }, sub || FAMILY_LABEL[r.family]),
+      h('span', { class: 'lmain' }, h('span', { class: 'mono lspec' }, shortSpec(r),
+        // the list as the review of what went in (the flow refine §5-6): sent = the destination took it in full, this session
+        state.sent.has(r.id) ? h('span', { class: 'lmark sent', title: 'Sent this session: the destination added or updated its label' }, 'sent') : null,
+        heldIds.has(r.id) ? h('span', { class: 'lmark held', title: 'Held: it goes with the next add' }, 'held') : null),
+        h('span', { class: 'lsub' }, sub || FAMILY_LABEL[r.family]),
         r.tags && r.tags.length ? h('span', { class: 'ltags' }, r.tags.join(' · ')) : null,
         h('span', { class: 'lst' }, c.custom ? `${c.custom} custom` : null, c.custom && c.unknown ? ' · ' : null, c.unknown ? `${c.unknown} unknown` : null)),
       h('span', { class: 'lact' },
@@ -1362,26 +1600,23 @@ function listCard() {
       applyImport(records, problems, labelStyle, false);
     } catch (err) { setStatus(`Import failed: ${err.message}`, 'err'); }
   });
-  const labelsBtn = h('button', { type: 'button', class: EMBED ? 'btn primary' : 'btn sm', id: 'make-labels', disabled: !shownRecords().length || (PLANNER && !planner) || null, onclick: makeLabels,
-      title: PLANNER ? (planner ? 'Add a part label for every part shown here (the collection filter applies) to your planner build.' : 'Waiting for the planner to connect.')
-        : EMBED ? 'Add a part label for every part shown here (the collection filter applies) to the end of your list in the Label Studio.'
-        : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
-    labelsButtonText(shownRecords().length, EMBED, PLANNER));
-  const labelsStatus = h('div', { id: 'labels-status', class: `status ${labelsMsg ? labelsMsg.cls : ''}`, role: 'status' }, labelsMsg ? labelsMsg.text : '');
-  card.append(h('div', { class: 'row wrap list-tools' },
-    h('button', { type: 'button', class: 'btn sm ghost', onclick: () => copyText(listText(P, state.records), 'List') }, 'Copy list as text'),
-    h('button', { type: 'button', class: 'btn sm ghost', onclick: () => {
-      const blob = new Blob([exportDoc(P, state.records, { labelStyle: state.labelStyle })], { type: 'application/json' });
-      const a = h('a', { href: URL.createObjectURL(blob), download: 'part-records.json' }); document.body.append(a); a.click(); a.remove();
-      setStatus(`Exported ${state.records.length} parts.`, 'ok');
-    } }, 'Export JSON'),
-    h('button', { type: 'button', class: 'btn sm ghost', onclick: () => imp.click() }, 'Import JSON'),
-    EMBED ? null : labelsBtn,
-    clearBtn, imp, styleControl()));
-  // inside the Label Studio: Add part labels and what it did sit in a bar pinned to the bottom, always in reach (on a phone the
-  // button used to sit below a long list)
-  if (EMBED) card.append(h('div', { class: 'embed-addbar' }, labelsBtn, labelsStatus));
-  else card.append(labelsStatus);
+  // LIST TOOLS (the flow refine §6): everything that acts on the whole list, behind one disclosure. Inside the embeds that
+  // includes "Add all": every shown part sent again (a new build, a list made earlier); the destination updates in place.
+  // Opened on its own, Make labels sits in the bar instead (renderBar), as the list's hand-off to the Label Studio.
+  const tools = h('details', { class: 'ltools', open: toolsOpen || null },
+    h('summary', {}, 'List tools', h('span', { class: 'muted' }, EMBED ? ' - add all again, copy, export, import, clear' : ' - copy, export, import, clear')),
+    h('div', { class: 'row wrap list-tools' },
+      EMBED ? labelsButton() : null,
+      h('button', { type: 'button', class: 'btn sm ghost', onclick: () => copyText(listText(P, state.records), 'List') }, 'Copy list as text'),
+      h('button', { type: 'button', class: 'btn sm ghost', onclick: () => {
+        const blob = new Blob([exportDoc(P, state.records, { labelStyle: state.labelStyle })], { type: 'application/json' });
+        const a = h('a', { href: URL.createObjectURL(blob), download: 'part-records.json' }); document.body.append(a); a.click(); a.remove();
+        setStatus(`Exported ${state.records.length} parts.`, 'ok');
+      } }, 'Export JSON'),
+      h('button', { type: 'button', class: 'btn sm ghost', onclick: () => imp.click() }, 'Import JSON'),
+      clearBtn, imp));
+  tools.addEventListener('toggle', () => { toolsOpen = tools.open; });
+  card.append(tools);
   if (state.textView) card.append(h('textarea', { readonly: true, rows: 10, class: 'textview' }, state.textView));
   if (state.importReview) card.append(importReviewBox());
   return card;
@@ -1394,16 +1629,44 @@ function listCard() {
 const LABEL_ITEMS_SCHEMA = 'part-picker-label-items/1';
 const LABEL_STUDIO_URL = labelStudioUrl(location);
 const shownRecords = () => state.records.filter((r) => !state.listFilter || (r.tags || []).includes(state.listFilter));
-let addWait = null;       // a batch posted to the Label Studio and not answered yet: { missingNote, timer }
-// What Make labels / Add part labels did, on its own status line right under the button: the summary card's status line
-// is out of sight above a long list. Kept across re-renders of the list card; 'ok' fades, 'err' stays.
-function setLabelsStatus(text, cls = '') {
-  labelsMsg = text ? { text, cls } : null;
-  const el = $('labels-status');
-  if (el) { el.textContent = text; el.className = `status ${cls}`; }
-  clearTimeout(labelsTimer);
-  if (text && cls !== 'err') labelsTimer = setTimeout(() => setLabelsStatus(''), 6000);
+let toolsOpen = false;    // List tools stays open across re-renders once opened
+let addWait = null;       // a batch posted and not answered yet: { ids, bar, missingNote, timer }
+// the list's send-everything button: "Add all N ..." inside the embeds (List tools), "Make labels (N)" on its own (the bar).
+// Keeps id make-labels: the planner's e2e suite and the Studio's sheet check press it.
+function labelsButton() {
+  const n = shownRecords().length;
+  return h('button', { type: 'button', class: 'btn sm', id: 'make-labels', disabled: !n || (PLANNER && !planner) || !!addWait || null, onclick: makeLabels,
+    title: PLANNER ? (planner ? 'Send a part label for every part shown here (the collection filter applies) to your planner build: new ones are added, ones already there updated.' : 'Waiting for the planner to connect.')
+      : EMBED ? 'Send a part label for every part shown here (the collection filter applies) to your list in the Label Studio: new ones are added, ones already there updated.'
+      : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
+    EMBED ? addAllText(n, MODE) : labelsButtonText(n, false));
 }
+// post label items to the destination and wait for its word (js/embed.js has both contracts). bar: the bar's own add, whose
+// parts stay held for Try again until a reply says they were taken
+function sendItems(items, ids, { bar }) {
+  const missing = items.filter((it) => it.value_missing && it.value_missing.length).length;
+  const missingNote = missing ? ` ${missing} ${missing === 1 ? 'is' : 'are'} missing a value and will not print until completed.` : '';
+  const n = `${items.length} part label${items.length === 1 ? '' : 's'}`;
+  // ONE send at a time: every send control is disabled while one waits (the code review found a second send replacing the
+  // single wait, so the first reply was matched to the wrong ids)
+  if (addWait) { setStatus('Still waiting for the answer to the last send.', 'err'); return; }
+  if (PLANNER) {
+    if (!planner) { setStatus('The planner has not connected yet; try again in a moment.', 'err'); if (bar) { state.retry = true; renderBar(); } return; }
+    window.parent.postMessage(addMessageFor(items, planner), planner.origin);
+  } else window.parent.postMessage(addMessage(items), location.origin);
+  lateWait = null;
+  const w = { ids, bar, missingNote };
+  w.timer = setTimeout(() => {
+    addWait = null; lateWait = w;   // a reply that comes after all is still reconciled (the reply handler)
+    if (bar) state.retry = true;
+    render();
+    setStatus(PLANNER ? 'The planner did not answer, so the labels may not have been added. Check its label list, then Try again.' : 'The Label Studio did not answer, so the labels may not have been added. Check your list there, then Try again.', 'err');
+  }, 5000);
+  addWait = w;
+  render();                 // every send control reads addWait: redraw them all, not only the bar
+  setStatus(PLANNER ? `Adding ${n} to your build…` : `Adding ${n} to your list…`);
+}
+let lateWait = null;        // the last send that timed out: its reply may still come
 function makeLabels() {
   const recs = shownRecords();
   if (!recs.length) return;
@@ -1417,17 +1680,7 @@ function makeLabels() {
   const missing = items.filter((it) => it.value_missing && it.value_missing.length).length;
   const missingNote = missing ? ` ${missing} ${missing === 1 ? 'is' : 'are'} missing a size and will not print until completed.` : '';
   const n = `${items.length} part label${items.length === 1 ? '' : 's'}`;
-  if (EMBED) {
-    if (PLANNER) {
-      if (!planner) { setLabelsStatus('The planner has not connected yet; try again in a moment.', 'err'); return; }
-      window.parent.postMessage(addMessageFor(items, planner), planner.origin);
-    } else window.parent.postMessage(addMessage(items), location.origin);
-    if (addWait) clearTimeout(addWait.timer);
-    addWait = { missingNote, timer: setTimeout(() => { addWait = null;
-      setLabelsStatus(PLANNER ? 'The planner did not answer, so the labels may not have been added. Check its label list.' : 'The Label Studio did not answer, so the labels may not have been added. Check your list there.', 'err'); }, 5000) };
-    setLabelsStatus(PLANNER ? `Adding ${n} to your build…` : `Adding ${n} to your list…`);
-    return;
-  }
+  if (EMBED) { sendItems(items, recs.map((r) => r.id), { bar: false }); return; }
   const doc = { schema: LABEL_ITEMS_SCHEMA, items };
   const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(doc))));
   window.open(LABEL_STUDIO_URL + '#hw=' + encodeURIComponent(b64), '_blank', 'noopener');
@@ -1438,10 +1691,31 @@ if (EMBED) {
   window.addEventListener('message', (e) => {
     const r = PLANNER ? readPlannerReply(e, window, planner) : readReply(e, window);
     if (!r) return;
-    const note = addWait && r.kind === 'added' && r.count ? addWait.missingNote : '';
-    if (addWait) { clearTimeout(addWait.timer); addWait = null; }
+    const w = addWait || lateWait;
+    const note = w && r.kind === 'added' && r.count ? w.missingNote : '';
+    if (w) {
+      clearTimeout(w.timer); addWait = null; lateWait = null;
+      const done = new Set(w.ids);
+      const full = r.kind === 'added' && r.count === w.ids.length && !r.skipped;
+      // the reply carries counts, not row ids (Sol 01a13c2c): "sent" only on a full acknowledgement - and a part sent in full
+      // is no longer held, whichever button sent it (Add all, Save and update; the code review found × then deleting parts
+      // the destination had)
+      if (full) { for (const id of w.ids) state.sent.add(id); state.held = state.held.filter((x) => !done.has(x.id)); }
+      if (w.bar) {
+        // only a FULL acknowledgement releases the batch. A partial one cannot say which part was skipped (counts, not
+        // ids), so all of it stays held for Try again - the destination updates the ones it took in place (Sol 01a13c5f)
+        if (full) state.retry = false;
+        else state.retry = true;   // refused, partly taken, or nothing taken: the batch stays held for Try again
+      }
+      if (!liveHeld().length) state.retry = false;
+      render();
+    }
     const s = replyStatus(r);
-    setLabelsStatus(s.text + note, note ? 'err' : s.cls);
+    const text = !PLANNER ? s.text
+      : r.kind === 'refused' ? `The planner did not add them: ${r.reason || 'it gave no reason'}`
+        : r.skipped && r.count ? `${r.count} added, ${r.skipped} skipped: the planner's list shows which.`
+          : s.text.replace('to your list', 'to your build');
+    setLabelsStatus(text + note, note ? 'err' : s.cls);
   });
 }
 const styleName = (st) => (!st ? 'no colours' : st.preset || 'a scheme from a file');
@@ -1450,6 +1724,12 @@ function applyImport(records, problems, fileStyle, adoptFileStyle) {
   let note = '';
   if (adoptFileStyle) { state.labelStyle = fileStyle; note = ` The list now uses the file's label colours (${styleName(fileStyle)}).`; }
   else if (fileStyle && !sameStyle(fileStyle, state.labelStyle)) note = ` Label colours follow this list's scheme (${styleName(state.labelStyle)}).`;
+  // a row's id is its identity (the planner and the Label Studio update a label in place by it): an imported part whose id
+  // is already on the list gets a new one, or Edit and the destination would mistake one for the other (the stress test:
+  // an exported list imported again doubled every id)
+  const have = new Set(state.records.map((r) => r.id)); let renamed = 0;
+  for (const r of records) { if (have.has(r.id)) { r.id = P.idgen(); renamed++; } have.add(r.id); }
+  if (renamed) note += ` ${renamed} had the id of a part already on the list and got a new one.`;
   state.records.push(...records); state.importReview = null; save(); render();
   setStatus(`Imported ${records.length} part${records.length === 1 ? '' : 's'}.${note}` + (problems.length ? ` ${problems.length} structural problem(s): ${problems[0]}` : ''), problems.length ? 'err' : 'ok');
 }
@@ -1525,7 +1805,7 @@ function labelColoursBox() {
       : c.source === 'override' ? `${c.colour}, SET BY HAND - the legend gives ${c.rule || 'no colour'} here` : `${c.label}${c.pattern === 'dashed' ? ' (dashed)' : ''}`;
     return h('div', { class: `lc-row${c && c.source === 'override' ? ' override' : ''}` }, h('span', { class: 'lw-k' }, SLOT_NAME[slot]), sw, h('span', {}, what), sel);
   });
-  return h('details', { class: 'lw lc' }, h('summary', {}, `Label colours - ${styleName(st)}`), ...rows);
+  return h('details', { class: 'lw lc' }, h('summary', {}, 'Set a colour by hand for this part'), ...rows);
 }
 // "Make it a ..." on an Other part (design review): same record id, so its label and drawer association survive
 function reassignControl(r) {
@@ -1558,25 +1838,62 @@ function legend() {
 }
 function familyTiles() {
   return h('div', { class: 'tiles cols-5 fam' }, [...FAMILIES.values()].map((f) => tile({ g: FAMILY_GLYPH[f.id], img: tileImg(HW.familyPicture(f.id)), label: FAMILY_LABEL[f.id] || f.label, disabled: !D || null,
-    on: f.id === state.family, onClick: () => switchFamily(f.id), disabled: !batching() && f.id !== state.family ? true : null,
+    on: state.chosen && f.id === state.family, onClick: () => chooseFamily(f.id), disabled: !batching() && f.id !== state.family ? true : null,
     title: !batching() && f.id !== state.family ? 'Finish or cancel editing first' : f.label })));
 }
 
+// THE FOCUS ACROSS A RE-RENDER (the stress test, 2026-10-14: a tick, a pick that does not advance, or Add left the keyboard
+// at <body>, 149 keys for one screw): remembered as "the nth control inside the nearest element with an id" and put back
+const FOCUSABLE = 'button, input, select, textarea, summary, [tabindex]';
+function focusKey() {
+  const a = document.activeElement;
+  const host = a && a !== document.body ? a.closest('#builder, #side') : null;
+  if (!host) return null;
+  const near = a.parentElement && a.parentElement.closest('[id]');
+  const scope = near && host.contains(near) ? near : host;
+  return { scope: scope.id, i: [...scope.querySelectorAll(FOCUSABLE)].indexOf(a), tag: a.tagName };
+}
+function restoreFocus(k) {
+  if (!k || (document.activeElement && document.activeElement !== document.body)) return;
+  const scope = $(k.scope); if (!scope) return;
+  const el = [...scope.querySelectorAll(FOCUSABLE)][k.i];
+  if (el && el.tagName === k.tag && !el.disabled) el.focus({ preventScroll: true });
+}
 function render() {
   const t = T();
   const left = $('builder'); const right = $('side');
   const y = window.scrollY;
+  const fk = focusKey();
+  userMoved();              // a re-render follows a change; every status worth keeping is set after it (the stress test: a
+  //                           "Holding M5" outlived Clear all)
   left.innerHTML = ''; right.innerHTML = '';
   if (!batching()) {
     const i = state.records.findIndex((r) => r.id === state.editing);
-    left.append(h('div', { class: 'edit-banner', role: 'status' }, `Editing part ${i + 1} - change any field, then Save part on the right.`,
-      h('button', { type: 'button', class: 'btn sm', onclick: saveEdit }, 'Save part'), h('button', { type: 'button', class: 'btn sm ghost', onclick: cancelEdit }, 'Cancel')));
+    left.append(h('div', { class: 'edit-banner', role: 'status' }, `Editing part ${i + 1} - change any field, then ${primaryText({ mode: MODE, n: 1, editing: true })} in the bar below.`,
+      h('button', { type: 'button', class: 'btn sm ghost', onclick: cancelEdit }, 'Cancel')));
   }
-  if (EMBED && LEGEND) left.append(LEGEND);       // the same element each time, so an open legend stays open
-  left.append(tokenStrip());
-  left.append(sectionEl('family', 1, 'Family', null, familyTiles()));
-  let n = 2;
+  // held parts removed from the list (Remove, Clear all) are no longer held, and nothing held means nothing to Try again
+  // (the code review: a stale retry hid Hold)
+  state.held = liveHeld();
+  if (!state.held.length) state.retry = false;
+  // THE STAGES (the flow refine §3): the strip, then only the current stage's panel
+  const sts = stages();
+  if (!state.chosen) state.stage = 'family';
+  else if (!sts.some((s) => s.id === state.stage)) state.stage = (sts[1] || sts[0]).id;
+  const strip = stageStrip(sts, ready());
+  left.append(strip);
+  if (strip.scrollWidth > strip.clientWidth) {     // a phone: the strip scrolls sideways, the current stage kept in view
+    const c = strip.querySelector('.stg.cur');
+    if (c) strip.scrollLeft = Math.max(0, c.offsetLeft - strip.offsetLeft - 8);
+  }
+  const cur = sts.find((s) => s.id === state.stage);
+  const panel = h('div', { id: 'stage-panel', class: `stage-panel stage-${cur.id}` },
+    h('h2', { id: 'stage-h', class: 'stage-h', tabindex: '-1' }, cur.title, h('span', { class: 'hint' }, stageHint(cur))));
+  left.append(panel);
+  if (cur.id === 'family') panel.append(h('section', { id: 'sec-family', class: 'sec', 'aria-label': 'Family' }, familyTiles()));
+  const n = null;           // the strip numbers the stages; the sections inside one carry their titles only
   for (const entry of PLAN[t.family]) {
+    if (cur.id === 'family' || stageOfKey(planKey(entry)) !== cur.id) continue;
     let el = null;
     if (!Array.isArray(entry)) {                 // the generic entries
       const e = entry;
@@ -1587,7 +1904,7 @@ function render() {
       else if (e.kind === 'grip') el = gripSection(e, n);
       else if (e.kind === 'material') el = materialSection(e.key, n, e.paths);
       else if (e.kind === 'details') el = detailsSection(e, n);
-      if (el) { left.append(el); n++; }
+      if (el) panel.append(el);
       continue;
     }
     const [key, title] = entry;
@@ -1605,22 +1922,103 @@ function render() {
       case 'material': el = materialSection(key, n); break;
       default: break;
     }
-    if (el) { left.append(el); n++; }
+    if (el) panel.append(el);
   }
-  const more = detailSection();
-  if (more) left.append(more);
+  if (cur.id === 'details') { const more = detailSection(); if (more) panel.append(more); }
+  panel.append(stageFoot(sts, cur));
   right.append(summaryCard(), listCard());
+  renderBar();
   window.scrollTo(0, y);
+  restoreFocus(fk);
 }
-// only the right-hand cards (typing in Details must not rebuild - and unfocus - the builder)
+// only the right-hand cards, the strip and the bar (typing in Details must not rebuild - and unfocus - the builder)
 function renderSide() {
   const right = $('side'); const y = right.scrollTop;
   right.innerHTML = ''; right.append(summaryCard(), listCard()); right.scrollTop = y;
+  const strip = document.querySelector('nav.stages');
+  if (strip) strip.replaceWith(stageStrip(stages(), ready()));
+  renderBar();
+}
+// THE BAR (the flow refine §4-5): the one add action, always in view in every mode, with one line beside it - what the
+// last action did, or why the button is waiting (as links to the stage that answers it), or a warning.
+function renderBar() {
+  const bar = $('flowbar'); const act = bar && bar.querySelector('.bar-act'); const line = $('bar-line');
+  if (!bar || !act || !line) return;
+  // the line is ONE element, updated in place and only when its words change: a live region re-inserted with its text is
+  // often not announced, and re-announcing the same words is noise (the code review, 2026-10-14)
+  const setLine = (sig, cls, ...kids) => {
+    if (line.dataset.sig === sig) return;
+    line.dataset.sig = sig; line.className = `bar-line ${cls}`; line.replaceChildren(...kids);
+  };
+  if (!P || !T()) { setLine('loading', '', 'Loading parts…'); return; }
+  const r = ready();
+  const editing = !batching();
+  const held = editing ? [] : liveHeld();
+  // "Try again" only while the failed parts are all that would go; a batch ready beside them makes it an ordinary add
+  const retry = state.retry && held.length > 0 && !r.ready;
+  const connecting = PLANNER && !planner;
+  // the count: what this press sends; while nothing is ready and nothing held, the ticks so far (none: no number at all -
+  // a waiting "Add 1 label" read as if one part were already there)
+  const n = editing ? 1 : !state.chosen ? 0 : r.ready ? previews().length : held.length ? 0 : state.sel.length;
+  const total = (r.ready ? n : 0) + held.length;
+  // one send at a time, and nothing posted before the planner has connected; Save on its own page only saves, so it always may
+  const can = editing ? MODE === 'standalone' || (!connecting && !addWait) : total > 0 && !connecting && !addWait;
+  // the focus, before the slots are redrawn: a button that had it gets it back (the code review: a status change dropped it)
+  const had = bar.contains(document.activeElement) ? document.activeElement : null;
+  const key = had && (had.id || had.getAttribute('data-k'));
+  const kids = [];
+  if (held.length) {
+    const fromHold = state.held.some((x) => x.hold);
+    kids.push(h('span', { class: 'heldchip' }, heldText(held.length),
+      h('button', { type: 'button', class: 'x', 'data-k': 'drop-held', onclick: dropHeld, 'aria-label': fromHold ? 'Drop the held parts (nothing was sent)' : 'Stop holding these parts (they stay on your list)',
+        title: fromHold ? 'Drop the held parts: nothing was sent' : 'Stop holding these parts: they stay on your list' }, '×')));
+  }
+  // the primary is ONE element for the page's life, updated in place: replaced on every render, a click whose mousedown
+  // blurred a field (whose change re-rendered the bar) landed on a dead button (the stress test: Other part's first Add
+  // after typing a name was lost), and a focused Add lost its focus
+  const primary = $('add-parts');
+  primary.textContent = primaryText({ mode: MODE, n, held: held.length, editing, retry });
+  primary.disabled = !can;
+  primary.onclick = editing ? saveEdit : addParts;
+  const more = [];
+  if (editing) more.push(h('button', { type: 'button', class: 'btn ghost', 'data-k': 'cancel-edit', onclick: cancelEdit }, 'Cancel'));
+  else if (MODE !== 'standalone' && r.ready && !retry && !(state.retry && held.length) && !connecting && !addWait) {
+    more.push(h('button', { type: 'button', class: 'btn ghost hold', 'data-k': 'hold', onclick: holdBatch,
+      title: 'Keep these parts here, pick another size or type, then add them all at once' }, HOLD_TEXT));
+  }
+  if (MODE === 'standalone' && !editing) more.push(labelsButton());
+  act.querySelector('.bar-held').replaceChildren(...kids);
+  act.querySelector('.bar-more').replaceChildren(...more);
+  if (key && key !== 'add-parts') { const again = act.querySelector(`#${CSS.escape(key)}, [data-k="${CSS.escape(key)}"]`); if (again && !again.disabled) again.focus({ preventScroll: true }); }
+  // an Add that went (and so waits again) hands the focus to the stage it left open, not to the page
+  if (had === primary && primary.disabled) { const hd = $('stage-h'); if (hd) hd.focus({ preventScroll: true }); }
+  if (barMsg) setLine(`msg:${barMsg.cls}:${barMsg.text}`, barMsg.cls, barMsg.text);
+  else if (connecting) setLine('connecting', '', 'Connecting to the planner…');
+  else if (!editing && !r.ready && r.missing.length) {
+    const lead = held.length ? `${heldText(held.length)}. To add this one too: ` : '';
+    const kidsLine = lead ? [lead] : [];
+    r.missing.forEach((m, i) => {
+      if (i) kidsLine.push(' · ');
+      kidsLine.push(h('button', { type: 'button', class: 'linkish', 'data-k': `reason-${m.stage}`, onclick: () => goStage(m.stage) }, m.text));
+    });
+    setLine(`missing:${lead}${r.missing.map((m) => m.text).join('|')}`, '', ...kidsLine);
+  } else if (r.warn.length) setLine(`warn:${r.warn.join('|')}`, 'warn', r.warn.join('. ') + '.');
+  else setLine('', '');
 }
 
 async function main() {
-  LEGEND = legend();
-  if (!EMBED) $('header-extra').append(LEGEND);
+  LEGEND = legend();         // it lives in Part details now (the flow refine §6), in every mode
+  // the bar, pinned in every mode, and a polite live region for the stage changes (the flow refine §3-4)
+  const bar = h('div', { id: 'flowbar', class: 'flowbar', role: 'region', 'aria-label': 'Add parts' },
+    h('div', { class: 'bar-act' }, h('span', { class: 'bar-held' }), h('button', { type: 'button', id: 'add-parts', class: 'btn primary', disabled: true }, 'Add'),
+      h('span', { class: 'bar-more' })),
+    h('div', { id: 'bar-line', class: 'bar-line', role: 'status', 'aria-live': 'polite' }));
+  document.body.append(bar, h('div', { id: 'flow-live', class: 'sr-only', 'aria-live': 'polite' }));
+  // the page keeps the bar's MEASURED height free below it (a wrapped bar outgrew the old fixed 76 px; Sol 01a13c2c)
+  const fit = () => document.documentElement.style.setProperty('--bar-h', `${bar.offsetHeight}px`);
+  if (typeof ResizeObserver === 'function') new ResizeObserver(fit).observe(bar);
+  renderBar(); fit();
+  $('builder').textContent = 'Loading parts…';
   // Feedback & support (design review 2026-10-10): the shared MODULITH dialog. Not when embedded - the Label Studio around it has its own
   if (!EMBED && !$('feedback-btn')) $('header-extra').append(h('button', { type: 'button', id: 'feedback-btn', class: 'btn sm ghost', 'aria-haspopup': 'dialog',
     onclick: () => (window.MODULITHFeedback ? window.MODULITHFeedback.open({ tool: 'Part Picker' })
@@ -1642,6 +2040,13 @@ async function main() {
   restore();
   if (!state.template || state.template.id !== 'template') state.template = P.newRecord(state.family, { id: 'template' });
   state.section = planKey(PLAN[state.family][0]);
+  // where to start: a first visit asks for the family; a returning one opens the first stage still owing an answer, else
+  // the batch stage (another length of the same screw is the likeliest next thing)
+  if (state.chosen) {
+    const m = ready().missing.filter((x) => x.stage !== 'family');
+    const sts = stages();
+    state.stage = typeNeeded() ? 'type' : m.length ? m[0].stage : (sts.find((s) => s.multi) || sts[1] || sts[0]).id;
+  }
   render();
   window.__PICKER__ = { P, D, state, render }; // dev console and browser checks
 }

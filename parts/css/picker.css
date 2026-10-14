@@ -43,12 +43,26 @@ header.top .spacer { flex: 1; }
 html.embed-pending header.top, html.embed header.top { display: none; }
 .embed-legend { align-self: flex-start; }
 html.embed .layout { padding-top: 14px; }
-/* inside the Label Studio: Add part labels in a bar pinned to the bottom of the panel (end-to-end check 2026-10-10) */
-html.embed body { padding-bottom: 76px; }
-html.embed .embed-addbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px;
+/* THE BAR (2026-10-14, the flow refine §4): the one add action pinned to the bottom in EVERY mode (it was the Label Studio's
+   alone since 2026-10-10). The page keeps its MEASURED height free (--bar-h, set by a ResizeObserver), so a bar that wraps
+   on a phone or at 200 % zoom never covers a choice or a focused control. */
+body { padding-bottom: calc(var(--bar-h, 76px) + 8px); }
+html { scroll-padding-bottom: calc(var(--bar-h, 76px) + 8px); scroll-padding-top: 76px; }
+.flowbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
   padding: 10px 16px; background: var(--panel); border-top: 1px solid var(--line-2); box-shadow: 0 -6px 18px rgba(0,0,0,.18); }
-html.embed .embed-addbar .btn.primary { min-height: 44px; padding: 4px 20px; font-size: 15px; }
-html.embed .embed-addbar .status { margin: 0; flex: 1 1 220px; min-width: 0; }
+.flowbar .bar-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.flowbar .bar-held, .flowbar .bar-more { display: contents; }
+.flowbar .btn.primary { min-height: 44px; padding: 4px 20px; font-size: 15px; }
+.flowbar .bar-line { flex: 1 1 260px; min-width: 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.flowbar .bar-line.ok { color: var(--ok); }
+.flowbar .bar-line.err { color: var(--danger); }
+.flowbar .bar-line.warn { color: var(--sugg); }
+.linkish { background: none; border: 0; padding: 0; color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; font-size: inherit; }
+.heldchip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 10px; border: 1px solid var(--accent); border-radius: 999px;
+  color: var(--accent-ink); font-size: 13px; font-weight: 600; }
+.heldchip .x { min-width: 28px; min-height: 28px; border: 0; background: transparent; color: var(--accent-ink); font-size: 16px; border-radius: 50%; }
+.heldchip .x:hover { background: var(--accent-bg); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 /* in an embed (the Studio's sheet, the planner's modal) the summary column flows with the page: sticky with its own
    scroll, its bottom sat under the pinned bar and the wheel scrolled the column or the page by where the pointer was
    (Joey's hands-on pass, 2026-10-14: "a scroll within a scroll") */
@@ -57,7 +71,11 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .layout { display: flex; flex-wrap: wrap; gap: 28px; padding: 20px 28px 60px; max-width: 1500px; }
 #builder { flex: 999 1 660px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
 #side { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 16px; align-self: flex-start; position: sticky; top: 12px;
-  max-height: calc(100vh - 24px); overflow-y: auto; }
+  max-height: calc(100vh - 24px - var(--bar-h, 0px)); overflow-y: auto; }
+/* ...and on its own page whenever the summary column has wrapped under the builder (the two columns need 660 + 380 + the
+   gap and padding, 1124 px): a column below the builder with its own scroll was the same scroll within a scroll (seen in
+   the flow refine's stress test, 2026-10-14, at 800 px). AFTER the rule above, which would win otherwise (Sol 01a13c5f) */
+@media (max-width: 1124px) { #side { position: static; max-height: none; overflow: visible; } }
 
 /* status words: a mark AND the word, always together */
 .st { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink); white-space: nowrap; cursor: help;
@@ -71,25 +89,34 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .st-unknown .mk { border-radius: 50%; border: 2px dashed var(--unknown); }
 .st .tier { color: var(--muted); font-size: 11px; }
 
-/* summary strip: C's tokens in a tidy grid, used as navigation */
-.tokens { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; background: var(--panel);
-  border: 1px solid var(--line-2); border-radius: 14px; padding: 10px; position: sticky; top: 0; z-index: 3; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
-.tok { display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line-2);
-  background: var(--well); text-align: left; }
-.tok .tg { color: var(--ink); display: inline-flex; width: 28px; justify-content: center; flex: none; }
-.tok .tg.blank { height: 28px; }
-.tok .tk { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; flex: 1; }
-.tok .tk-k { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
-.tok .tk-v { font-family: var(--mono); font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tok.empty .tk-v { color: var(--muted); }
-.tok .st { font-size: 11px; padding: 0 6px 0 4px; align-self: flex-start; margin-top: 3px; }
-.tok:hover { border-color: var(--muted); }
-.tok.editing { border: 2px solid var(--accent); background: var(--accent-bg); }
-.tok.editing .tk-edit { color: var(--accent-ink); letter-spacing: 0; }
-.tok.editing .tg { color: var(--accent-ink); }
+/* THE STAGE STRIP (2026-10-14, the flow refine §3; it replaced C's token grid): one button per stage with its value so far,
+   sticky at the top; navigation and progress, never a gate */
+.stages { display: flex; gap: 6px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 14px; padding: 6px;
+  position: sticky; top: 0; z-index: 3; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
+.stg { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 10px; border-radius: 10px;
+  border: 1px solid transparent; background: transparent; text-align: left; }
+.stg:hover { border-color: var(--line-2); background: var(--well); }
+.stg .stg-n { flex: none; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; border: 1px solid var(--line-2); color: var(--muted); }
+.stg .stg-tx { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.stg .stg-t { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.stg .stg-v { font-family: var(--mono); font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.stg.done .stg-v { color: var(--text); }
+.stg.done .stg-n { color: var(--ok); border-color: var(--ok); }
+.stg.need .stg-v { color: var(--accent-ink); font-family: var(--sans); }
+.stg.cur { border: 2px solid var(--accent); background: var(--accent-bg); }
+.stg.cur .stg-t { color: var(--accent-ink); }
+.stage-panel { display: flex; flex-direction: column; gap: 6px; scroll-margin-top: 76px; }
+.stage-h { margin: 6px 0 0; font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.stage-h:focus { outline: none; }
+.stage-h:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 4px; }
+.stage-h .hint { font-family: var(--sans); font-weight: 400; font-size: 14px; color: var(--muted); }
+.stage-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 6px 16px 0; }
+.note.unlock { color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 10px; }
+.welcome { color: var(--ink); line-height: 1.5; margin: 0; }
 
 /* sections */
-.sec { border-radius: 14px; padding: 14px 16px 16px; border: 1px solid transparent; scroll-margin-top: 140px; }
+.sec { border-radius: 14px; padding: 14px 16px 16px; border: 1px solid transparent; scroll-margin-top: 76px; }
 .sec.editing { border-color: var(--line-2); background: rgba(255,255,255,0.015); }
 .sec h3 { margin: 0 0 12px; font-family: var(--display); font-weight: 500; font-size: 13px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase;
   display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -272,7 +299,20 @@ details.lw summary { cursor: pointer; }
 @media (max-width: 760px) {
   header.top, .layout { padding-left: 16px; padding-right: 16px; }
   #side { position: static; max-height: none; }
-  .tokens { position: static; }
+  /* the strip: one row that scrolls sideways, the current stage kept in view (ui.js scrolls it there) */
+  .stages { overflow-x: auto; scrollbar-width: none; }
+  .stages::-webkit-scrollbar { display: none; }
+  .stg { flex: 0 0 auto; max-width: 62vw; min-height: 46px; padding: 4px 8px; }
+  .stage-h { font-size: 19px; }
+  /* the family grid: three small tiles a row, not one large one */
+  .tiles.fam, .tiles.cols-5.fam:has(.has-img) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tiles.fam .tile { min-height: 0; padding: 6px 4px; }
+  .tiles.fam .tile .timg { width: 100%; height: auto; aspect-ratio: 1; }
+  .tiles.fam .tile .tl { font-size: 12px; }
+  .sec { padding: 10px 4px 12px; }
+  .flowbar { padding: 8px 12px; }
+  .flowbar .bar-act { width: 100%; }
+  .flowbar .btn.primary { flex: 1 1 auto; }
   .mat-row, .det { grid-template-columns: 1fr; }
   .mat-row .custom-row { grid-column: 1; }
   .mat-lab { padding-top: 0; }
@@ -309,5 +349,18 @@ details.lc .lc-row.override span:nth-child(3) { color: var(--sugg); font-weight:
 /* the scheme names are long: the control shrinks with the list column instead of making it scroll sideways */
 .label-style-ctl { max-width: 100%; min-width: 0; }
 select.label-style { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+/* PART DETAILS, the colour line and List tools (2026-10-14, the flow refine §6): the expert's reading, one disclosure each */
+details.pd { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+details.pd > summary, details.ltools > summary, details.lcol > summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+details.pd > summary .muted, details.ltools > summary .muted, details.lcol > summary .muted { font-weight: 400; font-size: 12px; }
+details.pd .legend { margin-top: 10px; }
+details.pd .legend .lg-row { width: auto; }
+details.lcol { margin: 10px 0 4px; font-size: 13px; }
+details.lcol > summary { font-weight: 400; font-size: 13px; color: var(--ink); }
+details.lcol .lc-hint { margin: 8px 0; line-height: 1.45; }
+details.ltools { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.lrow .lmark { margin-left: 8px; font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .5px; padding: 1px 7px; border-radius: 999px; vertical-align: 2px; }
+.lrow .lmark.sent { color: var(--ok); border: 1px solid var(--ok); }
+.lrow .lmark.held { color: var(--accent-ink); border: 1px solid var(--accent); }
 .import-review { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--sugg); border-radius: 8px; font-size: 13px; }
 .import-review ul { margin: 6px 0 10px; padding-left: 18px; max-height: 220px; overflow: auto; }
