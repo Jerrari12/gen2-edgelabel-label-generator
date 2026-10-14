@@ -41,9 +41,12 @@ function readAdd(e, frameWin, origin) {
   if (!d || typeof d !== 'object' || typeof d[KEY] !== 'string') return null;
   if (!frameWin || e.source !== frameWin || e.origin !== origin) return null;   // only the sheet's own frame, this site
   if (d[KEY] !== 'add' || d.v !== V) return null;
-  if (!Array.isArray(d.items) || !d.items.length) return { refused: 'There were no part labels in it.' };
-  if (d.items.length > MAX_ITEMS) return { refused: `The Label Studio takes up to ${MAX_ITEMS} part labels at once; that was ${d.items.length}.` };
-  return { items: d.items };
+  // the batch id the Picker minted for this send (its flow refine, 2026-10-14): echoed on the reply, so a late reply to a
+  // timed-out send is never credited to the next one; an older Picker sends none and gets none
+  const batch = typeof d.batch === 'string' && /^[A-Za-z0-9_-]{8,64}$/.test(d.batch) ? d.batch : undefined;
+  if (!Array.isArray(d.items) || !d.items.length) return { refused: 'There were no part labels in it.', batch };
+  if (d.items.length > MAX_ITEMS) return { refused: `The Label Studio takes up to ${MAX_ITEMS} part labels at once; that was ${d.items.length}.`, batch };
+  return { items: d.items, batch };
 }
 
 function planAdd(rowIds, items) {

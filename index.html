@@ -811,7 +811,7 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
 <script src="modulith-feedback.js?v=c90fd913"></script>
 <script src="label-stripes.js?v=4b6e5cc5"></script>
 <script src="label-link.js?v=39375dab"></script>
-<script src="part-picker-link.js?v=2e4b8128"></script>
+<script src="part-picker-link.js?v=a60e0dce"></script>
 <!-- the shared label-list format (the planner's vendored copy is this file): the plate's snapshot is read through it -->
 <script src="label-list.js?v=a8667353"></script>
 <script src="plate-link.js?v=1126764c"></script>
@@ -1520,7 +1520,9 @@ window.addEventListener('message', (e) => {
   if (!PPL || !partsFrame) return;
   const m = PPL.readAdd(e, partsFrame.contentWindow, location.origin);
   if (!m) return;
-  const reply = (msg) => { try { e.source.postMessage(msg, location.origin); } catch (err) { /* the frame went away */ } };
+  // the batch id the Picker minted for this send rides back on the reply (its flow refine: a late reply is never credited to
+  // the next send); an older Picker sends none and gets none
+  const reply = (msg) => { try { e.source.postMessage(m.batch ? { ...msg, batch: m.batch } : msg, location.origin); } catch (err) { /* the frame went away */ } };
   const why = m.refused || partsBlockedReason();
   if (why) { reply(PPL.refused(why)); return; }
   const r = addPartItems(m.items);
