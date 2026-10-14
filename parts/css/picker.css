@@ -53,6 +53,10 @@ html { scroll-padding-bottom: calc(var(--bar-h, 76px) + 8px); scroll-padding-top
 .flowbar .bar-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .flowbar .bar-held, .flowbar .bar-more { display: contents; }
 .flowbar .btn.primary { min-height: 44px; padding: 4px 20px; font-size: 15px; }
+/* a primary that cannot act looks it: no fill, grey (Astra, 2026-10-14: a disabled orange "Add to the list" outshone the
+   live "Make labels (3)") */
+.flowbar .btn.primary:disabled { background: transparent; border-color: var(--line-2); color: var(--muted); opacity: 1; }
+.flowbar .btn { min-height: 44px; }
 .flowbar .bar-line { flex: 1 1 260px; min-width: 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
 .flowbar .bar-line.ok { color: var(--ok); }
 .flowbar .bar-line.err { color: var(--danger); }
@@ -106,7 +110,7 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .stg.need .stg-v { color: var(--accent-ink); font-family: var(--sans); }
 .stg.cur { border: 2px solid var(--accent); background: var(--accent-bg); }
 .stg.cur .stg-t { color: var(--accent-ink); }
-.stage-panel { display: flex; flex-direction: column; gap: 6px; scroll-margin-top: 76px; }
+.stage-panel { display: flex; flex-direction: column; gap: 6px; scroll-margin-top: 88px; }
 .stage-h { margin: 6px 0 0; font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .stage-h:focus { outline: none; }
 .stage-h:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 4px; }

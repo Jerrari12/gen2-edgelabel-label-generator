@@ -24,6 +24,11 @@
 //                       { gen2parts: 'add', v: 1, session, items } the parts, posted to the bound origin only
 //   Planner -> Picker   the same 'added' / 'refused' replies as the Studio's, carrying the session, read only from
 //                       window.parent at the bound origin with the bound session.
+//
+// THE BATCH (2026-10-14, both embeds): every 'add' also carries `batch` (8 to 64 of [A-Za-z0-9_-], new per send, a retry
+// included). The Studio and the planner echo it verbatim on 'added' and 'refused'. The page credits a reply to its
+// pending send ONLY when the batch matches (creditsPending); a reply without one, or for a send that timed out (its id
+// is retired), changes nothing. Deploy order: the echo goes live before a Picker that waits for it.
 
 export const PARTS_KEY = 'gen2parts';
 export const PARTS_V = 1;
@@ -67,7 +72,7 @@ export function readHello(e, win) {
   return { origin: e.origin, session: d.session };
 }
 export const readyMessage = (link) => ({ [PARTS_KEY]: 'ready', v: PARTS_V, session: link.session });
-export const addMessageFor = (items, link) => ({ [PARTS_KEY]: 'add', v: PARTS_V, session: link.session, items });
+export const addMessageFor = (items, link, batch) => ({ [PARTS_KEY]: 'add', v: PARTS_V, session: link.session, items, ...(batch ? { batch } : {}) });
 // a reply from the bound planner: the same bodies as the Studio's replies, from window.parent at the bound origin with the bound session
 export function readPlannerReply(e, win, link) {
   if (!link || !e || e.source !== win.parent || e.origin !== link.origin) return null;
@@ -84,7 +89,21 @@ export function labelStudioUrl(loc) {
   return new URL('../', loc.href).href;
 }
 
-export const addMessage = (items) => ({ [PARTS_KEY]: 'add', v: PARTS_V, items });
+export const addMessage = (items, batch) => ({ [PARTS_KEY]: 'add', v: PARTS_V, items, ...(batch ? { batch } : {}) });
+
+// THE BATCH (2026-10-14, Astra via the planner session: a late reply credited to a later send could falsely confirm
+// labels). Every add carries `batch`, new per send (a retry is a new send); the planner and the Label Studio echo it
+// verbatim on 'added' and 'refused'. The page credits a reply to its pending send ONLY when the two are equal: a reply
+// without one, or with a retired one (the send timed out), changes nothing.
+export const BATCH_RE = /^[A-Za-z0-9_-]{8,64}$/;
+export function newBatch() {
+  const a = new Uint8Array(12);
+  if (globalThis.crypto && typeof globalThis.crypto.getRandomValues === 'function') globalThis.crypto.getRandomValues(a);
+  else for (let i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256);
+  return 'b' + [...a].map((x) => x.toString(16).padStart(2, '0')).join('');   // 25 characters, inside BATCH_RE
+}
+// does this reply answer the send that is pending? pending = { batch, ... } | null; reply from readReply/readPlannerReply
+export const creditsPending = (pending, reply) => !!(pending && reply && typeof reply.batch === 'string' && reply.batch === pending.batch);
 
 // why the Label Studio would refuse this item, in plain words; null when it takes it. Every condition of the Studio's
 // own check (index.html hardwareItems(), its good()), so a part it would refuse is named here and the batch is not sent.
@@ -124,16 +143,18 @@ export function readReply(e, win) {
 function readReplyBody(d) {
   if (!d || typeof d !== 'object' || d.v !== PARTS_V) return null;
   const n = (x) => (Number.isInteger(x) && x >= 0 ? x : null);
+  // the echoed batch, when well-formed (anything else reads as none, and then the reply credits no send)
+  const b = typeof d.batch === 'string' && BATCH_RE.test(d.batch) ? { batch: d.batch } : {};
   if (d[PARTS_KEY] === 'added') {
     const count = n(d.count);
     if (count === null) return null;
     // skipped is a number; a list of what was skipped is counted the same way
     const skipped = Array.isArray(d.skipped) ? d.skipped.length : n(d.skipped) || 0;
-    return { kind: 'added', count, skipped };
+    return { kind: 'added', count, skipped, ...b };
   }
   if (d[PARTS_KEY] === 'refused') {
     const reason = typeof d.reason === 'string' ? d.reason.trim().slice(0, 300) : '';
-    return { kind: 'refused', reason };
+    return { kind: 'refused', reason, ...b };
   }
   return null;
 }

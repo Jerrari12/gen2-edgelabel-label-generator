@@ -130,8 +130,10 @@ export function primaryText({ mode, n, held = 0, editing = false, retry = false 
   if (mode === 'studio') return retry ? `Try again: add ${partLabels(total)}` : total ? `Add ${partLabels(total)}` : 'Add part labels';
   return total ? `Add ${parts(total)} to the list` : 'Add to the list';
 }
-export const HOLD_TEXT = 'Hold, pick more';
-export const heldText = (n) => `${n} held`;
+// the wording Joey and Astra chose (2026-10-14): "Pick more first" promises nothing about where it goes and keeps "Add" on
+// the one orange button; the parts it keeps are "pending" (not held, not waiting)
+export const HOLD_TEXT = 'Pick more first';
+export const heldText = (n) => `${n} ${n === 1 ? 'part' : 'parts'} pending`;
 // List tools' "send every shown part" (the old Make labels button, id make-labels) inside the embeds
 export function addAllText(n, mode) {
   return mode === 'planner' ? (n ? `Add all ${n} to the planner` : 'Add all to the planner') : (n ? `Add all ${partLabels(n)}` : 'Add all part labels');
