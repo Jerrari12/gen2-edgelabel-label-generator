@@ -30,7 +30,12 @@
 
 const KEY = 'gen2plate';
 const V = 1;
-const CAPS = Object.freeze(['snapshot/1', 'select/1']);
+const CAPS = Object.freeze(['snapshot/1', 'select/1', 'setting/1']);
+/* the print preference the planner carries in the document's output bag, under this page's input ids: where the stripe
+   goes (or off) and whether screws and nuts are drawn. A printer's choice, so the planner keeps it per browser and this
+   page's own inputs change it back (`setting`). Anything else in `output` is the Studio's own and is left alone here. */
+const OUTPUT_OK = Object.freeze({ 'hw-band': (v) => ['bottom', 'end', 'wedge', 'off'].includes(v), 'hw-profile': (v) => typeof v === 'boolean' });
+const OUTPUT_DEFAULTS = Object.freeze({ 'hw-band': 'bottom', 'hw-profile': true });
 // the planners that may embed this page: pinned equal to label-link.js's PLANNER_ORIGINS by the test; never a GitHub Pages
 // origin, which would admit every Pages site of an account
 const PLANNER_ORIGINS = Object.freeze(['https://gen2planner.jerrari3d.com', 'https://planner.modulith.systems']);
@@ -101,8 +106,15 @@ function readSnapshot(d, LL) {
     }
   }
   const selected = typeof d.selected === 'string' && ID_RE.test(d.selected) && doc.labels.some((l) => l.id === d.selected) ? d.selected : null;
-  return { ok: true, snap: { buildId: d.buildId, rev: d.rev, type, labels: doc.labels, style: doc.style || null, drawers, selected, reason: null } };
+  const output = {};
+  if (isObj(doc.output)) for (const [id, ok] of Object.entries(OUTPUT_OK)) if (id in doc.output && ok(doc.output[id])) output[id] = doc.output[id];
+  return { ok: true, snap: { buildId: d.buildId, rev: d.rev, type, labels: doc.labels, style: doc.style || null, output, drawers, selected, reason: null } };
 }
+/* the print inputs a snapshot sets: the planner's where it sent them, the defaults where it did not (a value a previous
+   snapshot carried must not outlive it) */
+const outputSettings = (snap) => Object.assign({}, OUTPUT_DEFAULTS, snap && snap.output ? snap.output : {});
+/* a print input the visitor changed on this page, for the planner: honoured there for the snapshot's build at its rev */
+const settingMessage = (bind, id, value, snap) => ({ [KEY]: 'setting', v: V, session: bind.session, id, value, rev: snap ? snap.rev : -1, buildId: snap ? snap.buildId : null });
 /* `select` from the planner: { id } (null for none), or null for anything else - including one for another build than the
    snapshot on screen (messages arrive in order, so this is belt and braces - Sol 01a13a10) */
 function readSelect(d, snap) {
@@ -135,6 +147,7 @@ function styleSettings(style) {
   return out;
 }
 
-return { KEY, V, CAPS, PLANNER_ORIGINS, LOOPBACK_ORIGIN, SESSION_RE, ID_RE, LABELS_MAX, JSON_MAX, STYLE_INPUT,
-  plannerAsked, originAllowed, readHello, fromPlanner, readyMessage, selectedMessage, readSnapshot, readSelect, rowPlan, styleSettings };
+return { KEY, V, CAPS, PLANNER_ORIGINS, LOOPBACK_ORIGIN, SESSION_RE, ID_RE, LABELS_MAX, JSON_MAX, STYLE_INPUT, OUTPUT_DEFAULTS,
+  plannerAsked, originAllowed, readHello, fromPlanner, readyMessage, selectedMessage, readSnapshot, readSelect, rowPlan, styleSettings,
+  outputSettings, settingMessage };
 });
