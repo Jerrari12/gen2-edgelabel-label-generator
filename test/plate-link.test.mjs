@@ -53,7 +53,7 @@ test('after the hello only the bound window at the bound origin with the bound s
   assert.equal(P.fromPlanner(ev(body, { origin: 'https://gen2planner.jerrari3d.com' }), w, bind), null, 'another listed origin is not the bound one');
   assert.equal(P.fromPlanner(ev({ ...body, session: 'anothersession12' }), w, bind), null);
   assert.equal(P.fromPlanner(ev(body), w, null), null, 'nothing before the hello');
-  assert.deepEqual(P.readyMessage(bind), { gen2plate: 'ready', v: 1, session: SESSION, caps: ['snapshot/1', 'select/1'] });
+  assert.deepEqual(P.readyMessage(bind), { gen2plate: 'ready', v: 1, session: SESSION, caps: ['snapshot/1', 'select/1', 'setting/1'] });
 });
 
 test('a snapshot is checked: ids, the rev, the type, the document through label-list.js, the drawers, the selection', () => {
@@ -105,6 +105,20 @@ test('the row plan: a part label is a hardware row from its record, a typed labe
   assert.equal(rows[3].badge, null); assert.equal(rows[3].manual, false, 'no badge in the list: predict here'); assert.deepEqual(rows[3].drawers, []);
   assert.equal(rows[4].badge.type, 'icon'); assert.match(rows[4].badge.svg, /^<svg/);
   assert.deepEqual(rows.map((x) => x.id), [ID('h'), ID('n'), ID('b'), ID('p'), ID('u')]);
+});
+
+test('the print preference: read from the document\'s output under this page\'s input ids, defaults where absent; a change here goes back as setting', () => {
+  assert.ok(P.CAPS.includes('setting/1'));
+  const r = P.readSnapshot(snap({ doc: { ...doc([label('Screws')]), output: { 'hw-band': 'off', 'hw-profile': false, 'bed-preset': 'mk4', 'hw-extra': 1 } } }), LL);
+  assert.ok(r.ok, r.reason);
+  assert.deepEqual(r.snap.output, { 'hw-band': 'off', 'hw-profile': false }, 'only the two print inputs; the Studio\'s own printer prefs are not the planner\'s to set');
+  assert.deepEqual(P.outputSettings(r.snap), { 'hw-band': 'off', 'hw-profile': false });
+  const r2 = P.readSnapshot(snap({ doc: { ...doc([label('Screws')]), output: { 'hw-band': 'diagonal', 'hw-profile': 'yes' } } }), LL);
+  assert.deepEqual(r2.snap.output, {}, 'bad values dropped');
+  assert.deepEqual(P.outputSettings(r2.snap), { 'hw-band': 'bottom', 'hw-profile': true }, 'the defaults where the planner sent nothing usable');
+  assert.deepEqual(P.outputSettings(P.readSnapshot(snap(), LL).snap), { 'hw-band': 'bottom', 'hw-profile': true }, 'no output bag at all');
+  const bind = { origin: PLANNER, session: SESSION };
+  assert.deepEqual(P.settingMessage(bind, 'hw-band', 'end', { rev: 3, buildId: ID('b') }), { gen2plate: 'setting', v: 1, session: SESSION, id: 'hw-band', value: 'end', rev: 3, buildId: ID('b') });
 });
 
 test('style settings: the six label settings as the page\'s input ids; nothing else, nothing missing invented', () => {

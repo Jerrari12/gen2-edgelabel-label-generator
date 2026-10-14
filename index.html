@@ -814,7 +814,7 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
 <script src="part-picker-link.js?v=2e4b8128"></script>
 <!-- the shared label-list format (the planner's vendored copy is this file): the plate's snapshot is read through it -->
 <script src="label-list.js?v=a8667353"></script>
-<script src="plate-link.js?v=28c50bb4"></script>
+<script src="plate-link.js?v=1126764c"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
 class MiniOrbit {
@@ -1539,6 +1539,18 @@ function bootEmbed() {
   setStatus('Waiting for the planner…');
   // the type and the six label settings are the planner's (its faceplate, its Label settings): shown, not edited here
   ['label-type', 'font-size', 'text-depth', 'badge-size', 'bold-text', 'all-caps', 'predict-icons'].forEach(id => { const el = gid(id); if (el) el.disabled = true; });
+  // the stripe and the drawings stay live: a printer's choice the planner keeps per browser; a change here goes back to it
+  // (applySettings dispatches change on apply too: only a value that differs from the applied one is a visitor's change)
+  ['hw-band', 'hw-profile'].forEach(id => {
+    const el = gid(id); if (!el) return;
+    el.addEventListener('change', () => {
+      if (!EMBED.bind || !EMBED.snap || !EMBED.applied) return;
+      const value = id === 'hw-profile' ? !!el.checked : el.value;
+      if (EMBED.applied[id] === value) return;
+      EMBED.applied[id] = value;
+      plateSend(PLATE.settingMessage(EMBED.bind, id, value, EMBED.snap));
+    });
+  });
   window.addEventListener('message', onPlannerMessage);
   gid('labels').addEventListener('click', (e) => {   // a row clicked here is the selected label in the planner too
     if (!EMBED.bind || !EMBED.snap) return;
@@ -1597,7 +1609,8 @@ function applySnapshot(d) {
   if (snap.type) setLabelType(snap.type, { remember: false });
   // the six label settings: the planner's where it set them, the defaults where it did not (a setting a previous snapshot
   // carried must not outlive it)
-  applySettings(Object.assign(PLATE.styleSettings((LINK && LINK.STYLE_DEFAULTS) || { capMm: 5, depth: 0.6, badgeSize: 14, bold: false, allCaps: true, predictIcons: true }), PLATE.styleSettings(snap.style)));
+  EMBED.applied = PLATE.outputSettings(snap);   // before applySettings: its change events must not read as the visitor's
+  applySettings(Object.assign(PLATE.styleSettings((LINK && LINK.STYLE_DEFAULTS) || { capMm: 5, depth: 0.6, badgeSize: 14, bold: false, allCaps: true, predictIcons: true }), PLATE.styleSettings(snap.style), EMBED.applied));
   rebuild();
   if (snap.reason) { gid('download').disabled = true; setStatus(snap.reason, 'err'); }
   else {
