@@ -48,7 +48,7 @@ if (PLANNER) {
     if (!h || planner) return;   // the first hello that passes binds the session; a second one is not a new planner
     planner = h;
     try { e.source.postMessage(readyMessage(planner), planner.origin); } catch { /* the parent went away */ }
-    render();
+    if (state.template) render();   // the hello can arrive before the data is in; the first render then enables the button itself
   });
 }
 function h(tag, attrs = {}, ...kids) {
