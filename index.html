@@ -121,6 +121,11 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
   .row .hw-note { flex-basis: 100%; min-width: 0; margin: -2px 0 2px 45px; font-size: 11.5px; line-height: 1.35; color: var(--muted);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .row .hw-note.bad { color: var(--bad-text); white-space: normal; }
+  /* a typed label that will not print right (too long for the label, characters the font lacks): the reason, under it */
+  .row.warned { flex-wrap: wrap; }
+  .row.warned input[type="text"] { min-width: 0; }
+  .row .row-warn { flex-basis: 100%; min-width: 0; margin: -2px 0 2px 45px; font-size: 11.5px; line-height: 1.35; color: var(--bad-text); }
+  .row.too-long input.label-text { border-color: var(--bad); }
   .row.dragging { opacity: 0.45; }
   /* Bulk selection bar + actions */
   .labels-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
@@ -1125,6 +1130,10 @@ function fitCamera() {
   const dist = Math.max(f.span * 1.75 + 50, (f.w / 2) * 1.12 / (t * Math.max(0.1, camera.aspect)));
   camera.position.set(0, -dist * 0.28, dist * 0.95);
   controls.maxDistance = Math.max(500, dist * 1.5);
+  // the far plane follows the camera out: fixed at 2000, five plates and up (65+ labels) sat past it and the preview went
+  // blank (the stress test, 2026-10-15). Room for the farthest zoom plus the whole row of plates behind the target.
+  const far = Math.max(2000, controls.maxDistance + f.span * 2);
+  if (camera.far !== far) { camera.far = far; camera.updateProjectionMatrix(); }
   controls.setTarget(new THREE.Vector3(0, 0, 0));
 }
 
@@ -1180,10 +1189,48 @@ function loadFont() {
 //============================================================
 // Scene rebuild
 //============================================================
-function getBadgeSize() {
-  const el = document.getElementById('badge-size');
-  const v = el ? parseFloat(el.value) : 14;
-  return isNaN(v) ? 14 : v;
+function getBadgeSize() { return numSetting('badge-size', 14); }
+
+// A number setting as it is USED (the stress test, 2026-10-15: an empty Text height wrote NaN into the print file, a
+// depth of 0 or 5 printed as typed, and a plate width of 10 showed 10 while 250 was used - each reported as Ready). An
+// empty or unreadable field takes its default (the value it ships with); a value outside the field's own min / max is
+// held to the nearest end (floor: a higher minimum - a plate must hold one label); and the note under its row says
+// which, so what the field shows and what prints never disagree in silence.
+const NUM_NAME = { 'font-size': 'Text height', 'text-depth': 'Text depth', 'badge-size': 'Icon size', 'bed-w': 'Plate width', 'bed-l': 'Plate length', 'purge-w': 'Purge width', 'purge-l': 'Purge length' };
+const numNotes = new Map();   // key -> { id: the input whose row shows it, text }
+function numSetting(id, fallback, floor = -Infinity) {
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+  const min = parseFloat(el.min), max = parseFloat(el.max), def = parseFloat(el.defaultValue);
+  const lo = Math.max(isFinite(min) ? min : -Infinity, floor), hi = isFinite(max) ? max : Infinity;
+  const raw = String(el.value).trim() === '' ? NaN : Number(el.value);
+  const mm = (v) => `${+v.toFixed(2)} mm`;
+  let v = raw, text = '';
+  if (!isFinite(raw)) { v = isFinite(def) ? def : fallback; text = `${NUM_NAME[id]} is empty: using ${mm(v)}.`; }
+  else if (raw < lo) { v = lo; text = lo === floor && !(min >= floor) ? `${NUM_NAME[id]} ${mm(raw)} cannot hold a label: using ${mm(v)}.` : `${NUM_NAME[id]} goes down to ${mm(lo)}: using ${mm(v)}.`; }
+  else if (raw > hi) { v = hi; text = `${NUM_NAME[id]} goes up to ${mm(hi)}: using ${mm(v)}.`; }
+  // the planner's plate cannot edit the label settings (bootEmbed disables them): the remedy is the planner's
+  if (text && EMBED && el.disabled) text += " Change it in the planner's Label settings.";
+  numNotes.set(id, { id, text });
+  return v;
+}
+// the notes, one line under each setting row that has any (the plate's two fields share a row, and so share a line)
+function showNumNotes() {
+  const byRow = new Map();
+  for (const { id, text } of numNotes.values()) {
+    const row = document.getElementById(id) && document.getElementById(id).closest('.setting');
+    if (!row) continue;
+    if (!byRow.has(row)) byRow.set(row, []);
+    if (text) byRow.get(row).push(text);
+  }
+  document.querySelectorAll('.num-note').forEach(n => { if (!byRow.has(n.previousElementSibling)) n.hidden = true; });
+  byRow.forEach((texts, row) => {
+    let note = row.nextElementSibling && row.nextElementSibling.classList.contains('num-note') ? row.nextElementSibling : null;
+    if (!note && !texts.length) return;
+    if (!note) { note = document.createElement('div'); note.className = 'setting-note num-note'; note.setAttribute('role', 'status'); row.after(note); }
+    note.textContent = texts.join(' ');
+    note.hidden = !texts.length;
+  });
 }
 
 function getBold() {
@@ -1468,7 +1515,8 @@ function closePartsSheet() {
 // the list as captured for a set (every row), less a part row's shown words - its layout derives them, and they follow the
 // font arriving and the settings (a stripe position, the drawings switch), which are not changes to the list: its string
 // tells whether the list itself changed since an add
-const listSignature = () => JSON.stringify(captureLabels(false).map(l => (l.hw ? Object.assign({}, l, { text: '' }) : l)));
+const sigOf = (labels) => JSON.stringify(labels.map(l => (l.hw ? Object.assign({}, l, { text: '' }) : l)));
+const listSignature = () => sigOf(captureLabels(false));
 function showListNote(text) {
   document.getElementById('list-note-text').textContent = text;
   document.getElementById('list-note').hidden = false;
@@ -1479,6 +1527,24 @@ function dropListUndo() {
 }
 // rebuild() calls this: an edit, a removal, an import - anything that changes the list - ends the add's Undo
 function checkListUndo() { if (listUndo && listUndo.sig !== null && listSignature() !== listUndo.sig) dropListUndo(); }
+// The same Undo for the changes that rewrite rows (the stress test, S-F2: a row removed, a sort, a prefix or suffix, a
+// preset, a bulk delete - none could be taken back). before = captureLabels(false), taken before the change. Not while
+// linked: a linked row is a planner drawer, and the drawer questions decide those; not in the planner's plate either.
+function offerListUndo(before, note, undone) {
+  if (EMBED || (typeof link !== 'undefined' && link)) { rebuild(); return; }
+  // nothing changed (a sort of a list already in order, a prefix the 48-character cap cut off): the Undo already
+  // offered stays, or it would now bring back nothing (Sol 01a13ff8)
+  if (sigOf(before) === listSignature()) { rebuild(); return; }
+  listUndo = { labels: before, sig: null, undone };
+  rebuild();
+  listUndo.sig = listSignature();
+  showListNote(note);
+}
+// an import's "Loaded N" must not hide what rebuild() just found (the stress test): the long-text reason rides along
+function loadedStatus(msg) {
+  const w = rebuild._printWarn;   // the long-text or missing-glyph reason the last rebuild() said (Sol 01a13ff8: both)
+  setStatus(w ? `${msg} ${w}` : msg, w ? 'err' : 'ok');
+}
 function flashRows(rows) {
   rows.forEach(r => { r.classList.remove('flash'); void r.offsetWidth; r.classList.add('flash'); });
   setTimeout(() => rows.forEach(r => r.classList.remove('flash')), 2600);
@@ -1500,7 +1566,10 @@ function addPartItems(items) {
   }
   renumberRows();
   updateBulkBar();
-  listUndo = { labels: before, sig: null };
+  // what Undo says it undid: an update in place is not "the parts were added" (the stress test)
+  listUndo = { labels: before, sig: null, undone: !plan.update.length ? undefined
+    : plan.add.length ? 'Undone: your list is back as it was before those part labels were added and updated.'
+      : 'Undone: your list is back as it was before those part labels were updated.' };
   rebuild();
   listUndo.sig = listSignature();
   const bad = touched.filter(r => r.querySelector('.hw-note.bad')).length;
@@ -1520,6 +1589,8 @@ function undoListAdd() {
   const u = listUndo;
   dropListUndo();
   closeBadgePopover();
+  // a whole set replaced (Open set file): the labels AND the settings the file brought swap back with the Previous set
+  if (u.run) { u.run(); setStatus(u.undone, 'ok'); return; }
   clearLabelRows();
   addSavedLabels(u.labels);
   renumberRows();
@@ -1666,9 +1737,11 @@ async function askHardwareLink(items) {
 }
 // a part label's ink (z 0..depth, placed at the label's top face like any label text) and its band pieces: label-hardware.js
 // a typed label's words and icon (label-core.js) on its body - the plain one, or with a stripe the body cut into band pieces
+let meshWatch = null;   // while doExport builds: the rows whose text did not fit (null otherwise)
 function meshesFor(data, capH, depth, badgeSize, bold) {
   if (data.hardware) return LH.meshes(data.hardware, data.hardware.inkDepth || HW_INK_DEPTH);
   const m = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+  if (meshWatch && !m.textFits && data.row && !meshWatch.includes(data.row)) meshWatch.push(data.row);
   if (data.stripe) m.baseParts = LH.bandParts(data.stripe.position, data.stripe.colours);
   return m;
 }
@@ -1689,7 +1762,8 @@ function getLabelData() {
       return;
     }
     const input = row.querySelector('input.label-text');
-    const text = input ? input.value : '';
+    // composed (NFC): a decomposed accent - e + U+0301 - printed as a letter and an empty box (the stress test, S-F1)
+    const text = input ? input.value.normalize('NFC') : '';
     const bt = row.dataset.badgeType || 'none';
     const badge = { type: bt };
     if (bt === 'char') badge.value = row.dataset.badgeValue || '';
@@ -1702,23 +1776,50 @@ function getLabelData() {
       const position = LS.positionFor('ordinary', hwBandSetting());
       if (position) d.stripe = { position, colours: LH.colours(row._stripe) };
     }
-    if (d) out.push(d);
+    // its row rides along, unlisted (never in a file): rebuild() puts a label's warning under the row it came from
+    if (d) { Object.defineProperty(d, 'row', { value: row }); out.push(d); }
   });
   return out;
 }
 
+// The label font's gaps: a character it has no glyph for prints as an empty box (emoji, CJK, Arabic...). A fallback font
+// for print is Joey's decision (2026-10-15); until then the row and the status say so, and the download still works (S-F1).
+// Glyph 0 is the font's .notdef box: opentype.js's hasChar() never says no (its cmap lookup falls back to 0, not null).
+function glyphGaps(d) {
+  if (!font || typeof font.charToGlyphIndex !== 'function' || !d || d.hardware) return '';
+  const gaps = new Set();
+  for (const ch of (d.text || '') + (d.badge && d.badge.type === 'char' ? d.badge.value || '' : '')) if (!/\s/.test(ch) && font.charToGlyphIndex(ch) === 0) gaps.add(ch);
+  return [...gaps].join(' ');
+}
+// A typed label's warning, under its row ('' clears it): the reason it will not print right, said where it is
+function setRowWarn(row, text) {
+  let note = row.querySelector(':scope > .row-warn');
+  const input = row.querySelector('input.label-text');
+  if (!text) {
+    if (note) note.remove();
+    row.classList.remove('warned', 'too-long');
+    if (input && input.getAttribute('aria-invalid')) { input.removeAttribute('aria-invalid'); if (note && input.getAttribute('aria-describedby') === note.id) input.removeAttribute('aria-describedby'); }
+    return;
+  }
+  if (!note) { note = document.createElement('div'); note.className = 'row-warn'; note.id = 'warn-' + (++setRowWarn.n); row.appendChild(note); }
+  if (note.textContent !== text) note.textContent = text;
+  row.classList.add('warned');
+  if (input) { input.setAttribute('aria-invalid', 'true'); if (!input.getAttribute('aria-describedby')) input.setAttribute('aria-describedby', note.id); }
+}
+setRowWarn.n = 0;
+// in the planner's plate the words are the planner's: the remedy points there, not at a field the plate cannot edit
+const fixWhere = () => (EMBED ? ' On build in the planner' : '');
+const LONG_TEXT = () => `Too long for the label: even at the ${MIN_PRINT_CAP} mm smallest text it runs past the edge. Shorten it${fixWhere()}.`;
+
+// a plate holds at least one label, margins included (a 20 mm plate held "one per plate", hanging off it)
 function getBedSize() {
-  const w = parseFloat(document.getElementById('bed-w').value);
-  const l = parseFloat(document.getElementById('bed-l').value);
-  return { bedW: (isNaN(w) || w < 20) ? 250 : w, bedL: (isNaN(l) || l < 20) ? 220 : l };
+  return { bedW: numSetting('bed-w', 250, LABEL_LEN + 2 * BED_MARGIN), bedL: numSetting('bed-l', 220, LABEL_WID + 2 * BED_MARGIN) };
 }
 
 function getPurge() {
   const el = document.getElementById('reserve-purge');
-  if (!el || !el.checked) return null;
-  const w = parseFloat(document.getElementById('purge-w').value);
-  const l = parseFloat(document.getElementById('purge-l').value);
-  return { w: (isNaN(w) || w < 5) ? PURGE_SIZE : w, l: (isNaN(l) || l < 5) ? PURGE_SIZE : l };
+  if (!el || !el.checked) { ['purge-w', 'purge-l', 'purge-cap'].forEach(k => numNotes.delete(k)); return null; }
+  return { w: numSetting('purge-w', PURGE_SIZE), l: numSetting('purge-l', PURGE_SIZE) };
 }
 
 // True if a label cell (centered at cellX,cellY in plate-centered coords) intrudes into
@@ -1829,8 +1930,8 @@ function rebuild() {
   scene.add(labelGroup);
 
   const labels = getLabelData();
-  const capH = parseFloat(document.getElementById('font-size').value);
-  const depth = parseFloat(document.getElementById('text-depth').value);
+  const capH = numSetting('font-size', 5);
+  const depth = numSetting('text-depth', 0.6);
   const badgeSize = getBadgeSize();
   const bold = getBold();
 
@@ -1850,6 +1951,12 @@ function rebuild() {
   updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge);
 
   let anyOverflow = false;
+  const warn = new Map();   // row -> why it will not print right
+  const longRows = [], gapRows = [], gapChars = new Set();
+  for (const d of labels) {
+    const g = glyphGaps(d);
+    if (g && d.row) { gapRows.push(d.row); g.split(' ').forEach(c => gapChars.add(c)); warn.set(d.row, `No glyph in the label font for ${g}: ${g.length > 1 ? 'they print' : 'it prints'} as an empty box.`); }
+  }
   for (let p = 0; p < nPlates; p++) {
     const slice = labels.slice(p * cap.perPlate, (p + 1) * cap.perPlate);
     const lay = computeLayout(slice.length, bedW, bedL, purge);
@@ -1864,7 +1971,10 @@ function rebuild() {
         baseMesh.position.set(x, y, 0);
         labelGroup.add(baseMesh);
       }
-      if (!textFits) anyOverflow = true;
+      if (!textFits) {
+        anyOverflow = true;
+        if (data.row) { longRows.push(data.row); warn.set(data.row, LONG_TEXT() + (warn.has(data.row) ? ' ' + warn.get(data.row) : '')); }
+      }
       if (textGeo) {
         const m = new THREE.Mesh(textGeo, textMaterial);
         m.position.set(x, y, LABEL_HT);
@@ -1884,14 +1994,25 @@ function rebuild() {
   document.getElementById('plate-empty').hidden = labels.length > 0;
   purgeAnchor = purge ? new THREE.Vector3(-platesW / 2 + bedW - purge.w / 2, bedL / 2 - purge.l / 2, 0) : null;
 
+  document.querySelectorAll('#labels .row').forEach(r => { setRowWarn(r, warn.get(r) || ''); r.classList.toggle('too-long', longRows.includes(r)); });
+  if (cap.reserved && cap.reserved * 2 >= cap.spots) {
+    numNotes.set('purge-cap', { id: 'purge-w', text: `The purge area takes ${cap.reserved} of the ${cap.spots} label spots: ${plural(cap.perPlate, 'label', 'labels')} per plate.` });
+  } else numNotes.delete('purge-cap');
+  showNumNotes();
+
   const hwSkipped = hardwareNotPrinted();
   const waiting = iconWaitRows();
+  rebuild._printWarn = longRows.length ? longTextStatus(longRows) : gapRows.length ? glyphStatus(gapRows, gapChars) : null;
   if (anyOverflow) {
-    setStatus(`Some text is long — held at the ${MIN_PRINT_CAP}mm minimum printable size. Shorten it for larger, cleaner text.`, 'err');
+    // the text runs past the edge even at the smallest print size - onto the next label (the stress test, S-B3): the
+    // download waits, as it does for an icon still in the planner, and says why
+    setStatus(longRows.length ? longTextStatus(longRows) : `Some text is too long for the label, even at the ${MIN_PRINT_CAP} mm smallest text. Shorten it.`, 'err');
   } else if (hwSkipped) {
     setStatus(`${hwSkipped} part label${hwSkipped === 1 ? " doesn't" : "s don't"} print - see the red note on ${hwSkipped === 1 ? 'its row' : 'their rows'}.`, 'err');
   } else if (waiting.length) {
     setStatus(`${rowsText(waiting)} ${waiting.length === 1 ? 'is' : 'are'} waiting for ${waiting.length === 1 ? 'its icon' : 'their icons'} from the planner - export waits for ${waiting.length === 1 ? 'it' : 'them'} (see the note on the row).`, 'err');
+  } else if (gapRows.length) {
+    setStatus(glyphStatus(gapRows, gapChars), 'err');
   } else if (font && !document.getElementById('download').disabled) {
     setStatus(nPlates > 1 ? `Ready — exports as ${nPlates} separate plate files.` : 'Ready.', 'ok');
   }
@@ -1987,11 +2108,12 @@ function plateCapacity(bedW, bedL, purge) {
   const perCol = Math.max(1, Math.floor((usableL + ROW_SPACING) / rowH));
   const colsPerPlate = Math.max(1, Math.floor((usableW + COL_SPACING) / colW));
   let perPlate = perCol * colsPerPlate;
+  const spots = perPlate;
+  let reserved = 0;
   if (purge) {
     const gridW = colsPerPlate * LABEL_LEN + (colsPerPlate - 1) * COL_SPACING;
     const gridH = perCol * LABEL_WID + (perCol - 1) * ROW_SPACING;
     const startX = -gridW / 2 + LABEL_LEN / 2, startY = gridH / 2 - LABEL_WID / 2;
-    let reserved = 0;
     for (let c = 0; c < colsPerPlate; c++) {
       for (let r = 0; r < perCol; r++) {
         if (purgeOverlaps(startX + c * colW, startY - r * rowH, bedW, bedL, purge.w, purge.l)) reserved++;
@@ -1999,7 +2121,7 @@ function plateCapacity(bedW, bedL, purge) {
     }
     perPlate = Math.max(1, perPlate - reserved);
   }
-  return { perCol, colsPerPlate, perPlate };
+  return { perCol, colsPerPlate, perPlate, spots, reserved };   // spots: before the purge area; reserved: what it takes
 }
 
 // Build a multi-color 3MF (base = filament 1, text + badge = filament 2, colour bands on their own filaments) for one plate.
@@ -2262,13 +2384,29 @@ async function doExport() {
   }
   const labels = getLabelData();
   if (!labels.length) { setStatus('Add at least one label.', 'err'); return; }
+  // text that runs past the label's edge even at the smallest size prints onto the next label (S-B3): the export waits
+  let long = Array.from(document.querySelectorAll('#labels .row.too-long'));
+  // a mark can be older than the words (shortened, and Download pressed inside the preview's wait): look again first
+  if (long.length) { rebuild(); long = Array.from(document.querySelectorAll('#labels .row.too-long')); }   // Sol 01a13ff8
+  if (long.length) { setStatus(longTextStatus(long, 'Not exported: '), 'err'); return; }
+  // one export at a time: a second press while a big list built saved two files (the stress test, S-F10)
+  if (doExport.busy) return;
+  const dl = document.getElementById('download');
+  const wasDisabled = dl.disabled;
+  doExport.busy = true; dl.disabled = true; dl.setAttribute('aria-busy', 'true');
+  meshWatch = [];
+  try { await exportFiles(labels); }
+  catch (e) { setStatus(`Not exported: building the file failed (${e && e.message ? e.message : e}). Nothing was saved.`, 'err'); }
+  finally { doExport.busy = false; meshWatch = null; dl.removeAttribute('aria-busy'); dl.disabled = wasDisabled; }
+}
+async function exportFiles(labels) {
   const fmtVal = (document.getElementById('export-format') || {}).value || '3mf-prusa';
   const fmt = fmtVal === 'stl' ? 'stl' : '3mf';
-  setStatus(`Generating ${fmt.toUpperCase()}…`);
+  setStatus(labels.length > 60 ? `Generating ${fmt.toUpperCase()} for ${labels.length} labels - this takes a few seconds…` : `Generating ${fmt.toUpperCase()}…`);
   await new Promise(r => setTimeout(r, 10));
 
-  const capH = parseFloat(document.getElementById('font-size').value);
-  const depth = parseFloat(document.getElementById('text-depth').value);
+  const capH = numSetting('font-size', 5);
+  const depth = numSetting('text-depth', 0.6);
   const badgeSize = getBadgeSize();
   const bold = getBold();
   const { bedW, bedL } = getBedSize();
@@ -2290,6 +2428,8 @@ async function doExport() {
       files.push({ name: `${labelType.files}${suffix}.3mf`, blob: await buildPlate3MFPrusa(slice, lay, bedW, bedL, capH, depth, badgeSize, bold, plan) });
     }
   }
+  // text the preview had not yet caught (typed, and Download pressed, inside the preview's 200 ms wait) stops it here
+  if (meshWatch && meshWatch.length) { meshWatch.forEach(r => { r.classList.add('too-long'); setRowWarn(r, LONG_TEXT()); }); setStatus(longTextStatus(meshWatch, 'Not exported: '), 'err'); return; }
   // the filaments, said with the save: which filament carries which band colour (and a warning past five)
   let fil = '', filBad = false;
   if (plan.banded) {
@@ -2353,6 +2493,16 @@ function addLabelRow(value = '', badge = null, opts = {}) {
     autoAssignIcon(row);
     rebuild();
   }, 300));
+  // Enter moves on to the next label, and on the last one starts a new one: a list typed like a list (the stress test,
+  // S-F4: Enter did nothing, and the next row's words were five Tabs away)
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.isComposing || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || EMBED) return;
+    e.preventDefault();
+    let next = row.nextElementSibling;
+    while (next && !next.matches('.row')) next = next.nextElementSibling;
+    const target = next ? next.querySelector('input.label-text') : input.value.trim() ? addLabelRow('') : null;
+    if (target) target.focus();
+  });
   row.querySelector('.remove').addEventListener('click', async () => {
     // a linked row is a PLANNER drawer: ask whether to leave its label in the planner or clear it there too (section 7.6)
     if (link && row.dataset.unit) {
@@ -2360,11 +2510,18 @@ function addLabelRow(value = '', badge = null, opts = {}) {
       if (c === 'cancel') return;
       if (c === 'clear') { clearRowLabel(row); rebuild(); return; }
     }
+    const had = rowHasContent(row), before = had ? captureLabels(false) : null;
+    const n = row.querySelector('.idx').textContent, words = input.value.trim();
     if (activeBadgeRow === row) closeBadgePopover();
+    // the focus goes to the row that takes its place (removed by keyboard, it fell to the page - the stress test, S-F2)
+    const after = row.nextElementSibling || row.previousElementSibling;
+    const refocus = document.activeElement === row.querySelector('.remove');
     row.remove();
     renumberRows();
     updateBulkBar();
-    rebuild();
+    if (refocus) { const f = after && after.querySelector('.remove') || document.getElementById('add-label'); if (f) f.focus(); }
+    if (had) offerListUndo(before, `Removed label ${n}${words ? ` “${words.length > 24 ? words.slice(0, 23) + '…' : words}”` : ''}`, 'Undone: the label is back.');
+    else rebuild();
   });
   row.querySelector('.badge-btn').addEventListener('click', (e) => {
     e.preventDefault();
@@ -2939,11 +3096,12 @@ function sortLabels() {
   const c = document.getElementById('labels');
   const rows = [...c.querySelectorAll('.row')];
   if (rows.length < 2) return;
+  const before = captureLabels(false);
   rows.sort((a, b) => a.querySelector('.label-text').value
     .localeCompare(b.querySelector('.label-text').value, undefined, { numeric: true, sensitivity: 'base' }));
   rows.forEach(r => c.appendChild(r));
   renumberRows();
-  rebuild();
+  offerListUndo(before, 'Sorted in natural order', 'Undone: the labels are back in their order.');
   setStatus('Sorted labels in natural order.', 'ok');
 }
 
@@ -2996,13 +3154,14 @@ async function loadPreset(id) {
   const allBlank = rows.every(r =>
     !r.querySelector('.label-text').value.trim() && (r.dataset.badgeType || 'none') === 'none');
   if (allBlank && link && !(await confirmReplace())) return;   // replacing the list would drop the planner's drawers
+  const before = captureLabels(false);
   if (allBlank) clearLabelRows();
   p.items.forEach(it => {
     const row = addLabelRow(it.text, it.icon ? { type: 'icon', value: it.icon } : null).closest('.row');
     if (it.icon) row.dataset.badgeManual = '1';
   });
   updateBulkBar();
-  rebuild();
+  offerListUndo(before, `Added “${p.name}”`, `Undone: “${p.name}” is off the list again.`);
   setStatus(`Loaded “${p.name}” — ${p.items.length} labels. Edit, add, or remove as needed.`, 'ok');
 }
 
@@ -3043,13 +3202,14 @@ function setupBulkControls() {
     if (!rows.length) { setStatus('Select some labels first.', 'err'); closeAffix(); return; }
     const pre = affixPre.value, suf = affixSuf.value;
     if (!pre && !suf) { setStatus('Enter a prefix or suffix first.', 'err'); affixPre.focus(); return; }
+    const before = captureLabels(false);
     rows.forEach(r => {
       const inp = r.querySelector('.label-text');
       inp.value = (pre + inp.value + suf).slice(0, 48);
       autoAssignIcon(r);
     });
     closeAffix();
-    rebuild();
+    offerListUndo(before, `Added ${pre && suf ? 'a prefix and suffix' : pre ? 'a prefix' : 'a suffix'} to ${plural(rows.length, 'label', 'labels')}`, 'Undone: those labels are back as they were.');
     setStatus(`Updated ${rows.length} label${rows.length === 1 ? '' : 's'}.`, 'ok');
   };
   document.getElementById('bulk-affix').addEventListener('click', () => {
@@ -3079,11 +3239,13 @@ function setupBulkControls() {
         renumberRows(); updateBulkBar(); rebuild();
         return;
       }
-    } else if (!confirm(`Delete ${rows.length} selected label${rows.length === 1 ? '' : 's'}?`)) return;
+    } else if (link && !confirm(`Delete ${rows.length} selected label${rows.length === 1 ? '' : 's'}?`)) return;
+    // unlinked, no question first: Undo beside the list brings them back (the stress test, S-F2)
+    const before = captureLabels(false);
     rows.forEach(r => { if (activeBadgeRow === r) closeBadgePopover(); r.remove(); });
     renumberRows();
     updateBulkBar();
-    rebuild();
+    offerListUndo(before, `Deleted ${plural(rows.length, 'label', 'labels')}`, 'Undone: the deleted labels are back.');
   });
 
   // Sort rows in natural order
@@ -3505,9 +3667,18 @@ function setupProjectControls() {
       }
       if (!p || !Array.isArray(p.labels)) { setStatus('That file isn’t a Label Studio set file.', 'err'); return; }
       if (!(await confirmReplace())) return;
+      // the set it replaces is not lost (the stress test, S-B4: it was - no question, no Undo, no Previous set): kept as
+      // the Previous set, and Undo beside the list swaps it back, labels AND the settings the file brought
+      const kept = keepPreviousSet(captureProject());
       applyProject(p);
+      autosave();
+      if (kept && !link) {
+        listUndo = { labels: null, sig: null, run: swapPreviousSet, undone: `Undone: your set is back as it was before ${f.name}. Previous set swaps the file in again.` };
+        listUndo.sig = listSignature();
+        showListNote(`Replaced your set with ${f.name}`);
+      }
       const n = p.labels.length;
-      setStatus(`Loaded ${n} label${n === 1 ? '' : 's'} from ${f.name}.`, 'ok');
+      loadedStatus(`Loaded ${n} label${n === 1 ? '' : 's'} from ${f.name}.` + (kept ? ' Your previous set is kept: Save / Open › Previous set.' : ''));
     };
     reader.onerror = () => setStatus('Failed to read file.', 'err');
     reader.readAsText(f);
@@ -3595,7 +3766,18 @@ function keptIconId(row) { const k = parseKeep(row); return (k && k.b && typeof 
 function iconWaitRows() { return Array.from(document.querySelectorAll('#labels .row')).filter(r => r.dataset.badgeUpHeld); }
 function rowsText(rows) {
   const n = rows.map(r => r.querySelector('.idx').textContent);
+  if (n.length > 8) return `Labels ${n.slice(0, 6).join(', ')} and ${n.length - 6} more`;   // a 400-label list, said in a line
   return n.length === 1 ? `Label ${n[0]}` : `Labels ${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}`;
+}
+// characters the label font has no glyph for (S-F1): the reason, for the status and for an import's "Loaded N"
+function glyphStatus(rows, chars) {
+  return `${rowsText(rows)} ${rows.length === 1 ? 'has' : 'have'} characters the label font cannot print (${[...chars].join(' ')}): they print as empty boxes. Replace them${fixWhere()}, or download as it is.`;
+}
+// text that runs past the label's edge even at the smallest print size (the stress test, S-B3): the reason, for the status
+// and for the export it stops
+function longTextStatus(rows, prefix = '') {
+  const one = rows.length === 1;
+  return `${prefix}${rowsText(rows)} ${one ? 'is' : 'are'} too long for the label, even at the ${MIN_PRINT_CAP} mm smallest text: ${one ? 'it runs' : 'they run'} past the edge, onto the next label. Shorten ${one ? 'it' : 'them'}${fixWhere()} - the download waits until ${one ? 'it fits' : 'they fit'}.`;
 }
 function parseKeep(row) {
   try { const k = row.dataset.badgeKeep ? JSON.parse(row.dataset.badgeKeep) : null; return k && 'b' in k ? k : null; } catch (e) { return null; }
@@ -4657,23 +4839,50 @@ function setupPartsSheet() {
   });
 }
 
+// A label list from a file (the stress test, S-F7: every line was cut at its first comma, even in a .txt - "Screws, M3"
+// came in as "Screws" - and a CSV's header row became a label). A .txt is one label per line, the whole line. A .csv
+// takes each row's first column, read as CSV: quoted fields keep their commas ("Screws, M3"), "" is a quote, and a file
+// whose first line has semicolons and only decimal commas is read on semicolons (a spreadsheet saved in a comma-decimal locale).
+// A first row that only names the column (Label, Name, Text...) is a header, not a label. Words are composed (NFC).
+function labelsFromFile(text, name, type) {
+  const lines = String(text).replace(/^﻿/, '').split(/\r\n|\n|\r/);
+  const csv = /\.csv$/i.test(name || '') || (!/\.txt$/i.test(name || '') && /csv/i.test(type || ''));
+  let out;
+  if (!csv) out = lines.map(l => l.trim());
+  else {
+    // semicolons when the first line has them and its only commas are decimal ones ("Bolts;2,5")
+    const firstLine = lines.find(l => l.trim()) || '';
+    const sep = firstLine.includes(';') && !firstLine.replace(/\d,\d/g, '').includes(',') ? ';' : ',';
+    // read as CSV RECORDS, not lines: a quoted field may hold the separator, "" and line breaks - a note column that
+    // runs over two lines must not become a label of its own (Sol 01a13ff8)
+    const src = String(text).replace(/^\uFEFF/, '');
+    out = [];
+    let cur = '', first = null, inQ = false, fresh = true;
+    const endField = () => { if (first === null) first = cur; cur = ''; fresh = true; };
+    const endRecord = () => { endField(); out.push(first.trim()); first = null; };
+    for (let i = 0; i < src.length; i++) {
+      const c = src[i];
+      if (inQ) {
+        if (c !== '"') cur += c;
+        else if (src[i + 1] === '"') { cur += '"'; i++; }
+        else inQ = false;
+      } else if (c === '"' && fresh) { inQ = true; cur = ''; fresh = false; }
+      else if (c === sep) endField();
+      else if (c === '\n' || c === '\r') { if (c === '\r' && src[i + 1] === '\n') i++; endRecord(); }
+      else { cur += c; if (!/\s/.test(c)) fresh = false; }
+    }
+    if (cur !== '' || first !== null) endRecord();
+    const head = out.findIndex(v => v);
+    if (head >= 0 && /^(labels?|names?|text|title|description|item|part)$/i.test(out[head])) out.splice(head, 1);
+  }
+  return out.map(v => v.normalize('NFC')).filter(v => v.length > 0);
+}
 function handleCsv(file) {
   if (!file) { setStatus('No file received.', 'err'); return; }
   const reader = new FileReader();
   reader.onload = async (e) => {
     try {
-      const text = e.target.result;
-      // Parse: one label per line. For each line, take first comma-separated field.
-      // Strip BOM, handle Windows/Unix line endings, ignore blank lines.
-      const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
-      const values = lines
-        .map(line => {
-          // First field of CSV row — naive split is fine; labels don't have commas
-          const first = line.split(',')[0] || '';
-          // Strip surrounding quotes if present
-          return first.replace(/^\s*"(.*)"\s*$/, '$1').trim();
-        })
-        .filter(s => s.length > 0);
+      const values = labelsFromFile(e.target.result, file.name, file.type);
       if (!values.length) {
         setStatus('No labels found in file.', 'err');
         return;
@@ -4693,7 +4902,7 @@ function handleCsv(file) {
         listUndo.sig = listSignature();
         showListNote(`Replaced your list with ${plural(values.length, 'label', 'labels')} from ${file.name}`);
       }
-      setStatus(`Loaded ${plural(values.length, 'label', 'labels')} from ${file.name}.` + (kept ? ' Your previous list is kept too: Save / Open › Previous set.' : ''), 'ok');
+      loadedStatus(`Loaded ${plural(values.length, 'label', 'labels')} from ${file.name}.` + (kept ? ' Your previous list is kept too: Save / Open › Previous set.' : ''));
     } catch (err) {
       setStatus('Could not parse file: ' + err.message, 'err');
     }

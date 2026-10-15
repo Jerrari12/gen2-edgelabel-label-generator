@@ -35,11 +35,11 @@ test('B4: the preview shrinks with the window and refits the plates when its wid
   // fitCamera on its own: a wide preview keeps the distance it always had; a narrow one backs off until the plates' width fits
   const run = (aspect, fit) => {
     let pos = null;
-    const camera = { fov: 40, aspect, position: { set: (x, y, z) => { pos = [x, y, z]; } } };
+    const camera = { fov: 40, aspect, far: 2000, projections: 0, updateProjectionMatrix() { this.projections++; }, position: { set: (x, y, z) => { pos = [x, y, z]; } } };
     const controls = { setTarget() {} };
     const THREE = { MathUtils: { degToRad: (d) => d * Math.PI / 180 }, Vector3: class {} };
     new Function('rebuild', 'camera', 'controls', 'THREE', fnSource('fitCamera') + '; fitCamera();')({ _fit: fit }, camera, controls, THREE);
-    return { dist: pos[2] / 0.95, maxDistance: controls.maxDistance };
+    return { dist: pos[2] / 0.95, maxDistance: controls.maxDistance, far: camera.far, projections: camera.projections };
   };
   const fit = { span: 250, w: 250 };
   assert.equal(run(1.27, fit).dist, 250 * 1.75 + 50, 'a wide preview: unchanged');
@@ -48,6 +48,17 @@ test('B4: the preview shrinks with the window and refits the plates when its wid
     const halfView = dist * Math.tan(20 * Math.PI / 180) * aspect;   // half the view's width at the plates
     assert.ok(halfView >= 125, `aspect ${aspect}: the plate's half width 125 mm fits in ${halfView.toFixed(1)} mm`);
     assert.ok(maxDistance >= dist, 'zooming out is never clamped short of the fitted view');
+  }
+  // S-B5 (the stress test, 2026-10-15): the far plane was fixed at 2000, and five plates up (65+ labels) the fitted camera
+  // sat 2382 mm out - the preview went blank. It now reaches past the farthest zoom plus the row of plates behind it.
+  const one = run(1.27, fit);
+  assert.equal(one.far, 2000, 'one plate: the far plane it always had');
+  assert.equal(one.projections, 0, '...and no projection rebuilt for nothing');
+  for (const plates of [5, 8, 16]) {
+    const w = plates * 250 + (plates - 1) * 24;
+    const r = run(1.27, { span: w, w });
+    assert.ok(r.far >= r.maxDistance + w, `${plates} plates: the far plane ${r.far.toFixed(0)} mm covers the farthest zoom ${r.maxDistance.toFixed(0)} mm and the plates`);
+    assert.equal(r.projections, 1, `${plates} plates: the projection is rebuilt once`);
   }
 });
 

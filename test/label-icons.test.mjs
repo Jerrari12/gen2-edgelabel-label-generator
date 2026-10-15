@@ -275,6 +275,25 @@ test('every new rule: its examples match it, its counter-examples do not; it nev
   assert.equal(LI.guessIconId('screws'), null, 'a plain "screw" still maps to nothing');
 });
 
+// A newcomer's first labels (a stress test, 2026-10-15, read "Screws" with no icon as a miss): what each word predicts and why.
+test('first words: bolts, nuts and washers get theirs; a bare "screw" gets none; fuses and cables get power; tape, glue and zip ties get none', () => {
+  const cases = {
+    // the core's own rules
+    'Bolts': 'bolt-hex-head', 'M3 bolts': 'bolt-hex-head', 'Nuts': 'nut', 'M3 nuts': 'nut', 'Washers': 'washer', 'M5 washers': 'washer',
+    // on purpose: the generic screw (side view) can be picked but is never guessed (Jerrari: on a badge it reads as a bold T),
+    // and the core gives a bare "screw" no head - a Phillips head would be wrong as often as right. A word naming the head does.
+    'Screws': null, 'Screw': null, 'M3 screws': null, 'screws M3': null, 'M4x12 screw': null, 'M3 SCREWS': null, 'Wood screws': null,
+    'Phillips screws': 'screw-phillips-head', 'Cap screws': 'screw-hex-socket', 'Screwdriver': 'screw-driver', 'Screwdrivers': 'screw-driver',
+    // electrical on purpose: "fuse(s)" and "electrical" are core power words, "cables" a new power rule; whole words, so not "Cable ties"
+    'Fuses': 'lightning', 'Fuse': 'lightning', 'Fuses 5A': 'lightning', 'Cables': 'lightning', 'USB cables': 'lightning',
+    'Electrical tape': 'lightning',
+    // no icon in the catalog draws tape, glue or a cable tie, so none is guessed (a manual pick or a letter is the way)
+    'Tape': null, 'Duct tape': null, 'Glue': null, 'Glue sticks': null, 'Hot glue': null, 'Zip ties': null, 'Zip tie': null, 'Cable ties': null,
+  };
+  for (const [t, id] of Object.entries(cases)) assert.equal(LI.guessIconId(t), id, `"${t}" -> ${id}`);
+  assert.equal(LI.find('screw-side').predict, false, 'the generic screw stays pickable-only (the art marks it not predicted)');
+});
+
 test('search finds icons by name, group and the words that predict them', () => {
   assert.equal(LI.search('').length, LI.menu().length);
   const ids = (q) => LI.search(q).map((i) => i.id);

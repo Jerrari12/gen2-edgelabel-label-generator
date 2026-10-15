@@ -112,7 +112,7 @@ test('the page: one item check for links, files and the sheet; the sheet listens
   assert.doesNotMatch(add, /clearLabelRows\(\)/, 'adding never clears the list');
   assert.match(add, /listUndo = \{ labels: before/);
   // a part row's shown words are derived by its layout (they follow the font and the settings): not part of "the list changed"
-  assert.match(HTML, /const listSignature = \(\) => JSON\.stringify\(captureLabels\(false\)\.map\(l => \(l\.hw \? Object\.assign\(\{\}, l, \{ text: '' \}\) : l\)\)\);/);
+  assert.match(HTML, /const sigOf = \(labels\) => JSON\.stringify\(labels\.map\(l => \(l\.hw \? Object\.assign\(\{\}, l, \{ text: '' \}\) : l\)\)\);\nconst listSignature = \(\) => sigOf\(captureLabels\(false\)\);/);
   // a planner-linked tab greys the entries out and says why
   assert.match(HTML, /function partsBlockedReason\(\) \{\n  if \(typeof link !== 'undefined' && link\) return "Part labels can't go into a planner-linked list yet/);
 });
