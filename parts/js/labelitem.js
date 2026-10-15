@@ -13,6 +13,7 @@
 import { threadText, lengthText, isUnified } from './units.js';
 import { pinsOf } from './labelpins.js';
 import { labelColours } from './labelstyle.js';
+import { DATA_FAMILY, labelText, fmtNum } from './families-data.js';
 
 export const LABEL_ITEM_SCHEMA = 'part-picker-label-item/1';
 
@@ -100,7 +101,38 @@ export function standardText(rec, path) {
 // NEVER a placeholder (2026-10-05, the first labels made from Jerrari's saved records printed 'M?'): a size that is not
 // recorded gives no value at all, an inch thread with no threads per inch prints its designation alone, and an
 // unrecorded length is left off - each one listed by valueMissing() so the preview says so.
+// THE FAMILIES THAT KEEP THEIR SIZES IN specific.* (2026-10-15, the label-flow stress test: their labels went out with
+// fields [] - a fitting, a rivet, a pin, a ring, a connector, an Other part - or with the thread alone - a standoff
+// "M3" with no length). Their value is their label's BIG text: labelRule.big in families-data.js for the data
+// families, the picker's spec line for a fitting and a rivet, the name for an Other part. Every part of it must be
+// known, or no value is printed (never a placeholder) and valueMissing() names what is missing.
+const DATA_BIG = { standoff: ['thread', 'length'], shoulder: ['diameter', 'length'], pin: ['diameter', 'length'], ring: ['size'],
+  springwasher: ['thread'], rod: ['thread'], thumb: ['thread', 'length'], connector: ['series', 'positions'] };
+const VOCAB_BIG = { fitting: ['specific.fitting.tube_a'], rivet: ['specific.rivet.diameter', 'specific.rivet.length'] };
+export function bigPaths(rec) {
+  const df = DATA_FAMILY.get(rec.family);
+  if (df && DATA_BIG[rec.family]) return DATA_BIG[rec.family].map((k) => df.fields.find((f) => f.key === k).path);
+  return VOCAB_BIG[rec.family] || [];
+}
+// "M3 × 10" -> ['M3', '× 10']: each part an unbreakable field, as a screw's thread and length are
+const splitBig = (s) => s.split(' × ').map((x, i) => (i ? `× ${x}` : x));
+const nameOf = (rec) => (rec.label && String(rec.label).trim()) || '';
+function familyFields(rec) {
+  if (rec.family === 'other') return nameOf(rec) ? [nameOf(rec)] : [];
+  const paths = bigPaths(rec);
+  if (!paths.length) return null;   // not one of these families
+  if (paths.some((p) => !known(get(rec, p)))) return [];
+  if (DATA_FAMILY.has(rec.family)) return splitBig(labelText(rec).big);
+  if (rec.family === 'fitting') {
+    const a = get(rec, 'specific.fitting.tube_a'); const b = get(rec, 'specific.fitting.tube_b');
+    return [`${fmtNum(a.value)}${known(b) ? '/' + fmtNum(b.value) : ''} mm`];
+  }
+  return [fmtNum(get(rec, 'specific.rivet.diameter').value), `× ${fmtNum(get(rec, 'specific.rivet.length').value)}`];
+}
+
 export function valueFields(rec) {
+  const fam = familyFields(rec);
+  if (fam) return fam;
   const th = rec.thread;
   if (th && !known(th.diameter)) return [];
   let t = threadText(rec);
@@ -113,12 +145,16 @@ export function valueFields(rec) {
 
 // what the value would need and the record does not hold: [{path, why}]
 export function valueMissing(rec) {
+  if (rec.family === 'other') return nameOf(rec) ? [] : [{ path: 'label', why: 'name not recorded' }];
   const th = rec.thread;
-  if (!th) return [];
   const out = [];
-  if (!known(th.diameter)) out.push({ path: 'thread.diameter', why: 'size not recorded' });
-  else if (isUnified(rec) && th.tpi && !known(th.tpi)) out.push({ path: 'thread.tpi', why: 'threads per inch not recorded' });
-  if (rec.length && !known(rec.length.value)) out.push({ path: 'length.value', why: 'length not recorded' });
+  if (th) {
+    if (!known(th.diameter)) out.push({ path: 'thread.diameter', why: 'size not recorded' });
+    else if (isUnified(rec) && th.tpi && !known(th.tpi)) out.push({ path: 'thread.tpi', why: 'threads per inch not recorded' });
+    if (rec.length && !known(rec.length.value)) out.push({ path: 'length.value', why: 'length not recorded' });
+  }
+  // the specific.* parts of the big text (the thread is named above)
+  for (const p of bigPaths(rec)) if (p !== 'thread.diameter' && !known(get(rec, p))) out.push({ path: p, why: `${p.split('.').pop().replace(/_/g, ' ')} not recorded` });
   return out;
 }
 

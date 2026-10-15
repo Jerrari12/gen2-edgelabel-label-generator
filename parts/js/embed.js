@@ -37,6 +37,9 @@ export const PARTS_V = 1;
 export const PLANNER_ORIGINS = Object.freeze(['https://gen2planner.jerrari3d.com', 'https://planner.modulith.systems']);
 export const LOOPBACK_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/;
 export const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
+// the planner's build id, as the contract names it (LABELS-INTEGRATION.md, "The parts channel's additions"): the record's
+// own id. Anything else is no build at all - never a refusal
+export const BUILD_RE = /^[a-z0-9]{8,32}$/;
 export const LABEL_STUDIO_MAX_ITEMS = 200;
 // What the Label Studio accepts in one item (its hardwareItems(), index.html HW_MAX). One item past a limit used to make
 // the Studio refuse the WHOLE batch, so a typed word is capped where it is typed and the batch is checked before it goes.
@@ -69,9 +72,14 @@ export function readHello(e, win) {
   if (!e || e.source !== win.parent || !plannerOriginAllowed(e.origin, win)) return null;
   const d = e.data;
   if (!d || typeof d !== 'object' || d[PARTS_KEY] !== 'hello' || d.v !== PARTS_V || typeof d.session !== 'string' || !SESSION_RE.test(d.session)) return null;
-  return { origin: e.origin, session: d.session };
+  // buildId (2026-10-15, the planner session): which build this session adds to, so "sent" marks are per build. An older
+  // planner sends none, and then the marks are this page's alone
+  const buildId = typeof d.buildId === 'string' && BUILD_RE.test(d.buildId) ? d.buildId : null;
+  return { origin: e.origin, session: d.session, ...(buildId ? { buildId } : {}) };
 }
-export const readyMessage = (link) => ({ [PARTS_KEY]: 'ready', v: PARTS_V, session: link.session });
+// caps: what this Picker can do beyond add (an older planner ignores it). 'open/1': Edit part details opens that part.
+export const PICKER_CAPS = Object.freeze(['open/1']);
+export const readyMessage = (link) => ({ [PARTS_KEY]: 'ready', v: PARTS_V, session: link.session, caps: [...PICKER_CAPS] });
 export const addMessageFor = (items, link, batch) => ({ [PARTS_KEY]: 'add', v: PARTS_V, session: link.session, items, ...(batch ? { batch } : {}) });
 // a reply from the bound planner: the same bodies as the Studio's replies, from window.parent at the bound origin with the bound session
 export function readPlannerReply(e, win, link) {
@@ -80,6 +88,35 @@ export function readPlannerReply(e, win, link) {
   if (!d || typeof d !== 'object' || d.session !== link.session) return null;
   return readReplyBody(d);
 }
+
+// ------------------------------------------------------------------ open/1 (2026-10-15, LABELS-INTEGRATION.md)
+// The planner's "Edit part details": { gen2parts: 'open', v: 1, session, req, id, item }, from the bound parent at the
+// bound origin with the bound session. req is the request's own id (echoed on the answer; the latest wins); id is the
+// part label's record id, and must equal item.id. Read as:
+//   null                          - not an open for this binding, or no req to answer to: ignored
+//   { req, id, why }              - an open that cannot be done as sent: refused with why
+//   { req, id, item }             - an open to do
+export const REQ_RE = /^[A-Za-z0-9_-]{8,64}$/;
+export const RECORD_ID_RE = /^[A-Za-z0-9_.:-]{1,80}$/;
+export function readOpen(e, win, link) {
+  if (!link || !e || e.source !== win.parent || e.origin !== link.origin) return null;
+  const d = e.data;
+  if (!d || typeof d !== 'object' || d[PARTS_KEY] !== 'open' || d.v !== PARTS_V || d.session !== link.session) return null;
+  if (typeof d.req !== 'string' || !REQ_RE.test(d.req)) return null;
+  const id = typeof d.id === 'string' && RECORD_ID_RE.test(d.id) ? d.id : null;
+  if (!id) return { req: d.req, id: typeof d.id === 'string' ? d.id.slice(0, 80) : '', why: 'The planner sent no part id the Part Picker can read.' };
+  const item = d.item;
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return { req: d.req, id, why: 'The planner sent no part label with the request.' };
+  if (item.id !== id) return { req: d.req, id, why: 'The part label the planner sent is for another part.' };
+  const bad = labelStudioProblem(item);
+  if (bad) return { req: d.req, id, why: `The Part Picker cannot read that part label: ${bad}.` };
+  return { req: d.req, id, item };
+}
+// close (LABELS-INTEGRATION.md): Escape inside the frame never reaches the planner's page, so when the Picker has nothing of
+// its own to close, it asks the planner to close the dialog (the stress test's P-F4)
+export const closeMessage = (link) => ({ [PARTS_KEY]: 'close', v: PARTS_V, session: link.session });
+export const openedMessage = (link, req, id) => ({ [PARTS_KEY]: 'opened', v: PARTS_V, session: link.session, req, id });
+export const openRefusedMessage = (link, req, id, reason) => ({ [PARTS_KEY]: 'refused', v: PARTS_V, session: link.session, req, id, reason: String(reason).slice(0, 300) });
 
 // the Label Studio this page opens when it is NOT embedded: the same site, one folder up (parts/ -> the site root).
 // ?labelgen=http://localhost:PORT/ points at a local Label Studio while developing the Picker on its own server.

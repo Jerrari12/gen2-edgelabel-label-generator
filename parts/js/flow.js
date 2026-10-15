@@ -135,8 +135,11 @@ export function primaryText({ mode, n, held = 0, editing = false, retry = false 
 export const HOLD_TEXT = 'Pick more first';
 export const heldText = (n) => `${n} ${n === 1 ? 'part' : 'parts'} pending`;
 // List tools' "send every shown part" (the old Make labels button, id make-labels) inside the embeds
-export function addAllText(n, mode) {
-  return mode === 'planner' ? (n ? `Add all ${n} to the planner` : 'Add all to the planner') : (n ? `Add all ${partLabels(n)}` : 'Add all part labels');
+// perBuild: the planner named its build in the hello - "to this build" says where they land (they used to read as if
+// they were already there: the list follows a browser, not a build)
+export function addAllText(n, mode, perBuild = false) {
+  const where = perBuild ? 'this build' : 'the planner';
+  return mode === 'planner' ? (n ? `Add all ${n} to ${where}` : `Add all to ${where}`) : (n ? `Add all ${partLabels(n)}` : 'Add all part labels');
 }
 // The one line about label colours (Part details), by where the Picker runs: the stripe switch belongs to whatever prints
 // the labels (the planner's Label settings since 2026-10-14; the Label Studio's Stripe position), never to the Picker
