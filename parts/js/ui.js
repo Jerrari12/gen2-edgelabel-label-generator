@@ -6,7 +6,7 @@
 import { loadDataAsync } from './data.js';
 import { isEmbedded, labelStudioUrl, addMessage, readReply, replyStatus, labelStudioProblem, labelsButtonText,
   LABEL_STUDIO_MAX_ITEMS, CUSTOM_TEXT_MAX, plannerAsked, readHello, readyMessage, addMessageFor, readPlannerReply,
-  newBatch, creditsPending } from './embed.js';
+  newBatch, creditsPending, readOpen, openedMessage, openRefusedMessage, closeMessage } from './embed.js';
 import { createPicker, FAMILIES, LABEL_WORD_MAX, pathDef as pathDefOf } from './picker.js';
 import { expandBatch, listText, exportDoc, importDoc, fmtStandard, fmtStandardOf } from './batch.js';
 import { STATUS, getPath, leaves, parseNumber, clone, upgradeRecord } from './fields.js';
@@ -21,10 +21,13 @@ import { PLAN, planKey, planEntries } from './plan.js';
 import { stagesFor, stageOfEntry, nextStage, prevStage, stageBeforeBatch, shouldAdvance, readiness, primaryText,
   HOLD_TEXT, heldText, addAllText, colourHint } from './flow.js';
 // a field value's full meaning for the label-words editor: a type id reads as its name ('tooth-internal' -> 'Internal
-// tooth lock washer (DIN 6797 J)'); anything else as stored
-function describeValue(path, value) {
+// tooth lock washer (DIN 6797 J)'); anything else as stored. Described against ITS OWN record: against the part being
+// built, every other family's type read as its raw id ("socket-cap", "hex") on Add all, Make labels and held parts
+// (the label-flow stress test, 2026-10-15)
+const describeFor = (rec) => (path, value) => describeValue(path, value, rec);
+function describeValue(path, value, rec = T()) {
   if (path === 'head') {
-    const t = T();
+    const t = rec;
     const own = D && D.own && D.own.heads.find((x) => x.family === t.family && x.id === value);
     // an INCH record names the standard it uses (an inch plain washer is ASME B18.22.1 N, not the label's ISO 7089); a
     // metric one keeps the label's own wording, which carries more than the table id (DIN 6797 J, DIN 985 / ISO 10511)
@@ -51,11 +54,107 @@ document.documentElement.classList.remove('embed-pending');
 if (PLANNER) {
   window.addEventListener('message', (e) => {
     const h = readHello(e, window);
-    if (!h || planner) return;   // the first hello that passes binds the session; a second one is not a new planner
+    if (!h) return;
+    // the first hello that passes binds; after it, only the SAME planner origin may bind again. The same session again
+    // is a repeat (its ready was lost): answered, nothing else changes. A NEW session rebinds (LABELS-INTEGRATION.md: a
+    // new hello voids every outstanding open) - Sol 01a13fdf found the earlier bind-once guard kept the old session's
+    // open alive and ignored the new one.
+    if (planner && h.origin !== planner.origin) return;
+    if (planner && h.session === planner.session) {
+      try { e.source.postMessage(readyMessage(planner), planner.origin); } catch { /* the parent went away */ }
+      return;
+    }
+    const rebind = !!planner;
     planner = h;
+    openWait = null;   // a new session voids any open still outstanding
+    if (rebind && addWait) {
+      // the old session's send can no longer be answered (its reply carries the old session): retired, as a timeout would
+      clearTimeout(addWait.timer); addWait = null;
+      if (liveHeld().length) state.retry = true;
+    }
+    // the build's own "sent" marks (kept per build in this browser): a second build no longer looks as if it had the
+    // first build's parts (the stress test), and the marks come back when that build's Picker opens again. A rebind to
+    // a planner naming no build starts with none: the old session's marks were for its build.
+    if (planner.buildId) state.sent = new Set(loadSent(planner.buildId));
+    else if (rebind) state.sent = new Set();
+    claimHeld();
     try { e.source.postMessage(readyMessage(planner), planner.origin); } catch { /* the parent went away */ }
     if (state.template) render();   // the hello can arrive before the data is in; the first render then enables the button itself
   });
+  // open/1: the planner's Edit part details (js/embed.js readOpen); before the list is in, the latest one waits for it
+  window.addEventListener('message', (e) => {
+    const r = readOpen(e, window, planner);
+    if (!r) return;
+    openWait = r;   // the latest wins: one still waiting is dropped, unanswered (the planner reads only its latest req)
+    if (booted) runOpen();
+  });
+}
+// Escape inside the frame (the stress test, P-F4; LABELS-INTEGRATION.md "close"): what the Picker has open closes first - a
+// custom value being typed (its own handler), an open select, the List tools or label-words box the focus is in (a box open
+// elsewhere is a section of the page, not something Escape is aimed at), an edit with changes - and only when nothing is
+// left does the planner get asked to close the dialog
+if (PLANNER) {
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing || !planner || !booted) return;
+    const t = e.target && e.target.closest ? e.target : null;
+    // a select only while its list is open (a focused, closed one has nothing to close - Terra 01a13ff5); where :open is
+    // not supported, the browser's own open list takes the key before the page sees it
+    const openList = (el) => { try { return el.tagName === 'SELECT' && el.matches(':open'); } catch { return false; } };
+    if (t && (t.closest('[data-custom]') || openList(t))) return;
+    if (state.customOpen) return;
+    const box = t && t.closest('details[open]');
+    if (box) { box.open = false; const s = box.querySelector('summary'); if (s) s.focus(); return; }
+    if (state.editing !== null && editChanged()) { setStatus('Save or cancel this edit first; then Escape closes the Part Picker.', 'err'); return; }
+    try { window.parent.postMessage(closeMessage(planner), planner.origin); } catch { /* the parent went away */ }
+  });
+}
+let booted = false;    // main() has restored the list
+let openWait = null;   // the open the list is not yet in for
+
+// Pending parts belong to the build they were staged for (LABELS-INTEGRATION.md, "The parts channel's additions"): a
+// planner for another build - or one naming no build after one that did - gets none of them. They go back to the list,
+// unsent, and the bar says so. Run on the hello and again once the list is restored, whichever comes second.
+const heldBuild = () => (state.held.length ? (planner ? planner.buildId || null : state.heldBuild) : null);
+function claimHeld() {
+  if (!planner || !booted) return;
+  const n = liveHeld().length;
+  if (n && (state.heldBuild || null) !== (planner.buildId || null)) {
+    state.held = []; state.retry = false; state.heldBuild = null;
+    save(); if (state.template) render();
+    setStatus(`${n === 1 ? '1 part' : `${n} parts`} pending for another build went back to your list, unsent.`, 'ok');
+  }
+  state.heldBuild = planner.buildId || null;
+}
+// the open itself: that part in Edit - unless that would lose work or send parts the planner did not ask for
+function runOpen() {
+  const r = openWait; openWait = null;
+  if (!r || !planner) return;
+  const answer = (msg) => { try { window.parent.postMessage(msg, planner.origin); } catch { /* the parent went away */ } };
+  const refuse = (why) => answer(openRefusedMessage(planner, r.req, r.id, why));
+  if (r.why) return refuse(r.why);
+  const n = liveHeld().length;
+  if (n) return refuse(`The Part Picker has ${n === 1 ? '1 part' : `${n} parts`} pending: add or clear ${n === 1 ? 'it' : 'them'} first.`);
+  if (addWait) return refuse('The Part Picker is still sending parts to the planner. Try again in a moment.');
+  if (state.editing !== null && state.editing !== r.id && editChanged()) return refuse('The Part Picker has unsaved changes to another part: save or cancel them first.');
+  if (!state.records.some((x) => x.id === r.id)) {
+    // the label item is what prints, not the part: its record cannot be rebuilt from it without guessing values, and a
+    // guessed part sent back would overwrite the label with them. Opening needs the part on this browser's list.
+    return refuse('This part label was made in another browser, so the Part Picker here has no details to edit. Add the part again from here, or edit it in the browser that made it.');
+  }
+  if (state.editing !== r.id) {
+    if (state.editing !== null) leaveEdit();
+    editRecord(r.id);
+  }
+  setStatus('Opened from the planner: change it, then Save and update the label.', 'ok');
+  answer(openedMessage(planner, r.req, r.id));
+}
+// the part being edited differs from its saved record (key order aside)
+function editChanged() {
+  const rec = state.records.find((x) => x.id === state.editing);
+  if (!rec) return false;
+  const t = clone(T()); t.id = rec.id;
+  const norm = (v) => (Array.isArray(v) ? v.map(norm) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, norm(v[k])])) : v);
+  return JSON.stringify(norm(t)) !== JSON.stringify(norm(rec));
 }
 function h(tag, attrs = {}, ...kids) {
   const el = document.createElement(tag);
@@ -75,6 +174,7 @@ function h(tag, attrs = {}, ...kids) {
 }
 
 const STORE = 'gen2-part-picker/1'; // the v1 form's key: both pages read and write the same list
+const HELD_STORE = `gen2-part-picker/held/${MODE}`;
 const { LISTED, CUSTOM, UNKNOWN } = STATUS;
 // fields a batch over THREAD SIZE fills per record from the data (the v1 form hides the same set)
 const PER_SIZE = ['thread.pitch', 'thread.pitch_class', 'drive.tool_size', 'specific.washer.id', 'specific.washer.od',
@@ -134,6 +234,7 @@ const state = {
   chosen: false,         // a family has been chosen (a first visit asks; a returning one restores it)
   stage: 'family',       // the stage whose panel is drawn
   held: [],              // [{ id, hold }] parts on the list waiting to go with the next add (Hold, or a failed send to retry)
+  heldBuild: null,       // the planner build they were staged for (null: none named) - claimHeld()
   retry: false,          // the last send of the held parts failed: the primary reads Try again
   sent: new Set(),       // ids the destination took in full, this session (the list's "sent" mark)
 };
@@ -147,7 +248,12 @@ let storageWarned = false;
 function save() {
   // chosen is saved as such: an import on a first visit saves the template too, and must not make the next visit skip the
   // family question (the code review, 2026-10-14)
-  try { localStorage.setItem(STORE, JSON.stringify({ family: state.family, template: state.saved ? state.saved.template : state.template, records: state.records, label_style: state.labelStyle, chosen: state.chosen })); storageWarned = false; }
+  // held: parts pending for the next add survive a reload or the host closing (the stress test: closed with parts
+  // pending, they sat on the list unmarked after a reload, and nothing said so). They are kept per page (HELD_STORE): the
+  // three pages share the list, and parts pending for the planner must not go out on the Label Studio sheet's next Add
+  try { localStorage.setItem(STORE, JSON.stringify({ family: state.family, template: state.saved ? state.saved.template : state.template, records: state.records, label_style: state.labelStyle, chosen: state.chosen }));
+    // with the build they were staged for (LABELS-INTEGRATION.md: pending parts belong to their build)
+    localStorage.setItem(HELD_STORE, JSON.stringify({ build: heldBuild(), held: state.held })); storageWarned = false; }
   catch {
     // private mode, blocked storage - or FULL: photos are kept in the records, and the browser allows ~5 MB. Say so once,
     // so a long session is not lost silently.
@@ -159,6 +265,30 @@ function save() {
 // A browser that has never chosen one starts with the combined scheme (Jerrari 2026-10-07: labels include the colour
 // accents - metric blue / SAE red, the material as the band accent); choosing "off" as the workshop scheme is stored
 // as null, so it stays off.
+// "sent" marks per planner build (2026-10-15): [[buildId, [record ids]], ...], the most recently saved build LAST, at most
+// 40 kept. A list of pairs, not an object keyed by build: a build named "__proto__" set the object's prototype instead of
+// storing, and number-like build ids enumerate in numeric order, so the oldest-first eviction dropped a build just
+// revisited (Sol 01a13fdf)
+const SENT_STORE = 'gen2-part-picker/sent-by-build';
+const SENT_BUILDS_KEPT = 40;
+function sentEntries() {
+  try {
+    const all = JSON.parse(localStorage.getItem(SENT_STORE) || '[]');
+    return Array.isArray(all) ? all.filter((e) => Array.isArray(e) && typeof e[0] === 'string' && Array.isArray(e[1])) : [];
+  } catch { return []; }
+}
+function loadSent(buildId) {
+  const e = sentEntries().find((x) => x[0] === buildId);
+  return e ? e[1].filter((id) => typeof id === 'string') : [];
+}
+function saveSent() {
+  if (!planner || !planner.buildId) return;   // no build named: the marks stay this page's alone
+  try {
+    const all = sentEntries().filter((x) => x[0] !== planner.buildId);
+    all.push([planner.buildId, [...state.sent].filter((id) => state.records.some((r) => r.id === id))]);
+    localStorage.setItem(SENT_STORE, JSON.stringify(all.slice(-SENT_BUILDS_KEPT)));
+  } catch { /* storage blocked or full: the marks are this page's alone */ }
+}
 const WORKSHOP_STYLE = 'gen2-part-picker/workshop-label-style';
 function workshopStyle() {
   let raw = null;
@@ -176,6 +306,12 @@ function restore() {
     const s = JSON.parse(localStorage.getItem(STORE) || 'null');
     if (!s || !Array.isArray(s.records)) return;
     state.records = s.records.map(upgradeRecord);
+    const kept = JSON.parse(localStorage.getItem(HELD_STORE) || 'null');
+    const held = kept && Array.isArray(kept.held) ? kept.held : null;
+    state.heldBuild = kept && typeof kept.build === 'string' ? kept.build : null;
+    if (Array.isArray(held)) state.held = held.filter((x) => x && typeof x.id === 'string' && state.records.some((r) => r.id === x.id)).map((x) => ({ id: x.id, hold: !!x.hold }));
+    // a send the page closed on, unanswered, is a send that did not land: those parts come back behind Try again
+    state.retry = state.held.some((x) => !x.hold);
     // a list saved before label colours existed has no label_style key: it takes the workshop scheme
     if ('label_style' in s) state.labelStyle = cleanStyle(s.label_style) || null;
     // a returning visitor's family is restored: the flow then starts past the Family stage
@@ -187,10 +323,17 @@ function restore() {
 // ONE status line, in the bar (it used to be two: under the summary's button and under Make labels, both out of sight
 // above a long list). What it says wins over the bar's own reason line until it fades ('ok') or the next change ('err').
 let barMsg = null; let barTimer = null;
-function setStatus(msg, cls = '') {
-  barMsg = msg ? { text: msg, cls } : null;
+// action: { label, run } drawn as a link after the words ("Removed M5 × 16 · Undo"); it stays 10 s, or until the next change
+function setStatus(msg, cls = '', action = null) {
+  barMsg = msg ? { text: msg, cls, action } : null;
   clearTimeout(barTimer);
-  if (msg && cls !== 'err') barTimer = setTimeout(() => { barMsg = null; renderBar(); }, 6000);
+  // the fade waits while its Undo has the keyboard focus: taking the button away dropped the focus to the page (Sol 01a13fac)
+  const fade = () => {
+    const a = document.activeElement;
+    if (a && a.getAttribute && a.getAttribute('data-k') === 'bar-action') { barTimer = setTimeout(fade, 2000); return; }
+    barMsg = null; renderBar();
+  };
+  if (msg && cls !== 'err') barTimer = setTimeout(fade, action ? 10000 : 6000);
   renderBar();
 }
 const setLabelsStatus = setStatus;
@@ -362,7 +505,7 @@ function stageOfKey(key) {
 const STAGE_HINT = {
   family: 'What kind of part is it?',
   type: 'Which one? Pick the picture that matches.',
-  size: 'The thread size. The circles show relative size, not a gauge.',
+  size: 'The thread size: read it off the bag, or match the circle to the thread.',   // (the section's own hint says the circles are not a gauge)
   sizePlain: 'The size: pick the one on the part or its bag.',
   sizes: 'Tick every size you have: each makes its own label.',
   positions: 'Tick every position count you have: each makes its own label.',
@@ -396,7 +539,15 @@ function maybeAdvance(section) {
   if (!st) return;
   const entries = planEntries(state.family);
   const secs = st.keys.map((k) => { const e = entries.find((x) => x.key === k); return { multi: !!(e && e.multi), known: sectionAnswered(k) }; });
-  if (!shouldAdvance(secs)) return;
+  if (!shouldAdvance(secs)) {
+    // a stage with more than one question (a rivet's head AND type, a T-nut's profile and slot, a connector's series):
+    // the next unanswered one is brought into view and given the focus, rather than leaving the person to find "Next"
+    // (the stress test: a rivet's Type sat still after Dome)
+    const i = secs.findIndex((s, j) => !s.multi && !s.known && st.keys[j] !== section);
+    const el = i >= 0 ? $(`sec-${st.keys[i]}`) : null;
+    if (el) { el.scrollIntoView({ block: 'nearest' }); const b = el.querySelector('button'); if (b) b.focus({ preventScroll: true }); }
+    return;
+  }
   const nx = nextStage(stages(), sid);
   if (nx && nx !== 'details') goStage(nx);          // Details never opens by itself
 }
@@ -417,16 +568,20 @@ function goStage(id, { focus = true } = {}) {
 // the stage's heading and its instruction line clear the sticky strip: measured against the strip's own bottom, not the
 // window's top (Astra, 2026-10-14: after Add 3 the strip covered "Type" and its hint). Scrolls only when the panel's top
 // is under the strip or far down the screen.
+// The strip's HEIGHT, not its current bottom: a sticky strip is pushed up by the end of its column, so at the foot of a
+// short panel its bottom read 37 px where it settles at 60, and the heading landed under it (the spacing audit, 390 px).
 function revealStage() {
   const panel = $('stage-panel'); if (!panel) return;
   const strip = document.querySelector('nav.stages');
-  const sb = strip ? Math.max(0, strip.getBoundingClientRect().bottom) : 0;
+  const sh = strip ? strip.offsetHeight : 0;
   const top = panel.getBoundingClientRect().top;
-  if (top < sb + 4 || top > innerHeight * 0.6) window.scrollBy(0, top - sb - 12);
+  if (top < sh + 4 || top > innerHeight * 0.6) window.scrollTo(0, Math.max(0, top + scrollY - sh - 12));
 }
 // the hint names what the stage holds: circles only where circles are drawn (a screw's thread, a batch of thread sizes),
 // position counts for a connector (the stress test found the circle hint on rivets, pins and shoulder screws)
 function stageHint(st) {
+  // editing ONE part: its batch stage is a single choice ("Tick every length…" read wrong there - the stress test)
+  if (!batching() && st.multi) return st.id === 'lengths' ? 'Pick the length of this part.' : 'Pick the size of this part.';
   if (st.id !== 'size') return STAGE_HINT[st.id] || '';
   if (st.keys.includes('positions')) return STAGE_HINT.positions;
   if (st.multi) return STAGE_HINT.sizes;
@@ -532,6 +687,8 @@ function addCustomSel(text, label) {
     setStatus(inch ? `${label}: "${text}" is not a length in inches. Type 1-1/4, 1 1/4 or 1.25.` : `${label}: "${text}" is not a number above zero.`, 'err');
     return false;
   }
+  // a 60-digit "length" became 1.1e+59 on the list (the stress test): no part is 10 m (or 400 in) long
+  if (v >= (inch ? 400 : 10000)) { setStatus(`${label}: ${text} is not a size a part has. Check the number.`, 'err'); return false; }
   if (!state.sel.includes(v)) { state.sel.push(v); state.sel.sort((a, b) => a - b); }
   state.explicit.delete(varyPath());
   return true;
@@ -583,8 +740,9 @@ function stateButtons(section, path, { tiles = false, size = 'md', known = [] } 
       tile({ g: 'custom', label: own ? String(f.value) : 'Custom…', sub: own ? 'custom' : 'type your own',
         on: cusOn, onClick: onCus, size, cls: 'state', title: STATUS_INFO.custom.def })];
   }
-  return [textBtn({ label: 'Unknown', on: unkOn, onClick: onUnk, cls: 'state', title: STATUS_INFO.unknown.def }),
-    textBtn({ label: own ? `${f.value} (custom)` : 'Custom…', on: cusOn, onClick: onCus, cls: 'state', title: STATUS_INFO.custom.def })];
+  // the two travel together: at the end of a wrapped row, Custom… alone on its line read as an orphan (the spacing audit)
+  return h('span', { class: 'states' }, textBtn({ label: 'Unknown', on: unkOn, onClick: onUnk, cls: 'state', title: STATUS_INFO.unknown.def }),
+    textBtn({ label: own ? `${f.value} (custom)` : 'Custom…', on: cusOn, onClick: onCus, cls: 'state', title: STATUS_INFO.custom.def }));
 }
 function focusCustom(key) {
   setTimeout(() => { const i = document.querySelector(`[data-custom="${CSS.escape(key)}"]`); if (i) i.focus(); }, 0);
@@ -602,17 +760,31 @@ function customBox(section, path, label, numeric) {
     placeholder: inchLen ? 'inches: 1-1/4, 1 1/4 or 1.25' : inchSize ? 'an inch size: #6, #10, 1/4' : numeric ? 'a number, e.g. 7' : 'describe it, e.g. pan head',
     value: f.status === CUSTOM ? (inchLen ? fracInch(f.value) : String(f.value)) : '' });
   const use = () => {
-    const text = inp.value.trim();
+    // NFC: a decomposed accent (as macOS file names produce) prints as a box; composed, it prints (the stress test)
+    const text = inp.value.trim().normalize('NFC');
     if (!text) { state.customOpen = null; render(); return; }
-    if (text.length > CUSTOM_TEXT_MAX) { setStatus(`${label}: at most ${CUSTOM_TEXT_MAX} characters, so it fits a label.`, 'err'); return; }
+    if (text.length > CUSTOM_TEXT_MAX) { setStatus(`${label}: at most ${CUSTOM_TEXT_MAX} characters, the most one label word can hold.`, 'err'); return; }
     if (inchLen && parseInch(text) === null) { setStatus(`${label}: "${text}" is not a length in inches. Type 1-1/4, 1 1/4 or 1.25.`, 'err'); return; }
+    if (inchLen && !(parseInch(text) < 400)) { setStatus(`${label}: ${text} in is not a length a part has. Check the number.`, 'err'); return; }   // Sol 01a13fdf: the inch path had no bound
     if (numeric && !inchLen && parseNumber(text) === null) { setStatus(`${label}: "${text}" is not a number. Use a number, or choose Unknown.`, 'err'); return; }
+    if (numeric && !inchLen && !(Math.abs(parseNumber(text)) < 10000)) { setStatus(`${label}: ${text} is not a size a part has. Check the number.`, 'err'); return; }
     apply(section, path, { mode: CUSTOM, value: text });
   };
+  // said WHILE typing: a pinned word longer than about 10 characters does not fit beside the size (measured: FLANGE NUT does
+  // not, FLG NUT and THIN NYLOC do - labelitem.js), and the 60th character is the last (it used to stop silently)
+  const live = h('span', { class: 'cr-live', role: 'status' });
+  const onType = () => {
+    const n = inp.value.trim().length;
+    live.textContent = n >= CUSTOM_TEXT_MAX ? `${CUSTOM_TEXT_MAX} characters is the most one label word can hold.`
+      : !numeric && isPinned(T(), path) && n > 10 ? 'Long for a label: about 10 characters fit beside the size. Shorten it, or unpin it in Part details.' : '';
+  };
+  inp.addEventListener('input', onType);
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') use(); if (e.key === 'Escape') { state.customOpen = null; render(); } });
+  onType();
   return h('div', { class: 'custom-row' }, h('span', { class: 'cr-lab' }, `${label} - your own value`), inp,
     h('button', { type: 'button', class: 'btn', onclick: use }, 'Use'),
     h('button', { type: 'button', class: 'btn ghost', onclick: () => { state.customOpen = null; render(); } }, 'Cancel'),
+    live,
     h('span', { class: 'cr-note' }, 'Saved as Custom: kept as typed, with no data source.'));
 }
 function optLabel(path, value, rec = T()) {
@@ -923,7 +1095,7 @@ function lengthsSection(key, idx) {
         h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.sel = state.sel.filter((v) => vals.includes(v)); render(); } }, 'Remove these')));
     }
   }
-  if (opts.length) body.push(h('div', { class: 'note' }, `Our reference list${stdName ? ' for ' + stdName : ''} ${threadText(t)} (bd_warehouse) - the library's coverage, not every length made or listed by the standard.`
+  if (opts.length) body.push(h('div', { class: 'note' }, `The lengths our reference data lists${stdName ? ' for ' + stdName : ''} ${threadText(t)} - not every length made. Any other: type it below.`
     + (info.note ? ' ' + info.note + '.' : '')));
   else if (!unlock) body.push(h('div', { class: 'note' }, info.note || 'No listed lengths for this selection: add your own.'));   // the unlock note already says it
   body.push(...notes(info));
@@ -993,7 +1165,7 @@ function batchSection(e, idx) {
     info.options.map((o) => textBtn({ label: o.label + u, on: state.sel.includes(o.value), check: true, onClick: () => toggleSel(o.value, e.key) })),
     off.map((x) => textBtn({ label: `${fmtNum(x)}${u} (custom)`, on: true, check: true, cls: 'off', title: 'not in the list - saved as Custom. Click to remove.',
       onClick: () => toggleSel(x, e.key) })))];
-  body.push(selTools(e.key, e.noun === 'lengths' ? 'length' : 'size', vals));
+  body.push(selTools(e.key, e.noun === 'lengths' ? 'length' : e.key === 'positions' ? 'position count' : 'size', vals));   // a connector's own words
   if (off.length) body.push(h('div', { class: 'note' }, `Not in the list: ${off.map(fmtNum).join(', ')}${u} - saved as Custom.`));
   return sectionEl(e.key, idx, e.title, e.hint || 'tick several - one part each', ...body);
 }
@@ -1042,8 +1214,8 @@ function detailsSection(e, idx) {
   const field = (label, val, onSet, ph, wide, live) => {
     const i = h(wide ? 'textarea' : 'input', { type: wide ? null : 'text', rows: wide ? 2 : null, placeholder: ph, 'aria-label': label });
     i.value = val || '';
-    i.addEventListener('change', () => onSet(i.value));
-    if (live) i.addEventListener('input', () => live(i.value));
+    i.addEventListener('change', () => onSet(i.value.normalize('NFC')));   // NFC: see customBox
+    if (live) i.addEventListener('input', () => live(i.value.normalize('NFC')));
     return h('label', { class: 'dl' }, h('span', { class: 'dl-k' }, label), i);
   };
   // an Other part is ready once it has a name: the bar follows each keystroke, not only the field's change on blur
@@ -1056,7 +1228,7 @@ function detailsSection(e, idx) {
   });
   const tagsIn = h('input', { type: 'text', placeholder: 'e.g. 3D printer, Voron', 'aria-label': 'Collections' });
   tagsIn.value = (t.tags || []).join(', ');
-  tagsIn.addEventListener('change', () => loud({ tags: tagsIn.value.split(',') }));
+  tagsIn.addEventListener('change', () => loud({ tags: tagsIn.value.normalize('NFC').split(',') }));
   const known = [...new Set(state.records.flatMap((r) => r.tags || []))].filter((x) => !(t.tags || []).includes(x));
   return sectionEl(e.key, idx, isOther ? 'The part' : e.title,
     isOther ? 'save it now and give it a family later - it keeps its id, name and photo'
@@ -1225,14 +1397,18 @@ function stageFoot(sts, cur) {
   const title = (id) => sts.find((s) => s.id === id).title;
   return h('div', { class: 'stage-foot' },
     prev ? h('button', { type: 'button', class: 'btn ghost', onclick: () => goStage(prev) }, `◂ ${title(prev)}`) : h('span'),
-    next ? h('button', { type: 'button', class: 'btn', onclick: () => goStage(next) }, `Next: ${title(next)} ▸`)
+    next ? h('button', { type: 'button', class: 'btn', disabled: !state.chosen || null, title: state.chosen ? null : 'Choose a family first', onclick: () => goStage(next) }, `Next: ${title(next)} ▸`)
       : h('span', { class: 'muted small' }, 'That is everything. Add with the button below.'));
 }
 
 // ------------------------------------------------------------------ part summary + will add
+// three columns: the name, the value with its status word, and the actions kept together (the spacing audit: as one
+// wrapping row, "pin" fell onto a line of its own after "Unknown · Use none")
 function factRow(label, field, text, opts = {}) {
-  return h('div', { class: 'fact' }, h('span', { class: 'f-k' }, label), h('span', { class: 'f-v' }, text || (field && field.status === UNKNOWN ? '-' : '')),
-    field ? statusChip(field) : null, ...(opts.sugg || []), opts.pin ? pinButton(opts.pin, label) : null);
+  const acts = [...(opts.sugg || []), opts.pin ? pinButton(opts.pin, label) : null].filter(Boolean);
+  return h('div', { class: 'fact' }, h('span', { class: 'f-k' }, label),
+    h('span', { class: 'f-mid' }, h('span', { class: 'f-v' }, text || (field && field.status === UNKNOWN ? '-' : '')), field ? statusChip(field) : null),
+    acts.length ? h('span', { class: 'f-act' }, ...acts) : null);
 }
 // pin a field to the printed label (2026-10-05): a pinned field must appear, or the label preview reports a non-fit;
 // unpinned fields go on while they fit and the preview lists the rest as "Not shown on label". The record keeps every field.
@@ -1283,6 +1459,12 @@ function summaryCard() {
   card.append(h('div', { class: 'headline mono' }, headline));
   card.append(h('div', { class: 'typeline' }, t.family === 'other' ? 'Other part - give it a family later from the list'
     : [headLabel(t, false) || `${FAMILY_LABEL[t.family]} - type unknown`, stdText(t)].filter(Boolean).join(' · ')));
+  // a collection is sticky - every part added from now on joins it - so it says so where the part is read, with a way
+  // out (the stress test: "Voron", typed once, quietly tagged 12 parts of five families)
+  if (t.tags && t.tags.length) {
+    card.append(h('div', { class: 'collection-note' }, `Collection: ${t.tags.join(', ')}. Every part you add joins it. `,
+      h('button', { type: 'button', class: 'linkish', onclick: () => { state.template = P.setMeta(T(), { tags: [] }); save(); render(); setStatus('No collection: the next parts join none.', 'ok'); } }, 'Stop adding to it')));
+  }
   const facts = h('div', { class: 'facts' });
   // the type's own row, with its pin (the pin sat on the type line before Part details held them all)
   if (t.family !== 'other') facts.append(factRow('Type', t.head, headLabel(t, false), { pin: 'head' }));
@@ -1373,14 +1555,18 @@ function summaryTail(card, facts) {
         const def = pathDefOf(T().family, a.path);
         const inp = h('input', { type: 'text', maxlength: String(LABEL_WORD_MAX), value: a.custom ? a.text : '', placeholder: a.custom ? a.proposed : a.text,
           'aria-label': `Label wording for ${def ? def.label.toLowerCase() : a.path} (blank = ${a.custom ? a.proposed : a.text})`,
-          onchange: (e) => { state.template = P.setMeta(T(), { label_words: { [a.path]: e.target.value } }); save(); render(); } });
+          onchange: (e) => { state.template = P.setMeta(T(), { label_words: { [a.path]: e.target.value.normalize('NFC') } }); save(); render(); } });
         return h('div', { class: 'lw-row' }, h('span', { class: 'lw-k' }, def ? def.label : a.path),
           h('b', { class: 'lw-t' }, a.text), h('span', { class: 'muted lw-m' }, a.custom ? `your word for ${a.meaning} (proposed: ${a.proposed})` : `= ${a.meaning}`,
             a.wording_note ? h('span', { class: `lw-note ${a.wording}` }, ` - ${a.wording_note}`) : null), inp);
       });
-      pd.append(h('details', { class: 'lw' }, h('summary', {}, 'Label words - what prints, and your own wording'),
+      // stays open across the re-render each word causes (it closed after every word - the stress test)
+      const lwBox = h('details', { class: 'lw', open: lwOpen || null });
+      lwBox.addEventListener('toggle', () => { lwOpen = lwBox.open; });
+      pd.append(lwBox);
+      lwBox.append(h('summary', {}, 'Label words - what prints, and your own wording'),
         h('div', { class: 'muted pinnote' }, 'The short forms are proposals. Type your own word to print instead; leave it blank to use the proposal.'),
-        ...rows));
+        ...rows);
     }
     pd.append(colourLine());
   }
@@ -1408,6 +1594,7 @@ function colourLine() {
   return box;
 }
 let colourOpen = false;
+let lwOpen = false;
 function willRow(r) {
   const vp = varyPath();
   const vf = vp ? getPath(r, vp) : null;
@@ -1441,14 +1628,27 @@ function willRow(r) {
     suggs.length ? h('span', { class: 'muted small', title: STATUS_INFO.suggested.def }, `suggested: ${suggs.join(', ')}`) : null);
 }
 
+// a part's kind in a sentence, singular: "nut", "set screw", "standoff" ("Other part" is a "part")
+const KIND = { screw: 'screw', nut: 'nut', washer: 'washer', setscrew: 'set screw', insert: 'insert', fitting: 'fitting', tnut: 'T-nut', rivet: 'rivet', other: 'part' };
+const kindOf = (r) => KIND[r.family] || (FAMILY_LABEL[r.family] || 'part').replace(/s$/, '').toLowerCase();
+const partName = (r) => (r.family === 'other' ? (r.label || 'the part') : `${shortSpec(r)} ${kindOf(r)}`);
 // ------------------------------------------------------------------ the one add action (the flow refine §4)
 // What an add would make right now, and whether it may: js/flow.js decides, from the would-be records
 function ready() {
   const t = T();
   // a family with no Pitch section draws no threads-per-inch control: an inch nut's own size may leave it Unknown
   const unsettable = PLAN[t.family].some((e) => planKey(e) === 'pitch') ? new Set() : new Set(['thread.tpi']);
-  return readiness({ family: t.family, chosen: state.chosen, template: t, records: previews(), sel: batching() ? state.sel : [],
+  const r = readiness({ family: t.family, chosen: state.chosen, template: t, records: previews(), sel: batching() ? state.sel : [],
     explicit: state.explicit, varyPath: batching() ? varyPath() : null, unsettable });
+  // the reasons read in the panel's order (a shoulder screw's said "thread" first, its panel shows the diameter first)
+  r.missing.sort((a, b) => panelOrder(a.path) - panelOrder(b.path));
+  return r;
+}
+function panelOrder(path) {
+  const plan = PLAN[T().family] || [];
+  const key = path === 'thread.diameter' || path === 'thread.tpi' ? ['thread', 'sizes'] : path === 'length.value' ? ['lengths'] : null;
+  const i = plan.findIndex((e) => (key ? key.includes(planKey(e)) : !Array.isArray(e) && e.path === path));
+  return i < 0 ? 999 : i;
 }
 const liveHeld = () => state.held.filter((x) => state.records.some((r) => r.id === x.id));
 const recordOf = (id) => state.records.find((r) => r.id === id);
@@ -1470,7 +1670,7 @@ function commitBatch(recs) {
 // the label items for records, or null after naming the one the destination could not take (nothing is sent then)
 function itemsFor(recs) {
   if (recs.length > LABEL_STUDIO_MAX_ITEMS) { setStatus(`At most ${LABEL_STUDIO_MAX_ITEMS} labels go at once; this is ${recs.length}. Hold fewer, or tick fewer, and add the rest after.`, 'err'); return null; }
-  const items = recs.map((r) => labelItem(r, { describe: describeValue, style: state.labelStyle }));
+  const items = recs.map((r) => labelItem(r, { describe: describeFor(r), style: state.labelStyle }));
   for (let i = 0; i < items.length; i++) {
     const why = labelStudioProblem(items[i]);
     if (why) { setStatus(`${shortSpec(recs[i])} cannot become a label: ${why}. Change it, then add again.`, 'err'); return null; }
@@ -1484,7 +1684,8 @@ function addParts() {
     if (!r.ready) return;
     const recs = batchRecords();
     commitBatch(recs); save(); render(); revealStage();   // the next batch starts with its heading in view
-    setStatus(recs.length === 1 ? `Added ${shortSpec(recs[0])} to the list.` : `Added ${recs.length} parts to the list: ${recs.map(shortSpec).join(', ')}.`, 'ok');
+    // the part named with its kind: "Added M4 to the list." read the same for a nut and a washer (the stress test)
+    setStatus(recs.length === 1 ? `Added ${partName(recs[0])} to the list.` : `Added ${recs.length} ${kindOf(recs[0])}s to the list: ${recs.map(shortSpec).join(', ')}.`, 'ok');
     return;
   }
   // the embeds: the held parts, plus the current batch when it is ready, go in ONE message
@@ -1522,6 +1723,20 @@ function dropHeld() {
   save(); render();
   setStatus(gone.size ? `Cleared ${gone.size} pending part${gone.size === 1 ? '' : 's'}; nothing was sent.` : 'Nothing is pending now; those parts stay on your list.', 'ok');
 }
+// Remove is instant, so it can be taken back: the bar says what went, with Undo, which puts it back where it was - same id,
+// so a label made from it still matches (2026-10-15: Remove had no confirm and the Picker no undo at all)
+function removeRecord(r) {
+  if (state.editing === r.id) leaveEdit();
+  const at = state.records.findIndex((x) => x.id === r.id);
+  if (at < 0) return;
+  state.records.splice(at, 1);
+  save(); render();
+  setStatus(`Removed ${shortSpec(r)}.`, 'ok', { label: 'Undo', run: () => {
+    if (!state.records.some((x) => x.id === r.id)) state.records.splice(Math.min(at, state.records.length), 0, r);
+    save(); render();
+    setStatus(`${shortSpec(r)} is back on the list.`, 'ok');
+  } });
+}
 function editRecord(id) {
   const rec = state.records.find((r) => r.id === id); if (!rec) return;
   if (!state.saved) state.saved = { template: state.template, family: state.family, sel: state.sel, section: state.section, stage: state.stage, explicit: [...state.explicit], chosen: state.chosen };
@@ -1544,7 +1759,7 @@ function saveEdit() {
     const items = itemsFor([r]);
     if (items) {
       if (!state.held.some((x) => x.id === r.id)) state.held.push({ id: r.id, hold: false });
-      sendItems(items, [r.id], { bar: true });
+      sendItems(items, [r.id], { bar: true, edit: true });
     }
   }
   else setStatus(`Saved ${shortSpec(r)}.`, 'ok');
@@ -1570,6 +1785,9 @@ function listCard() {
   card.append(h('div', { class: 'card-k' }, `YOUR PARTS · ${state.records.length}`));
   if (!state.records.length) card.append(h('div', { class: 'muted' }, 'Nothing added yet.'));
   const heldIds = new Set(liveHeld().map((x) => x.id));
+  // List tools go ABOVE the rows (filled in at the end): under 200 parts they started 19,290 px down the column
+  const toolsSlot = h('div', { class: 'tools-slot' });
+  card.append(toolsSlot);
   // collections are a FILTER over one list, never copies (design review)
   const tags = [...new Set(state.records.flatMap((r) => r.tags || []))].sort();
   if (state.listFilter && !tags.includes(state.listFilter)) state.listFilter = null;
@@ -1598,7 +1816,7 @@ function listCard() {
       h('span', { class: 'lact' },
         h('button', { type: 'button', class: 'btn sm ghost', onclick: () => editRecord(r.id), disabled: state.editing === r.id || null }, 'Edit'),
         h('button', { type: 'button', class: 'btn sm ghost', title: 'duplicate', onclick: () => { const x = clone(r); x.id = P.idgen(); state.records.splice(i + 1, 0, x); save(); render(); } }, 'Copy'),
-        h('button', { type: 'button', class: 'btn sm ghost danger', onclick: () => { if (state.editing === r.id) leaveEdit(); state.records.splice(i, 1); save(); render(); } }, 'Remove'),
+        h('button', { type: 'button', class: 'btn sm ghost danger', 'aria-label': `Remove ${shortSpec(r)}`, onclick: () => removeRecord(r) }, 'Remove'),
         r.family === 'other' && state.editing === null ? reassignControl(r) : null)));
   });
   let armed = false;
@@ -1637,9 +1855,11 @@ function listCard() {
         setStatus(`Exported ${state.records.length} parts.`, 'ok');
       } }, 'Export JSON'),
       h('button', { type: 'button', class: 'btn sm ghost', onclick: () => imp.click() }, 'Import JSON'),
-      clearBtn, imp));
+      imp),
+    // the one that takes everything away, on a row of its own and set apart (it wrapped alone onto a line before)
+    h('div', { class: 'row list-danger' }, clearBtn));
   tools.addEventListener('toggle', () => { toolsOpen = tools.open; });
-  card.append(tools);
+  toolsSlot.replaceWith(tools);
   if (state.textView) card.append(h('textarea', { readonly: true, rows: 10, class: 'textview' }, state.textView));
   if (state.importReview) card.append(importReviewBox());
   return card;
@@ -1663,11 +1883,11 @@ function labelsButton({ prominent = false, inBar = false } = {}) {
     title: PLANNER ? (planner ? 'Send a part label for every part shown here (the collection filter applies) to your planner build: new ones are added, ones already there updated.' : 'Waiting for the planner to connect.')
       : EMBED ? 'Send a part label for every part shown here (the collection filter applies) to your list in the Label Studio: new ones are added, ones already there updated.'
       : 'Open the Label Studio with a part label for every part shown here (the collection filter applies): preview them, export a 3MF, or add them to a planner build.' },
-    EMBED ? addAllText(n, MODE) : labelsButtonText(n, false));
+    EMBED ? addAllText(n, MODE, !!(planner && planner.buildId)) : labelsButtonText(n, false));
 }
 // post label items to the destination and wait for its word (js/embed.js has both contracts). bar: the bar's own add, whose
 // parts stay held for Try again until a reply says they were taken
-function sendItems(items, ids, { bar }) {
+function sendItems(items, ids, { bar, edit = false }) {
   const missing = items.filter((it) => it.value_missing && it.value_missing.length).length;
   const missingNote = missing ? ` ${missing} ${missing === 1 ? 'is' : 'are'} missing a value and will not print until completed.` : '';
   const n = `${items.length} part label${items.length === 1 ? '' : 's'}`;
@@ -1680,7 +1900,7 @@ function sendItems(items, ids, { bar }) {
     if (!planner) { setStatus('The planner has not connected yet; try again in a moment.', 'err'); if (bar) { state.retry = true; renderBar(); } return; }
     window.parent.postMessage(addMessageFor(items, planner, batch), planner.origin);
   } else window.parent.postMessage(addMessage(items, batch), location.origin);
-  const w = { ids, bar, missingNote, batch };
+  const w = { ids, bar, missingNote, batch, edit };
   w.timer = setTimeout(() => {
     addWait = null;           // the batch is RETIRED: a reply that comes after all matches nothing (Astra, 2026-10-14)
     if (bar) state.retry = true;
@@ -1694,8 +1914,8 @@ function sendItems(items, ids, { bar }) {
 function makeLabels() {
   const recs = shownRecords();
   if (!recs.length) return;
-  if (recs.length > LABEL_STUDIO_MAX_ITEMS) { setLabelsStatus(`The Label Studio takes up to ${LABEL_STUDIO_MAX_ITEMS} labels at once; ${recs.length} are shown. Filter to a collection first.`, 'err'); return; }
-  const items = recs.map((r) => labelItem(r, { describe: describeValue, style: state.labelStyle }));
+  if (recs.length > LABEL_STUDIO_MAX_ITEMS) { setLabelsStatus(`${PLANNER ? 'The planner' : 'The Label Studio'} takes up to ${LABEL_STUDIO_MAX_ITEMS} labels at once; ${recs.length} are shown. Filter to a collection first.`, 'err'); return; }
+  const items = recs.map((r) => labelItem(r, { describe: describeFor(r), style: state.labelStyle }));
   // one item the Studio cannot take would cost the whole batch: name it here instead, and send nothing
   for (let i = 0; i < items.length; i++) {
     const why = labelStudioProblem(items[i]);
@@ -1727,7 +1947,7 @@ if (EMBED) {
       // the reply carries counts, not row ids (Sol 01a13c2c): "sent" only on a full acknowledgement - and a part sent in full
       // is no longer held, whichever button sent it (Add all, Save and update; the code review found × then deleting parts
       // the destination had)
-      if (full) { for (const id of w.ids) state.sent.add(id); state.held = state.held.filter((x) => !done.has(x.id)); }
+      if (full) { for (const id of w.ids) state.sent.add(id); state.held = state.held.filter((x) => !done.has(x.id)); saveSent(); }
       if (w.bar) {
         // only a FULL acknowledgement releases the batch. A partial one cannot say which part was skipped (counts, not
         // ids), so all of it stays held for Try again - the destination updates the ones it took in place (Sol 01a13c5f)
@@ -1735,17 +1955,23 @@ if (EMBED) {
         else state.retry = true;   // refused, partly taken, or nothing taken: the batch stays held for Try again
       }
       if (!liveHeld().length) state.retry = false;
-      render();
+      // the held parts are saved (a reload keeps them), so the answer that releases them is saved too - or a reload
+      // brought back, as pending, parts the destination already took (the browser check, 2026-10-15)
+      save(); render();
     }
     const s = replyStatus(r);
-    const text = !PLANNER ? s.text
-      : r.kind === 'refused' ? `The planner did not add them: ${r.reason || 'it gave no reason'}`
-        : r.skipped && r.count ? `${r.count} added, ${r.skipped} skipped: the planner's list shows which.`
-          : s.text.replace('to your list', 'to your build');
+    // an edit's answer is "Updated", not "Added" (the stress test: Save and update read "Added 1 part label")
+    const text = w.edit && r.kind === 'added' && r.count && !r.skipped ? `Updated the label in your ${PLANNER ? 'build' : 'list'}.`
+      : !PLANNER ? s.text
+        : r.kind === 'refused' ? `The planner did not add them: ${r.reason || 'it gave no reason'}`
+          : r.skipped && r.count ? `${r.count} added, ${r.skipped} skipped: the planner's list shows which.`
+            : s.text.replace('to your list', 'to your build');
     setLabelsStatus(text + note, note ? 'err' : s.cls);
   });
 }
-const styleName = (st) => (!st ? 'no colours' : st.preset || 'a scheme from a file');
+// a scheme's name as a person reads it: the preset names carry their decision dates ("thread system + material
+// (2026-10-07)"), which belong in the record, not on the screen (the stress test)
+const styleName = (st) => (!st ? 'no colours' : st.preset ? String(st.preset).replace(/\s*\((?:proposed, )?\d{4}-\d{2}-\d{2}\)\s*$/, '') : 'a scheme from a file');
 const colourText = (c) => (!c ? 'none' : c.colour ? `${c.label}${c.pattern === 'dashed' ? ', dashed' : ''}` : `unassigned (${c.unassigned})`);
 function applyImport(records, problems, fileStyle, adoptFileStyle) {
   let note = '';
@@ -1794,7 +2020,7 @@ function styleControl() {
   const presetKey = Object.keys(PRESETS).find((k) => sameStyle(PRESETS[k], state.labelStyle));
   const tag = (st) => (sameStyle(st, ws) ? ' (workshop)' : '');
   sel.append(h('option', { value: 'off' }, `Label colours: off${tag(null)}`));
-  for (const [k, st] of Object.entries(PRESETS)) sel.append(h('option', { value: k }, `Label colours: ${st.preset}${tag(st)}`));
+  for (const [k, st] of Object.entries(PRESETS)) sel.append(h('option', { value: k }, `Label colours: ${styleName(st)}${tag(st)}`));
   if (state.labelStyle && !presetKey) sel.append(h('option', { value: 'own' }, `Label colours: ${styleName(state.labelStyle)}${tag(state.labelStyle)}`));
   sel.value = !state.labelStyle ? 'off' : presetKey || 'own';
   sel.addEventListener('change', () => {
@@ -1913,6 +2139,9 @@ function render() {
     const c = strip.querySelector('.stg.cur');
     if (c) strip.scrollLeft = Math.max(0, c.offsetLeft - strip.offsetLeft - 8);
   }
+  // ...and says so: the side that has more fades out (the spacing review: earlier stages hid with no cue)
+  const cue = () => { strip.classList.toggle('more-left', strip.scrollLeft > 2); strip.classList.toggle('more-right', strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 2); };
+  cue(); strip.addEventListener('scroll', cue, { passive: true });
   const cur = sts.find((s) => s.id === state.stage);
   const panel = h('div', { id: 'stage-panel', class: `stage-panel stage-${cur.id}` },
     h('h2', { id: 'stage-h', class: 'stage-h', tabindex: '-1' }, cur.title, h('span', { class: 'hint' }, stageHint(cur))));
@@ -1989,7 +2218,9 @@ function renderBar() {
   const n = editing ? 1 : !state.chosen ? 0 : r.ready ? previews().length : held.length ? 0 : state.sel.length;
   const total = (r.ready ? n : 0) + held.length;
   // one send at a time, and nothing posted before the planner has connected; Save on its own page only saves, so it always may
-  const can = editing ? MODE === 'standalone' || (!connecting && !addWait) : total > 0 && !connecting && !addWait;
+  // more than 200 at once is refused by both destinations: the bar says so rather than looking ready (the stress test)
+  const over = !editing && MODE !== 'standalone' && total > LABEL_STUDIO_MAX_ITEMS;
+  const can = editing ? MODE === 'standalone' || (!connecting && !addWait) : total > 0 && !connecting && !addWait && !over;
   // the focus, before the slots are redrawn: a button that had it gets it back (the code review: a status change dropped it)
   const had = bar.contains(document.activeElement) ? document.activeElement : null;
   const key = had && (had.id || had.getAttribute('data-k'));
@@ -2009,7 +2240,7 @@ function renderBar() {
   primary.onclick = editing ? saveEdit : addParts;
   const more = [];
   if (editing) more.push(h('button', { type: 'button', class: 'btn ghost', 'data-k': 'cancel-edit', onclick: cancelEdit }, 'Cancel'));
-  else if (MODE !== 'standalone' && r.ready && !retry && !(state.retry && held.length) && !connecting && !addWait) {
+  else if (MODE !== 'standalone' && r.ready && !retry && !(state.retry && held.length) && !connecting && !addWait && total < LABEL_STUDIO_MAX_ITEMS) {
     more.push(h('button', { type: 'button', class: 'btn ghost hold', 'data-k': 'hold', onclick: holdBatch,
       title: 'Keep these parts pending and pick another size or type: your next Add sends them all at once' }, HOLD_TEXT));
   }
@@ -2019,8 +2250,13 @@ function renderBar() {
   if (key && key !== 'add-parts') { const again = act.querySelector(`#${CSS.escape(key)}, [data-k="${CSS.escape(key)}"]`); if (again && !again.disabled) again.focus({ preventScroll: true }); }
   // an Add that went (and so waits again) hands the focus to the stage it left open, not to the page
   if (had === primary && primary.disabled) { const hd = $('stage-h'); if (hd) hd.focus({ preventScroll: true }); }
-  if (barMsg) setLine(`msg:${barMsg.cls}:${barMsg.text}`, barMsg.cls, barMsg.text);
+  if (barMsg && barMsg.action) {
+    const a = barMsg.action;
+    setLine(`msg:${barMsg.cls}:${barMsg.text}:${a.label}`, barMsg.cls, `${barMsg.text} `,
+      h('button', { type: 'button', class: 'linkish', 'data-k': 'bar-action', onclick: () => { barMsg = null; clearTimeout(barTimer); a.run(); } }, a.label));
+  } else if (barMsg) setLine(`msg:${barMsg.cls}:${barMsg.text}`, barMsg.cls, barMsg.text);
   else if (connecting) setLine('connecting', '', 'Connecting to the planner…');
+  else if (over) setLine(`over:${total}`, 'err', `${total} parts is more than the ${LABEL_STUDIO_MAX_ITEMS} that go at once: untick some, or clear the pending ones (×) and add them in two goes.`);
   else if (!editing && !r.ready && r.missing.length) {
     const lead = held.length ? `${heldText(held.length)}. To add this one too: ` : '';
     const kidsLine = lead ? [lead] : [];
@@ -2040,7 +2276,10 @@ async function main() {
     h('div', { class: 'bar-act' }, h('span', { class: 'bar-held' }), h('button', { type: 'button', id: 'add-parts', class: 'btn primary', disabled: true }, 'Add'),
       h('span', { class: 'bar-more' })),
     h('div', { id: 'bar-line', class: 'bar-line', role: 'status', 'aria-live': 'polite' }));
-  document.body.append(bar, h('div', { id: 'flow-live', class: 'sr-only', 'aria-live': 'polite' }));
+  // the bar sits in the DOM right after the builder, before the summary and the list: it is pinned on screen anyway, and
+  // last in the DOM it was the last Tab stop, after every list row (the stress test: 105 Tabs with 30 parts)
+  $('builder').after(bar);
+  document.body.append(h('div', { id: 'flow-live', class: 'sr-only', 'aria-live': 'polite' }));
   // the page keeps the bar's MEASURED height free below it (a wrapped bar outgrew the old fixed 76 px; Sol 01a13c2c)
   const fit = () => document.documentElement.style.setProperty('--bar-h', `${bar.offsetHeight}px`);
   if (typeof ResizeObserver === 'function') new ResizeObserver(fit).observe(bar);
@@ -2056,6 +2295,8 @@ async function main() {
     $('builder').textContent = location.protocol === 'file:'
       ? `Could not load the data files (${e.message}). Serve this folder with: python serve.py`
       : `Could not load the part data (${e.message}). Reload the page to try again.`;
+    // ...and the bar says so too: it went on saying "Loading parts…" (the stress test)
+    const ln = $('bar-line'); if (ln) { ln.dataset.sig = 'failed'; ln.className = 'bar-line err'; ln.textContent = 'The part data did not load. Reload the page to try again.'; }
     return;
   }
   try {                      // the rendered pictures are optional: without them every tile keeps its glyph
@@ -2076,5 +2317,8 @@ async function main() {
   }
   render();
   window.__PICKER__ = { P, D, state, render }; // dev console and browser checks
+  booted = true;
+  claimHeld();
+  if (openWait) runOpen();
 }
 main();

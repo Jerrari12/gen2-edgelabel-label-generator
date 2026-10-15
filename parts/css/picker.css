@@ -12,7 +12,14 @@
   --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   --display: 'Space Grotesk', var(--sans);
+  /* SPACING (2026-10-15, Joey: "look how close these buttons are together"): the floors the spacing audit checks
+     (tools/spacing-audit.mjs), in one place. Tiles: both controls 56 px or more on their short side. */
+  --gap-tile: 12px;     /* between tiles: the family, type and size grids */
+  --gap-chip: 8px;      /* between buttons and chips in a row, and between row actions */
+  --gap-group: 12px;    /* between a control row and the grid it controls (Units over the sizes) */
 }
+/* under 600 px the tile grids fill the row, and 10 px between them reads as separate */
+@media (max-width: 600px) { :root { --gap-tile: 10px; } }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; }
 button { font: inherit; color: inherit; cursor: pointer; }
@@ -48,7 +55,7 @@ html.embed .layout { padding-top: 14px; }
    on a phone or at 200 % zoom never covers a choice or a focused control. */
 body { padding-bottom: calc(var(--bar-h, 76px) + 8px); }
 html { scroll-padding-bottom: calc(var(--bar-h, 76px) + 8px); scroll-padding-top: 76px; }
-.flowbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
+.flowbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
   padding: 10px 16px; background: var(--panel); border-top: 1px solid var(--line-2); box-shadow: 0 -6px 18px rgba(0,0,0,.18); }
 .flowbar .bar-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .flowbar .bar-held, .flowbar .bar-more { display: contents; }
@@ -95,7 +102,7 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 
 /* THE STAGE STRIP (2026-10-14, the flow refine §3; it replaced C's token grid): one button per stage with its value so far,
    sticky at the top; navigation and progress, never a gate */
-.stages { display: flex; gap: 6px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 14px; padding: 6px;
+.stages { display: flex; gap: var(--gap-chip); background: var(--panel); border: 1px solid var(--line-2); border-radius: 14px; padding: 6px;
   position: sticky; top: 0; z-index: 3; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
 .stg { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 10px; border-radius: 10px;
   border: 1px solid transparent; background: transparent; text-align: left; }
@@ -130,7 +137,7 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .group-lab { font-size: 13px; color: var(--ink); margin: 4px 0 8px; font-weight: 600; }
 .group-lab:not(:first-child) { margin-top: 14px; }
 
-.tiles { display: grid; gap: 10px; }
+.tiles { display: grid; gap: var(--gap-tile); }
 .tiles.cols-5 { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); }
 .tiles.cols-6 { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
 .tile { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 96px; padding: 10px 6px;
@@ -163,8 +170,16 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .tile.state.on { border-style: solid; }
 .chk { position: absolute; top: 6px; right: 8px; font-size: 14px; font-weight: 700; color: var(--accent-ink); }
 
-.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.row.wrap { gap: 8px; }
+.row { display: flex; align-items: center; gap: var(--gap-chip); flex-wrap: wrap; }
+.row.wrap { gap: var(--gap-chip); }
+/* a control row and the grid it controls are two things: the Units row sat flush on the size tiles (0 px) */
+.sec > .row + .thr-row, .sec > .thr-row + .row, .sec > .row + .len-grid, .sec > .len-grid + .row,
+.sec > .row + .tiles, .sec > .tiles + .row { margin-top: var(--gap-group); }
+/* Unknown and Custom… travel together: alone at the end of a wrapped row, Custom… read as an orphan */
+.states { display: inline-flex; gap: var(--gap-chip); flex-wrap: wrap; align-items: center; max-width: 100%; }
+/* ...but a long typed value never pushes the row wider than its column: the button shortens, its title holds it all
+   (Sol 01a13fac: nowrap overflowed on a narrow screen with a long custom value) */
+.states .tb { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row .spacer { flex: 1; }
 .row.tools { margin-top: 12px; }
 .tb { min-height: 44px; padding: 4px 14px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--panel); position: relative; }
@@ -174,8 +189,10 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .tb.state.on { border-style: solid; }
 
 /* threads: a scaled circle as a supporting illustration inside a generous target */
-.thr-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
-.thr { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-width: 66px; min-height: 92px;
+/* a grid, so the tiles share the row evenly (as a wrapping flex row they left ~60 px empty at the right on a phone) */
+.thr-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: var(--gap-tile); align-items: stretch; }
+.thr-row > .states { grid-column: 1 / -1; }
+.thr { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; min-height: 92px;
   padding: 8px 8px 10px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--panel); }
 .thr .circ { display: block; border-radius: 50%; border: 2px solid var(--ink); }
 .thr .tl { font-size: 16px; font-weight: 600; }
@@ -192,7 +209,7 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .pitch.on .tg { color: var(--accent-ink); }
 
 /* lengths: C's compact buttons, checkmark + a proportional bar inside */
-.len-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; }
+.len-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: var(--gap-chip); }
 .len { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; min-height: 52px;
   padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--panel); text-align: left; }
 .len .mono { font-weight: 600; font-size: 16px; }
@@ -201,7 +218,7 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .len-grid.inch { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
 .len-grid.inch .mono { font-size: 15px; }
 .len .mono, .thr .tl { white-space: nowrap; }
-.thr-row.inch .thr { min-width: 78px; }
+.thr-row.inch { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); }
 .len .bar { display: block; height: 5px; border-radius: 3px; background: #5A5D64; }
 .len .bar.on { background: var(--accent-ink); }
 .len .chk { top: 4px; right: 6px; }
@@ -216,6 +233,12 @@ input[type="text"], select { min-height: 40px; padding: 6px 10px; background: va
 .custom-row input { flex: 1 1 200px; border-color: var(--custom); }
 .custom-row .cr-lab { font-size: 13px; color: var(--custom); }
 .custom-row .cr-note { font-size: 12px; color: var(--muted); flex-basis: 100%; }
+.custom-row .cr-live { font-size: 12px; color: var(--sugg); flex-basis: 100%; }
+.custom-row .cr-live:empty { display: none; }
+/* a collection is sticky: said where the part is read (the label-flow stress test) */
+.collection-note { margin-top: 6px; font-size: 13px; color: var(--accent-ink); }
+/* an unbroken custom word wraps rather than pushing a card wider than its column (the stress test) */
+.card, .lrow .lmain, .wrow .wspec, .summary .headline { overflow-wrap: anywhere; min-width: 0; }
 
 .btn { min-height: 40px; padding: 4px 14px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--panel); font-weight: 600; }
 .btn:hover:not(:disabled) { border-color: var(--muted); }
@@ -262,9 +285,13 @@ details.more summary { cursor: pointer; font-weight: 600; }
 .summary .headline { font-weight: 600; font-size: 36px; margin-top: 14px; letter-spacing: -1px; line-height: 1.1; }
 .summary .typeline { color: var(--muted); margin-top: 4px; }
 .facts { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
-.fact { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 5px 0; border-top: 1px solid var(--line); font-size: 14px; }
-.fact .f-k { width: 84px; color: var(--muted); flex: none; }
-.fact .f-v { flex: 1; font-family: var(--mono); min-width: 60px; }
+/* a fact row is three columns: the name, the value with its status word, and its actions (Use…, pin) kept together at the
+   end - as one wrapping row, "pin" fell onto a line of its own after "Unknown · Use none" */
+.fact { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; align-items: center; column-gap: var(--gap-chip); padding: 5px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.fact .f-k { color: var(--muted); }
+.fact .f-mid { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.fact .f-v { font-family: var(--mono); min-width: 0; overflow-wrap: anywhere; }
+.fact .f-act { display: inline-flex; gap: var(--gap-chip); align-items: center; justify-content: flex-end; }
 /* label pins (2026-10-05): a small toggle at the end of a fact row and of the type line */
 .pin { min-height: 28px; padding: 2px 10px; border-radius: 8px; border: 1px dashed var(--line-2); background: transparent; color: var(--muted); font-size: 12px; }
 .pin:hover { border-color: var(--muted); }
@@ -296,8 +323,11 @@ details.lw summary { cursor: pointer; }
 .lrow .lspec { font-weight: 600; }
 .lrow .lsub, .lrow .lst { color: var(--muted); font-size: 12px; }
 .lrow .lst { color: var(--custom); }
-.lrow .lact { grid-column: 3; display: flex; gap: 4px; flex-wrap: wrap; }
+.lrow .lact { grid-column: 3; display: flex; gap: var(--gap-chip); flex-wrap: wrap; }
+/* Remove is set apart from Edit and Copy: it is the one that takes something away (it has Undo in the bar) */
+.lrow .lact .danger { margin-left: var(--gap-chip); }
 .list-tools { margin-top: 12px; }
+.list-danger { justify-content: flex-end; margin-top: var(--gap-group); padding-top: var(--gap-chip); border-top: 1px dashed var(--line); }
 .textview { width: 100%; margin-top: 10px; background: var(--well); color: var(--text); border: 1px solid var(--line-2); border-radius: 8px; padding: 8px; font: 12px/1.5 var(--mono); }
 
 @media (max-width: 760px) {
@@ -306,10 +336,15 @@ details.lw summary { cursor: pointer; }
   /* the strip: one row that scrolls sideways, the current stage kept in view (ui.js scrolls it there) */
   .stages { overflow-x: auto; scrollbar-width: none; }
   .stages::-webkit-scrollbar { display: none; }
+  /* a cue that there is more to the side: the strip fades out on the side that scrolls (ui.js sets the classes) */
+  .stages.more-left { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px); mask-image: linear-gradient(to right, transparent, #000 32px); }
+  .stages.more-right { -webkit-mask-image: linear-gradient(to left, transparent, #000 32px); mask-image: linear-gradient(to left, transparent, #000 32px); }
+  .stages.more-left.more-right { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
   .stg { flex: 0 0 auto; max-width: 62vw; min-height: 46px; padding: 4px 8px; }
   .stage-h { font-size: 19px; }
   /* the family grid: three small tiles a row, not one large one */
-  .tiles.fam, .tiles.cols-5.fam:has(.has-img) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tiles.fam, .tiles.cols-5.fam:has(.has-img) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap-tile); }
   .tiles.fam .tile { min-height: 0; padding: 6px 4px; }
   .tiles.fam .tile .timg { width: 100%; height: auto; aspect-ratio: 1; }
   .tiles.fam .tile .tl { font-size: 12px; }
