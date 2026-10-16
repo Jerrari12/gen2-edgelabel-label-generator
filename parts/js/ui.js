@@ -1115,6 +1115,10 @@ function choiceSection(key, idx, title, path, hint, labelOf = (o) => o.label) {
     f.status !== UNKNOWN ? h('div', { class: 'row' }, statusChip(f)) : null);
 }
 
+// what the class numbers mean for this kind of part (2026-10-16 audit: a nut, a washer and a set screw have their own scales)
+const CLASS_HINT = { screw: ' steel 4.8-12.9 · stainless 50/70/80', nut: ' steel 04-12 (ISO 898-2) · stainless 50/70/80',
+  washer: ' hardness, HV', setscrew: ' steel 14H-45H (ISO 898-5) · stainless 12H/21H' };
+
 function materialSection(key, idx, only = null) {
   const t = T();
   const row = (label, path, hint) => {
@@ -1122,7 +1126,7 @@ function materialSection(key, idx, only = null) {
     const info = P.optionsFor(t, path);
     if (!info.enabled) return null;
     const f = getPath(t, path);
-    let options = info.options; let note = null;
+    let options = info.options; let note = info.note;
     if (path === 'material.colour') {
       // Jerrari 2026-10-08: offer only the colours that pick a picture (nylon; anodized aluminium). The record still
       // accepts any colour - this narrows the screen only. A colour already held stays visible, so nothing hidden
@@ -1148,7 +1152,7 @@ function materialSection(key, idx, only = null) {
   };
   return sectionEl(key, idx, 'Material', only ? 'kept when you switch family' : 'separate fields - none is inferred from another (black is not black oxide); kept when you switch family',
     row('Base', 'material.base'), row('Stainless group', 'material.stainless_group'),
-    row('Grade / property class', 'material.property_class', ' steel 4.8-12.9 · stainless 50/70/80'), row('Finish / treatment', 'material.finish'),
+    row('Grade / property class', 'material.property_class', CLASS_HINT[t.family] || CLASS_HINT.screw), row('Finish / treatment', 'material.finish'),
     row('Colour', 'material.colour', ' as read off the part or package'));
 }
 

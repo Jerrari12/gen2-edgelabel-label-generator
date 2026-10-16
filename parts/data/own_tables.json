@@ -8542,6 +8542,527 @@
    }
   ]
  },
+ "material_by_family": {
+  "insert": {
+   "base": [
+    {
+     "value": "brass",
+     "source": "stated from general knowledge of the parts as sold; no standard names these and no source was checked (Joey 2026-10-15, heat-set inserts)",
+     "status": "unverified"
+    },
+    {
+     "value": "stainless",
+     "source": "stated from general knowledge of the parts as sold; no standard names these and no source was checked (Joey 2026-10-15, heat-set inserts)",
+     "status": "unverified"
+    },
+    {
+     "value": "aluminium",
+     "source": "stated from general knowledge of the parts as sold; no standard names these and no source was checked (Joey 2026-10-15, heat-set inserts)",
+     "status": "unverified"
+    }
+   ],
+   "property_class": [],
+   "finish": [
+    {
+     "value": "plain",
+     "source": "stated from general knowledge of the parts as sold; no standard names these and no source was checked (Joey 2026-10-15, heat-set inserts)",
+     "status": "unverified"
+    },
+    {
+     "value": "nickel",
+     "source": "stated from general knowledge of the parts as sold; no standard names these and no source was checked (Joey 2026-10-15, heat-set inserts)",
+     "status": "unverified"
+    }
+   ],
+   "colour": []
+  },
+  "nut": {
+   "property_class": [
+    {
+     "value": "5",
+     "source": "ISO 898-2:2022 (steel nuts): property classes 04 and 05 (thin nuts) and 5, 6, 8, 10, 12 (regular and high nuts); the EN ISO 898-2 scope (EVS) and Ganter Norm's extract of DIN ISO 898-2 agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://evs.ee/en/evs-en-iso-898-2-2023",
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
+     ]
+    },
+    {
+     "value": "6",
+     "source": "ISO 898-2:2022 (steel nuts): property classes 04 and 05 (thin nuts) and 5, 6, 8, 10, 12 (regular and high nuts); the EN ISO 898-2 scope (EVS) and Ganter Norm's extract of DIN ISO 898-2 agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://evs.ee/en/evs-en-iso-898-2-2023",
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
+     ]
+    },
+    {
+     "value": "8",
+     "source": "ISO 898-2:2022 (steel nuts): property classes 04 and 05 (thin nuts) and 5, 6, 8, 10, 12 (regular and high nuts); the EN ISO 898-2 scope (EVS) and Ganter Norm's extract of DIN ISO 898-2 agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://evs.ee/en/evs-en-iso-898-2-2023",
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
+     ]
+    },
+    {
+     "value": "10",
+     "source": "ISO 898-2:2022 (steel nuts): property classes 04 and 05 (thin nuts) and 5, 6, 8, 10, 12 (regular and high nuts); the EN ISO 898-2 scope (EVS) and Ganter Norm's extract of DIN ISO 898-2 agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://evs.ee/en/evs-en-iso-898-2-2023",
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
+     ]
+    },
+    {
+     "value": "12",
+     "source": "ISO 898-2:2022 (steel nuts): property classes 04 and 05 (thin nuts) and 5, 6, 8, 10, 12 (regular and high nuts); the EN ISO 898-2 scope (EVS) and Ganter Norm's extract of DIN ISO 898-2 agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://evs.ee/en/evs-en-iso-898-2-2023",
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
+     ]
+    },
+    {
+     "value": "04",
+     "source": "ISO 898-2:2022 (steel nuts): property classes 04 and 05 (thin nuts) and 5, 6, 8, 10, 12 (regular and high nuts); the EN ISO 898-2 scope (EVS) and Ganter Norm's extract of DIN ISO 898-2 agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://evs.ee/en/evs-en-iso-898-2-2023",
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
+     ]
+    },
+    {
+     "value": "05",
+     "source": "ISO 898-2:2022 (steel nuts): property classes 04 and 05 (thin nuts) and 5, 6, 8, 10, 12 (regular and high nuts); the EN ISO 898-2 scope (EVS) and Ganter Norm's extract of DIN ISO 898-2 agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://evs.ee/en/evs-en-iso-898-2-2023",
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
+     ]
+    },
+    {
+     "value": "50",
+     "source": "ISO 3506-2 (stainless nuts): regular and high nuts in classes 50, 70 and 80, the austenitic (A2 / A4) classes; the 2020 edition adds classes for ferritic, martensitic and duplex grades; thin-nut classes are not offered (the two sources differ on them: Ganter 025 / 035 / 045, TorqBolt 022-055). Ganter Norm's extract and TorqBolt's ISO 3506-2 table agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf",
+      "https://torqbolt.com/iso-3506-2-nuts-suppliers-manufacturers"
+     ]
+    },
+    {
+     "value": "70",
+     "source": "ISO 3506-2 (stainless nuts): regular and high nuts in classes 50, 70 and 80, the austenitic (A2 / A4) classes; the 2020 edition adds classes for ferritic, martensitic and duplex grades; thin-nut classes are not offered (the two sources differ on them: Ganter 025 / 035 / 045, TorqBolt 022-055). Ganter Norm's extract and TorqBolt's ISO 3506-2 table agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf",
+      "https://torqbolt.com/iso-3506-2-nuts-suppliers-manufacturers"
+     ]
+    },
+    {
+     "value": "80",
+     "source": "ISO 3506-2 (stainless nuts): regular and high nuts in classes 50, 70 and 80, the austenitic (A2 / A4) classes; the 2020 edition adds classes for ferritic, martensitic and duplex grades; thin-nut classes are not offered (the two sources differ on them: Ganter 025 / 035 / 045, TorqBolt 022-055). Ganter Norm's extract and TorqBolt's ISO 3506-2 table agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf",
+      "https://torqbolt.com/iso-3506-2-nuts-suppliers-manufacturers"
+     ]
+    }
+   ]
+  },
+  "washer": {
+   "property_class": [
+    {
+     "value": "100 HV",
+     "source": "ISO 7091:2000 (plain washers, normal series, product grade C) is the 100 HV hardness class; its scope as the Finnish (SFS) and Estonian (EVS) standards bodies publish it says so (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://store.sfs.fi/en/sfs-en-iso-7091",
+      "https://www.evs.ee/en/evs-en-iso-7091-2000"
+     ]
+    },
+    {
+     "value": "200 HV",
+     "source": "ISO 7089:2000 (plain washers, normal series, product grade A) specifies the 200 HV and 300 HV hardness classes; its scope as SFS and Standards Norway publish it, and Fabory's ISO 7089 300 HV listing, agree (pages opened 2026-10-16 (WebFetch)). Which classes the other plain-washer standards (ISO 7090 / 7092 / 7093) use was not checked",
+     "status": "verified",
+     "sources": [
+      "https://store.sfs.fi/en/sfs-en-iso-7089",
+      "https://online.standard.no/en/ns-en-iso-7089-2000",
+      "https://fabory.com/en_GB/iso-7089-flat-washer,-plain,-300-hv/p/38135"
+     ]
+    },
+    {
+     "value": "300 HV",
+     "source": "ISO 7089:2000 (plain washers, normal series, product grade A) specifies the 200 HV and 300 HV hardness classes; its scope as SFS and Standards Norway publish it, and Fabory's ISO 7089 300 HV listing, agree (pages opened 2026-10-16 (WebFetch)). Which classes the other plain-washer standards (ISO 7090 / 7092 / 7093) use was not checked",
+     "status": "verified",
+     "sources": [
+      "https://store.sfs.fi/en/sfs-en-iso-7089",
+      "https://online.standard.no/en/ns-en-iso-7089-2000",
+      "https://fabory.com/en_GB/iso-7089-flat-washer,-plain,-300-hv/p/38135"
+     ]
+    }
+   ]
+  },
+  "setscrew": {
+   "property_class": [
+    {
+     "value": "14H",
+     "source": "ISO 898-5 (steel set screws, not under tension) has the hardness classes 14H, 22H, 33H and 45H; AS 4291.5 (identical with ISO 898-5) and Bossard's technical data agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
+      "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
+     ]
+    },
+    {
+     "value": "22H",
+     "source": "ISO 898-5 (steel set screws, not under tension) has the hardness classes 14H, 22H, 33H and 45H; AS 4291.5 (identical with ISO 898-5) and Bossard's technical data agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
+      "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
+     ]
+    },
+    {
+     "value": "33H",
+     "source": "ISO 898-5 (steel set screws, not under tension) has the hardness classes 14H, 22H, 33H and 45H; AS 4291.5 (identical with ISO 898-5) and Bossard's technical data agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
+      "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
+     ]
+    },
+    {
+     "value": "45H",
+     "source": "ISO 898-5 (steel set screws, not under tension) has the hardness classes 14H, 22H, 33H and 45H; AS 4291.5 (identical with ISO 898-5) and Bossard's technical data agree (pages opened 2026-10-16 (WebFetch))",
+     "status": "verified",
+     "sources": [
+      "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
+      "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
+     ]
+    },
+    {
+     "value": "12H",
+     "source": "ISO 3506-3 (stainless set screws) hardness classes 12H and 21H; only TorqBolt's table names them (iso.org refuses the fetch), so one source (pages opened 2026-10-16 (WebFetch))",
+     "status": "single",
+     "sources": [
+      "https://torqbolt.com/iso-3506-3-screws-suppliers-manufacturers"
+     ]
+    },
+    {
+     "value": "21H",
+     "source": "ISO 3506-3 (stainless set screws) hardness classes 12H and 21H; only TorqBolt's table names them (iso.org refuses the fetch), so one source (pages opened 2026-10-16 (WebFetch))",
+     "status": "single",
+     "sources": [
+      "https://torqbolt.com/iso-3506-3-screws-suppliers-manufacturers"
+     ]
+    }
+   ],
+   "base": [
+    {
+     "value": "steel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "stainless",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "brass",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "nylon",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "aluminium",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "titanium",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    }
+   ],
+   "finish": [
+    {
+     "value": "plain",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "zinc",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "black oxide",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "nickel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "passivated",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "anodized",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    }
+   ]
+  },
+  "pin": {
+   "base": [
+    {
+     "value": "steel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "stainless",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "brass",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "nylon",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "aluminium",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "titanium",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    }
+   ],
+   "finish": [
+    {
+     "value": "plain",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "zinc",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "black oxide",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "nickel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "passivated",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "anodized",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    }
+   ]
+  },
+  "standoff": {
+   "base": [
+    {
+     "value": "steel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
+     "status": "unverified"
+    },
+    {
+     "value": "stainless",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
+     "status": "unverified"
+    },
+    {
+     "value": "brass",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
+     "status": "unverified"
+    },
+    {
+     "value": "nylon",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
+     "status": "unverified"
+    },
+    {
+     "value": "aluminium",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
+     "status": "unverified"
+    }
+   ],
+   "finish": [
+    {
+     "value": "plain",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "zinc",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "black oxide",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "nickel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "passivated",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "anodized",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    }
+   ]
+  },
+  "fitting": {
+   "base": [
+    {
+     "value": "steel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "stainless",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "brass",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "copper",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "nylon",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    },
+    {
+     "value": "aluminium",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
+     "status": "unverified"
+    }
+   ],
+   "finish": [
+    {
+     "value": "plain",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "zinc",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "nickel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "passivated",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "anodized",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    }
+   ]
+  },
+  "tnut": {
+   "base": [
+    {
+     "value": "steel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; zinc-plated carbon steel per https://3dprintingcanada.com/products/m4-t-nuts-for-20-series-10-pack",
+     "status": "unverified"
+    },
+    {
+     "value": "stainless",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; zinc-plated carbon steel per https://3dprintingcanada.com/products/m4-t-nuts-for-20-series-10-pack",
+     "status": "unverified"
+    },
+    {
+     "value": "aluminium",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; zinc-plated carbon steel per https://3dprintingcanada.com/products/m4-t-nuts-for-20-series-10-pack",
+     "status": "unverified"
+    }
+   ],
+   "finish": [
+    {
+     "value": "plain",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "zinc",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "black oxide",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "nickel",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "passivated",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    },
+    {
+     "value": "anodized",
+     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
+     "status": "unverified"
+    }
+   ]
+  }
+ },
  "locking_features": [
   {
    "id": "none",
@@ -8566,6 +9087,19 @@
    "label": "serrated flange",
    "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
    "status": "unverified"
+  }
+ ],
+ "drive_by_head": [
+  {
+   "family": "screw",
+   "head": "hex",
+   "drive": "external-hex",
+   "source": "an inch hex head cap screw (ASME B18.2.1) is turned on its own six-sided head, like the ISO 4017 head the bd_warehouse data documents; two independent public sources agree (WebFetch 2026-10-15)",
+   "status": "verified",
+   "sources": [
+    "https://powersource.danfoss.com/products/p/9007200-3722",
+    "https://en.wikipedia.org/wiki/List_of_screw_drives"
+   ]
   }
  ],
  "locking_by_type": [

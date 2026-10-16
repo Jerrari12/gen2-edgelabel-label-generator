@@ -507,7 +507,23 @@ export function createPicker(D, opts = {}) {
         const key = path.split('.')[1];
         // a colour is read off the part or the bag: VOCABULARY (design review: plain Listed, never "unverified")
         const tier = key === 'colour' ? TIER.VOCABULARY : TIER.UNVERIFIED;
-        out.options = D.own.material[key].map((r) => opt(r.value, r.value, tier, `own/material/${key}/${r.value}`));
+        // a family's own list replaces the shared one where its parts never come in some of those (an insert is not nylon
+        // and has no property class: own_tables material_by_family, Joey 2026-10-15); an empty list switches the field off
+        const own = D.own.material_by_family && D.own.material_by_family[rec.family] && D.own.material_by_family[rec.family][key];
+        const list = own || D.own.material[key];
+        const where = own ? `own/material_by_family/${rec.family}/${key}` : `own/material/${key}`;
+        // a family row may carry its own provenance (a nut's ISO 898-2 classes are verified): its status is its tier
+        out.options = list.map((r) => opt(r.value, r.value, own && key !== 'colour' && r.status ? r.status : tier, `${where}/${r.value}`,
+          own && r.sources ? { urls: r.sources } : {}));
+        // material is kept when the family changes, so a value from the old family (nylon from a screw) can be held here:
+        // it stays on screen with its own button rather than hidden, so nothing out of sight goes on reaching the label
+        // A typed (Custom) value shows in its row whatever the list, so it only needs the row kept on (Terra 01a14209)
+        const held = rec.material[key];
+        const offList = own && held && held.status === STATUS.LISTED && !own.some((r) => r.value === held.value);
+        const inOffField = own && !own.length && held && held.status !== STATUS.UNKNOWN;
+        if (offList) out.options.push(opt(held.value, held.value, tier, `own/material/${key}/${held.value}`));
+        if (offList || inOffField) out.note = `${held.value} was kept from before; it is not usual for this kind of part. Choose Unknown to clear it.`;
+        if (own && !own.length && !inOffField) { out.enabled = false; out.reason = key === 'property_class' ? 'property classes rate bolts, screws and nuts; this part has none' : 'not used for this kind of part'; }
         if (key === 'stainless_group' && rec.material.base.value !== 'stainless') {
           out.enabled = false; out.reason = 'only when the base material is stainless';
         }
@@ -659,6 +675,22 @@ export function createPicker(D, opts = {}) {
       const t = lo.tool_sizes[String(dia)];
       out['drive.tool_size'] = { value: t.value, tier: t.tier, ref: `own/${lo.id}/tool_sizes/M${dia}`, standard: lo.id,
         urls: t.sources, note: t.basis };
+    }
+    // AN INCH RECORD OF A TYPE WITH NO INCH TABLE (hex, button, countersunk, pan, cheese head) has no standard of its own,
+    // so nothing filled its drive (Joey, 2026-10-15, on a 1/4-20 hex head: "i had to select external hex for this, wouldn't
+    // that always be true"). own_tables drive_by_head holds what is checked for the inch head: a hex head is External hex,
+    // VERIFIED by two public sources, so it prefills. Any other type is only OFFERED its metric standard's drive, unverified:
+    // inch button and countersunk socket heads also come with 6-lobe sockets (Terra 01a141fb), and inch pan and cheese heads
+    // with several drives.
+    if (!std && rec.drive && isUnified(rec) && rec.head && rec.head.status === STATUS.LISTED && !out['drive.type']) {
+      const db = (D.own.drive_by_head || []).find((r) => r.family === rec.family && r.head === rec.head.value);
+      if (db) out['drive.type'] = { value: db.drive, tier: db.status, ref: `own/drive_by_head/${db.family}:${db.head}`, urls: db.sources, note: db.source };
+      else {
+        const hd = D.own.heads.find((x) => x.family === rec.family && x.id === rec.head.value);
+        const ms = hd && hd.standard ? D.std(hd.standard) : null;
+        if (ms && ms.drive_type) out['drive.type'] = { value: ms.drive_type, tier: TIER.UNVERIFIED, ref: D.refOf(ms, null, 'drive_type'),
+          note: `${ms.id}'s drive for the metric head; inch heads of this type also come with other drives` };
+      }
     }
     if (rec.family === 'nut' && rec.head.status === STATUS.LISTED) {
       const lb = D.own.locking_by_type.find((r) => r.type === rec.head.value);

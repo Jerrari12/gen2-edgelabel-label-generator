@@ -264,7 +264,7 @@ input[type="text"], select { min-height: 40px; padding: 6px 10px; background: va
 .mat-row:first-of-type { border-top: 0; }
 .mat-lab { font-size: 14px; font-weight: 600; padding-top: 11px; display: flex; flex-direction: column; gap: 2px; }
 .mat-lab .muted { font-weight: 400; font-size: 12px; }
-.mat-row .custom-row { grid-column: 2; }
+.mat-row .custom-row, .mat-row > .note { grid-column: 2; }
 
 details.more { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
 details.more summary { cursor: pointer; font-weight: 600; }
@@ -353,7 +353,7 @@ details.lw summary { cursor: pointer; }
   .flowbar .bar-act { width: 100%; }
   .flowbar .btn.primary { flex: 1 1 auto; }
   .mat-row, .det { grid-template-columns: 1fr; }
-  .mat-row .custom-row { grid-column: 1; }
+  .mat-row .custom-row, .mat-row > .note { grid-column: 1; }
   .mat-lab { padding-top: 0; }
 }
 
