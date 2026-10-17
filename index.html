@@ -831,7 +831,7 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
 <script src="part-picker-link.js?v=a60e0dce"></script>
 <!-- the shared label-list format (the planner's vendored copy is this file): the plate's snapshot is read through it -->
 <script src="label-list.js?v=a8667353"></script>
-<script src="plate-link.js?v=1126764c"></script>
+<script src="plate-link.js?v=c47ad550"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
 class MiniOrbit {
@@ -1617,7 +1617,8 @@ window.addEventListener('message', (e) => {
 // Asked for by ?embed=planner in a frame: this page shows the planner's committed label list as it lays it out, read-only,
 // and downloads its print file. The planner speaks first (a hello with a session); the first hello from the parent window
 // at a planner origin binds it; every message after carries the session and is read from that window at that origin only.
-// The standalone list's storage (the autosave, the previous set, the linked session) is never read or written here.
+// The standalone list's storage (the autosave, the previous set, the linked session) is never read or written here; the
+// printer settings have a key of their own (restorePlatePrinter).
 //============================================================
 function bootEmbed() {
   document.documentElement.classList.add('embed-planner');
@@ -1636,6 +1637,14 @@ function bootEmbed() {
       plateSend(PLATE.settingMessage(EMBED.bind, id, value, EMBED.snap));
     });
   });
+  // the printer settings are this browser's: back as they were left, and kept after every change - 400 ms after the last
+  // one (past the plate size's 250 ms that turn a typed size Custom), and at once when the page goes (a planner reload)
+  restorePlatePrinter();
+  PRINTER_PREFS.forEach(id => {
+    const el = gid(id); if (!el) return;
+    ['input', 'change'].forEach(t => el.addEventListener(t, () => { clearTimeout(platePrinterTimer); platePrinterTimer = setTimeout(savePlatePrinter, 400); }));
+  });
+  window.addEventListener('pagehide', () => { if (platePrinterTimer) savePlatePrinter(); });
   window.addEventListener('message', onPlannerMessage);
   gid('labels').addEventListener('click', (e) => {   // a row clicked here is the selected label in the planner too
     if (!EMBED.bind || !EMBED.snap) return;
@@ -1691,11 +1700,14 @@ function applySnapshot(d) {
     row.querySelectorAll('button, input.row-sel').forEach(b => { b.disabled = true; });
   }
   EMBED.rows = rows.length;
+  // a type switch gives the preview colours that type's own; on the plate they are this browser's printer settings, not the
+  // type's (S-F6), so the ones on screen go back over them below
+  const printerColours = pickIds(captureSettings(), PRINTER_PREFS.filter(id => TYPE_SETTING_IDS.includes(id)));
   if (snap.type) setLabelType(snap.type, { remember: false });
   // the six label settings: the planner's where it set them, the defaults where it did not (a setting a previous snapshot
   // carried must not outlive it)
   EMBED.applied = PLATE.outputSettings(snap);   // before applySettings: its change events must not read as the visitor's
-  applySettings(Object.assign(PLATE.styleSettings((LINK && LINK.STYLE_DEFAULTS) || { capMm: 5, depth: 0.6, badgeSize: 14, bold: false, allCaps: true, predictIcons: true }), PLATE.styleSettings(snap.style), EMBED.applied));
+  applySettings(Object.assign(PLATE.styleSettings((LINK && LINK.STYLE_DEFAULTS) || { capMm: 5, depth: 0.6, badgeSize: 14, bold: false, allCaps: true, predictIcons: true }), PLATE.styleSettings(snap.style), EMBED.applied, printerColours));
   rebuild();
   if (snap.reason) { gid('download').disabled = true; setStatus(snap.reason, 'err'); }
   else {
@@ -1712,6 +1724,32 @@ function highlightRow(id) {
   if (!row) return;
   row.classList.add('sel');
   try { row.scrollIntoView({ block: 'nearest' }); } catch (e) { /* an older browser */ }
+}
+// THE PLATE'S PRINTER (the stress test 2026-10-15, S-F6: the plate's printer reset on every planner reload). The printer, its
+// plate size, the export format, the purge area and the preview colours (PRINTER_PREFS) live in the ordinary page's autosave,
+// which the embed never touches; here they have a key of their own (plate-link.js PRINTER_KEY holds the record's rules) and
+// nothing else of the autosave comes with them. Not here: the stripe and the drawings, the planner's print preference.
+let platePrinterTimer = 0;   // a save waiting for the changes to settle
+function restorePlatePrinter() {
+  let kept = null;
+  try { kept = PLATE.readPrinter(localStorage.getItem(PLATE.PRINTER_KEY)); } catch (e) { /* storage blocked: the page's own */ }
+  if (!kept) return;
+  const s = kept.settings;
+  ['bed-preset', 'export-format'].forEach(id => {   // a choice this page no longer offers (a printer dropped since) stays the page's own
+    const el = gid(id);
+    if (id in s && !(el && [...el.options].some(o => o.value === s[id]))) delete s[id];
+  });
+  applySettings(s);
+  // the printer by its name: several share a plate size, and their value alone picks the first of them
+  const sel = gid('bed-preset');
+  const named = kept.printer && [...sel.options].find(o => o.value === sel.value && o.text === kept.printer);
+  if (named) named.selected = true;
+}
+function savePlatePrinter() {
+  clearTimeout(platePrinterTimer); platePrinterTimer = 0;
+  const opt = gid('bed-preset').selectedOptions[0];
+  try { localStorage.setItem(PLATE.PRINTER_KEY, JSON.stringify(PLATE.printerRecord(pickIds(captureSettings(), PRINTER_PREFS), opt ? opt.text : null))); }
+  catch (e) { /* storage full or blocked: the settings last this visit */ }
 }
 
 // An old-style #hw= link (the Part Picker opened on its own) into a list that already has labels asks first; an empty list
@@ -3704,6 +3742,8 @@ const LS_LINKED = 'edgelabel.linked.v1';   // sessionStorage: tab-scoped, so two
 // accepted. Every check and every post here uses this captured window; a planner tab that reloads is still the same WindowProxy.
 const LINK_OPENER = window.opener;
 const SERVED_LOCAL = ['localhost', '127.0.0.1'].includes(location.hostname);
+// the printer settings: a linked session takes them from the ordinary autosave, the planner's plate keeps them under a key of
+// its own (restorePlatePrinter; plate-link.js PRINTER_IDS, pinned equal to this by its test)
 const PRINTER_PREFS = ['bed-preset', 'bed-w', 'bed-l', 'export-format', 'reserve-purge', 'purge-w', 'purge-l', 'color-base', 'color-text'];
 let link = null;                // the live linked session, or null
 let pausedSession = null;       // a linked session this tab keeps while it shows a one-way import (Resume brings it back)

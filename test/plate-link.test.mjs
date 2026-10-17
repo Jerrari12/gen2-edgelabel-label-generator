@@ -121,6 +121,32 @@ test('the print preference: read from the document\'s output under this page\'s 
   assert.deepEqual(P.settingMessage(bind, 'hw-band', 'end', { rev: 3, buildId: ID('b') }), { gen2plate: 'setting', v: 1, session: SESSION, id: 'hw-band', value: 'end', rev: 3, buildId: ID('b') });
 });
 
+test('the plate\'s printer (S-F6): its own key, the printer inputs only, checked both ways; a typed-over size is Custom; the name tells apart printers of one plate size', () => {
+  assert.equal(P.PRINTER_KEY, 'labelstudio.plate-printer.v1');
+  assert.notEqual(P.PRINTER_KEY, 'edgelabel.autosave.v1', 'never the ordinary autosave');
+  const prefs = JSON.parse(HTML.match(/^const PRINTER_PREFS = (\[[^\]]*\]);/m)[1].replace(/'/g, '"'));
+  assert.deepEqual([...P.PRINTER_IDS], prefs, 'the inputs of the page\'s PRINTER_PREFS, no more');
+  const all = { 'bed-preset': '256x256', 'bed-w': '256', 'bed-l': '256', 'export-format': 'stl', 'reserve-purge': false, 'purge-w': '60', 'purge-l': '70', 'color-base': '#2a6fdb', 'color-text': '#ffffff' };
+  const rec = P.printerRecord({ ...all, 'hw-band': 'off', 'hw-profile': false, 'font-size': '5' }, 'Bambu P2S (256×256)');
+  assert.deepEqual(rec, { v: 1, settings: all, printer: 'Bambu P2S (256×256)' }, 'never the stripe, the drawings or a label setting');
+  assert.deepEqual(P.readPrinter(JSON.stringify(rec)), { settings: all, printer: 'Bambu P2S (256×256)' }, 'read back as kept');
+  // a value its input cannot take is dropped on its own (the page then keeps its own value for that input)
+  assert.deepEqual(P.printerRecord({ 'bed-preset': '', 'bed-w': 'wide', 'bed-l': ' ', 'export-format': 7, 'reserve-purge': 'yes', 'purge-w': NaN, 'purge-l': null, 'color-base': 'red', 'color-text': '#12345' }, 'Prusa XL (360×360)'),
+    { v: 1, settings: {} }, 'nothing usable, and no printer name without a printer');
+  assert.deepEqual(P.printerRecord({ 'bed-w': 5000, 'purge-w': '0' }).settings, { 'bed-w': 5000, 'purge-w': '0' }, 'a number out of range is kept: the page clamps it and says so');
+  // a printer whose plate size was typed over is Custom: the size inputs turn it so 250 ms after the typing, and a save inside
+  // those (the page going) would otherwise come back with the printer's own size
+  assert.deepEqual(P.printerRecord({ 'bed-preset': '250x220', 'bed-w': '300', 'bed-l': '220' }, 'Prusa Core One (250×220)'), { v: 1, settings: { 'bed-preset': 'custom', 'bed-w': '300', 'bed-l': '220' } });
+  assert.equal(P.printerRecord({ 'bed-preset': '250x220', 'bed-w': 250, 'bed-l': '220.0' }, 'Prusa Core One (250×220)').settings['bed-preset'], '250x220', 'the same size written another way is still that printer');
+  assert.deepEqual(P.printerRecord({ 'bed-preset': '250x220', 'bed-w': '300', 'bed-l': '' }, 'Prusa Core One (250×220)'), { v: 1, settings: { 'bed-preset': 'custom', 'bed-w': '300' } }, 'one side typed over and the other cleared is Custom too (Sol 01a14b1b)');
+  assert.equal(P.printerRecord({ 'bed-preset': '250x220', 'bed-w': '', 'bed-l': '220' }).settings['bed-preset'], '250x220', 'a cleared side alone decides nothing');
+  assert.equal(P.printerRecord({ 'bed-preset': 'custom', 'bed-w': '300', 'bed-l': '200' }, 'Custom…').printer, undefined, 'a custom plate has no printer name');
+  assert.equal(P.printerRecord({ 'bed-preset': '180x180' }, 'x'.repeat(81)).printer, undefined, 'a name past 80 characters');
+  // read back: nothing stored, not JSON, another version or no settings is nothing; what is there is checked as it was written
+  for (const raw of [null, undefined, '', 'not json', '[]', '7', JSON.stringify({ v: 2, settings: all }), JSON.stringify({ v: 1 }), JSON.stringify({ v: 1, settings: [] })]) assert.equal(P.readPrinter(raw), null, String(raw));
+  assert.deepEqual(P.readPrinter(JSON.stringify({ v: 1, settings: { 'export-format': 'stl', 'bed-w': 'x', 'hw-band': 'off' }, printer: 'Prusa XL (360×360)' })), { settings: { 'export-format': 'stl' }, printer: null });
+});
+
 test('style settings: the six label settings as the page\'s input ids; nothing else, nothing missing invented', () => {
   assert.deepEqual(P.styleSettings({ capMm: 4, depth: 0.5, badgeSize: 12, bold: true, allCaps: false, predictIcons: false }), { 'font-size': 4, 'text-depth': 0.5, 'badge-size': 12, 'bold-text': true, 'all-caps': false, 'predict-icons': false });
   assert.deepEqual(P.styleSettings({ capMm: 4, other: 1 }), { 'font-size': 4 });
@@ -151,5 +177,10 @@ test('the page loads plate-link.js (stamped) and guards its storage in the embed
   // ready to a null opener)
   assert.equal((HTML.match(/^function postToPlanner\(/gm) || []).length, 1, 'one postToPlanner');
   assert.equal((HTML.match(/^function plateSend\(/gm) || []).length, 1, 'the embed sends through plateSend');
-  for (const name of ['bootEmbed', 'onPlannerMessage', 'applySnapshot', 'highlightRow', 'plateSend']) assert.equal((HTML.match(new RegExp(`^function ${name}\\(`, 'gm')) || []).length, 1, `${name} declared once`);
+  for (const name of ['bootEmbed', 'onPlannerMessage', 'applySnapshot', 'highlightRow', 'plateSend', 'restorePlatePrinter', 'savePlatePrinter']) assert.equal((HTML.match(new RegExp(`^function ${name}\\(`, 'gm')) || []).length, 1, `${name} declared once`);
+  // the plate's printer (S-F6): restored at boot, kept under its own key, and the colours a type switch resets come back
+  assert.ok(/\nfunction bootEmbed\(\) \{[^]*?\n {2}restorePlatePrinter\(\);\n {2}PRINTER_PREFS\.forEach\(/.test(HTML), 'bootEmbed restores them, then saves every change');
+  assert.ok(/\nfunction savePlatePrinter\(\) \{[^]*?localStorage\.setItem\(PLATE\.PRINTER_KEY, /.test(HTML), 'saved under the plate\'s key');
+  assert.ok(/\nfunction restorePlatePrinter\(\) \{[^]*?localStorage\.getItem\(PLATE\.PRINTER_KEY\)/.test(HTML), 'read from it');
+  assert.ok(/const printerColours = pickIds\(captureSettings\(\), PRINTER_PREFS\.filter\(id => TYPE_SETTING_IDS\.includes\(id\)\)\);\n\s*if \(snap\.type\) setLabelType\(/.test(HTML), 'a snapshot\'s type switch keeps the plate\'s colours');
 });
