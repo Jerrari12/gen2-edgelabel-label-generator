@@ -183,4 +183,13 @@ test('the page loads plate-link.js (stamped) and guards its storage in the embed
   assert.ok(/\nfunction savePlatePrinter\(\) \{[^]*?localStorage\.setItem\(PLATE\.PRINTER_KEY, /.test(HTML), 'saved under the plate\'s key');
   assert.ok(/\nfunction restorePlatePrinter\(\) \{[^]*?localStorage\.getItem\(PLATE\.PRINTER_KEY\)/.test(HTML), 'read from it');
   assert.ok(/const printerColours = pickIds\(captureSettings\(\), PRINTER_PREFS\.filter\(id => TYPE_SETTING_IDS\.includes\(id\)\)\);\n\s*if \(snap\.type\) setLabelType\(/.test(HTML), 'a snapshot\'s type switch keeps the plate\'s colours');
+  // a snapshot's type switch is the page's own change: the stripe and the drawings it gives the type's defaults are never sent
+  // to the planner as the visitor's (found 2026-10-17: a faceplate switch with the plate open turned the planner's End into
+  // Bottom). bootEmbed's listener is silent while EMBED.applied is unset, and the snapshot's own values are set after the switch
+  assert.ok(/\n {6}if \(!EMBED\.bind \|\| !EMBED\.snap \|\| !EMBED\.applied\) return;\n/.test(HTML), 'the stripe and drawings listener is silent while EMBED.applied is unset');
+  const applySnap = HTML.slice(HTML.indexOf('\nfunction applySnapshot('), HTML.indexOf('\nfunction highlightRow('));
+  const at = (s) => applySnap.indexOf(s);
+  assert.ok(at('\n  EMBED.applied = null;\n') > 0, 'applySnapshot unsets EMBED.applied');
+  assert.ok(at('\n  EMBED.applied = null;\n') < at('setLabelType(snap.type'), 'before the type switch');
+  assert.ok(at('setLabelType(snap.type') < at('EMBED.applied = PLATE.outputSettings(snap);'), 'and sets the snapshot\'s values after it');
 });
