@@ -1700,6 +1700,10 @@ function applySnapshot(d) {
     row.querySelectorAll('button, input.row-sel').forEach(b => { b.disabled = true; });
   }
   EMBED.rows = rows.length;
+  // the type switch below gives the stripe and the drawings that type's own and fires their change: the page's doing, so the
+  // listener in bootEmbed must not send them to the planner as the visitor's (found 2026-10-17: a faceplate switch with the
+  // plate open turned the planner's End stripe into Bottom). It is silent while EMBED.applied is unset
+  EMBED.applied = null;
   // a type switch gives the preview colours that type's own; on the plate they are this browser's printer settings, not the
   // type's (S-F6), so the ones on screen go back over them below
   const printerColours = pickIds(captureSettings(), PRINTER_PREFS.filter(id => TYPE_SETTING_IDS.includes(id)));
