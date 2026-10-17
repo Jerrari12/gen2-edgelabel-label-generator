@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated": "2026-10-08 18:15",
+ "generated": "2026-10-17 13:54",
  "source": "render-v2/library/manifest.json (the MODULITH hardware visual library)",
  "note": "Rendered from bd_warehouse 0.3.0 geometry and documented parametric models; finishes illustrative. Each entry says what its picture shows (size, length, thread extent, drive, point).",
  "assets": [
@@ -28,7 +28,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: one generic open-barrel receptacle shape (mating box, wire-crimp and insulation-crimp wings) scaled to the stated size; barrel, lance and wing proportions plausible; the plating colour is illustrative. Values: length read; the 1.8 x 1.8 box and wall 0.15 plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "contact-harwin-m20-116--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "contact-harwin-m20-116",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "contact-jst-gh-sshl-002t-p0-2",
@@ -54,7 +66,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: one generic open-barrel receptacle shape (mating box, wire-crimp and insulation-crimp wings) scaled to the stated size; barrel, lance and wing proportions plausible; the plating colour is illustrative. Values: length 4.8 and width 0.8 read (assignment INFERRED); the height 0.9 is plausible - the figure's 0.55 is not assigned."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "contact-jst-gh-sshl-002t-p0-2--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "contact-jst-gh-sshl-002t-p0-2",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "contact-jst-ph-sph-002t-p0-5s",
@@ -80,7 +104,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: one generic open-barrel receptacle shape (mating box, wire-crimp and insulation-crimp wings) scaled to the stated size; barrel, lance and wing proportions plausible; the plating colour is illustrative. Values: L, W and H read; wall 0.12 plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "contact-jst-ph-sph-002t-p0-5s--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "contact-jst-ph-sph-002t-p0-5s",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "contact-jst-sh-ssh-003t-p0-2-h",
@@ -106,7 +142,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: one generic open-barrel receptacle shape (mating box, wire-crimp and insulation-crimp wings) scaled to the stated size; barrel, lance and wing proportions plausible; the plating colour is illustrative. Values: the figure's 3.9, 0.8 and 1.35 read as length, width and height (assignment INFERRED); wall 0.10 plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "contact-jst-sh-ssh-003t-p0-2-h--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "contact-jst-sh-ssh-003t-p0-2-h",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "contact-jst-xh-sxh-001t-p0-6",
@@ -132,7 +180,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: one generic open-barrel receptacle shape (mating box, wire-crimp and insulation-crimp wings) scaled to the stated size; barrel, lance and wing proportions plausible; the plating colour is illustrative. Values: L, W and H read; wall 0.15 plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "contact-jst-xh-sxh-001t-p0-6--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "contact-jst-xh-sxh-001t-p0-6",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "contact-molex-kk-2759",
@@ -158,7 +218,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: one generic open-barrel receptacle shape (mating box, wire-crimp and insulation-crimp wings) scaled to the stated size; barrel, lance and wing proportions plausible; the plating colour is illustrative. Values: length, the width maximum and the 0.20 stock read; the height 2.0 is INFERRED (two cross-view dimensions not read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "contact-molex-kk-2759--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "contact-molex-kk-2759",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "contact-molex-micro-fit-43030",
@@ -184,7 +256,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: one generic open-barrel receptacle shape (mating box, wire-crimp and insulation-crimp wings) scaled to the stated size; barrel, lance and wing proportions plausible; the plating colour is illustrative. Values: length read; width, height and stock 2.4 / 2.4 / 0.2 plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "contact-molex-micro-fit-43030--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "contact-molex-micro-fit-43030",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-dupont-housing-1",
@@ -2446,7 +2530,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-1--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-1",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-2",
@@ -2472,7 +2568,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-2--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-2",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-2",
@@ -2498,7 +2606,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-2--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-2",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-2",
@@ -2524,7 +2644,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-2--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-2",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-2",
@@ -2550,7 +2682,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-2--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-2",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-2",
@@ -2576,7 +2720,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-2--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-2",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-2",
@@ -2602,7 +2758,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-2--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-2",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-3",
@@ -2628,7 +2796,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-3--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-3",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-3",
@@ -2654,7 +2834,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-3--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-3",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-3",
@@ -2680,7 +2872,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-3--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-3",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-3",
@@ -2706,7 +2910,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-3--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-3",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-3",
@@ -2732,7 +2948,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-3--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-3",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-3",
@@ -2758,7 +2986,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-3--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-3",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-4",
@@ -2784,7 +3024,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-4--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-4",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-4",
@@ -2810,7 +3062,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-4--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-4",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-4",
@@ -2836,7 +3100,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-4--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-4",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-4",
@@ -2862,7 +3138,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-4--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-4",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-4",
@@ -2888,7 +3176,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-4--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-4",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-4",
@@ -2914,7 +3214,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-4--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-4",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-5",
@@ -2940,7 +3252,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-5--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-5",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-5",
@@ -2966,7 +3290,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-5--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-5",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-5",
@@ -2992,7 +3328,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-5--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-5",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-5",
@@ -3018,7 +3366,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-5--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-5",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-5",
@@ -3044,7 +3404,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-5--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-5",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-5",
@@ -3070,7 +3442,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-5--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-5",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-6",
@@ -3096,7 +3480,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-6--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-6",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-6",
@@ -3122,7 +3518,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-6--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-6",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-6",
@@ -3148,7 +3556,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-6--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-6",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-6",
@@ -3174,7 +3594,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-6--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-6",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-6",
@@ -3200,7 +3632,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-6--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-6",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-6",
@@ -3226,7 +3670,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-6--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-6",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-7",
@@ -3252,7 +3708,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-7--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-7",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-7",
@@ -3278,7 +3746,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-7--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-7",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-7",
@@ -3304,7 +3784,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-7--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-7",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-7",
@@ -3330,7 +3822,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-7--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-7",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-7",
@@ -3356,7 +3860,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-7--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-7",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-7",
@@ -3382,7 +3898,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-7--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-7",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-8",
@@ -3408,7 +3936,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-8--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-8",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-8",
@@ -3434,7 +3974,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-8--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-8",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-8",
@@ -3460,7 +4012,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-8--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-8",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-8",
@@ -3486,7 +4050,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-8--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-8",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-8",
@@ -3512,7 +4088,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-8--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-8",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-8",
@@ -3538,7 +4126,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-8--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-8",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-9",
@@ -3564,7 +4164,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-9--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-9",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-9",
@@ -3590,7 +4202,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-9--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-9",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-9",
@@ -3616,7 +4240,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-9--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-9",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-9",
@@ -3642,7 +4278,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-9--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-9",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-9",
@@ -3668,7 +4316,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-9--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-9",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-9",
@@ -3694,7 +4354,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-9--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-9",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-10",
@@ -3720,7 +4392,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-10--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-10",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-10",
@@ -3746,7 +4430,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-10--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-10",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-10",
@@ -3772,7 +4468,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-10--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-10",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-10",
@@ -3798,7 +4506,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-10--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-10",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-10",
@@ -3824,7 +4544,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-10--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-10",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-10",
@@ -3850,7 +4582,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-10--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-10",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-11",
@@ -3876,7 +4620,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-11--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-11",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-11",
@@ -3902,7 +4658,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-11--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-11",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-11",
@@ -3928,7 +4696,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-11--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-11",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-11",
@@ -3954,7 +4734,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-11--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-11",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-11",
@@ -3980,7 +4772,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-11--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-11",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-11",
@@ -4006,7 +4810,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-11--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-11",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-12",
@@ -4032,7 +4848,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-12--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-12",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-ph-header-12",
@@ -4058,7 +4886,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. PH post section 0.5 sq is plausible (not on the catalogue page read)."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-ph-header-12--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-ph-header-12",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-12",
@@ -4084,7 +4924,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-12--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-12",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-xh-header-12",
@@ -4110,7 +4962,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-xh-header-12--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-xh-header-12",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-molex-kk-header-12",
@@ -4136,7 +5000,19 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states. Wafer thickness (about 3.2) scaled from the drawing."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-molex-kk-header-12--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-molex-kk-header-12",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-pin-header-254-12",
@@ -4162,7 +5038,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: outline, pitch and cavity grid from the drawing; lock / ramp profiles and cavity internals plausible. Mating is not inferred - see the research notes for what each document states."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-pin-header-254-12--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-pin-header-254-12",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-13",
@@ -4188,7 +5076,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-13--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-13",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-13",
@@ -4214,7 +5114,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-13--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-13",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-14",
@@ -4240,7 +5152,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-14--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-14",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-14",
@@ -4266,7 +5190,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-14--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-14",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-gh-header-15",
@@ -4292,7 +5228,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 4.05 as the depth (INFERRED); solder tabs and leads plausible."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-gh-header-15--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-gh-header-15",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "conn-jst-sh-header-15",
@@ -4318,7 +5266,19 @@
    "verification": "3/3 agree with the build values (internal); no independent check",
    "deviations": [
     "simplified model: the outline the document gives; cavities, latches, lances and wall thicknesses plausible. Mating is recorded only where the document states it. 4.25 read as the height above the board and 2.9 as the depth (INFERRED); solder tabs and leads plausible. BM16B is marked discontinued (struck through) and not drawn."
-   ]
+   ],
+   "finishes": {
+    "gold": {
+     "img": "conn-jst-sh-header-15--gold",
+     "label": "Gold plate",
+     "hasHead": false
+    },
+    "tin": {
+     "img": "conn-jst-sh-header-15",
+     "label": "Tin plate",
+     "hasHead": false
+    }
+   }
   },
   {
    "id": "insert-cnckitchen-m1-6-0-35-2-5",
@@ -4343,29 +5303,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m1-6-0-35-2-5--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -4373,49 +5313,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m1-6-0-35-2-5--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m1-6-0-35-2-5--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -4448,29 +5348,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m2-0-4-3--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m2-0-4-3--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m2-0-4-3--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m2-0-4-3--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m2-0-4-3--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -4478,49 +5358,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m2-0-4-3--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m2-0-4-3--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m2-0-4-3--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m2-0-4-3--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m2-0-4-3--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m2-0-4-3--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m2-0-4-3--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m2-0-4-3--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m2-0-4-3--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -4553,29 +5393,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m2-5-0-45-4--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -4583,49 +5403,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m2-5-0-45-4--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m2-5-0-45-4--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -4658,29 +5438,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m3-0-5-3--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m3-0-5-3--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m3-0-5-3--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m3-0-5-3--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m3-0-5-3--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -4688,49 +5448,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m3-0-5-3--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m3-0-5-3--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m3-0-5-3--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m3-0-5-3--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m3-0-5-3--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m3-0-5-3--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m3-0-5-3--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m3-0-5-3--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m3-0-5-3--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -4763,29 +5483,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m3-0-5-4--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m3-0-5-4--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m3-0-5-4--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m3-0-5-4--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m3-0-5-4--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -4793,49 +5493,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m3-0-5-4--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m3-0-5-4--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m3-0-5-4--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m3-0-5-4--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m3-0-5-4--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m3-0-5-4--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m3-0-5-4--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m3-0-5-4--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m3-0-5-4--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -4868,29 +5528,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m3-0-5-5-7--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -4898,49 +5538,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m3-0-5-5-7--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m3-0-5-5-7--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -4973,29 +5573,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m4-0-7-4--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m4-0-7-4--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m4-0-7-4--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m4-0-7-4--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m4-0-7-4--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -5003,49 +5583,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m4-0-7-4--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m4-0-7-4--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m4-0-7-4--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m4-0-7-4--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m4-0-7-4--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m4-0-7-4--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m4-0-7-4--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m4-0-7-4--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m4-0-7-4--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -5078,29 +5618,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m4-0-7-8-1--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -5108,49 +5628,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m4-0-7-8-1--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m4-0-7-8-1--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -5183,29 +5663,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m5-0-8-5-8--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -5213,49 +5673,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m5-0-8-5-8--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m5-0-8-5-8--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -5288,29 +5708,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m5-0-8-9-5--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -5318,49 +5718,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m5-0-8-9-5--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m5-0-8-9-5--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -5393,29 +5753,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m5x9-5--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m5x9-5--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m5x9-5--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m5x9-5--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m5x9-5--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -5423,49 +5763,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m5x9-5--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m5x9-5--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m5x9-5--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m5x9-5--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m5x9-5--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m5x9-5--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m5x9-5--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m5x9-5--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m5x9-5--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -5498,29 +5798,9 @@
     "Knurl pattern is the library representation, not the CNC Kitchen knurl."
    ],
    "finishes": {
-    "copper": {
-     "img": "insert-cnckitchen-m6-1-12-7--copper",
-     "label": "Copper",
-     "hasHead": false
-    },
-    "steel-plain": {
-     "img": "insert-cnckitchen-m6-1-12-7--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": false
-    },
     "stainless": {
      "img": "insert-cnckitchen-m6-1-12-7--stainless",
      "label": "Stainless steel",
-     "hasHead": false
-    },
-    "zinc-clear": {
-     "img": "insert-cnckitchen-m6-1-12-7--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": false
-    },
-    "black-oxide": {
-     "img": "insert-cnckitchen-m6-1-12-7--black-oxide",
-     "label": "Black oxide",
      "hasHead": false
     },
     "aluminium": {
@@ -5528,49 +5808,9 @@
      "label": "Aluminium, natural",
      "hasHead": false
     },
-    "nylon-black": {
-     "img": "insert-cnckitchen-m6-1-12-7--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": false
-    },
-    "nylon-natural": {
-     "img": "insert-cnckitchen-m6-1-12-7--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": false
-    },
     "nickel": {
      "img": "insert-cnckitchen-m6-1-12-7--nickel",
      "label": "Nickel plate",
-     "hasHead": false
-    },
-    "anodized:black": {
-     "img": "insert-cnckitchen-m6-1-12-7--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": false
-    },
-    "anodized:blue": {
-     "img": "insert-cnckitchen-m6-1-12-7--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": false
-    },
-    "anodized:red": {
-     "img": "insert-cnckitchen-m6-1-12-7--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": false
-    },
-    "anodized:gold": {
-     "img": "insert-cnckitchen-m6-1-12-7--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": false
-    },
-    "anodized:purple": {
-     "img": "insert-cnckitchen-m6-1-12-7--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": false
-    },
-    "anodized:green": {
-     "img": "insert-cnckitchen-m6-1-12-7--anodized-green",
-     "label": "Anodized aluminium, green",
      "hasHead": false
     },
     "brass": {
@@ -40791,89 +41031,7 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "Dome curve or head height (from the 120 deg angle), sleeve bore and mandrel head illustrative; product values vary by maker."
-   ],
-   "finishes": {
-    "copper": {
-     "img": "rivet-csk-iso15978-3-2x8--copper",
-     "label": "Copper",
-     "hasHead": true
-    },
-    "steel-plain": {
-     "img": "rivet-csk-iso15978-3-2x8--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": true
-    },
-    "stainless": {
-     "img": "rivet-csk-iso15978-3-2x8--stainless",
-     "label": "Stainless steel",
-     "hasHead": true
-    },
-    "zinc-clear": {
-     "img": "rivet-csk-iso15978-3-2x8--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": true
-    },
-    "black-oxide": {
-     "img": "rivet-csk-iso15978-3-2x8--black-oxide",
-     "label": "Black oxide",
-     "hasHead": true
-    },
-    "brass": {
-     "img": "rivet-csk-iso15978-3-2x8--brass",
-     "label": "Brass",
-     "hasHead": true
-    },
-    "aluminium": {
-     "img": "rivet-csk-iso15978-3-2x8--aluminium",
-     "label": "Aluminium, natural",
-     "hasHead": true
-    },
-    "nylon-black": {
-     "img": "rivet-csk-iso15978-3-2x8--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": true
-    },
-    "nylon-natural": {
-     "img": "rivet-csk-iso15978-3-2x8--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": true
-    },
-    "nickel": {
-     "img": "rivet-csk-iso15978-3-2x8--nickel",
-     "label": "Nickel plate",
-     "hasHead": true
-    },
-    "anodized:black": {
-     "img": "rivet-csk-iso15978-3-2x8--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": true
-    },
-    "anodized:blue": {
-     "img": "rivet-csk-iso15978-3-2x8--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": true
-    },
-    "anodized:red": {
-     "img": "rivet-csk-iso15978-3-2x8--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": true
-    },
-    "anodized:gold": {
-     "img": "rivet-csk-iso15978-3-2x8--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": true
-    },
-    "anodized:purple": {
-     "img": "rivet-csk-iso15978-3-2x8--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": true
-    },
-    "anodized:green": {
-     "img": "rivet-csk-iso15978-3-2x8--anodized-green",
-     "label": "Anodized aluminium, green",
-     "hasHead": true
-    }
-   }
+   ]
   },
   {
    "id": "rivet-csk-iso15978-4-8x12",
@@ -40898,89 +41056,7 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "Dome curve or head height (from the 120 deg angle), sleeve bore and mandrel head illustrative; product values vary by maker."
-   ],
-   "finishes": {
-    "copper": {
-     "img": "rivet-csk-iso15978-4-8x12--copper",
-     "label": "Copper",
-     "hasHead": true
-    },
-    "steel-plain": {
-     "img": "rivet-csk-iso15978-4-8x12--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": true
-    },
-    "stainless": {
-     "img": "rivet-csk-iso15978-4-8x12--stainless",
-     "label": "Stainless steel",
-     "hasHead": true
-    },
-    "zinc-clear": {
-     "img": "rivet-csk-iso15978-4-8x12--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": true
-    },
-    "black-oxide": {
-     "img": "rivet-csk-iso15978-4-8x12--black-oxide",
-     "label": "Black oxide",
-     "hasHead": true
-    },
-    "brass": {
-     "img": "rivet-csk-iso15978-4-8x12--brass",
-     "label": "Brass",
-     "hasHead": true
-    },
-    "aluminium": {
-     "img": "rivet-csk-iso15978-4-8x12--aluminium",
-     "label": "Aluminium, natural",
-     "hasHead": true
-    },
-    "nylon-black": {
-     "img": "rivet-csk-iso15978-4-8x12--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": true
-    },
-    "nylon-natural": {
-     "img": "rivet-csk-iso15978-4-8x12--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": true
-    },
-    "nickel": {
-     "img": "rivet-csk-iso15978-4-8x12--nickel",
-     "label": "Nickel plate",
-     "hasHead": true
-    },
-    "anodized:black": {
-     "img": "rivet-csk-iso15978-4-8x12--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": true
-    },
-    "anodized:blue": {
-     "img": "rivet-csk-iso15978-4-8x12--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": true
-    },
-    "anodized:red": {
-     "img": "rivet-csk-iso15978-4-8x12--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": true
-    },
-    "anodized:gold": {
-     "img": "rivet-csk-iso15978-4-8x12--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": true
-    },
-    "anodized:purple": {
-     "img": "rivet-csk-iso15978-4-8x12--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": true
-    },
-    "anodized:green": {
-     "img": "rivet-csk-iso15978-4-8x12--anodized-green",
-     "label": "Anodized aluminium, green",
-     "hasHead": true
-    }
-   }
+   ]
   },
   {
    "id": "rivet-dome-iso15977-2-4x8",
@@ -41005,89 +41081,7 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "Dome curve or head height (from the 120 deg angle), sleeve bore and mandrel head illustrative; product values vary by maker."
-   ],
-   "finishes": {
-    "copper": {
-     "img": "rivet-dome-iso15977-2-4x8--copper",
-     "label": "Copper",
-     "hasHead": true
-    },
-    "steel-plain": {
-     "img": "rivet-dome-iso15977-2-4x8--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": true
-    },
-    "stainless": {
-     "img": "rivet-dome-iso15977-2-4x8--stainless",
-     "label": "Stainless steel",
-     "hasHead": true
-    },
-    "zinc-clear": {
-     "img": "rivet-dome-iso15977-2-4x8--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": true
-    },
-    "black-oxide": {
-     "img": "rivet-dome-iso15977-2-4x8--black-oxide",
-     "label": "Black oxide",
-     "hasHead": true
-    },
-    "brass": {
-     "img": "rivet-dome-iso15977-2-4x8--brass",
-     "label": "Brass",
-     "hasHead": true
-    },
-    "aluminium": {
-     "img": "rivet-dome-iso15977-2-4x8--aluminium",
-     "label": "Aluminium, natural",
-     "hasHead": true
-    },
-    "nylon-black": {
-     "img": "rivet-dome-iso15977-2-4x8--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": true
-    },
-    "nylon-natural": {
-     "img": "rivet-dome-iso15977-2-4x8--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": true
-    },
-    "nickel": {
-     "img": "rivet-dome-iso15977-2-4x8--nickel",
-     "label": "Nickel plate",
-     "hasHead": true
-    },
-    "anodized:black": {
-     "img": "rivet-dome-iso15977-2-4x8--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": true
-    },
-    "anodized:blue": {
-     "img": "rivet-dome-iso15977-2-4x8--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": true
-    },
-    "anodized:red": {
-     "img": "rivet-dome-iso15977-2-4x8--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": true
-    },
-    "anodized:gold": {
-     "img": "rivet-dome-iso15977-2-4x8--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": true
-    },
-    "anodized:purple": {
-     "img": "rivet-dome-iso15977-2-4x8--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": true
-    },
-    "anodized:green": {
-     "img": "rivet-dome-iso15977-2-4x8--anodized-green",
-     "label": "Anodized aluminium, green",
-     "hasHead": true
-    }
-   }
+   ]
   },
   {
    "id": "rivet-dome-iso15977-3-2x10",
@@ -41112,89 +41106,7 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "Dome curve, sleeve bore and mandrel head illustrative."
-   ],
-   "finishes": {
-    "copper": {
-     "img": "rivet-dome-iso15977-3-2x10--copper",
-     "label": "Copper",
-     "hasHead": true
-    },
-    "steel-plain": {
-     "img": "rivet-dome-iso15977-3-2x10--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": true
-    },
-    "stainless": {
-     "img": "rivet-dome-iso15977-3-2x10--stainless",
-     "label": "Stainless steel",
-     "hasHead": true
-    },
-    "zinc-clear": {
-     "img": "rivet-dome-iso15977-3-2x10--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": true
-    },
-    "black-oxide": {
-     "img": "rivet-dome-iso15977-3-2x10--black-oxide",
-     "label": "Black oxide",
-     "hasHead": true
-    },
-    "brass": {
-     "img": "rivet-dome-iso15977-3-2x10--brass",
-     "label": "Brass",
-     "hasHead": true
-    },
-    "aluminium": {
-     "img": "rivet-dome-iso15977-3-2x10--aluminium",
-     "label": "Aluminium, natural",
-     "hasHead": true
-    },
-    "nylon-black": {
-     "img": "rivet-dome-iso15977-3-2x10--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": true
-    },
-    "nylon-natural": {
-     "img": "rivet-dome-iso15977-3-2x10--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": true
-    },
-    "nickel": {
-     "img": "rivet-dome-iso15977-3-2x10--nickel",
-     "label": "Nickel plate",
-     "hasHead": true
-    },
-    "anodized:black": {
-     "img": "rivet-dome-iso15977-3-2x10--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": true
-    },
-    "anodized:blue": {
-     "img": "rivet-dome-iso15977-3-2x10--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": true
-    },
-    "anodized:red": {
-     "img": "rivet-dome-iso15977-3-2x10--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": true
-    },
-    "anodized:gold": {
-     "img": "rivet-dome-iso15977-3-2x10--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": true
-    },
-    "anodized:purple": {
-     "img": "rivet-dome-iso15977-3-2x10--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": true
-    },
-    "anodized:green": {
-     "img": "rivet-dome-iso15977-3-2x10--anodized-green",
-     "label": "Anodized aluminium, green",
-     "hasHead": true
-    }
-   }
+   ]
   },
   {
    "id": "rivet-dome-iso15977-4-0x10",
@@ -41219,89 +41131,7 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "Dome curve or head height (from the 120 deg angle), sleeve bore and mandrel head illustrative; product values vary by maker."
-   ],
-   "finishes": {
-    "copper": {
-     "img": "rivet-dome-iso15977-4-0x10--copper",
-     "label": "Copper",
-     "hasHead": true
-    },
-    "steel-plain": {
-     "img": "rivet-dome-iso15977-4-0x10--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": true
-    },
-    "stainless": {
-     "img": "rivet-dome-iso15977-4-0x10--stainless",
-     "label": "Stainless steel",
-     "hasHead": true
-    },
-    "zinc-clear": {
-     "img": "rivet-dome-iso15977-4-0x10--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": true
-    },
-    "black-oxide": {
-     "img": "rivet-dome-iso15977-4-0x10--black-oxide",
-     "label": "Black oxide",
-     "hasHead": true
-    },
-    "brass": {
-     "img": "rivet-dome-iso15977-4-0x10--brass",
-     "label": "Brass",
-     "hasHead": true
-    },
-    "aluminium": {
-     "img": "rivet-dome-iso15977-4-0x10--aluminium",
-     "label": "Aluminium, natural",
-     "hasHead": true
-    },
-    "nylon-black": {
-     "img": "rivet-dome-iso15977-4-0x10--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": true
-    },
-    "nylon-natural": {
-     "img": "rivet-dome-iso15977-4-0x10--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": true
-    },
-    "nickel": {
-     "img": "rivet-dome-iso15977-4-0x10--nickel",
-     "label": "Nickel plate",
-     "hasHead": true
-    },
-    "anodized:black": {
-     "img": "rivet-dome-iso15977-4-0x10--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": true
-    },
-    "anodized:blue": {
-     "img": "rivet-dome-iso15977-4-0x10--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": true
-    },
-    "anodized:red": {
-     "img": "rivet-dome-iso15977-4-0x10--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": true
-    },
-    "anodized:gold": {
-     "img": "rivet-dome-iso15977-4-0x10--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": true
-    },
-    "anodized:purple": {
-     "img": "rivet-dome-iso15977-4-0x10--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": true
-    },
-    "anodized:green": {
-     "img": "rivet-dome-iso15977-4-0x10--anodized-green",
-     "label": "Anodized aluminium, green",
-     "hasHead": true
-    }
-   }
+   ]
   },
   {
    "id": "rivet-dome-iso15977-4-8x12",
@@ -41326,89 +41156,7 @@
    "verification": "2/2 agree with the build values (internal); no independent check",
    "deviations": [
     "Dome curve or head height (from the 120 deg angle), sleeve bore and mandrel head illustrative; product values vary by maker."
-   ],
-   "finishes": {
-    "copper": {
-     "img": "rivet-dome-iso15977-4-8x12--copper",
-     "label": "Copper",
-     "hasHead": true
-    },
-    "steel-plain": {
-     "img": "rivet-dome-iso15977-4-8x12--steel-plain",
-     "label": "Steel, plain (self-colour)",
-     "hasHead": true
-    },
-    "stainless": {
-     "img": "rivet-dome-iso15977-4-8x12--stainless",
-     "label": "Stainless steel",
-     "hasHead": true
-    },
-    "zinc-clear": {
-     "img": "rivet-dome-iso15977-4-8x12--zinc-clear",
-     "label": "Zinc plated, clear",
-     "hasHead": true
-    },
-    "black-oxide": {
-     "img": "rivet-dome-iso15977-4-8x12--black-oxide",
-     "label": "Black oxide",
-     "hasHead": true
-    },
-    "brass": {
-     "img": "rivet-dome-iso15977-4-8x12--brass",
-     "label": "Brass",
-     "hasHead": true
-    },
-    "aluminium": {
-     "img": "rivet-dome-iso15977-4-8x12--aluminium",
-     "label": "Aluminium, natural",
-     "hasHead": true
-    },
-    "nylon-black": {
-     "img": "rivet-dome-iso15977-4-8x12--nylon-black",
-     "label": "Nylon, black",
-     "hasHead": true
-    },
-    "nylon-natural": {
-     "img": "rivet-dome-iso15977-4-8x12--nylon-natural",
-     "label": "Nylon (PA66), natural",
-     "hasHead": true
-    },
-    "nickel": {
-     "img": "rivet-dome-iso15977-4-8x12--nickel",
-     "label": "Nickel plate",
-     "hasHead": true
-    },
-    "anodized:black": {
-     "img": "rivet-dome-iso15977-4-8x12--anodized-black",
-     "label": "Anodized aluminium, black",
-     "hasHead": true
-    },
-    "anodized:blue": {
-     "img": "rivet-dome-iso15977-4-8x12--anodized-blue",
-     "label": "Anodized aluminium, blue",
-     "hasHead": true
-    },
-    "anodized:red": {
-     "img": "rivet-dome-iso15977-4-8x12--anodized-red",
-     "label": "Anodized aluminium, red",
-     "hasHead": true
-    },
-    "anodized:gold": {
-     "img": "rivet-dome-iso15977-4-8x12--anodized-gold",
-     "label": "Anodized aluminium, gold",
-     "hasHead": true
-    },
-    "anodized:purple": {
-     "img": "rivet-dome-iso15977-4-8x12--anodized-purple",
-     "label": "Anodized aluminium, purple",
-     "hasHead": true
-    },
-    "anodized:green": {
-     "img": "rivet-dome-iso15977-4-8x12--anodized-green",
-     "label": "Anodized aluminium, green",
-     "hasHead": true
-    }
-   }
+   ]
   },
   {
    "id": "nut-coupling-din6334-m6",

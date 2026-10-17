@@ -841,6 +841,10 @@ function pointSection(key, idx) {
 
 function driveSection(key, idx) {
   const t = T();
+  const info = P.optionsFor(t, 'drive.type');
+  // a type that decides its own drive (a hex head: round 3, Joey 2026-10-17) asks nothing - unless the part holds something
+  // else from before, which is shown with its note until it is changed
+  if (info.hide) return null;
   const own = headStdOf(t);
   const ownStd = D.std(own);
   const ownDrive = ownStd ? ownStd.drive_type : null;
@@ -849,23 +853,38 @@ function driveSection(key, idx) {
   const cur = t.drive.type;
   const mk = (d, sub, tag) => tile({ g: DRIVE_GLYPH[d.id], label: DRIVE_SHORT[d.id] || d.label, sub, tag,
     on: cur.status !== UNKNOWN && cur.value === d.id, onClick: () => chooseDrive(d.id), title: d.label });
+  const named = (d) => { const o = info.options.find((x) => x.value === d.id); return o ? o.standard_name || null : null; };
   const body = [];
-  if (ownDrive) {
+  if (info.fixed) {
+    body.push(h('div', { class: 'tiles cols-6' }, D.own.drive_types.filter((d) => info.options.some((o) => o.value === d.id)).map((d) => mk(d, null, null)),
+      stateButtons(key, 'drive.type', { tiles: true, known: info.options.map((o) => o.value) })));
+  } else if (ownDrive) {
     const docd = D.own.drive_types.filter((d) => d.id === ownDrive || offers.some((o) => o.drive === d.id));
     const rest = D.own.drive_types.filter((d) => !docd.includes(d));
+    // the drives a standard names for this head but no table here has (research section 2), apart from the rest
+    const also = rest.filter((d) => named(d));
+    const other = rest.filter((d) => !named(d));
     body.push(h('div', { class: 'group-lab' }, 'Listed for this head'),
       h('div', { class: 'tiles cols-6' }, docd.map((d) => {
         if (d.id === ownDrive) return mk(d, fmtStandard(own), 'standard');
         const o = offers.find((x) => x.drive === d.id);
         return mk(d, fmtStandard(o.standard), 'other standard');
-      })),
-      h('div', { class: 'group-lab' }, 'Other drives', h('span', { class: 'muted' }, ' - custom combination, no listed standard')),
-      h('div', { class: 'tiles cols-6' }, rest.map((d) => mk(d, null, null)), stateButtons(key, 'drive.type', { tiles: true, known: D.own.drive_types.map((d) => d.id) })));
+      })));
+    if (also.length) {
+      body.push(h('div', { class: 'group-lab' }, 'Also standard for this head', h('span', { class: 'muted' }, ' - no table for it here, so it is saved as a custom combination')),
+        h('div', { class: 'tiles cols-6' }, also.map((d) => mk(d, named(d), null))));
+    }
+    body.push(h('div', { class: 'group-lab' }, 'Other drives', h('span', { class: 'muted' }, info.headList
+      ? ' - no standard we found pairs these with this head; still offered, since that is not proof they are never made'
+      : ' - custom combination, no listed standard')),
+    h('div', { class: 'tiles cols-6' }, other.map((d) => mk(d, null, null)), stateButtons(key, 'drive.type', { tiles: true, known: D.own.drive_types.map((d) => d.id) })));
   } else {
     body.push(h('div', { class: 'note' }, t.head.status === LISTED ? 'This head has no drive in its standard.'
       : t.head.status === CUSTOM ? 'A head you typed has no listed standard, so no drive is marked as its standard.' : 'Pick a head to see which drives its standard lists.'),
-      h('div', { class: 'tiles cols-6' }, D.own.drive_types.map((d) => mk(d, null, null)), stateButtons(key, 'drive.type', { tiles: true, known: D.own.drive_types.map((d) => d.id) })));
+      h('div', { class: 'tiles cols-6' }, D.own.drive_types.map((d) => mk(d, named(d), null)), stateButtons(key, 'drive.type', { tiles: true, known: D.own.drive_types.map((d) => d.id) })));
   }
+  if (info.note) body.push(h('div', { class: 'note' }, info.note));
+  for (const w of info.warn || []) body.push(h('div', { class: 'note warn' }, `⚠ ${w[0].toUpperCase()}${w.slice(1)}.`));
   body.push(customBox(key, 'drive.type', 'Drive', false));
   const panel = driveChangePanel();
   if (panel) body.push(panel);
@@ -975,12 +994,14 @@ function sizesSection(key, idx, title) {
   const vals = info.options.map((o) => o.value);
   const uni = isUnified(t);
   const row = `thr-row${uni ? ' inch' : ''}`;
+  // the size range a type covers (round 3: a DIN 137 B wave washer, M3 to M36 by its newest edition), or why a held size is outside it
+  const rangeNote = info.note ? h('div', { class: 'note' }, info.note) : null;
   if (!batching()) {
     const f = t.thread.diameter;
     return sectionEl(key, idx, title, 'one part', systemRow(key),
       h('div', { class: row }, info.options.map((o) => threadButton(o, f.status === LISTED && f.value === o.value, () => pick(key, 'thread.diameter', o.value))),
         stateButtons(key, 'thread.diameter', { numeric: !uni })),
-      customBox(key, 'thread.diameter', uni ? `${title} (inch)` : title, !uni));
+      rangeNote, customBox(key, 'thread.diameter', uni ? `${title} (inch)` : title, !uni));
   }
   const off = state.sel.filter((v) => !vals.includes(v));
   const offLabel = (v) => (uni ? String(v) : `M${fmtNum(v)}`);
@@ -989,6 +1010,7 @@ function sizesSection(key, idx, title) {
     off.map((v) => h('button', { type: 'button', class: 'thr on off', 'aria-pressed': 'true', 'aria-label': `${offLabel(v)}, custom`, title: 'not listed for this type: saved as Custom. Click to remove.', onclick: () => toggleSel(v) },
       h('span', { class: 'chk' }, '✓'), h('span', { class: 'tl mono' }, offLabel(v)), h('span', { class: 'ts' }, 'custom'))))];
   body.push(selTools(key, 'size', vals));
+  if (rangeNote) body.push(rangeNote);
   if (off.length) body.push(h('div', { class: 'note' }, `Not listed for this type: ${off.map(offLabel).join(', ')} - saved as Custom.`));
   if (vals.length && PER_SIZE.some((p) => fam().paths.some((d) => d.path === p))) {
     body.push(h('div', { class: 'note' }, `${uni ? (t.thread.tpi === null ? 'Dimensions are' : 'Threads per inch (UNC first), wrench size and dimensions are')
@@ -1091,11 +1113,15 @@ function lengthsSection(key, idx) {
         h('span', { class: 'chk' }, '✓'), h('span', { class: 'mono' }, fmtLen(t, v)), h('span', { class: 'ts' }, 'custom')))),
     selTools(key, 'length', vals));
     if (off.length) {
-      body.push(h('div', { class: 'note' }, `Not in our reference list${stdName ? ' (bd_warehouse lengths for ' + stdName + ' ' + threadText(t) + ')' : ''}: ${off.map((v) => fmtLen(t, v)).join(', ')} - saved as Custom. That says nothing about whether the standard lists it. `,
+      body.push(h('div', { class: 'note' }, info.stock
+        ? `Not in the stock list for ${threadText(t)}: ${off.map((v) => fmtLen(t, v)).join(', ')} - saved as Custom. Suppliers may still make it. `
+        : `Not in our reference list${stdName ? ' (bd_warehouse lengths for ' + stdName + ' ' + threadText(t) + ')' : ''}: ${off.map((v) => fmtLen(t, v)).join(', ')} - saved as Custom. That says nothing about whether the standard lists it. `,
         h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.sel = state.sel.filter((v) => vals.includes(v)); render(); } }, 'Remove these')));
     }
   }
-  if (opts.length) body.push(h('div', { class: 'note' }, `The lengths our reference data lists${stdName ? ' for ' + stdName : ''} ${threadText(t)} - not every length made. Any other: type it below.`
+  // an inch type with no table offers what suppliers commonly stock (round 3, Joey 2026-10-17), and says it is not the standard
+  if (opts.length && info.stock) body.push(h('div', { class: 'note' }, `Commonly stocked lengths for ${threadText(t)} (${info.note}). Any other length: type it below.`));
+  else if (opts.length) body.push(h('div', { class: 'note' }, `The lengths our reference data lists${stdName ? ' for ' + stdName : ''} ${threadText(t)} - not every length made. Any other: type it below.`
     + (info.note ? ' ' + info.note + '.' : '')));
   else if (!unlock) body.push(h('div', { class: 'note' }, info.note || 'No listed lengths for this selection: add your own.'));   // the unlock note already says it
   body.push(...notes(info));
@@ -1124,6 +1150,13 @@ function materialSection(key, idx, only = null) {
   const row = (label, path, hint) => {
     if (only && !only.includes(path)) return null;
     const info = P.optionsFor(t, path);
+    // switched off by the part's own values (round 3: no ISO class applies to a brass part, a spring washer has none): said
+    // in one line, so a field does not vanish without a reason - and Custom… stays, for a maker's grade (CU2, Gr 5; Sol 01a14a93)
+    if (!info.enabled && info.ruled) {
+      return h('div', { class: 'mat-row' }, h('div', { class: 'mat-lab' }, label),
+        h('div', { class: 'row wrap' }, h('span', { class: 'muted' }, info.reason), stateButtons(key, path)),
+        customBox(key, path, label, false));
+    }
     if (!info.enabled) return null;
     const f = getPath(t, path);
     let options = info.options; let note = info.note;
@@ -1148,11 +1181,16 @@ function materialSection(key, idx, only = null) {
       h('div', { class: 'row wrap' }, options.map((o) => textBtn({ label: String(o.label), on: f.status === LISTED && f.value === o.value, onClick: () => pick(key, path, o.value) })),
         stateButtons(key, path), f.status !== UNKNOWN ? statusChip(f) : null),
       note ? h('div', { class: 'note' }, note) : null,
+      // allowed, but worth knowing (round 3: what suppliers do not list, a standard's advice): said, never blocked
+      ...(info.warn || []).map((w) => h('div', { class: 'note warn' }, `⚠ ${w[0].toUpperCase()}${w.slice(1)}.`)),
       customBox(key, path, label, false));
   };
+  // a family may call its finish something else: a connector's is its contact plating, tin or gold (round 3)
+  const finDef = fam().paths.find((d) => d.path === 'material.finish');
+  const finLabel = finDef && finDef.label !== 'Finish' ? finDef.label : 'Finish / treatment';
   return sectionEl(key, idx, 'Material', only ? 'kept when you switch family' : 'separate fields - none is inferred from another (black is not black oxide); kept when you switch family',
     row('Base', 'material.base'), row('Stainless group', 'material.stainless_group'),
-    row('Grade / property class', 'material.property_class', CLASS_HINT[t.family] || CLASS_HINT.screw), row('Finish / treatment', 'material.finish'),
+    row('Grade / property class', 'material.property_class', CLASS_HINT[t.family] || CLASS_HINT.screw), row(finLabel, 'material.finish'),
     row('Colour', 'material.colour', ' as read off the part or package'));
 }
 
@@ -1163,15 +1201,18 @@ function batchSection(e, idx) {
   const info = P.optionsFor(t, e.path);
   const vals = info.options.map((o) => o.value);
   const u = e.unit ? ` ${e.unit}` : '';
-  if (!batching()) return choiceSection(e.key, idx, e.title, e.path, 'one part', (o) => o.label + u);
+  // a type may measure the field its own way (round 3: a DIN 6799 E-clip by its groove, DIN 471 by the shaft)
+  const title = info.title || e.title;
+  if (!batching()) return choiceSection(e.key, idx, title, e.path, 'one part', (o) => o.label + u);
   const off = state.sel.filter((x) => !vals.includes(x));
   const body = [h('div', { class: 'row wrap' },
     info.options.map((o) => textBtn({ label: o.label + u, on: state.sel.includes(o.value), check: true, onClick: () => toggleSel(o.value, e.key) })),
     off.map((x) => textBtn({ label: `${fmtNum(x)}${u} (custom)`, on: true, check: true, cls: 'off', title: 'not in the list - saved as Custom. Click to remove.',
       onClick: () => toggleSel(x, e.key) })))];
   body.push(selTools(e.key, e.noun === 'lengths' ? 'length' : e.key === 'positions' ? 'position count' : 'size', vals));   // a connector's own words
-  if (off.length) body.push(h('div', { class: 'note' }, `Not in the list: ${off.map(fmtNum).join(', ')}${u} - saved as Custom.`));
-  return sectionEl(e.key, idx, e.title, e.hint || 'tick several - one part each', ...body);
+  if (off.length) body.push(h('div', { class: 'note' }, `Not in the list${info.title ? ` for this type` : ''}: ${off.map(fmtNum).join(', ')}${u} - saved as Custom.`));
+  if (info.title && info.note) body.push(h('div', { class: 'note' }, info.note));
+  return sectionEl(e.key, idx, title, info.title ? 'tick several - one part each' : e.hint || 'tick several - one part each', ...body);
 }
 // rivet grip range: two typed numbers, never derived from the body length (design review)
 function gripSection(e, idx) {
@@ -1263,6 +1304,8 @@ function detailSection() {
   // a field the record does not carry is not drawn: an inch record has no pitch class, a metric one no thread series
   const defs = fam().paths.filter((d) => !SECTION_PATHS.has(d.path) && getPath(t, d.path)
     && !(['screw', 'setscrew'].includes(t.family) && ['drive.type', 'thread.pitch'].includes(d.path))
+    // a nut has no drive to ask (round 3): its type decides the flats the wrench size is read for
+    && !(d.path === 'drive.type' && P.optionsFor(t, d.path).hide)
     && !(batching() && varyPath() === 'thread.diameter' && PER_SIZE.includes(d.path)));
   if (!defs.length) return null;
   const det = h('details', { class: 'more', open: state.moreOpen || null });
@@ -1287,7 +1330,8 @@ function detailField(def) {
   });
   return h('div', { class: 'det' }, h('label', { class: 'det-lab' }, def.label), sel, statusChip(f),
     info.reason ? h('span', { class: 'muted' }, info.reason) : null,
-    customBox('more', def.path, def.label, def.numeric), ...suggestionRows('more', def.path), ...notes(info));
+    customBox('more', def.path, def.label, def.numeric), ...suggestionRows('more', def.path), ...notes(info),
+    info.note && info.fixed ? h('div', { class: 'note' }, info.note) : null);
 }
 
 // ------------------------------------------------------------------ summary strip (C's tokens, used as navigation)
@@ -2305,7 +2349,8 @@ async function main() {
   }
   try {                      // the rendered pictures are optional: without them every tile keeps its glyph
     const idx = await fetch('img/hw/v2/assets.json').then((r) => (r.ok ? r.json() : null));
-    if (idx) HW = createHwImages(idx, { heads: D.own.heads, families: DATA_FAMILY });
+    // the picker (made just below) says when a material is not one the part comes in: its look is then never shown
+    if (idx) HW = createHwImages(idx, { heads: D.own.heads, families: DATA_FAMILY, materialIssue: (rec) => (P ? P.materialIssue(rec) : null) });
   } catch (e) { console.warn('img/hw/v2/assets.json not loaded:', e.message); }
   P = createPicker(D);
   state.template = P.newRecord('screw', { id: 'template' });

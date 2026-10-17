@@ -70,9 +70,27 @@ export const DATA_FAMILIES = [
     heads: [['external', 'External (shaft), DIN 471', 'ring-external'], ['internal', 'Internal (bore), DIN 472', 'ring-internal'],
       ['e-clip', 'E-clip, DIN 6799', 'eclip']],
     fields: [
+      // ONE SIZE LIST PER RING TYPE (Joey, 2026-10-17, answer 5; RESEARCH-HARDWARE-2026-10-16.md section 4a): the three
+      // standards measure different things and come in different sizes. `options` (all three together) is offered until the
+      // type is chosen. DIN 471 and 472 run on to 300 mm; the lists stop at 30 as before, and a larger size is typed.
       F('ring', 'size', 'Size: shaft, bore or groove', { unit: 'mm', numeric: true, batch: true,
-        options: [1.2, 1.5, 1.9, 2.3, 3, 3.2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-        hint: 'DIN 471: the shaft; DIN 472: the bore; DIN 6799: the GROOVE diameter (a 5 mm groove fits 6-8 mm shafts)' }),
+        options: [0.8, 1.2, 1.5, 1.9, 2.3, 3, 3.2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 28, 29, 30],
+        hint: 'DIN 471: the shaft; DIN 472: the bore; DIN 6799: the GROOVE diameter (a 5 mm groove fits 6-8 mm shafts)',
+        byHead: {
+          // DIN 471, the shaft d1: single source (fasten.it's DIN reproduction, the 04/2011 edition); no 23 or 27
+          external: { title: 'Shaft diameter', standard: 'DIN 471',
+            options: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 28, 29, 30],
+            hint: 'DIN 471 sizes a ring by the SHAFT it fits, from 3 mm (it runs on to 300: type a larger one)' },
+          // DIN 472, the bore d1: from 8 mm (verified: fasten.it and Kipp K1939); no 23, 27 or 29 (single)
+          internal: { title: 'Bore diameter', standard: 'DIN 472',
+            options: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 28, 30],
+            hint: 'DIN 472 sizes a ring by the BORE it fits, from 8 mm (it runs on to 300: type a larger one)' },
+          // DIN 6799, the groove d2: exactly these 18 (verified and re-checked: Rotor Clip, fasten.it, Kipp K1940; the same
+          // in the 1981, 2011 and 2017 editions)
+          'e-clip': { title: 'Groove diameter', standard: 'DIN 6799',
+            options: [0.8, 1.2, 1.5, 1.9, 2.3, 3.2, 4, 5, 6, 7, 8, 9, 10, 12, 15, 19, 24, 30],
+            hint: 'DIN 6799 sizes an E-clip by its GROOVE diameter: a 5 mm groove fits 6-8 mm shafts' },
+        } }),
     ],
     picture: { d: 'specific.ring.size', L: null, prefix: '⌀' },
     labelRule: { big: (g, head, h) => `${h === 'e-clip' ? 'groove ' : '⌀'}${g('size')}`, small: (g, head) => [head] },
@@ -83,6 +101,17 @@ export const DATA_FAMILIES = [
     heads: [['split', 'Split (helical), DIN 127 B', 'washer-split'], ['wave', 'Wave (crinkle), DIN 137 B', 'washer-wave'],
       ['conical', 'Conical spring, DIN 6796', 'washer-conical']],
     fields: [{ key: 'thread', path: 'thread.diameter', title: 'Nominal size', thread: true, batch: true }],
+    // THE SIZE RANGE OF EACH TYPE, by its NEWEST edition (Joey, 2026-10-17, answer 6; RESEARCH-HARDWARE-2026-10-16.md
+    // section 4b): the M sizes inside the range are offered, any other is typed
+    threadRange: {
+      // DIN 127 B:1987 is the last edition (withdrawn since): M2 to M100 per globalfastener.com detail_620 (opened
+      // 2026-10-17); fasten.it starts form B at M3, a conflict, so M2 stays offered
+      split: { min: 2, max: 100, note: 'DIN 127 B (1987, its last edition): M2 to M100' },
+      // DIN 137 B: M3 to M24 in the 1985 edition, M3 to M36 in the 1994 edition (globalfastener.com detail_5080)
+      wave: { min: 3, max: 36, note: 'DIN 137 B (1994 edition): M3 to M36' },
+      // DIN 6796: M2 to M30 in the 1987 edition, M2 to M125 in the later one (fasten.it; a 2009 edition exists)
+      conical: { min: 2, max: 125, note: 'DIN 6796 (its newest edition): M2 to M125' },
+    },
     picture: { d: 'thread.diameter', L: null, prefix: 'M' },
     labelRule: { big: (g) => g('thread'), small: (g, head) => [head] },
   },
@@ -117,6 +146,8 @@ export const DATA_FAMILIES = [
     // evidence"); a manufacturer name alone does not identify a series.
     id: 'connector', label: 'Connectors (wire-to-board)', short: 'Connectors', ns: 'connector', glyph: 'conn-housing', thread: null,
     headTitle: 'Component',
+    // a connector's finish is its contact plating, tin or gold (Joey, 2026-10-17, answer 4: own_tables material_by_family)
+    finishTitle: 'Contact plating',
     heads: [['crimp-housing', 'Crimp housing (wire side)', 'conn-housing'], ['header', 'PCB header', 'conn-header'],
       ['crimp-contact', 'Crimp contact', 'conn-contact']],
     fields: [

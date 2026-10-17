@@ -8404,42 +8404,50 @@
    {
     "value": "4.8",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "steel"
    },
    {
     "value": "5.8",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "steel"
    },
    {
     "value": "8.8",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "steel"
    },
    {
     "value": "10.9",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "steel"
    },
    {
     "value": "12.9",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "steel"
    },
    {
     "value": "50",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "stainless"
    },
    {
     "value": "70",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "stainless"
    },
    {
     "value": "80",
     "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
-    "status": "unverified"
+    "status": "unverified",
+    "base": "stainless"
    }
   ],
   "finish": [
@@ -8585,7 +8593,8 @@
      "sources": [
       "https://evs.ee/en/evs-en-iso-898-2-2023",
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "6",
@@ -8594,7 +8603,8 @@
      "sources": [
       "https://evs.ee/en/evs-en-iso-898-2-2023",
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "8",
@@ -8603,7 +8613,8 @@
      "sources": [
       "https://evs.ee/en/evs-en-iso-898-2-2023",
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "10",
@@ -8612,7 +8623,8 @@
      "sources": [
       "https://evs.ee/en/evs-en-iso-898-2-2023",
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "12",
@@ -8621,7 +8633,8 @@
      "sources": [
       "https://evs.ee/en/evs-en-iso-898-2-2023",
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "04",
@@ -8630,7 +8643,8 @@
      "sources": [
       "https://evs.ee/en/evs-en-iso-898-2-2023",
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "05",
@@ -8639,7 +8653,8 @@
      "sources": [
       "https://evs.ee/en/evs-en-iso-898-2-2023",
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "50",
@@ -8648,7 +8663,8 @@
      "sources": [
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf",
       "https://torqbolt.com/iso-3506-2-nuts-suppliers-manufacturers"
-     ]
+     ],
+     "base": "stainless"
     },
     {
      "value": "70",
@@ -8657,7 +8673,8 @@
      "sources": [
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf",
       "https://torqbolt.com/iso-3506-2-nuts-suppliers-manufacturers"
-     ]
+     ],
+     "base": "stainless"
     },
     {
      "value": "80",
@@ -8666,7 +8683,8 @@
      "sources": [
       "https://assets.berger-tools.co.uk/pdfs/Property_Classes_Screws_Nuts.pdf",
       "https://torqbolt.com/iso-3506-2-nuts-suppliers-manufacturers"
-     ]
+     ],
+     "base": "stainless"
     }
    ]
   },
@@ -8712,7 +8730,8 @@
      "sources": [
       "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
       "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "22H",
@@ -8721,7 +8740,8 @@
      "sources": [
       "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
       "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "33H",
@@ -8730,7 +8750,8 @@
      "sources": [
       "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
       "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "45H",
@@ -8739,7 +8760,8 @@
      "sources": [
       "https://intertekinform.com/en-us/standards/AS-4291-5-2000-101310_SAIG_AS_AS_255818/",
       "https://www.bossard.com/au-en/knowledge-hub/resources/technical-information/set-screws-property-class-14h-to-45h/"
-     ]
+     ],
+     "base": "steel"
     },
     {
      "value": "12H",
@@ -8747,7 +8769,8 @@
      "status": "single",
      "sources": [
       "https://torqbolt.com/iso-3506-3-screws-suppliers-manufacturers"
-     ]
+     ],
+     "base": "stainless"
     },
     {
      "value": "21H",
@@ -8755,310 +8778,29 @@
      "status": "single",
      "sources": [
       "https://torqbolt.com/iso-3506-3-screws-suppliers-manufacturers"
+     ],
+     "base": "stainless"
+    }
+   ]
+  },
+  "connector": {
+   "finish": [
+    {
+     "value": "tin",
+     "source": "tin-plated contacts: JST's XH datasheet gives the contact as 'Phosphor bronze, tin plated' (opened and read 2026-10-17); RESEARCH-HARDWARE-2026-10-16.md section 4d also read JST's PH / SH / GH sheets and Molex's KK 254 and Micro-Fit 3.0 part drawings, whose URLs it did not keep",
+     "status": "single",
+     "sources": [
+      "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf"
      ]
-    }
-   ],
-   "base": [
-    {
-     "value": "steel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
     },
     {
-     "value": "stainless",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "brass",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "nylon",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "aluminium",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "titanium",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    }
-   ],
-   "finish": [
-    {
-     "value": "plain",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "zinc",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "black oxide",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "nickel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "passivated",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "anodized",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    }
-   ]
-  },
-  "pin": {
-   "base": [
-    {
-     "value": "steel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "stainless",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "brass",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "nylon",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "aluminium",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "titanium",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    }
-   ],
-   "finish": [
-    {
-     "value": "plain",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "zinc",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "black oxide",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "nickel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "passivated",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "anodized",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    }
-   ]
-  },
-  "standoff": {
-   "base": [
-    {
-     "value": "steel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
-     "status": "unverified"
-    },
-    {
-     "value": "stainless",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
-     "status": "unverified"
-    },
-    {
-     "value": "brass",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
-     "status": "unverified"
-    },
-    {
-     "value": "nylon",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
-     "status": "unverified"
-    },
-    {
-     "value": "aluminium",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole",
-     "status": "unverified"
-    }
-   ],
-   "finish": [
-    {
-     "value": "plain",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "zinc",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "black oxide",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "nickel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "passivated",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "anodized",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    }
-   ]
-  },
-  "fitting": {
-   "base": [
-    {
-     "value": "steel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "stainless",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "brass",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "copper",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "nylon",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    },
-    {
-     "value": "aluminium",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open",
-     "status": "unverified"
-    }
-   ],
-   "finish": [
-    {
-     "value": "plain",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "zinc",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "nickel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "passivated",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "anodized",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    }
-   ]
-  },
-  "tnut": {
-   "base": [
-    {
-     "value": "steel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; zinc-plated carbon steel per https://3dprintingcanada.com/products/m4-t-nuts-for-20-series-10-pack",
-     "status": "unverified"
-    },
-    {
-     "value": "stainless",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; zinc-plated carbon steel per https://3dprintingcanada.com/products/m4-t-nuts-for-20-series-10-pack",
-     "status": "unverified"
-    },
-    {
-     "value": "aluminium",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; zinc-plated carbon steel per https://3dprintingcanada.com/products/m4-t-nuts-for-20-series-10-pack",
-     "status": "unverified"
-    }
-   ],
-   "finish": [
-    {
-     "value": "plain",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "zinc",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "black oxide",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "nickel",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "passivated",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
-    },
-    {
-     "value": "anodized",
-     "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)",
-     "status": "unverified"
+     "value": "gold",
+     "source": "gold-plated contacts: JST's XH datasheet ('Contact JST for gold plated products') and Samtec's TSW header page (gold, 3, 10 and 30 microinch) agree (opened 2026-10-17)",
+     "status": "verified",
+     "sources": [
+      "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf",
+      "https://www.samtec.com/products/tsw"
+     ]
     }
    ]
   }
@@ -9294,5 +9036,1856 @@
    "source": "stated from general knowledge of ISO 261 / ISO 898-1 / ISO 3506-1 and the named standards; not checked against the standard",
    "status": "unverified"
   }
- ]
+ ],
+ "material_rules": {
+  "class_base": {
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 1a (verified: Ganter Norm's extract of ISO 898-1 / 3506-1, genorma ISO 898-1:2013, trfastenings, steelconstruction.info AD342): ISO 898 names only steels and ISO 3506 only stainless steels",
+   "status": "verified"
+  },
+  "finish_bases": [
+   {
+    "finish": "anodized",
+    "bases": [
+     "aluminium",
+     "titanium"
+    ],
+    "kind": "physical",
+    "status": "verified",
+    "why": "anodizing is a process for aluminium and titanium; steel, stainless, brass, copper and nylon cannot be anodized",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (metalsupermarkets.com, proleantech.com, richconn.com, finishing.com 142/90 and 396/02)"
+   },
+   {
+    "finish": "passivated",
+    "bases": [
+     "stainless"
+    ],
+    "kind": "standard",
+    "status": "verified",
+    "why": "passivation (ASTM A967, AMS 2700) treats stainless steel; a 'yellow passivated' zinc part is a zinc finish",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (store.astm.org A967, saemobilus AMS 2700G, eugenefast.com)"
+   },
+   {
+    "finish": "zinc",
+    "bases": [
+     "steel"
+    ],
+    "kind": "standard",
+    "status": "verified",
+    "why": "zinc electroplating of fasteners (ISO 4042, ASTM B633) is for steel parts",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (genorma and standard.no ISO 4042:2022, store.astm.org B633-23)"
+   },
+   {
+    "finish": "zinc flake",
+    "bases": [
+     "steel"
+    ],
+    "kind": "standard",
+    "status": "single",
+    "why": "zinc flake coating (ISO 10683) is for steel fasteners",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (isrsm.gov.mk ISO 10683:2018)"
+   },
+   {
+    "finish": "hot-dip galvanized",
+    "bases": [
+     "steel"
+    ],
+    "kind": "standard",
+    "status": "single",
+    "why": "hot-dip galvanizing of fasteners (ISO 10684) is for steel parts",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (genorma ISO 10684:2004 abstract, gso.org.sa ISO 10684:2015; re-checked)"
+   }
+  ],
+  "finish_class_exclude": [
+   {
+    "finish": "hot-dip galvanized",
+    "classes": [
+     "12.9"
+    ],
+    "kind": "standard",
+    "status": "single",
+    "why": "ISO 10684 covers bolts and screws up to class 10.9 (nuts up to class 12)",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1c (genorma ISO 10684:2004 abstract; re-checked)"
+   }
+  ],
+  "no_class_heads": [
+   {
+    "family": "washer",
+    "head": "spring",
+    "status": "single",
+    "why": "a spring lock washer has no property class: DIN 127 B rates it by hardness (430-530 HV)",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 2 (globalfastener.com DIN 127 B, re-checked)"
+   },
+   {
+    "family": "washer",
+    "head": "tooth-internal",
+    "status": "verified",
+    "why": "a tooth lock washer has no property class: DIN 6797 rates it by hardness (350-425 HV)",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 2 (globalfastener.com DIN 6797, Bossard BN 790)"
+   }
+  ],
+  "warnings": [
+   {
+    "id": "hdg-small",
+    "path": "material.finish",
+    "finish": [
+     "hot-dip galvanized"
+    ],
+    "below_mm": 8,
+    "status": "single",
+    "text": "ISO 10684 does not recommend hot-dip galvanizing below M8",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (genorma ISO 10684:2004 abstract; re-checked)"
+   },
+   {
+    "id": "zinc-embrittlement",
+    "path": "material.finish",
+    "finish": [
+     "zinc"
+    ],
+    "classes": [
+     "10.9",
+     "12.9"
+    ],
+    "status": "conflict",
+    "text": "zinc electroplating risks hydrogen embrittlement at class {class} (ISO 4042); zinc flake is the usual finish for 10.9 and 12.9",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1c (ISO 4042, Würth, Bossard BN 781, Bolt Science; the hardness threshold conflicts: 320 HV or 360 HV)"
+   },
+   {
+    "id": "black-oxide",
+    "path": "material.finish",
+    "finish": [
+     "black oxide"
+    ],
+    "bases": [
+     "aluminium",
+     "titanium",
+     "nylon"
+    ],
+    "status": "unverified",
+    "text": "black oxide is a steel finish; none was found for {base}",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (eugenefast.com, aftfasteners.com; the exclusion of aluminium, titanium and nylon is unsourced)"
+   },
+   {
+    "id": "nickel-nylon",
+    "path": "material.finish",
+    "finish": [
+     "nickel"
+    ],
+    "bases": [
+     "nylon"
+    ],
+    "status": "single",
+    "text": "nylon takes nickel only after a metallising step: a special part",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 1b (patents.google.com US4563242)"
+   },
+   {
+    "id": "ring-base",
+    "families": [
+     "ring"
+    ],
+    "path": "material.base",
+    "bases": [
+     "brass",
+     "copper",
+     "nylon",
+     "aluminium",
+     "titanium"
+    ],
+    "status": "verified",
+    "text": "DIN retaining rings are sold in spring steel or stainless (1.4122); no {base} DIN ring was found",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 4a (Kipp K1939 / K1940, Bossard BN 809 / 847, SFS, Rotor Clip; nylon 'E-clips' are belt and hose clips)"
+   },
+   {
+    "id": "springwasher-base",
+    "families": [
+     "springwasher"
+    ],
+    "path": "material.base",
+    "bases": [
+     "copper",
+     "nylon",
+     "aluminium",
+     "titanium"
+    ],
+    "status": "unverified",
+    "text": "spring and lock washers are spring steel, stainless or bronze; no {base} one was found",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 4b (Fabory, SFS, Bossard list spring steel, stainless and bronze CuSn6; the rest is unsourced)"
+   },
+   {
+    "id": "connector-base",
+    "families": [
+     "connector"
+    ],
+    "path": "material.base",
+    "bases": [
+     "steel",
+     "stainless",
+     "aluminium",
+     "titanium"
+    ],
+    "status": "single",
+    "text": "connector housings are nylon or PBT and contacts brass, copper alloy or phosphor bronze; no {base} part was found",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 4d (JST XH / PH / SH / GH, Molex KK 254 and Micro-Fit datasheets, Rapid, Samtec)"
+   },
+   {
+    "id": "ring-finish",
+    "families": [
+     "ring"
+    ],
+    "path": "material.finish",
+    "finish": [
+     "hot-dip galvanized",
+     "nickel"
+    ],
+    "status": "unverified",
+    "text": "no retaining ring with {finish} was found",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 4a (Rotor Clip's finishes: phosphate, oil, zinc, passivation)"
+   },
+   {
+    "id": "rod-finish",
+    "families": [
+     "rod"
+    ],
+    "path": "material.finish",
+    "finish": [
+     "black oxide",
+     "nickel",
+     "zinc flake"
+    ],
+    "status": "unverified",
+    "text": "no threaded rod with {finish} was found",
+    "source": "RESEARCH-HARDWARE-2026-10-16.md section 4c (Fabory's rod filters: plain, zinc, hot-dip galvanized)"
+   },
+   {
+    "id": "setscrew-base",
+    "families": [
+     "setscrew"
+    ],
+    "path": "material.base",
+    "bases": [
+     "copper"
+    ],
+    "status": "unverified",
+    "text": "no copper set screw was found in trade",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open"
+   },
+   {
+    "id": "setscrew-finish",
+    "families": [
+     "setscrew"
+    ],
+    "path": "material.finish",
+    "finish": [
+     "hot-dip galvanized"
+    ],
+    "status": "unverified",
+    "text": "hot-dip galvanizing would fill a set screw's socket and thread; none was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)"
+   },
+   {
+    "id": "pin-base",
+    "families": [
+     "pin"
+    ],
+    "path": "material.base",
+    "bases": [
+     "copper"
+    ],
+    "status": "unverified",
+    "text": "no copper pin was found in trade",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open"
+   },
+   {
+    "id": "pin-finish",
+    "families": [
+     "pin"
+    ],
+    "path": "material.finish",
+    "finish": [
+     "hot-dip galvanized",
+     "zinc flake"
+    ],
+    "status": "unverified",
+    "text": "no {finish} pin was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)"
+   },
+   {
+    "id": "standoff-base",
+    "families": [
+     "standoff"
+    ],
+    "path": "material.base",
+    "bases": [
+     "copper",
+     "titanium"
+    ],
+    "status": "unverified",
+    "text": "standoffs are sold in brass (often nickel-plated), stainless, aluminium, nylon and zinc-plated steel; no {base} one was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; catalogue materials per https://www.essentracomponents.com/en-za/s/pcb-spacers/metal and https://www.globalspec.com/FeaturedProducts/Detail/KeystoneElectronics/245026/Standoffs_Spacers_Threaded_and_Clear_Hole"
+   },
+   {
+    "id": "standoff-finish",
+    "families": [
+     "standoff"
+    ],
+    "path": "material.finish",
+    "finish": [
+     "hot-dip galvanized",
+     "zinc flake"
+    ],
+    "status": "unverified",
+    "text": "no {finish} standoff was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)"
+   },
+   {
+    "id": "fitting-base",
+    "families": [
+     "fitting"
+    ],
+    "path": "material.base",
+    "bases": [
+     "titanium"
+    ],
+    "status": "unverified",
+    "text": "no titanium tube fitting was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open"
+   },
+   {
+    "id": "fitting-finish",
+    "families": [
+     "fitting"
+    ],
+    "path": "material.finish",
+    "finish": [
+     "hot-dip galvanized",
+     "zinc flake",
+     "black oxide"
+    ],
+    "status": "unverified",
+    "text": "no {finish} tube fitting was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)"
+   },
+   {
+    "id": "tnut-base",
+    "families": [
+     "tnut"
+    ],
+    "path": "material.base",
+    "bases": [
+     "brass",
+     "copper",
+     "nylon",
+     "titanium"
+    ],
+    "status": "unverified",
+    "text": "extrusion T-nuts are sold in zinc-plated steel, stainless and aluminium; no {base} one was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; zinc-plated carbon steel per https://3dprintingcanada.com/products/m4-t-nuts-for-20-series-10-pack"
+   },
+   {
+    "id": "tnut-finish",
+    "families": [
+     "tnut"
+    ],
+    "path": "material.finish",
+    "finish": [
+     "hot-dip galvanized",
+     "zinc flake"
+    ],
+    "status": "unverified",
+    "text": "no {finish} T-nut was found",
+    "source": "our own knowledge of the parts as sold (2026-10-16 audit, MATERIAL-AUDIT-2026-10-16.md): values dropped from the shared list are ones this kind of part is not sold in; not checked against a source. Custom... stays open; hot-dip galvanizing is not recommended below M8 (ISO 10684 covers M8-M64: the GSO ISO 10684:2015 scope, pages opened 2026-10-16 (WebFetch): https://www.gso.org.sa/store/standards/GSO:690143/GSO%20ISO%2010684:2015)"
+   }
+  ]
+ },
+ "fixed_drive": [
+  {
+   "family": "screw",
+   "head": "hex",
+   "drive": "external-hex",
+   "why": "a hex head is turned by its own six sides: it has no other drive",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "hex",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "thin",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "nylon-thin",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "nylon-regular",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "flange",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "style2",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "thin-unchamfered",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "flange-plain",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "cap",
+   "drive": "external-hex",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "square",
+   "drive": "external-square",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  },
+  {
+   "family": "nut",
+   "head": "square-thin",
+   "drive": "external-square",
+   "why": "a nut has no drive: a wrench turns its flats",
+   "source": "Joey 2026-10-17 (RESEARCH-HARDWARE-2026-10-16.md section 6, answers 2 and 3): the type decides the drive, so the drive is not asked; the value read is the type's own standard's",
+   "status": "decision"
+  }
+ ],
+ "head_drives": [
+  {
+   "family": "screw",
+   "head": "socket-cap",
+   "system": "metric",
+   "drives": [
+    {
+     "drive": "hex-socket",
+     "standard": "ISO 4762",
+     "status": "verified"
+    },
+    {
+     "drive": "hexalobular",
+     "standard": "ISO 14579",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "button",
+   "system": "metric",
+   "drives": [
+    {
+     "drive": "hex-socket",
+     "standard": "ISO 7380-1",
+     "status": "verified"
+    },
+    {
+     "drive": "hexalobular",
+     "standard": "DIN 34805-1",
+     "status": "single"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "countersunk",
+   "system": "metric",
+   "drives": [
+    {
+     "drive": "hex-socket",
+     "standard": "ISO 10642",
+     "status": "verified"
+    },
+    {
+     "drive": "hexalobular",
+     "standard": "ISO 14581",
+     "status": "verified"
+    },
+    {
+     "drive": "phillips",
+     "standard": "ISO 7046-1 (type H)",
+     "status": "verified"
+    },
+    {
+     "drive": "pozidriv",
+     "standard": "ISO 7046-1 (type Z)",
+     "status": "verified"
+    },
+    {
+     "drive": "slotted",
+     "standard": "ISO 2009",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "pan",
+   "system": "metric",
+   "drives": [
+    {
+     "drive": "phillips",
+     "standard": "ISO 7045 (type H)",
+     "status": "verified"
+    },
+    {
+     "drive": "pozidriv",
+     "standard": "ISO 7045 (type Z)",
+     "status": "verified"
+    },
+    {
+     "drive": "slotted",
+     "standard": "ISO 1580",
+     "status": "verified"
+    },
+    {
+     "drive": "hexalobular",
+     "standard": "ISO 14583",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "cheese",
+   "system": "metric",
+   "drives": [
+    {
+     "drive": "slotted",
+     "standard": "ISO 1207",
+     "status": "verified"
+    },
+    {
+     "drive": "phillips",
+     "standard": "ISO 7048 (type H)",
+     "status": "verified"
+    },
+    {
+     "drive": "pozidriv",
+     "standard": "ISO 7048 (type Z)",
+     "status": "verified"
+    },
+    {
+     "drive": "hexalobular",
+     "standard": "ISO 14580",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "setscrew",
+   "head": "hex-socket-set",
+   "system": "metric",
+   "drives": [
+    {
+     "drive": "hex-socket",
+     "standard": "ISO 4026 to 4029",
+     "status": "verified"
+    },
+    {
+     "drive": "hexalobular",
+     "standard": "DIN 34827",
+     "status": "verified"
+    },
+    {
+     "drive": "slotted",
+     "standard": "ISO 4766",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "socket-cap",
+   "system": "unified",
+   "drives": [
+    {
+     "drive": "hex-socket",
+     "standard": "ASME B18.3",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "button",
+   "system": "unified",
+   "drives": [
+    {
+     "drive": "hex-socket",
+     "standard": "ASME B18.3",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "countersunk",
+   "system": "unified",
+   "drives": [
+    {
+     "drive": "hex-socket",
+     "standard": "ASME B18.3",
+     "status": "verified"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  },
+  {
+   "family": "screw",
+   "head": "pan",
+   "system": "unified",
+   "drives": [
+    {
+     "drive": "slotted",
+     "standard": "ASME B18.6.3",
+     "status": "verified"
+    },
+    {
+     "drive": "phillips",
+     "standard": "ASME B18.6.3 (type I)",
+     "status": "verified"
+    },
+    {
+     "drive": "pozidriv",
+     "standard": "ASME B18.6.3 (type IA)",
+     "status": "single"
+    }
+   ],
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 2: national standards-body pages (SIS, EVS, AFNOR, NSAI, DIN Media, BSI), ASME's catalogue pages and the B18.6.3-2013 front matter, Bossard p. 92; a drive outside a head's list is absence of evidence (availability), never a proof that it is not made",
+   "status": "mixed"
+  }
+ ],
+ "inch_stock_lengths": {
+  "countersunk": {
+   "note": "flat (countersunk) socket head stock, measured overall",
+   "rows": {
+    "#0|UNF": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.625,
+     0.75
+    ],
+    "#1|UNF": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.75
+    ],
+    "#2|UNC": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1
+    ],
+    "#3|UNC": [
+     0.1875,
+     0.25,
+     0.375,
+     0.5
+    ],
+    "#4|UNC": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     1,
+     1.25,
+     1.5
+    ],
+    "#5|UNC": [
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     1
+    ],
+    "#6|UNC": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2
+    ],
+    "#8|UNC": [
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2
+    ],
+    "#10|UNC": [
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4
+    ],
+    "#10|UNF": [
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3
+    ],
+    "1/4|UNC": [
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4,
+     4.5,
+     5
+    ],
+    "1/4|UNF": [
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3,
+     3.5,
+     4
+    ],
+    "5/16|UNC": [
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4
+    ],
+    "5/16|UNF": [
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     2,
+     2.5,
+     3,
+     4
+    ],
+    "3/8|UNC": [
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "3/8|UNF": [
+     0.625,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     2,
+     2.5,
+     3,
+     3.5,
+     4
+    ],
+    "7/16|UNC": [
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     3,
+     4
+    ],
+    "1/2|UNC": [
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "1/2|UNF": [
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2
+    ],
+    "5/8|UNC": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "3/4|UNC": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "7/8|UNC": [
+     3,
+     3.5,
+     4,
+     5,
+     6
+    ]
+   },
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 5 (5.2 flat and 5.3 button: Fuller Fasteners' pages plus the Albany County and Aspen Fasteners sitemaps, 'core' = seen at two or three of them; 5.4 pan: Albany and Aspen; 5.6 hex: Kimball Midwest's Grade 5 category page). Supplier stock, not the ASME standard's list",
+   "status": "single"
+  },
+  "button": {
+   "note": "button head socket cap stock, measured from under the head",
+   "rows": {
+    "#2|UNC": [
+     0.125,
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     1
+    ],
+    "#3|UNC": [
+     0.125,
+     0.1875,
+     0.25,
+     0.375,
+     0.5
+    ],
+    "#4|UNC": [
+     0.125,
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5
+    ],
+    "#5|UNC": [
+     0.25,
+     0.375,
+     0.5,
+     0.75
+    ],
+    "#6|UNC": [
+     0.125,
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75
+    ],
+    "#8|UNC": [
+     0.125,
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2
+    ],
+    "#10|UNC": [
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3
+    ],
+    "#10|UNF": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3
+    ],
+    "1/4|UNC": [
+     0.25,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3,
+     3.5,
+     4
+    ],
+    "1/4|UNF": [
+     0.25,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     3,
+     4
+    ],
+    "5/16|UNC": [
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4
+    ],
+    "5/16|UNF": [
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     2
+    ],
+    "3/8|UNC": [
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     4,
+     4.5,
+     5
+    ],
+    "3/8|UNF": [
+     0.5,
+     0.625,
+     0.75,
+     1,
+     1.25,
+     1.5
+    ],
+    "1/2|UNC": [
+     0.5,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3,
+     3.5,
+     4,
+     6
+    ],
+    "1/2|UNF": [
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2
+    ],
+    "5/8|UNC": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.5
+    ]
+   },
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 5 (5.2 flat and 5.3 button: Fuller Fasteners' pages plus the Albany County and Aspen Fasteners sitemaps, 'core' = seen at two or three of them; 5.4 pan: Albany and Aspen; 5.6 hex: Kimball Midwest's Grade 5 category page). Supplier stock, not the ASME standard's list",
+   "status": "single"
+  },
+  "pan": {
+   "note": "Phillips pan head machine screw stock, measured from under the head",
+   "rows": {
+    "#0|UNF": [
+     0.125,
+     0.1875,
+     0.25,
+     0.375
+    ],
+    "#2|UNC": [
+     0.125,
+     0.15625,
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.5625,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5
+    ],
+    "#3|UNC": [
+     0.125,
+     0.25,
+     0.375,
+     0.5,
+     0.625,
+     0.75
+    ],
+    "#4|UNC": [
+     0.125,
+     0.15625,
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.5625,
+     0.625,
+     0.6875,
+     0.75,
+     0.875,
+     1,
+     1.125,
+     1.25,
+     1.375,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3
+    ],
+    "#5|UNC": [
+     0.25,
+     0.5
+    ],
+    "#6|UNC": [
+     0.125,
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.5625,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.125,
+     1.25,
+     1.375,
+     1.5,
+     1.625,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3
+    ],
+    "#8|UNC": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.5625,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.125,
+     1.25,
+     1.375,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3,
+     3.5
+    ],
+    "#10|UNC": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.5625,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.125,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4
+    ],
+    "#10|UNF": [
+     0.1875,
+     0.25,
+     0.3125,
+     0.375,
+     0.4375,
+     0.5,
+     0.5625,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.125,
+     1.25,
+     1.375,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     4
+    ],
+    "#12|UNC": [
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     2
+    ],
+    "1/4|UNC": [
+     0.25,
+     0.3125,
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.125,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     6
+    ],
+    "1/4|UNF": [
+     0.375,
+     0.5,
+     0.625,
+     0.75,
+     1,
+     1.25,
+     1.5
+    ],
+    "5/16|UNC": [
+     0.5,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3,
+     4
+    ],
+    "3/8|UNC": [
+     0.75,
+     1,
+     1.5,
+     2,
+     2.5,
+     3,
+     3.5,
+     4,
+     4.5
+    ]
+   },
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 5 (5.2 flat and 5.3 button: Fuller Fasteners' pages plus the Albany County and Aspen Fasteners sitemaps, 'core' = seen at two or three of them; 5.4 pan: Albany and Aspen; 5.6 hex: Kimball Midwest's Grade 5 category page). Supplier stock, not the ASME standard's list",
+   "status": "single"
+  },
+  "hex": {
+   "note": "hex head cap screw stock (one supplier: Kimball Midwest, Grade 5)",
+   "rows": {
+    "1/4|UNC": [
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     8
+    ],
+    "5/16|UNC": [
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     7
+    ],
+    "3/8|UNC": [
+     0.5,
+     0.625,
+     0.75,
+     0.875,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     6.5,
+     7,
+     7.5,
+     8
+    ],
+    "7/16|UNC": [
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     6.5,
+     7,
+     8
+    ],
+    "1/2|UNC": [
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     6.5,
+     7,
+     7.5,
+     8,
+     8.5,
+     9,
+     9.5,
+     10
+    ],
+    "9/16|UNC": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     8
+    ],
+    "5/8|UNC": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     6.5,
+     7,
+     7.5,
+     8,
+     8.5,
+     9,
+     9.5,
+     10,
+     11,
+     12
+    ],
+    "3/4|UNC": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     6.5,
+     7,
+     7.5,
+     8,
+     8.5,
+     9,
+     9.5,
+     10,
+     11,
+     12
+    ],
+    "7/8|UNC": [
+     1.5,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     6.5,
+     7,
+     7.5,
+     8,
+     8.5,
+     9,
+     9.5,
+     10,
+     11,
+     12
+    ],
+    "1|UNC": [
+     1.5,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.25,
+     3.5,
+     3.75,
+     4,
+     4.5,
+     5,
+     5.5,
+     6,
+     6.5,
+     7,
+     7.5,
+     8,
+     8.5,
+     9,
+     9.5,
+     10,
+     12
+    ],
+    "1/4|UNF": [
+     0.5,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "5/16|UNF": [
+     0.5,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "3/8|UNF": [
+     0.5,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "7/16|UNF": [
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "1/2|UNF": [
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "9/16|UNF": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "5/8|UNF": [
+     1,
+     1.25,
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "3/4|UNF": [
+     1.5,
+     1.75,
+     2,
+     2.25,
+     2.5,
+     2.75,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ],
+    "7/8|UNF": [
+     2.5,
+     3,
+     3.5,
+     4,
+     4.5,
+     5,
+     5.5,
+     6
+    ]
+   },
+   "source": "RESEARCH-HARDWARE-2026-10-16.md section 5 (5.2 flat and 5.3 button: Fuller Fasteners' pages plus the Albany County and Aspen Fasteners sitemaps, 'core' = seen at two or three of them; 5.4 pan: Albany and Aspen; 5.6 hex: Kimball Midwest's Grade 5 category page). Supplier stock, not the ASME standard's list",
+   "status": "single"
+  }
+ }
 }
