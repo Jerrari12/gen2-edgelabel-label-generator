@@ -115,6 +115,45 @@ function readSnapshot(d, LL) {
 const outputSettings = (snap) => Object.assign({}, OUTPUT_DEFAULTS, snap && snap.output ? snap.output : {});
 /* a print input the visitor changed on this page, for the planner: honoured there for the snapshot's build at its rev */
 const settingMessage = (bind, id, value, snap) => ({ [KEY]: 'setting', v: V, session: bind.session, id, value, rev: snap ? snap.rev : -1, buildId: snap ? snap.buildId : null });
+
+/* THE PLATE'S PRINTER (the stress test 2026-10-15, S-F6). The printer, its plate size, the export format, the purge area and
+   the preview colours (index.html PRINTER_PREFS) are this browser's, and the ordinary page keeps them inside its autosave,
+   which the embed never reads or writes: the plate's printer reset on every planner reload. The embed keeps them under a key
+   of its own, and nothing else of the autosave. The stripe and the drawings are not here: they are the planner's print
+   preference (OUTPUT_OK), sent with every snapshot.
+   The record: { v: 1, settings: { <input id>: value }, printer: <the chosen printer's name> }. The name tells apart printers
+   that share a plate size (three Bambu printers are 256x256): the value alone comes back as the first of them. A select's
+   value is checked against its options by the page, which has them. */
+const PRINTER_KEY = 'labelstudio.plate-printer.v1';
+const choice = (v) => typeof v === 'string' && v.length > 0 && v.length <= 40;
+const number = (v) => (typeof v === 'number' || (typeof v === 'string' && v.trim() !== '')) && Number.isFinite(Number(v));   // out of range: the page clamps it and says so, as it does for a typed one
+const colour = (v) => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
+const PRINTER_OK = Object.freeze({ 'bed-preset': choice, 'bed-w': number, 'bed-l': number, 'export-format': choice,
+  'reserve-purge': (v) => typeof v === 'boolean', 'purge-w': number, 'purge-l': number, 'color-base': colour, 'color-text': colour });
+const PRINTER_NAME_MAX = 80;
+/* the record to keep, from the page's inputs (captureSettings' values) and the chosen printer's name: only those inputs, only
+   values they take. A printer whose plate size was typed over, on either side, is Custom: the size inputs make it so 250 ms
+   after the typing, and a save inside those (the page going) would otherwise come back with the printer's own size. A side
+   left empty is dropped above and does not decide it (Sol 01a14b1b: width typed, length cleared) */
+function printerRecord(settings, name) {
+  const s = {};
+  if (isObj(settings)) for (const [id, ok] of Object.entries(PRINTER_OK)) if (id in settings && ok(settings[id])) s[id] = settings[id];
+  const m = /^(\d+)x(\d+)$/.exec(s['bed-preset'] || '');
+  const typedOver = (id, size) => id in s && Number(s[id]) !== Number(size);
+  if (m && (typedOver('bed-w', m[1]) || typedOver('bed-l', m[2]))) s['bed-preset'] = 'custom';
+  const rec = { v: 1, settings: s };
+  if (typeof name === 'string' && name.trim() && name.length <= PRINTER_NAME_MAX && s['bed-preset'] && s['bed-preset'] !== 'custom') rec.printer = name;
+  return rec;
+}
+/* the kept record read back (the stored string): { settings, printer }, checked as printerRecord checks; null for nothing
+   stored, not JSON, or another version */
+function readPrinter(raw) {
+  let r = null;
+  try { r = typeof raw === 'string' ? JSON.parse(raw) : null; } catch (e) { return null; }
+  if (!isObj(r) || r.v !== 1 || !isObj(r.settings)) return null;
+  const rec = printerRecord(r.settings, r.printer);
+  return { settings: rec.settings, printer: rec.printer || null };
+}
 /* `select` from the planner: { id } (null for none), or null for anything else - including one for another build than the
    snapshot on screen (messages arrive in order, so this is belt and braces - Sol 01a13a10) */
 function readSelect(d, snap) {
@@ -148,6 +187,7 @@ function styleSettings(style) {
 }
 
 return { KEY, V, CAPS, PLANNER_ORIGINS, LOOPBACK_ORIGIN, SESSION_RE, ID_RE, LABELS_MAX, JSON_MAX, STYLE_INPUT, OUTPUT_DEFAULTS,
+  PRINTER_KEY, PRINTER_IDS: Object.freeze(Object.keys(PRINTER_OK)),
   plannerAsked, originAllowed, readHello, fromPlanner, readyMessage, selectedMessage, readSnapshot, readSelect, rowPlan, styleSettings,
-  outputSettings, settingMessage };
+  outputSettings, settingMessage, printerRecord, readPrinter };
 });
