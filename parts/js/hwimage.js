@@ -50,6 +50,9 @@ const COARSE_NOTE = 'Picture shows coarse thread; selected part is fine thread.'
 export function presetFor(m) {
   if (!m) return null;
   const b = val(m.base); const f = val(m.finish); const c = m.colour ? val(m.colour) : null;
+  // a connector's contact plating (round 3, Joey 2026-10-17): the library's own looks, whatever the base - only the
+  // contacts are plated (a header's plastic keeps its colour). Tin is each geometry's reference look, gold a variant
+  if (f === 'tin' || f === 'gold') return f;
   const plain = c === null || c === 'natural';
   if (b === 'stainless') return plain && (f === null || f === 'plain' || f === 'passivated') ? 'stainless' : null;
   if (b === 'steel' || (b === null && f !== null && f !== 'anodized')) {
@@ -100,7 +103,10 @@ const nearest = (list, key, want) => list.reduce((b, a) => (b === null || Math.a
 
 // families: the data families (families-data.js DATA_FAMILY) - where a record keeps its size and length, which fields
 // are identity, and how its size reads. Without it only the thread families resolve, as before.
-export function createHwImages(index, { heads = [], base = 'img/hw/v2/', families = null } = {}) {
+// materialIssue (round 3, Joey 2026-10-17): (rec) -> why the record's material is not one its kind of part comes in, or
+// null - the picker's own rule (picker.materialIssue). A finish picture is then never used: every geometry was rendered in
+// every look, so a nylon heat-set insert has a picture, and it must never be shown as if such a part existed.
+export function createHwImages(index, { heads = [], base = 'img/hw/v2/', families = null, materialIssue = null } = {}) {
   const assets = index.assets || [];
   const byId = new Map(assets.map((a) => [a.id, a]));
   const primary = new Map(heads.map((h) => [`${h.family}:${h.id}`, h.standard]));
@@ -125,7 +131,10 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
     const t = shown(a);
     const rule = t.extent === 'partial' && t.extentRule ? ` (part-threaded per ${t.extentRule})` : '';
     const want = mat ? presetFor(mat) : null;
-    const fin = want && want !== 'steel' && t.finishes ? t.finishes[want] : null;
+    // a material this kind of part does not come in never gets its look, even where one was rendered
+    const ruled = mat && MAT_ISSUE ? `Not a material this kind of part comes in (${MAT_ISSUE}) - shown in the reference finish` : null;
+    const fin = want && want !== 'steel' && t.finishes && !ruled ? t.finishes[want] : null;
+    if (ruled && !note) note = ruled;
     if (!fin && mat && want !== 'steel' && stated(mat) && !note) note = 'No reference picture in this finish yet - shown in the reference finish';
     if (mat && appearanceUnspecified(mat) && !note) note = UNSPECIFIED_NOTE;
     const im = fin ? { img: fin.img } : a;
@@ -143,7 +152,8 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
         else if (t.L !== null && t.L !== undefined && t.L !== W.L) diffs.push('different length');
       }
     }
-    if (!fin && mat && want !== 'steel' && stated(mat)) {
+    if (ruled) { diffs.push('reference finish shown'); extra.push(ruled); }
+    else if (!fin && mat && want !== 'steel' && stated(mat)) {
       diffs.push('reference finish shown'); extra.push('No reference picture in this finish yet - shown in the reference finish');
     }
     if (mat && appearanceUnspecified(mat)) { diffs.push('finish appearance unspecified'); extra.push(UNSPECIFIED_NOTE); }
@@ -195,14 +205,16 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
   });
 
   let MAT = null;          // the record being resolved: its material decides the finish picture
+  let MAT_ISSUE = null;    // ...unless that material is not one the record's kind of part comes in (materialIssue)
   let WANT = null;         // ...and what it states (size, TPI, length, fine thread): render() names what the picture differs in
   function resolve(rec) {
     MAT = rec && rec.material ? rec.material : null;
+    MAT_ISSUE = MAT && materialIssue ? materialIssue(rec) : null;
     try {
       const r = resolveRec(rec);
       // no reference picture: a generic illustration of the same type, if one is ruled in - labelled as such
       return r && r.kind === 'generic' ? (illustrationFor(rec) || r) : r;
-    } finally { MAT = null; WANT = null; }
+    } finally { MAT = null; MAT_ISSUE = null; WANT = null; }
   }
   function resolveRec(rec) {
     if (!rec || !rec.head || rec.head.status !== 'listed') return null;

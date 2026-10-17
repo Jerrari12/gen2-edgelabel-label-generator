@@ -155,13 +155,16 @@ registerFamily({
 // washers, threaded rod, thumb screws - defined as data in families-data.js; nothing here is per family.
 for (const df of DATA_FAMILIES) {
   const fields = df.fields.map((f) => (f.thread ? DIA(f.title)
-    : p(f.path, f.unit ? `${f.title} (${f.unit})` : f.title, 'select', 'main', !!f.numeric,
-      f.options.map((o) => (Array.isArray(o) ? v(o[0], o[1]) : o)))));
+    // byHead (round 3): a type's own list, title and hint for the field (a retaining ring's shaft, bore or groove sizes)
+    : Object.assign(p(f.path, f.unit ? `${f.title} (${f.unit})` : f.title, 'select', 'main', !!f.numeric,
+      f.options.map((o) => (Array.isArray(o) ? v(o[0], o[1]) : o))), f.byHead ? { byHead: f.byHead } : {})));
   const vary = df.fields.find((f) => f.batch);
+  // a family may call its finish something else: a connector's is its contact plating (round 3)
+  const material = df.finishTitle ? [MATERIAL[0], p('material.finish', df.finishTitle, 'select', 'material'), MATERIAL[4]] : BASE_FINISH;
   registerFamily({
     id: df.id, label: df.label, category: 'hardware', standardless: true, data: df,
     varying: vary ? { path: vary.path, label: vary.thread ? 'Thread sizes' : `${vary.title}${vary.unit ? ` (${vary.unit})` : ''}` } : null,
-    paths: [HEAD(df.headTitle), ...fields, ...BASE_FINISH],
+    paths: [HEAD(df.headTitle), ...fields, ...material],
     headOptions: df.heads.map(([id, label]) => v(id, label)),
     body: () => {
       const own = {};
@@ -332,7 +335,18 @@ export function createPicker(D, opts = {}) {
           out.note = row ? `listed nominal lengths up to ${fracInch(row.long)}"; nothing shorter than 3/4" is in the data - type it`
             : 'listed nominal lengths for this standard; choose the size for its own list';
         } else {
-          out.note = 'no inch length data for this head: type the length in inches (1-1/4, 1 1/4 or 1.25)';
+          // no table for this inch type: the lengths suppliers commonly STOCK, said as such (round 3, Joey 2026-10-17: no
+          // public source prints the ASME standards' own per-size lists); any other length is typed
+          const sk = stockLengths(rec);
+          if (sk && sk.list) {
+            for (const v of sk.list) {
+              out.options.push(opt(v, fracInch(v), TIER.SINGLE, sk.ref, { urls: null, note: 'commonly stocked (supplier stock lists), not the ASME standard\'s own list' }));
+            }
+            out.stock = true;
+            out.note = `${sk.note} - supplier stock lists, not the ASME standard's own list`;
+          } else {
+            out.note = sk ? sk.why : 'no inch length data for this head: type the length in inches (1-1/4, 1 1/4 or 1.25)';
+          }
         }
         return out;
       }
@@ -355,6 +369,103 @@ export function createPicker(D, opts = {}) {
     }
   }
 
+  // ---------------------------------------------------------------- round 3 rules (Joey, 2026-10-17)
+  // ONE RULE: what a standard or physics rules out is not offered; what suppliers merely do not list stays offered, with a
+  // warning (RESEARCH-HARDWARE-2026-10-16.md, his answers in its section 6; the tables in own_tables material_rules,
+  // fixed_drive, head_drives). A typed value is never refused, and a value held from before stays on screen with the reason.
+  const headOf = (rec) => (rec.head && rec.head.status === STATUS.LISTED ? rec.head.value : null);
+  // a type that decides its own drive: a hex head, every nut
+  const fixedDriveOf = (rec) => (rec.drive && headOf(rec) !== null
+    ? (D.own.fixed_drive || []).find((r) => r.family === rec.family && r.head === headOf(rec)) || null : null);
+  // the drives a standard names for this head, in this thread system (null: no list, so no warning either way)
+  const headDrivesOf = (rec) => (headOf(rec) === null ? null : (D.own.head_drives || []).find((r) => r.family === rec.family
+    && r.head === headOf(rec) && r.system === (isUnified(rec) ? 'unified' : 'metric')) || null);
+  const headWord = (rec) => {
+    const h = D.head(rec.family, headOf(rec));
+    const w = h ? h.label.replace(/ \(.*\)$/, '').toLowerCase() : 'head';
+    return /cap$/.test(w) ? `${w} screw` : /head|screw/.test(w) ? w : `${w} head`;
+  };
+  const an = (w) => (/^[aeiou]/i.test(w) ? `an ${w}` : `a ${w}`);
+  const driveWarn = (rec, d) => (d.id === 'none' ? `no standard we found has ${an(headWord(rec))} with no drive`
+    : `no standard we found pairs ${an(headWord(rec))} with ${an(d.label)} drive: few or none may be sold`);
+  const heldValue = (f) => (f && f.status !== STATUS.UNKNOWN ? f.value : null);
+  // The values of one material field that a standard or physics rules out for THIS record: Map(value -> why), plus the
+  // field switched off entirely (off: why) where no value can apply (no property class exists for a brass part).
+  function materialBlocks(rec, key, list) {
+    const rules = D.own.material_rules;
+    const out = { blocked: new Map(), off: null };
+    if (!rules) return out;
+    const base = heldValue(rec.material.base);
+    const cls = heldValue(rec.material.property_class);
+    const fin = heldValue(rec.material.finish);
+    if (key === 'property_class') {
+      const nc = rules.no_class_heads.find((r) => r.family === rec.family && r.head === headOf(rec));
+      if (nc) { out.off = nc.why; return out; }
+      if (base !== null && list.some((r) => r.base)) {
+        // ISO 898 classes are steel's, ISO 3506 classes stainless steel's; a base neither of them covers has no class
+        // (a maker's grade - CU2 brass, AL1 aluminium (ISO 8839), Gr 5 titanium - is not one of these, and can be typed)
+        if (!list.some((r) => r.base === base)) {
+          out.off = `no ISO 898 or ISO 3506 property class applies to ${base} parts: those rate steel and stainless steel. A grade printed on the package (CU2, Gr 5) can be typed as your own value`;
+          return out;
+        }
+        for (const r of list) if (r.base && r.base !== base) out.blocked.set(r.value, `class ${r.value} is a ${r.base} class (ISO ${r.base === 'steel' ? '898' : '3506'}), and this part is ${base}`);
+      }
+      for (const x of rules.finish_class_exclude) if (fin === x.finish) for (const c of x.classes) out.blocked.set(c, x.why);
+    }
+    if (key === 'finish') {
+      for (const x of rules.finish_bases) if (base !== null && !x.bases.includes(base)) out.blocked.set(x.finish, x.why);
+      for (const x of rules.finish_class_exclude) if (cls !== null && x.classes.includes(cls)) out.blocked.set(x.finish, x.why);
+    }
+    return out;
+  }
+  // The commonly stocked inch lengths of an inch type with no table, for this size and series: { list, ref, note }, or
+  // { why } saying what is missing, or null when there is no stock data for the type at all (an inch cheese head)
+  function stockLengths(rec) {
+    const tab = D.own.inch_stock_lengths && headOf(rec) !== null ? D.own.inch_stock_lengths[headOf(rec)] : null;
+    if (!tab) return null;
+    const dia = rec.thread.diameter.value;
+    const series = rec.thread.series ? heldValue(rec.thread.series) : null;
+    if (dia === null) return { why: 'choose the size to see the lengths commonly stocked for it; or type the length in inches' };
+    if (series === null) return { why: 'choose the threads per inch (UNC or UNF) to see the lengths commonly stocked for it; or type the length in inches' };
+    const key = `${dia}|${series}`;
+    const list = tab.rows[key];
+    if (!list) return { why: `no supplier stock list was found for ${dia} ${series}: type the length in inches (1-1/4, 1 1/4 or 1.25)` };
+    return { list, ref: `own/inch_stock_lengths/${headOf(rec)}/${key}`, note: tab.note };
+  }
+  // Why the record's base or finish is not one its kind of part comes in - its family's own list, or a rule above - or null.
+  // The pictures ask it (js/hwimage.js): a nylon heat-set insert was rendered, but must never be shown as if it existed.
+  function materialIssue(rec) {
+    if (!rec || !rec.material) return null;
+    for (const key of ['base', 'finish']) {
+      const v = heldValue(rec.material[key]);
+      if (v === null) continue;
+      const own = D.own.material_by_family && D.own.material_by_family[rec.family] && D.own.material_by_family[rec.family][key];
+      if (own && !own.some((r) => same(r.value, v))) return `${v} is not usual for this kind of part`;
+      const why = materialBlocks(rec, key, own || D.own.material[key]).blocked.get(v);
+      if (why) return why;
+    }
+    return null;
+  }
+  // what the record's material says that is allowed but worth knowing (a warning, never a block)
+  function materialWarnings(rec, path) {
+    const rules = D.own.material_rules;
+    if (!rules) return [];
+    const base = heldValue(rec.material.base);
+    const cls = heldValue(rec.material.property_class);
+    const fin = heldValue(rec.material.finish);
+    const dia = rec.thread && !isUnified(rec) && typeof rec.thread.diameter.value === 'number' ? rec.thread.diameter.value : null;
+    const out = [];
+    for (const w of rules.warnings) {
+      if (w.path !== path || (w.families && !w.families.includes(rec.family))) continue;
+      if (w.finish && !w.finish.includes(fin)) continue;
+      if (w.bases && !w.bases.includes(base)) continue;
+      if (w.classes && !w.classes.includes(cls)) continue;
+      if (w.below_mm !== undefined && !(dia !== null && dia < w.below_mm)) continue;
+      out.push(w.text.replace('{base}', base).replace('{finish}', fin).replace('{class}', cls));
+    }
+    return out;
+  }
+
   // ---------------------------------------------------------------- options
   function optionsFor(rec, path) {
     const fam = FAMILIES.get(rec.family);
@@ -368,10 +479,23 @@ export function createPicker(D, opts = {}) {
     // a VOCABULARY (the families without reference tables): the terms to pick from, tier 'vocabulary'
     const vocab = path === 'head' && !D.heads(rec.family).length ? fam.headOptions : def.options;
     if (vocab) {
-      out.options = vocab.map((o) => {
-        const value = typeof o === 'object' ? o.value : o;
+      // a type's own list (round 3: a DIN 6799 E-clip is sized by its groove, in 18 sizes); all of them until the type is chosen
+      const bh = def.byHead && headOf(rec) !== null ? def.byHead[headOf(rec)] || null : null;
+      const valueOf = (o) => (typeof o === 'object' ? o.value : o);
+      out.options = (bh ? bh.options : vocab).map((o) => {
+        const value = valueOf(o);
         return opt(value, typeof o === 'object' ? o.label : String(o), TIER.VOCABULARY, `vocab/${rec.family}/${path}/${value}`);
       });
+      if (bh) {
+        out.title = bh.title;
+        out.note = bh.hint;
+        // a size held from before that this type does not come in stays on screen, said (never silently dropped)
+        const f = getPath(rec, path);
+        if (f && f.status === STATUS.LISTED && !out.options.some((o) => same(o.value, f.value))) {
+          out.options.push(opt(f.value, String(f.value), TIER.VOCABULARY, `vocab/${rec.family}/${path}/${f.value}`));
+          out.note = `${f.value} was kept from before, but ${bh.standard} has no ${bh.title.toLowerCase()} of ${f.value} mm. Choose another, or Unknown to clear it.`;
+        }
+      }
       return out;
     }
 
@@ -398,9 +522,22 @@ export function createPicker(D, opts = {}) {
               { standard: std.id, note: noteFor(rec), urls: urlsOf(r, std) }));
           }
         } else {
+          // a data family's type may cover only part of the series: a DIN 137 B wave washer is M3 to M36 (round 3, by the
+          // newest edition); a size held from before outside it stays on screen, said
+          const rng = fam.data && fam.data.threadRange && headOf(rec) !== null ? fam.data.threadRange[headOf(rec)] || null : null;
           for (const c of D.bd.coarse_series) {
+            if (rng && (c.diameter < rng.min || c.diameter > rng.max)) continue;
             out.options.push(opt(c.diameter, c.name, c.tier || TIER.DOCUMENTED, `${D.version}/coarse_series/${c.name}`,
               { urls: c.sources || null }));
+          }
+          if (rng) {
+            out.note = rng.note;
+            const f = rec.thread.diameter;
+            if (f.status === STATUS.LISTED && !out.options.some((o) => same(o.value, f.value))) {
+              const c = D.bd.coarse_series.find((x) => same(x.diameter, f.value));
+              out.options.push(opt(f.value, c ? c.name : `M${f.value}`, c ? c.tier || TIER.DOCUMENTED : TIER.UNVERIFIED, `${D.version}/coarse_series/${c ? c.name : f.value}`));
+              out.note = `M${f.value} was kept from before, but it is outside ${rng.note}. Choose another, or Unknown to clear it.`;
+            }
           }
         }
         break;
@@ -475,9 +612,37 @@ export function createPicker(D, opts = {}) {
       case 'length.datum':
         out.options = D.own.length_datums.map((r) => opt(r.value, r.value, TIER.UNVERIFIED, `own/length_datums/${r.value}`));
         break;
-      case 'drive.type':
-        out.options = D.own.drive_types.map((d) => opt(d.id, d.label, TIER.UNVERIFIED, `own/drive_types/${d.id}`));
+      case 'drive.type': {
+        const held = rec.drive.type;
+        const fx = fixedDriveOf(rec);
+        if (fx) {
+          // the type decides the drive (round 3, Joey 2026-10-17): a hex head, any nut. Nothing to ask, so the field is
+          // not drawn - unless it holds something else from before, which stays on screen until it is cleared
+          const d = D.driveType(fx.drive);
+          out.options = [opt(fx.drive, d ? d.label : fx.drive, TIER.UNVERIFIED, `own/drive_types/${fx.drive}`)];
+          out.fixed = true;
+          out.reason = fx.why;
+          const other = held.status !== STATUS.UNKNOWN && held.value !== fx.drive;
+          if (other && held.status === STATUS.LISTED) out.options.push(opt(held.value, (D.driveType(held.value) || {}).label || String(held.value), TIER.UNVERIFIED, `own/drive_types/${held.value}`));
+          if (other) out.note = `${(D.driveType(held.value) || {}).label || held.value} was kept from before, but ${fx.why}. Choose ${d ? d.label : fx.drive} or Unknown.`;
+          // drawn only while it holds anything but the type's own drive (an Unknown set on purpose, or a value from before)
+          out.hide = held.status !== STATUS.UNKNOWN && held.value === fx.drive;
+          out.enabled = !out.hide;
+          break;
+        }
+        // the drives a standard names for this head (research section 2): the rest stay offered - nothing proves they
+        // are never made - but say so
+        const hd = headDrivesOf(rec);
+        out.options = D.own.drive_types.map((d) => {
+          const named = hd ? hd.drives.find((x) => x.drive === d.id) : null;
+          return opt(d.id, d.label, TIER.UNVERIFIED, `own/drive_types/${d.id}`,
+            named ? { standard_name: named.standard } : hd ? { warn: driveWarn(rec, d) } : {});
+        });
+        out.headList = !!hd;
+        const ho = held.status !== STATUS.UNKNOWN ? out.options.find((o) => o.value === held.value) : null;
+        if (ho && ho.warn) out.warn = [ho.warn];
         break;
+      }
       case 'drive.tool_size': {
         const dt = D.driveType(rec.drive.type.value);
         const seen = new Set();
@@ -512,21 +677,37 @@ export function createPicker(D, opts = {}) {
         const own = D.own.material_by_family && D.own.material_by_family[rec.family] && D.own.material_by_family[rec.family][key];
         const list = own || D.own.material[key];
         const where = own ? `own/material_by_family/${rec.family}/${key}` : `own/material/${key}`;
+        // round 3: what a standard or physics rules out for THIS record is not offered - the base decides the class and the
+        // finish, and a class and a finish exclude each other where a standard says so (12.9 is never hot-dip galvanized)
+        const bl = materialBlocks(rec, key, list);
+        const shown = bl.off ? [] : list.filter((r) => !bl.blocked.has(r.value));
         // a family row may carry its own provenance (a nut's ISO 898-2 classes are verified): its status is its tier
-        out.options = list.map((r) => opt(r.value, r.value, own && key !== 'colour' && r.status ? r.status : tier, `${where}/${r.value}`,
+        out.options = shown.map((r) => opt(r.value, r.value, own && key !== 'colour' && r.status ? r.status : tier, `${where}/${r.value}`,
           own && r.sources ? { urls: r.sources } : {}));
         // material is kept when the family changes, so a value from the old family (nylon from a screw) can be held here:
         // it stays on screen with its own button rather than hidden, so nothing out of sight goes on reaching the label
         // A typed (Custom) value shows in its row whatever the list, so it only needs the row kept on (Terra 01a14209)
         const held = rec.material[key];
+        const hv = heldValue(held);
         const offList = own && held && held.status === STATUS.LISTED && !own.some((r) => r.value === held.value);
-        const inOffField = own && !own.length && held && held.status !== STATUS.UNKNOWN;
-        if (offList) out.options.push(opt(held.value, held.value, tier, `own/material/${key}/${held.value}`));
-        if (offList || inOffField) out.note = `${held.value} was kept from before; it is not usual for this kind of part. Choose Unknown to clear it.`;
-        if (own && !own.length && !inOffField) { out.enabled = false; out.reason = key === 'property_class' ? 'property classes rate bolts, screws and nuts; this part has none' : 'not used for this kind of part'; }
+        // the rule that now excludes what is held: a value of the list a rule takes away (8.8 on a brass screw). A value typed
+        // by hand that the list never had (CU2 on a brass screw) is the person's own and is not judged
+        const ruledOut = hv === null ? null : bl.blocked.get(hv) || (bl.off && list.some((r) => same(r.value, hv)) ? bl.off : null);
+        const fieldOff = (own && !own.length) || !!bl.off;
+        const inOffField = fieldOff && hv !== null;
+        if ((offList || ruledOut) && held.status === STATUS.LISTED) out.options.push(opt(held.value, held.value, tier, `own/material/${key}/${held.value}`));
+        if (ruledOut) out.note = `${held.value} was kept from before, but ${ruledOut}. ${bl.off ? 'Choose Unknown to clear it.' : 'Choose another, or Unknown to clear it.'}`;
+        else if (offList || (inOffField && !bl.off)) out.note = `${held.value} was kept from before; it is not usual for this kind of part. Choose Unknown to clear it.`;
+        if (fieldOff && !inOffField) {
+          out.enabled = false;
+          out.reason = bl.off || (key === 'property_class' ? 'property classes rate bolts, screws and nuts; this part has none' : 'not used for this kind of part');
+          out.ruled = !!bl.off;      // switched off by the record's own values (its base, its type), so the page says why
+        }
         if (key === 'stainless_group' && rec.material.base.value !== 'stainless') {
           out.enabled = false; out.reason = 'only when the base material is stainless';
         }
+        const warn = materialWarnings(rec, path);
+        if (warn.length) out.warn = warn;
         break;
       }
       case 'specific.thread_extent':
@@ -684,12 +865,19 @@ export function createPicker(D, opts = {}) {
     // with several drives.
     if (!std && rec.drive && isUnified(rec) && rec.head && rec.head.status === STATUS.LISTED && !out['drive.type']) {
       const db = (D.own.drive_by_head || []).find((r) => r.family === rec.family && r.head === rec.head.value);
+      const fx = fixedDriveOf(rec);
       if (db) out['drive.type'] = { value: db.drive, tier: db.status, ref: `own/drive_by_head/${db.family}:${db.head}`, urls: db.sources, note: db.source };
       else {
         const hd = D.own.heads.find((x) => x.family === rec.family && x.id === rec.head.value);
         const ms = hd && hd.standard ? D.std(hd.standard) : null;
-        if (ms && ms.drive_type) out['drive.type'] = { value: ms.drive_type, tier: TIER.UNVERIFIED, ref: D.refOf(ms, null, 'drive_type'),
-          note: `${ms.id}'s drive for the metric head; inch heads of this type also come with other drives` };
+        // a type that decides its drive (an inch flange or style 2 nut, which have no inch table) reads it from its metric
+        // standard as that standard has it, so it fills like the metric type; any other inch type is only offered it
+        if (fx && ms && ms.drive_type === fx.drive) {
+          out['drive.type'] = { value: fx.drive, tier: ms.drive_tier || ms.tier, ref: D.refOf(ms, null, 'drive_type'), note: `${fx.why} (as ${ms.id} has it)` };
+        } else if (ms && ms.drive_type) {
+          out['drive.type'] = { value: ms.drive_type, tier: TIER.UNVERIFIED, ref: D.refOf(ms, null, 'drive_type'),
+            note: `${ms.id}'s drive for the metric head; inch heads of this type also come with other drives` };
+        }
       }
     }
     if (rec.family === 'nut' && rec.head.status === STATUS.LISTED) {
@@ -713,7 +901,9 @@ export function createPicker(D, opts = {}) {
     for (const path of PREFILL_PATHS) {
       const cur = getPath(rec, path);
       if (!cur) continue;
-      if (rec.user_unknown.includes(path)) continue;
+      // an explicit Unknown is never re-filled - except a drive the part's type decides (round 3: a hex head, a nut), where
+      // Unknown can only mean "back to the type's own drive" (Sol 01a14a93)
+      if (rec.user_unknown.includes(path) && !(path === 'drive.type' && fixedDriveOf(rec))) continue;
       if (cur.status === STATUS.UNKNOWN || (cur.source && cur.source.prefill)) {
         const e = entries[path];
         // only documented and VERIFIED values prefill; single / conflict / unverified are suggestions
@@ -982,6 +1172,15 @@ export function createPicker(D, opts = {}) {
       applyPrefill(r);
       return carryChoices(rec, finalize(r));
     }
+    // a drive the type decides (round 3: a hex head, a nut) that held another drive has lost its standard (setDriveType
+    // detaches it). Going back - its own drive, or Unknown, which can mean nothing else here - re-attaches it the way the
+    // page's drive tiles do (ui.js rebaseOnHead), so the drive, the wrench size and the lengths read from the table again
+    // (Sol 01a14a93)
+    if (path === 'drive.type' && rec.standard === null && rec.standard_changed_from && fixedDriveOf(rec)) {
+      const fx = fixedDriveOf(rec);
+      const clearing = !input || input.mode === STATUS.UNKNOWN || input.value === null || input.value === undefined || input.value === '';
+      if (clearing || same(input.value, fx.drive)) return rebaseOnHead(rec);
+    }
     let r = clone(rec);
     if (PREFILL_PATHS.includes(path)) {
       const explicit = !input || input.mode === STATUS.UNKNOWN || input.value === null || input.value === undefined || input.value === '';
@@ -1049,6 +1248,18 @@ export function createPicker(D, opts = {}) {
       if (has(f) && getPath(r, p)) r = set(r, p, { mode: STATUS.LISTED, value: f.value });
     }
     if (old.length && r.length && has(old.length.value)) r = set(r, 'length.value', { mode: STATUS.LISTED, value: old.length.value.value });
+    return r;
+  }
+
+  // The record rebuilt on its head's own standard, keeping what was chosen: the type again (setHead, which carries the size,
+  // threads and length and keeps material and meta), then the fields a person picks that a fresh record would lose. The same
+  // steps as the page's rebaseOnHead (js/ui.js), plus a nut's locking feature.
+  function rebaseOnHead(old) {
+    let r = set(old, 'head', { mode: STATUS.LISTED, value: old.head.value });
+    for (const path of ['specific.point_type', 'thread.diameter', 'thread.pitch', 'specific.thread_extent', 'specific.locking_feature', 'length.value']) {
+      const f = getPath(old, path);
+      if (f && f.status !== STATUS.UNKNOWN && getPath(r, path)) r = set(r, path, { mode: f.status === STATUS.CUSTOM ? STATUS.CUSTOM : STATUS.LISTED, value: f.value });
+    }
     return r;
   }
 
@@ -1161,7 +1372,7 @@ export function createPicker(D, opts = {}) {
   return {
     D, FAMILIES, idgen,
     newRecord, optionsFor, set, choose, setNotes, setMeta, reassignFamily, suggestions, acceptSuggestion,
-    driveOffer, acceptOffer, flagsFor, pathsFor, pathDef,
+    driveOffer, acceptOffer, flagsFor, pathsFor, pathDef, materialIssue,
     prefillEntries: (rec) => prefillEntries(rec),
   };
 }
