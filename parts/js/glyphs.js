@@ -48,6 +48,8 @@ export const GLYPHS = {
   'cap-nut': '<rect x="7" y="24" width="34" height="13" rx="1"/><path d="M18 24V37M30 24V37"/><path d="M11 24C11 11 37 11 37 24"/>',
   'nut-top': HEX(17) + '<circle cx="24" cy="24" r="7"/>',
   'flange-top': '<circle cx="24" cy="24" r="20"/>' + HEX(14) + '<circle cx="24" cy="24" r="6"/>',
+  // a square nut from the top: the square and its hole (the Prusa-list audit, 2026-10-17: square nuts showed the hex top)
+  'square-top': '<rect x="9" y="9" width="30" height="30" rx="1.5"/><circle cx="24" cy="24" r="7"/>',
   // washers (top view: the outside size reads)
   'plain-washer': '<circle cx="24" cy="24" r="11"/><circle cx="24" cy="24" r="5"/>',
   'large-washer': '<circle cx="24" cy="24" r="15"/><circle cx="24" cy="24" r="5"/>',
@@ -131,4 +133,4 @@ export const headGlyph = (family, id) => (HEAD_GLYPH[family] && HEAD_GLYPH[famil
 export const DRIVE_GLYPH = { 'hex-socket': 'hex-socket', 'external-hex': 'ext-hex', hexalobular: 'hexalobular', phillips: 'phillips',
   pozidriv: 'pozidriv', slotted: 'slotted', none: 'no-drive' };
 export const POINT_GLYPH = { flat: 'point-flat', cup: 'point-cup', cone: 'point-cone', dog: 'point-dog' };
-export const nutTopGlyph = (id) => (id === 'flange' ? 'flange-top' : 'nut-top');
+export const nutTopGlyph = (id) => (id === 'flange' ? 'flange-top' : id === 'square' || id === 'square-thin' ? 'square-top' : 'nut-top');

@@ -20,6 +20,8 @@ import { labelItem } from './labelitem.js';
 import { PLAN, planKey, planEntries } from './plan.js';
 import { stagesFor, stageOfEntry, nextStage, prevStage, stageBeforeBatch, shouldAdvance, readiness, primaryText,
   HOLD_TEXT, heldText, addAllText, colourHint } from './flow.js';
+import { readFind, readerContext, candKey, an } from './findparse.js';
+import { applyFind, rankFind, freshDraft, chooseDriveOn, headStdOf as headStdIn } from './find.js';
 // a field value's full meaning for the label-words editor: a type id reads as its name ('tooth-internal' -> 'Internal
 // tooth lock washer (DIN 6797 J)'); anything else as stored. Described against ITS OWN record: against the part being
 // built, every other family's type read as its raw id ("socket-cap", "hex") on Add all, Make labels and held parts
@@ -196,7 +198,8 @@ const HEAD_SHORT = {
 };
 const DRIVE_SHORT = { 'hex-socket': 'Hex socket', 'external-hex': 'External hex', hexalobular: '6-lobe', phillips: 'Phillips',
   pozidriv: 'Pozidriv', slotted: 'Slotted', none: 'None' };
-const TOOL_WORD = { 'hex-socket': (v) => `hex key ${v} mm`, 'external-hex': (v) => `${v} mm across flats`, hexalobular: (v) => `${v}` };
+// a square nut's wrench size is across flats too (the Prusa-list audit: its row read a bare "5.5")
+const TOOL_WORD = { 'hex-socket': (v) => `hex key ${v} mm`, 'external-hex': (v) => `${v} mm across flats`, 'external-square': (v) => `${v} mm across flats`, hexalobular: (v) => `${v}` };
 
 // The four status words, defined precisely (design review: keep the words, make the definitions exact).
 const STATUS_INFO = {
@@ -605,31 +608,12 @@ function chooseFamily(id) {
   goStage(nx || 'family');
 }
 
-// A fresh record on the head's OWN standard, carrying over the thread, pitch, extent and point. Used before any drive
-// change so the engine's standard-drop rule always starts from the head's standard (the engine only drops a standard it
-// has a table for, so an accepted lists-only offer such as ISO 14579 would otherwise stick to a later drive).
-function rebaseOnHead(t) {
-  if (t.head.status !== LISTED) return t;
-  let r = P.set(t, 'head', { mode: LISTED, value: t.head.value });
-  // length.value matters while editing one part (a batch keeps its lengths in state.sel)
-  for (const path of ['specific.point_type', 'thread.diameter', 'thread.pitch', 'specific.thread_extent', 'length.value']) {
-    const f = getPath(t, path);
-    if (f && f.status !== UNKNOWN && getPath(r, path)) r = P.set(r, path, { mode: f.status === CUSTOM ? CUSTOM : LISTED, value: f.value });
-  }
-  return r;
-}
-function headStdOf(t) {
-  if (t.head.status !== LISTED) return null;
-  const hd = D.head(t.family, t.head.value);
-  return hd && hd.standard ? hd.standard : null;
-}
+// The drive tile: before any drive change the part goes back to its head's OWN standard, so an accepted lists-only offer
+// such as ISO 14579 never sticks to a later drive. The steps are js/find.js chooseDriveOn, which Find runs too.
+const headStdOf = (t) => headStdIn(D, t);
 function chooseDrive(id) {
   try {
-    let t = T();
-    const own = headStdOf(t);
-    if (own && t.standard !== own) t = rebaseOnHead(t);
-    const already = t.drive.type.status === LISTED && t.drive.type.value === id;
-    state.template = already ? t : P.set(t, 'drive.type', { mode: LISTED, value: id });
+    state.template = chooseDriveOn(P, D, T(), id);
     state.section = 'drive'; state.offerKept = false; state.customOpen = null; state.explicit.delete('drive.type');
     afterChange();
   } catch (e) { setStatus(e.message, 'err'); }
@@ -653,17 +637,9 @@ function switchFamily(id) {
     afterChange();
     return;
   }
-  let t = P.newRecord(id, { id: 'template' });
-  for (const k of Object.keys(t.material)) {          // only what the new family's form shows
-    if (FAMILIES.get(id).paths.some((d) => d.path === `material.${k}`)) t.material[k] = clone(old.material[k]);
-  }
-  if (t.material.base.value !== 'stainless') t.material.stainless_group = { value: null, status: UNKNOWN, source: null };
-  t.notes = old.notes;
-  if (old.tags) t = P.setMeta(t, { tags: old.tags });   // collections are sticky for a session; name, photo and package are per bag
-  const hasHead = FAMILIES.get(id).paths.some((d) => d.path === 'head');
-  const heads = hasHead ? P.optionsFor(t, 'head').options : [];
-  if (heads.length === 1) t = P.set(t, 'head', { mode: LISTED, value: heads[0].value }); // set screws: one head, the point is the choice
-  state.template = t; state.family = id;
+  // only the material fields the new family shows, the notes and the collections; a family with one type gets it (set
+  // screws: the point is the choice). The steps are js/find.js freshDraft, which Find runs too.
+  state.template = freshDraft(P, id, old); state.family = id;
   state.sel = []; state.explicit.clear(); state.customOpen = null; state.offerKept = false;
   state.section = planKey(PLAN[id][0]);
   afterChange();
@@ -996,12 +972,19 @@ function sizesSection(key, idx, title) {
   const row = `thr-row${uni ? ' inch' : ''}`;
   // the size range a type covers (round 3: a DIN 137 B wave washer, M3 to M36 by its newest edition), or why a held size is outside it
   const rangeNote = info.note ? h('div', { class: 'note' }, info.note) : null;
+  // the DIN 557 square nut starts at M5; the small square nuts (Prusa's M3nS) are the thin DIN 562 type, a separate tile
+  // (the Prusa-list audit, 2026-10-17: nothing pointed from one to the other)
+  const smallest = vals.length && !uni ? Math.min(...vals) : null;
+  const squareHint = t.family === 'nut' && t.head.status === LISTED && t.head.value === 'square' && smallest > 4
+    ? h('div', { class: 'note' }, `DIN 557 square nuts start at M${fmtNum(smallest)}. Smaller square nuts, such as M3 and M4, are the thin type: Square, thin (DIN 562). `,
+      h('button', { type: 'button', class: 'btn sm', onclick: () => goStage('type') }, '◂ Type'))
+    : null;
   if (!batching()) {
     const f = t.thread.diameter;
     return sectionEl(key, idx, title, 'one part', systemRow(key),
       h('div', { class: row }, info.options.map((o) => threadButton(o, f.status === LISTED && f.value === o.value, () => pick(key, 'thread.diameter', o.value))),
         stateButtons(key, 'thread.diameter', { numeric: !uni })),
-      rangeNote, customBox(key, 'thread.diameter', uni ? `${title} (inch)` : title, !uni));
+      rangeNote, squareHint, customBox(key, 'thread.diameter', uni ? `${title} (inch)` : title, !uni));
   }
   const off = state.sel.filter((v) => !vals.includes(v));
   const offLabel = (v) => (uni ? String(v) : `M${fmtNum(v)}`);
@@ -1011,6 +994,7 @@ function sizesSection(key, idx, title) {
       h('span', { class: 'chk' }, '✓'), h('span', { class: 'tl mono' }, offLabel(v)), h('span', { class: 'ts' }, 'custom'))))];
   body.push(selTools(key, 'size', vals));
   if (rangeNote) body.push(rangeNote);
+  if (squareHint) body.push(squareHint);
   if (off.length) body.push(h('div', { class: 'note' }, `Not listed for this type: ${off.map(offLabel).join(', ')} - saved as Custom.`));
   if (vals.length && PER_SIZE.some((p) => fam().paths.some((d) => d.path === p))) {
     body.push(h('div', { class: 'note' }, `${uni ? (t.thread.tpi === null ? 'Dimensions are' : 'Threads per inch (UNC first), wrench size and dimensions are')
@@ -1094,33 +1078,60 @@ function lengthsSection(key, idx) {
     body.push(h('div', { class: 'note unlock' }, 'Choose a size to see its listed lengths. ',
       h('button', { type: 'button', class: 'btn sm', onclick: () => goStage('size') }, '◂ Size'), ' Or type your own length below.'));
   }
+  // a metric length suppliers commonly stock but the table leaves out (Joey 2026-10-17): its own marker, never the custom one
+  const lenCls = (o, on) => `len${o.stocked ? ' stock' : ''}${on ? ' on' : ''}`;
+  const lenLabel = (o) => (o.stocked ? `${lenName(t, o.value)}, commonly stocked` : lenName(t, o.value));
+  const stockMark = (o) => (o.stocked ? h('span', { class: 'ts' }, 'stocked') : null);
+  // the long stocked lengths fold away (an M5 socket head stocks 40 lengths up to 200 mm; Joey: a grid of buttons must not
+  // overwhelm): stocked lengths past 50 mm, or past the size's listed range when that is longer, show on request. A chosen
+  // one always shows.
+  const foldAt = info.stocked ? Math.max(50, info.range ? info.range.long : 0) : Infinity;
+  const chosen = (v) => (batching() ? state.sel.includes(v) : t.length.value.status === LISTED && t.length.value.value === v);
+  const folded = opts.filter((o) => o.stocked && o.value > foldAt && !chosen(o.value));
+  const shownOpts = state.lenMore ? opts : opts.filter((o) => !folded.includes(o));
+  const moreBtn = folded.length ? h('button', { type: 'button', class: 'btn sm ghost len-more', 'aria-expanded': String(!!state.lenMore), onclick: () => { state.lenMore = !state.lenMore; render(); } },
+    state.lenMore ? 'Fewer lengths ▴' : `Longer stocked lengths (${folded.length}) ▸`) : null;
   if (!batching()) {
     const f = t.length.value;
-    body.push(h('div', { class: `len-grid${isUnified(t) ? ' inch' : ''}` }, opts.map((o) => {
+    body.push(h('div', { class: `len-grid${isUnified(t) ? ' inch' : ''}${info.stocked ? ' has-stock' : ''}` }, shownOpts.map((o) => {
       const on = f.status === LISTED && f.value === o.value;
-      return h('button', { type: 'button', class: `len ${on ? 'on' : ''}`, 'aria-pressed': String(on), 'aria-label': lenName(t, o.value), onclick: () => pick(key, 'length.value', o.value), title: `${o.tier}` },
-        h('span', { class: 'mono' }, fmtLen(t, o.value)), bar(o.value, on));
-    })), h('div', { class: 'row' }, stateButtons(key, 'length.value', { numeric: true })), customBox(key, 'length.value', isUnified(t) ? 'Length (inches)' : 'Length (mm)', true));
+      return h('button', { type: 'button', class: lenCls(o, on), 'aria-pressed': String(on), 'aria-label': lenLabel(o), onclick: () => pick(key, 'length.value', o.value), title: o.note || `${o.tier}` },
+        h('span', { class: 'mono' }, fmtLen(t, o.value)), stockMark(o), bar(o.value, on));
+    })), moreBtn, h('div', { class: 'row' }, stateButtons(key, 'length.value', { numeric: true })), customBox(key, 'length.value', isUnified(t) ? 'Length (inches)' : 'Length (mm)', true));
   } else {
     const off = state.sel.filter((v) => !vals.includes(v));
-    body.push(h('div', { class: `len-grid${isUnified(t) ? ' inch' : ''}` },
-      opts.map((o) => {
-        const on = state.sel.includes(o.value);
-        return h('button', { type: 'button', class: `len ${on ? 'on' : ''}`, 'aria-pressed': String(on), 'aria-label': lenName(t, o.value), onclick: () => toggleSel(o.value), title: `${o.tier}` },
-          h('span', { class: 'chk', 'aria-hidden': 'true' }, on ? '✓' : ''), h('span', { class: 'mono' }, fmtLen(t, o.value)), bar(o.value, on));
-      }),
-      off.map((v) => h('button', { type: 'button', class: 'len on off', 'aria-pressed': 'true', 'aria-label': `${lenName(t, v)}, custom`, onclick: () => toggleSel(v), title: 'not listed here: saved as Custom. Click to remove.' },
-        h('span', { class: 'chk' }, '✓'), h('span', { class: 'mono' }, fmtLen(t, v)), h('span', { class: 'ts' }, 'custom')))),
-    selTools(key, 'length', vals));
+    // typed lengths take their place in number order among the buttons (the audit: a typed 14 landed after 40)
+    const tiles = [...shownOpts.map((o) => ({ v: o.value, o })), ...off.map((v) => ({ v, o: null }))].sort((a, b) => a.v - b.v);
+    body.push(h('div', { class: `len-grid${isUnified(t) ? ' inch' : ''}${info.stocked ? ' has-stock' : ''}` },
+      tiles.map(({ v, o }) => {
+        if (!o) {
+          return h('button', { type: 'button', class: 'len on off', 'aria-pressed': 'true', 'aria-label': `${lenName(t, v)}, custom`, onclick: () => toggleSel(v), title: 'not listed here: saved as Custom. Click to remove.' },
+            h('span', { class: 'chk' }, '✓'), h('span', { class: 'mono' }, fmtLen(t, v)), h('span', { class: 'ts' }, 'custom'));
+        }
+        const on = state.sel.includes(v);
+        return h('button', { type: 'button', class: lenCls(o, on), 'aria-pressed': String(on), 'aria-label': lenLabel(o), onclick: () => toggleSel(v), title: o.note || `${o.tier}` },
+          h('span', { class: 'chk', 'aria-hidden': 'true' }, on ? '✓' : ''), h('span', { class: 'mono' }, fmtLen(t, v)), stockMark(o), bar(v, on));
+      })),
+    moreBtn, selTools(key, 'length', vals));
     if (off.length) {
-      body.push(h('div', { class: 'note' }, info.stock
-        ? `Not in the stock list for ${threadText(t)}: ${off.map((v) => fmtLen(t, v)).join(', ')} - saved as Custom. Suppliers may still make it. `
-        : `Not in our reference list${stdName ? ' (bd_warehouse lengths for ' + stdName + ' ' + threadText(t) + ')' : ''}: ${off.map((v) => fmtLen(t, v)).join(', ')} - saved as Custom. That says nothing about whether the standard lists it. `,
+      // a gap in the list and a length past the size's listed range are told apart (the audit: M3x18 and M3x40 read the same)
+      const r = info.range;
+      const past = r ? off.filter((v) => v < r.short || v > r.long) : [];
+      const gap = off.filter((v) => !past.includes(v));
+      const fmt = (xs) => xs.map((v) => fmtLen(t, v)).join(', ');
+      const where = stdName ? ` for ${stdName} ${threadText(t)}` : '';
+      const parts = info.stock ? [`Not in the stock list for ${threadText(t)}: ${fmt(off)} - saved as Custom. Suppliers may still make it.`]
+        : [gap.length ? `Not in our reference list${where}${info.stocked ? ' or its stock list' : ''}: ${fmt(gap)} - saved as Custom. That says nothing about whether the standard lists it.` : null,
+          past.length ? `Outside the ${r.short}-${r.long} mm our reference data lists${where}: ${fmt(past)} - saved as Custom.` : null].filter(Boolean);
+      body.push(h('div', { class: 'note' }, parts.join(' ') + ' ',
         h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { state.sel = state.sel.filter((v) => vals.includes(v)); render(); } }, 'Remove these')));
     }
   }
   // an inch type with no table offers what suppliers commonly stock (round 3, Joey 2026-10-17), and says it is not the standard
   if (opts.length && info.stock) body.push(h('div', { class: 'note' }, `Commonly stocked lengths for ${threadText(t)} (${info.note}). Any other length: type it below.`));
+  // a metric list with stock beside the table: which buttons are which (Joey 2026-10-17)
+  else if (opts.length && info.stocked) body.push(h('div', { class: 'note' }, `Plain: the lengths our reference data lists${stdName ? ' for ' + stdName : ''} ${threadText(t)}. Marked stocked: lengths suppliers commonly stock that the list leaves out - availability, not the standard. Any other: type it below.`
+    + (info.note ? ' ' + info.note + '.' : '')));
   else if (opts.length) body.push(h('div', { class: 'note' }, `The lengths our reference data lists${stdName ? ' for ' + stdName : ''} ${threadText(t)} - not every length made. Any other: type it below.`
     + (info.note ? ' ' + info.note + '.' : '')));
   else if (!unlock) body.push(h('div', { class: 'note' }, info.note || 'No listed lengths for this selection: add your own.'));   // the unlock note already says it
@@ -1845,7 +1856,10 @@ function listCard() {
   }
   state.records.forEach((r, i) => {
     if (state.listFilter && !(r.tags || []).includes(state.listFilter)) return;
-    const sub = [headLabel(r), stdText(r), toolText(r), materialText(r, true)].filter(Boolean).join(' · ');
+    // an Other part's name is already the spec line, so its second line is what was measured (the Prusa-list audit: a PTFE
+    // tube's row said its name twice)
+    const sub = r.family === 'other' ? ((r.meta && r.meta.dimensions) || '')
+      : [headLabel(r), stdText(r), toolText(r), materialText(r, true)].filter(Boolean).join(' · ');
     const g2 = secondaryGlyph(r);
     const lp = r.photo ? null : HW.resolve(r);
     card.append(h('div', { class: `lrow ${state.editing === r.id ? 'editing' : ''}` },
@@ -2127,6 +2141,195 @@ async function copyText(text, title) {
   catch { state.textView = text; render(); setStatus('Clipboard blocked: the text is below the list - select and copy it.'); }
 }
 
+// ------------------------------------------------------------------ FIND A PART (2026-10-17)
+// Joey: "add a 'Find a part' box to the Picker that reads shorthand (M5x16r, M3x12b, M3nN, M3nS, 'M3x20 socket',
+// 'DIN 912 M3x20') into the record, shows candidates when ambiguous". js/findparse.js reads the text; js/find.js replays a
+// reading as the clicks would. This draws the box above the stage strip: the readings as a list under it (Enter fills in the
+// marked one, the arrows move the mark, Escape clears), and a filled-in part lands on the stage still asking something -
+// Details when nothing does. It fills the builder only: the bar's Add stays the one action.
+let FIND = null;          // the box, made once in main() and kept by render(): a re-render must never take the caret away
+let findCtx = null;       // what the data says about pitches and inch sizes (readerContext)
+const find = { reading: null, rows: [], common: [], active: 0, open: false };
+let findLiveTimer = null;
+// the template the clicks would start from for a family: this part, the family's own draft (switchFamily), or a new one
+function findStartFor(family) {
+  if (family === state.family) return T();
+  if (drafts[family]) { const d = drafts[family].template; return T().tags ? P.setMeta(d, { tags: T().tags }) : d; }
+  return freshDraft(P, family, T());
+}
+function findRead(text) {
+  const reading = readFind(text, findCtx);
+  const rows = reading.candidates.length ? rankFind(P, D, reading.candidates, findStartFor, { batching: batching() }) : [];
+  // editing one part: the other families' tiles are locked, so are their readings - and, as rankFind puts its own refusals,
+  // they go after the ones Enter can fill in (editing a nut, "M3" marked the refused screw reading first)
+  for (const r of rows) {
+    if (!batching() && r.cand.family !== state.family && !r.error) r.error = `you are editing ${an(kindOf(T()))}: save or cancel that first`;
+  }
+  rows.sort((a, b) => (a.error ? 1 : 0) - (b.error ? 1 : 0));
+  // a caveat every reading carries (a plain b's open drive, a nyloc's height) is said once, under them
+  const common = rows.length > 1 ? rows[0].cand.notes.filter((n) => rows.every((r) => r.cand.notes.includes(n))) : [];
+  return { reading, rows, common };
+}
+// a reading as one row: the part it makes (from its own preview record), why, and what it cannot do. common: the caveats
+// said once under the list instead
+function findLine(row, common = []) {
+  const { cand, rec, result, error } = row;
+  const warn = [...cand.notes.filter((n) => !common.includes(n)), ...(result ? result.notes : [])];
+  if (error) warn.unshift(`Not filled in: ${error}`);
+  if (!rec) return { glyph: 'unknown', spec: '', title: kindOf({ family: cand.family }), sub: '', warn };
+  const typeless = rec.head && rec.head.status === UNKNOWN;
+  const title = [typeless ? `${FAMILY_LABEL[rec.family] || rec.family}, type to choose` : headLabel(rec, false), stdText(rec),
+    ['screw', 'setscrew'].includes(rec.family) && rec.drive && rec.drive.type.status !== UNKNOWN ? driveLabel(rec.drive.type) : null].filter(Boolean).join(' · ');
+  const sub = [...cand.why];
+  const L = rec.length && rec.length.value;
+  if (L && L.status === LISTED && /stock_lengths/.test(L.source.ref)) sub.push(`${fmtLen(rec, L.value)}: commonly stocked`);
+  if (L && L.status === CUSTOM) warn.push(typeless ? 'the type decides which lengths are listed: choose it next' : `${fmtLen(rec, L.value)} is not in the reference or stock list: saved as Custom`);
+  const d = rec.thread && rec.thread.diameter;
+  if (d && d.status === CUSTOM) warn.push(`${threadText(rec)} is not listed for this type: saved as Custom`);
+  return { glyph: primaryGlyph(rec), spec: NEW_FAMILIES.has(rec.family) ? specNew(rec) : shortSpec(rec), title, sub: sub.join(' · '), warn };
+}
+function findRowEl(row, i) {
+  const on = i === find.active;
+  const L = findLine(row, find.common);
+  const el = h('div', { id: `find-opt-${i}`, class: `find-opt${on ? ' on' : ''}${row.error ? ' bad' : ''}`, role: 'option', 'aria-selected': String(on),
+    'aria-disabled': row.error ? 'true' : null },
+  h('span', { class: 'fo-g', 'aria-hidden': 'true', html: glyph(L.glyph, 26) }),
+  h('span', { class: 'fo-tx' }, h('span', { class: 'fo-t' }, L.spec ? h('b', { class: 'mono' }, L.spec) : null, L.title),
+    L.sub ? h('span', { class: 'fo-s' }, L.sub) : null, ...L.warn.map((w) => h('span', { class: 'fo-w' }, `⚠ ${w[0].toUpperCase()}${w.slice(1)}`))),
+  on && !row.error ? h('span', { class: 'fo-k', 'aria-hidden': 'true' }, 'Enter') : null);
+  el.addEventListener('click', () => findApply(i));
+  return el;
+}
+const FIND_HELP = 'Type a code - Prusa\'s (M5x16r, M3x12bT, M3nN, M3w), a size with its type (M3x20 socket, M4 nyloc, #10-24 x 3/4 button) '
+  + 'or a standard (DIN 912 M3x20). Enter fills it in; Escape clears.';
+function drawFind() {
+  if (!FIND) return;
+  const { input, list, say } = FIND;
+  const r = find.reading;
+  const show = find.open && find.rows.length > 0;
+  list.replaceChildren(...(show ? find.rows.map(findRowEl) : []));
+  list.hidden = !show;
+  input.setAttribute('aria-expanded', String(show));
+  if (show) input.setAttribute('aria-activedescendant', `find-opt-${find.active}`); else input.removeAttribute('aria-activedescendant');
+  const focused = document.activeElement === input;
+  const lines = [];
+  if (!r) { if (focused) lines.push(h('div', {}, FIND_HELP)); }
+  else if (find.open) {
+    if (r.message) lines.push(h('div', { class: r.status === 'unsupported' ? 'warn' : 'err' }, r.message));
+    else if (find.rows.length > 1) lines.push(h('div', {}, `${find.rows.length} readings: ↑ ↓ to choose, Enter fills in the marked one.`));
+    else lines.push(h('div', {}, 'Enter fills it in.'));
+    // (with no reading at all, the message has said it was not read)
+    for (const n of [...find.common.map((x) => `${x[0].toUpperCase()}${x.slice(1)}.`), ...r.notes]) {
+      if (!(find.rows.length === 0 && /^Not read: /.test(n))) lines.push(h('div', { class: 'warn' }, n));
+    }
+  }
+  say.replaceChildren(...lines);
+}
+// an empty box: no readings, and nothing left to say
+function findReset() {
+  find.reading = null; find.rows = []; find.common = []; find.active = 0; find.open = false;
+  clearTimeout(findLiveTimer); FIND.live.textContent = '';
+  drawFind();
+}
+function findUpdate() {
+  if (!FIND || !P) return;
+  const text = FIND.input.value;
+  if (!text.trim()) { findReset(); return; }
+  const { reading, rows, common } = findRead(text);
+  find.reading = reading; find.rows = rows; find.common = common; find.active = 0; find.open = true;
+  drawFind();
+  // said once the typing stops (a live region that spoke at every keystroke would be noise), and only about the list still
+  // open: not a reading erased, filled in or left behind by the focus inside the pause (Sol 01a14d09)
+  clearTimeout(findLiveTimer);
+  findLiveTimer = setTimeout(() => {
+    if (!FIND || !find.open || find.reading !== reading) return;
+    const first = rows.find((x) => !x.error);
+    FIND.live.textContent = reading.message ? reading.message
+      : `${rows.length === 1 ? 'One reading' : `${rows.length} readings`}${first ? `. First: ${[findLine(first).spec, findLine(first).title].filter(Boolean).join(', ')}` : ''}.`;
+  }, 700);
+}
+function findClear() {
+  FIND.input.value = '';
+  findReset();
+}
+function findKey(e) {
+  if (e.isComposing) return;
+  const n = find.rows.length;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    if (!n) return;
+    e.preventDefault();
+    if (find.open) find.active = (find.active + (e.key === 'ArrowDown' ? 1 : n - 1)) % n;
+    find.open = true;
+    drawFind();
+    const el = $(`find-opt-${find.active}`); if (el) el.scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (n) findApply(find.active); else if (FIND.input.value.trim()) { find.open = true; drawFind(); }
+  } else if (e.key === 'Escape') {
+    // the box clears first; only an empty box lets Escape go on to close the planner's dialog (its handler sees the default
+    // prevented and stands down)
+    if (FIND.input.value || find.open) { e.preventDefault(); findClear(); }
+  }
+}
+// the stage a found part lands on: the first still asking something required, else Details
+function findLanding() {
+  if (typeNeeded()) return 'type';
+  const sts = stages();
+  const m = ready().missing.filter((x) => x.stage !== 'family' && sts.some((s) => s.id === x.stage));
+  if (m.length) return m[0].stage;
+  return (sts.find((s) => s.id === 'details') || sts.find((s) => s.multi) || sts[1] || sts[0]).id;
+}
+function findApply(i) {
+  const text = FIND.input.value;
+  // read again now: an edit may have started since the list was drawn (the planner's open/1), so batching is decided here
+  const now = findRead(text);
+  const want = find.rows[i];
+  const row = want ? now.rows.find((x) => candKey(x.cand) === candKey(want.cand)) : null;
+  if (!row) { find.reading = now.reading; find.rows = now.rows; find.common = now.common; find.active = 0; find.open = true; drawFind(); return; }
+  if (row.error) { setStatus(`Not filled in: ${row.error}.`, 'err'); return; }
+  const c = row.cand;
+  try {
+    state.chosen = true;
+    if (c.family !== state.family) switchFamily(c.family);
+    const r = applyFind(P, D, T(), c, { batching: batching() });
+    state.template = r.template;
+    // one typed part is one fresh batch, as after an Add: the ticks are replaced, never added to
+    if (batching() && varyPath()) { state.sel = r.sel; state.explicit.delete(varyPath()); }
+    for (const p of r.touched) state.explicit.delete(p);
+    state.customOpen = null; state.offerKept = false;
+  } catch (e) { setStatus(`${text}: ${e.message}`, 'err'); return; }
+  save();
+  find.open = false; drawFind();
+  const st = findLanding();
+  goStage(st, { focus: false });
+  FIND.input.select();
+  // said after the last render (a render clears the bar's line)
+  const rec = previews()[0] || T();
+  const what = [NEW_FAMILIES.has(rec.family) ? specNew(rec) : shortSpec(rec), headLabel(rec, false) || kindOf(rec)].filter(Boolean).join(', ');
+  const rd = ready();
+  const next = rd.ready ? 'Check it, then Add it with the button below.' : `${rd.missing[0] ? rd.missing[0].text : 'Choose what is left'} to add it.`;
+  setStatus(`Found ${what} from "${text}". ${next}`, 'ok');
+  const live = $('flow-live'); const s = stages().find((x) => x.id === st);
+  if (live && s) live.textContent = `${s.title}. Found ${what}. ${next}`;
+}
+function buildFind() {
+  const input = h('input', { type: 'text', id: 'find-in', class: 'find-in', role: 'combobox', 'aria-autocomplete': 'list', 'aria-expanded': 'false',
+    'aria-controls': 'find-list', 'aria-describedby': 'find-say', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'go',
+    maxlength: '80', placeholder: 'M5x16r, M3nN, M3x20 socket, DIN 912 M3x20' });
+  const list = h('div', { id: 'find-list', class: 'find-list', role: 'listbox', 'aria-label': 'What it reads as', hidden: true });
+  const say = h('div', { id: 'find-say', class: 'find-say' });
+  const live = h('div', { id: 'find-live', class: 'sr-only', 'aria-live': 'polite' });
+  const root = h('section', { id: 'find', class: 'find', 'aria-label': 'Find a part' },
+    h('label', { class: 'find-lab', for: 'find-in' }, 'Find a part'), input, list, say, live);
+  input.addEventListener('input', findUpdate);
+  input.addEventListener('keydown', findKey);
+  input.addEventListener('focus', () => { if (input.value.trim()) findUpdate(); else drawFind(); });
+  // closed when the focus leaves; a press on a reading keeps the focus (and the caret) in the box
+  input.addEventListener('blur', () => setTimeout(() => { if (FIND && document.activeElement !== input) { find.open = false; drawFind(); } }, 0));
+  list.addEventListener('mousedown', (e) => e.preventDefault());
+  return { root, input, list, say, live };
+}
+
 // ------------------------------------------------------------------ page
 let LEGEND = null;        // built once: in the header on its own page, at the top of the builder inside the Label Studio
 function legend() {
@@ -2167,7 +2370,9 @@ function render() {
   const fk = focusKey();
   userMoved();              // a re-render follows a change; every status worth keeping is set after it (the stress test: a
   //                           "Holding M5" outlived Clear all)
-  left.innerHTML = ''; right.innerHTML = '';
+  // the Find box stays: re-made, it would lose the caret (and an IME composition) whenever a hello or an open re-renders
+  for (const el of [...left.children]) if (!FIND || el !== FIND.root) el.remove();
+  right.innerHTML = '';
   if (!batching()) {
     const i = state.records.findIndex((r) => r.id === state.editing);
     left.append(h('div', { class: 'edit-banner', role: 'status' }, `Editing part ${i + 1} - change any field, then ${primaryText({ mode: MODE, n: 1, editing: true })} in the bar below.`,
@@ -2353,6 +2558,10 @@ async function main() {
     if (idx) HW = createHwImages(idx, { heads: D.own.heads, families: DATA_FAMILY, materialIssue: (rec) => (P ? P.materialIssue(rec) : null) });
   } catch (e) { console.warn('img/hw/v2/assets.json not loaded:', e.message); }
   P = createPicker(D);
+  // Find a part: above the stage strip, made once, before the first render (which keeps it)
+  findCtx = readerContext(D);
+  FIND = buildFind();
+  $('builder').replaceChildren(FIND.root);
   state.template = P.newRecord('screw', { id: 'template' });
   restore();
   if (!state.template || state.template.id !== 'template') state.template = P.newRecord(state.family, { id: 'template' });

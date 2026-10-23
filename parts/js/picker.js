@@ -432,6 +432,14 @@ export function createPicker(D, opts = {}) {
     if (!list) return { why: `no supplier stock list was found for ${dia} ${series}: type the length in inches (1-1/4, 1 1/4 or 1.25)` };
     return { list, ref: `own/inch_stock_lengths/${headOf(rec)}/${key}`, note: tab.note };
   }
+  // The lengths suppliers commonly STOCK for a metric standard's size, beside the standard's own list (Joey 2026-10-17, the
+  // Prusa-list audit: M3x14, M3x18, M3x40 and M4x14 were typed, not offered): { list, ref, note } or null. The stock lists
+  // are coarse thread, so a fine-pitch record gets none.
+  function metricStock(std, row) {
+    const tab = D.own.metric_stock_lengths ? D.own.metric_stock_lengths[std.id] : null;
+    const list = tab && row ? tab.rows[String(row.diameter)] : null;
+    return list ? { list, ref: `own/metric_stock_lengths/${std.id}/M${row.diameter}`, note: tab.note } : null;
+  }
   // Why the record's base or finish is not one its kind of part comes in - its family's own list, or a rule above - or null.
   // The pictures ask it (js/hwimage.js): a nylon heat-set insert was rendered, but must never be shown as if it existed.
   function materialIssue(rec) {
@@ -598,6 +606,22 @@ export function createPicker(D, opts = {}) {
             if (v > orig.long) cr = corrOf(row, 'long'); else if (v < orig.short) cr = corrOf(row, 'short');
             if (cr) { tier = pitchOk ? cr.status : TIER.UNVERIFIED; n = `inside the range as corrected (${cr.status}, overlay ${cr.id})`; }
             out.options.push(opt(v, String(v), tier, D.refOf(std, row, 'lengths'), { standard: std.id, note: n, urls }));
+          }
+          out.range = { short: row.short, long: row.long, size: row.name };
+          // commonly stocked lengths the table leaves out: offered beside it, said as stock and never as the standard (no
+          // `standard` on the option, so the saved source cannot claim it); one outside the size's range says so
+          const sk = pitchOk ? metricStock(std, row) : null;
+          if (sk) {
+            for (const v of sk.list) {
+              if (row.lengths.includes(v)) continue;
+              const outside = v < row.short || v > row.long;
+              out.options.push(opt(v, String(v), TIER.SINGLE, sk.ref, { stocked: true, urls: null,
+                note: outside ? `commonly stocked (supplier stock lists), outside the ${row.short}-${row.long} mm the reference data lists for ${row.name}`
+                  : `commonly stocked (supplier stock lists), not in the reference data's length list for ${row.name}` }));
+            }
+            out.options.sort((a, b) => a.value - b.value);
+            out.stocked = out.options.some((o) => o.stocked);
+            out.stockNote = sk.note;
           }
         } else if (D.listsOnly(rec.table_basis)) {
           const lo = D.listsOnly(rec.table_basis);
@@ -1105,6 +1129,10 @@ export function createPicker(D, opts = {}) {
           setPath(rec, path, fld.status === STATUS.UNKNOWN ? fld : custom(fld.value, { adopted_from: from }));
         }
       }
+      // a commonly stocked length names no standard, so the loop keeps it, yet it was offered only beside this standard's
+      // list. Looked up again in what the record lists now (nothing), it goes Custom: what a batch saves, and what the page
+      // tells the person (2026-10-18: one part kept M3x14 Listed through a drop, the same part batched was Custom)
+      if (rec.length) reresolve(rec, 'length.value');
       const offer = driveOfferFor(rec.head.value, f.value);
       rec.drive.type = offer && f.status === STATUS.LISTED ? f : custom(f.value);
       rec.drive.tool_size = unknown();
