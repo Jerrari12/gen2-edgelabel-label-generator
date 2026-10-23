@@ -117,6 +117,37 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .stg.need .stg-v { color: var(--accent-ink); font-family: var(--sans); }
 .stg.cur { border: 2px solid var(--accent); background: var(--accent-bg); }
 .stg.cur .stg-t { color: var(--accent-ink); }
+/* FIND A PART (2026-10-17): one line above the stage strip that reads a code (M5x16r, DIN 912 M3x20) into the part. It
+   scrolls with the page while the strip stays sticky. Its readings are a list under it, the marked one drawn as a chosen
+   tile is; under them, what was read and what was not. A reading with a second line is 56 px or more, a big control by the
+   spacing audit, so the readings sit 12 px apart. */
+.find { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--gap-group); row-gap: 10px;
+  padding: 8px 10px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 14px; }
+.find-lab { font-family: var(--display); font-weight: 500; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
+  padding-left: 4px; white-space: nowrap; }
+.find-in { width: 100%; min-width: 0; min-height: 44px; font-family: var(--mono); font-size: 15px; }
+.find-in::placeholder { color: var(--muted); }
+.find-list, .find-say { grid-column: 1 / -1; }
+.find-list { display: flex; flex-direction: column; gap: var(--gap-group); }
+.find-list[hidden] { display: none; }
+.find-opt { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px;
+  border: 1px solid var(--line-2); border-radius: 10px; background: var(--well); cursor: pointer; }
+.find-opt:hover { border-color: var(--muted); }
+.find-opt.on { border: 2px solid var(--accent); background: var(--accent-bg); padding: 5px 11px; }
+.find-opt.bad { cursor: not-allowed; opacity: .65; }
+.find-opt .fo-g { display: inline-flex; color: var(--ink); }
+.find-opt.on .fo-g { color: var(--accent-ink); }
+.find-opt .fo-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.find-opt .fo-t { font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.find-opt .fo-t b { font-size: 15px; margin-right: 8px; }
+.find-opt.on .fo-t b { color: #FFD9C4; }
+.find-opt .fo-s { font-size: 12px; line-height: 1.4; color: var(--muted); overflow-wrap: anywhere; }
+.find-opt .fo-w { font-size: 12px; line-height: 1.4; color: var(--sugg); overflow-wrap: anywhere; }
+.find-opt .fo-k { font-size: 11px; color: var(--accent-ink); border: 1px solid var(--accent); border-radius: 6px; padding: 1px 6px; }
+.find-say { font-size: 12px; line-height: 1.45; color: var(--muted); padding: 0 4px; }
+.find-say:empty { display: none; }
+.find-say .warn { color: var(--sugg); }
+.find-say .err { color: var(--danger); }
 .stage-panel { display: flex; flex-direction: column; gap: 6px; scroll-margin-top: 88px; }
 .stage-h { margin: 6px 0 0; font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .stage-h:focus { outline: none; }
@@ -226,6 +257,14 @@ html.embed #side { position: static; max-height: none; overflow: visible; }
 .len:hover { border-color: var(--muted); }
 .len.on { border: 2px solid var(--accent); background: var(--accent-bg); color: #FFD9C4; }
 .len.off { border-style: dashed; border-color: var(--custom); background: transparent; }
+/* a commonly stocked length (Joey 2026-10-17): a solid border like a listed one, with a muted "stocked" word - never the
+   custom dashed look or colour */
+.len.stock .ts { color: var(--muted); letter-spacing: .02em; }
+/* the "stocked" line makes a tile (and its grid row) at least 56 px tall, a big tile by the spacing audit, which wants 12 px
+   between big tiles (10 px under a 600 px viewport) */
+.len-grid.has-stock { gap: 12px; }
+@media (max-width: 599.98px) { .len-grid.has-stock { gap: 10px; } }
+.len-more { align-self: flex-start; margin-top: 10px; }
 
 input[type="text"], select { min-height: 40px; padding: 6px 10px; background: var(--well); border: 1px solid var(--line-2); border-radius: 8px; color: var(--text); font: inherit; }
 .row.tools input[type="text"] { width: 210px; }

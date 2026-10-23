@@ -129,7 +129,13 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
   // such variant the reference finish shows and, if no other note was needed, says so.
   function render(a, match, note = null, mat = null) {
     const t = shown(a);
-    const rule = t.extent === 'partial' && t.extentRule ? ` (part-threaded per ${t.extentRule})` : '';
+    // a SUPPLIER-STOCKED length (render-v2 batch 10, 2026-10-18): the head, drive and thread are the standard's, the length
+    // is one its table does not list, and the thread extent is that edition's rule applied to it - so the caption never
+    // says the table gives this length, and the source sentence (which names the stock research and, for ISO 7380-1
+    // M3 x 18, the three suppliers that list it) goes in the details
+    const stocked = t.lengthBasis === 'supplier-stocked';
+    const rule = t.extent === 'partial' && t.extentRule
+      ? (stocked ? ` (part-threaded by the ${t.extentRule} rule applied to this length)` : ` (part-threaded per ${t.extentRule})`) : '';
     const want = mat ? presetFor(mat) : null;
     // a material this kind of part does not come in never gets its look, even where one was rendered
     const ruled = mat && MAT_ISSUE ? `Not a material this kind of part comes in (${MAT_ISSUE}) - shown in the reference finish` : null;
@@ -157,15 +163,16 @@ export function createHwImages(index, { heads = [], base = 'img/hw/v2/', familie
       diffs.push('reference finish shown'); extra.push('No reference picture in this finish yet - shown in the reference finish');
     }
     if (mat && appearanceUnspecified(mat)) { diffs.push('finish appearance unspecified'); extra.push(UNSPECIFIED_NOTE); }
-    const caption = `Reference model: ${[t.ref || sizeText(t), t.ref ? null : stdWord(t.std), fin ? fin.label.toLowerCase() : null].filter(Boolean).join(', ')}${rule}`;
+    const stdText = t.ref ? null : stocked ? `${stdWord(t.std)} head and thread, a stocked length not in its table` : stdWord(t.std);
+    const caption = `Reference model: ${[t.ref || sizeText(t), stdText, fin ? fin.label.toLowerCase() : null].filter(Boolean).join(', ')}${rule}`;
     const uniq = [...new Set(diffs)];
     return {
       kind: 'render', asset: a.id, image: fin ? fin.img : a.img, match, notes: note ? [note] : [], finish: fin ? want : null,
       src: src(im), srcSm: src(im, '-sm'), srcHead: (fin ? fin.hasHead : t.hasHead) ? src(im, '-head') : null,
       caption,
       short: uniq.length ? `Reference model - ${uniq.join(', ')}` : 'Reference model',
-      details: [caption, ...new Set([...(note ? [note] : []), ...extra]), t.geometry ? `Geometry: ${t.geometry}` : null,
-        t.verification ? `Checked: ${t.verification}` : null, ...(t.deviations || [])].filter(Boolean),
+      details: [caption, ...new Set([...(note ? [note] : []), ...extra]), stocked && t.source ? `Source: ${t.source}` : null,
+        t.geometry ? `Geometry: ${t.geometry}` : null, t.verification ? `Checked: ${t.verification}` : null, ...(t.deviations || [])].filter(Boolean),
       exact: match === 'exact' && !note && !uniq.length,
     };
   }

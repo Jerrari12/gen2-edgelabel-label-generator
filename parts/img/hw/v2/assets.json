@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated": "2026-10-17 13:54",
+ "generated": "2026-10-23 14:08",
  "source": "render-v2/library/manifest.json (the MODULITH hardware visual library)",
  "note": "Rendered from bd_warehouse 0.3.0 geometry and documented parametric models; finishes illustrative. Each entry says what its picture shows (size, length, thread extent, drive, point).",
  "assets": [
@@ -17122,6 +17122,109 @@
    }
   },
   {
+   "id": "nut-nylon-insert-iso7040-m3",
+   "std": "iso7040",
+   "family": "nut",
+   "head": "nylon-regular",
+   "drive": "external-hex",
+   "point": null,
+   "d": 3.0,
+   "L": null,
+   "extent": null,
+   "extentRule": null,
+   "img": "nut-nylon-insert-iso7040-m3",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Nylon-insert locknut ISO 7040 M3",
+   "geometry": "dimensional model",
+   "verification": "2/2 agree with the build values (internal); no independent check",
+   "deviations": [],
+   "finishes": {
+    "copper": {
+     "img": "nut-nylon-insert-iso7040-m3--copper",
+     "label": "Copper",
+     "hasHead": false
+    },
+    "steel-plain": {
+     "img": "nut-nylon-insert-iso7040-m3--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": false
+    },
+    "stainless": {
+     "img": "nut-nylon-insert-iso7040-m3--stainless",
+     "label": "Stainless steel",
+     "hasHead": false
+    },
+    "zinc-clear": {
+     "img": "nut-nylon-insert-iso7040-m3--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": false
+    },
+    "black-oxide": {
+     "img": "nut-nylon-insert-iso7040-m3--black-oxide",
+     "label": "Black oxide",
+     "hasHead": false
+    },
+    "brass": {
+     "img": "nut-nylon-insert-iso7040-m3--brass",
+     "label": "Brass",
+     "hasHead": false
+    },
+    "aluminium": {
+     "img": "nut-nylon-insert-iso7040-m3--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": false
+    },
+    "nylon-black": {
+     "img": "nut-nylon-insert-iso7040-m3--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": false
+    },
+    "nylon-natural": {
+     "img": "nut-nylon-insert-iso7040-m3--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": false
+    },
+    "nickel": {
+     "img": "nut-nylon-insert-iso7040-m3--nickel",
+     "label": "Nickel plate",
+     "hasHead": false
+    },
+    "anodized:black": {
+     "img": "nut-nylon-insert-iso7040-m3--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": false
+    },
+    "anodized:blue": {
+     "img": "nut-nylon-insert-iso7040-m3--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": false
+    },
+    "anodized:red": {
+     "img": "nut-nylon-insert-iso7040-m3--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": false
+    },
+    "anodized:gold": {
+     "img": "nut-nylon-insert-iso7040-m3--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": false
+    },
+    "anodized:purple": {
+     "img": "nut-nylon-insert-iso7040-m3--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": false
+    },
+    "anodized:green": {
+     "img": "nut-nylon-insert-iso7040-m3--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": false
+    }
+   }
+  },
+  {
    "id": "nut-nylon-insert-iso7040-m5",
    "std": "iso7040",
    "family": "nut",
@@ -19201,6 +19304,109 @@
     },
     "anodized:green": {
      "img": "nut-nylon-insert-thin-asme-b18-16-6-nte-9_16-12--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": false
+    }
+   }
+  },
+  {
+   "id": "nut-nylon-insert-thin-iso10511-m3",
+   "std": "iso10511",
+   "family": "nut",
+   "head": "nylon-thin",
+   "drive": "external-hex",
+   "point": null,
+   "d": 3.0,
+   "L": null,
+   "extent": null,
+   "extentRule": null,
+   "img": "nut-nylon-insert-thin-iso10511-m3",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Nylon-insert locknut, thin, ISO 10511 / DIN 985 M3",
+   "geometry": "dimensional model",
+   "verification": "2/2 agree with the build values (internal); no independent check",
+   "deviations": [],
+   "finishes": {
+    "copper": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--copper",
+     "label": "Copper",
+     "hasHead": false
+    },
+    "steel-plain": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": false
+    },
+    "stainless": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--stainless",
+     "label": "Stainless steel",
+     "hasHead": false
+    },
+    "zinc-clear": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": false
+    },
+    "black-oxide": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--black-oxide",
+     "label": "Black oxide",
+     "hasHead": false
+    },
+    "brass": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--brass",
+     "label": "Brass",
+     "hasHead": false
+    },
+    "aluminium": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": false
+    },
+    "nylon-black": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": false
+    },
+    "nylon-natural": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": false
+    },
+    "nickel": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--nickel",
+     "label": "Nickel plate",
+     "hasHead": false
+    },
+    "anodized:black": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": false
+    },
+    "anodized:blue": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": false
+    },
+    "anodized:red": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": false
+    },
+    "anodized:gold": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": false
+    },
+    "anodized:purple": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": false
+    },
+    "anodized:green": {
+     "img": "nut-nylon-insert-thin-iso10511-m3--anodized-green",
      "label": "Anodized aluminium, green",
      "hasHead": false
     }
@@ -42322,6 +42528,115 @@
    }
   },
   {
+   "id": "button-iso7380-1-m3x4",
+   "std": "iso7380_1",
+   "family": "screw",
+   "head": "button",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 4.0,
+   "extent": "full",
+   "extentRule": "ISO 7380-1:2011",
+   "img": "button-iso7380-1-m3x4",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Button head screw ISO 7380-1 M3 x 4 (stocked length, not in ISO 7380-1)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 7380-1:2011 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 7380-1 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso7380_1 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "button-iso7380-1-m3x4--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "button-iso7380-1-m3x4--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "button-iso7380-1-m3x4--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "button-iso7380-1-m3x4--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "button-iso7380-1-m3x4--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "button-iso7380-1-m3x4--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "button-iso7380-1-m3x4--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "button-iso7380-1-m3x4--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "button-iso7380-1-m3x4--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "button-iso7380-1-m3x4--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "button-iso7380-1-m3x4--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "button-iso7380-1-m3x4--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "button-iso7380-1-m3x4--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "button-iso7380-1-m3x4--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "button-iso7380-1-m3x4--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "button-iso7380-1-m3x4--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "button-iso7380-1-m3x6",
    "std": "iso7380_1",
    "family": "screw",
@@ -42742,6 +43057,115 @@
    }
   },
   {
+   "id": "button-iso7380-1-m3x14",
+   "std": "iso7380_1",
+   "family": "screw",
+   "head": "button",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 14.0,
+   "extent": "full",
+   "extentRule": "ISO 7380-1:2011",
+   "img": "button-iso7380-1-m3x14",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Button head screw ISO 7380-1 M3 x 14 (stocked length, not in ISO 7380-1)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 7380-1:2011 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 7380-1 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso7380_1 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "button-iso7380-1-m3x14--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "button-iso7380-1-m3x14--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "button-iso7380-1-m3x14--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "button-iso7380-1-m3x14--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "button-iso7380-1-m3x14--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "button-iso7380-1-m3x14--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "button-iso7380-1-m3x14--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "button-iso7380-1-m3x14--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "button-iso7380-1-m3x14--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "button-iso7380-1-m3x14--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "button-iso7380-1-m3x14--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "button-iso7380-1-m3x14--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "button-iso7380-1-m3x14--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "button-iso7380-1-m3x14--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "button-iso7380-1-m3x14--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "button-iso7380-1-m3x14--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "button-iso7380-1-m3x16",
    "std": "iso7380_1",
    "family": "screw",
@@ -42841,6 +43265,115 @@
     },
     "anodized:green": {
      "img": "button-iso7380-1-m3x16--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
+   "id": "button-iso7380-1-m3x18",
+   "std": "iso7380_1",
+   "family": "screw",
+   "head": "button",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 18.0,
+   "extent": "full",
+   "extentRule": "ISO 7380-1:2011",
+   "img": "button-iso7380-1-m3x18",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Button head screw ISO 7380-1 M3 x 18 (stocked length, not in ISO 7380-1)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 7380-1:2011 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 3,
+   "source": "Supplier-stocked length, not in the ISO 7380-1 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 3 suppliers (Aspen, Fuller and Fusion Fixings only, which the research warns may be one importer's range). Head, drive and thread from bd_warehouse 0.3.0, iso7380_1 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "button-iso7380-1-m3x18--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "button-iso7380-1-m3x18--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "button-iso7380-1-m3x18--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "button-iso7380-1-m3x18--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "button-iso7380-1-m3x18--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "button-iso7380-1-m3x18--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "button-iso7380-1-m3x18--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "button-iso7380-1-m3x18--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "button-iso7380-1-m3x18--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "button-iso7380-1-m3x18--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "button-iso7380-1-m3x18--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "button-iso7380-1-m3x18--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "button-iso7380-1-m3x18--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "button-iso7380-1-m3x18--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "button-iso7380-1-m3x18--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "button-iso7380-1-m3x18--anodized-green",
      "label": "Anodized aluminium, green",
      "hasHead": true
     }
@@ -43578,6 +44111,115 @@
     },
     "anodized:green": {
      "img": "button-iso7380-1-m4x12--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
+   "id": "button-iso7380-1-m4x14",
+   "std": "iso7380_1",
+   "family": "screw",
+   "head": "button",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 4.0,
+   "L": 14.0,
+   "extent": "full",
+   "extentRule": "ISO 7380-1:2011",
+   "img": "button-iso7380-1-m4x14",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Button head screw ISO 7380-1 M4 x 14 (stocked length, not in ISO 7380-1)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 7380-1:2011 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 4,
+   "source": "Supplier-stocked length, not in the ISO 7380-1 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 4 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso7380_1 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "button-iso7380-1-m4x14--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "button-iso7380-1-m4x14--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "button-iso7380-1-m4x14--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "button-iso7380-1-m4x14--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "button-iso7380-1-m4x14--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "button-iso7380-1-m4x14--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "button-iso7380-1-m4x14--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "button-iso7380-1-m4x14--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "button-iso7380-1-m4x14--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "button-iso7380-1-m4x14--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "button-iso7380-1-m4x14--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "button-iso7380-1-m4x14--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "button-iso7380-1-m4x14--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "button-iso7380-1-m4x14--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "button-iso7380-1-m4x14--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "button-iso7380-1-m4x14--anodized-green",
      "label": "Anodized aluminium, green",
      "hasHead": true
     }
@@ -51393,6 +52035,115 @@
    }
   },
   {
+   "id": "countersunk-iso10642-m3x6",
+   "std": "iso10642",
+   "family": "screw",
+   "head": "countersunk",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 6.0,
+   "extent": "full",
+   "extentRule": "ISO 10642:2004",
+   "img": "countersunk-iso10642-m3x6",
+   "hasHead": false,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Countersunk screw ISO 10642 M3 x 6 (stocked length, not in ISO 10642)",
+   "geometry": "simplified model",
+   "verification": "3/3 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 10642:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 10642 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso10642 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "countersunk-iso10642-m3x6--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": false
+    },
+    "stainless": {
+     "img": "countersunk-iso10642-m3x6--stainless",
+     "label": "Stainless steel",
+     "hasHead": false
+    },
+    "copper": {
+     "img": "countersunk-iso10642-m3x6--copper",
+     "label": "Copper",
+     "hasHead": false
+    },
+    "steel-plain": {
+     "img": "countersunk-iso10642-m3x6--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": false
+    },
+    "black-oxide": {
+     "img": "countersunk-iso10642-m3x6--black-oxide",
+     "label": "Black oxide",
+     "hasHead": false
+    },
+    "brass": {
+     "img": "countersunk-iso10642-m3x6--brass",
+     "label": "Brass",
+     "hasHead": false
+    },
+    "aluminium": {
+     "img": "countersunk-iso10642-m3x6--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": false
+    },
+    "nylon-black": {
+     "img": "countersunk-iso10642-m3x6--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": false
+    },
+    "nylon-natural": {
+     "img": "countersunk-iso10642-m3x6--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": false
+    },
+    "nickel": {
+     "img": "countersunk-iso10642-m3x6--nickel",
+     "label": "Nickel plate",
+     "hasHead": false
+    },
+    "anodized:black": {
+     "img": "countersunk-iso10642-m3x6--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": false
+    },
+    "anodized:blue": {
+     "img": "countersunk-iso10642-m3x6--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": false
+    },
+    "anodized:red": {
+     "img": "countersunk-iso10642-m3x6--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": false
+    },
+    "anodized:gold": {
+     "img": "countersunk-iso10642-m3x6--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": false
+    },
+    "anodized:purple": {
+     "img": "countersunk-iso10642-m3x6--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": false
+    },
+    "anodized:green": {
+     "img": "countersunk-iso10642-m3x6--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": false
+    }
+   }
+  },
+  {
    "id": "countersunk-iso10642-m3x8",
    "std": "iso10642",
    "family": "screw",
@@ -51708,6 +52459,115 @@
    }
   },
   {
+   "id": "countersunk-iso10642-m3x14",
+   "std": "iso10642",
+   "family": "screw",
+   "head": "countersunk",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 14.0,
+   "extent": "full",
+   "extentRule": "ISO 10642:2004",
+   "img": "countersunk-iso10642-m3x14",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Countersunk screw ISO 10642 M3 x 14 (stocked length, not in ISO 10642)",
+   "geometry": "simplified model",
+   "verification": "3/3 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 10642:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 10642 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso10642 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "countersunk-iso10642-m3x14--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "countersunk-iso10642-m3x14--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "countersunk-iso10642-m3x14--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "countersunk-iso10642-m3x14--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "countersunk-iso10642-m3x14--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "countersunk-iso10642-m3x14--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "countersunk-iso10642-m3x14--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "countersunk-iso10642-m3x14--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "countersunk-iso10642-m3x14--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "countersunk-iso10642-m3x14--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "countersunk-iso10642-m3x14--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "countersunk-iso10642-m3x14--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "countersunk-iso10642-m3x14--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "countersunk-iso10642-m3x14--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "countersunk-iso10642-m3x14--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "countersunk-iso10642-m3x14--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "countersunk-iso10642-m3x16",
    "std": "iso10642",
    "family": "screw",
@@ -51807,6 +52667,115 @@
     },
     "anodized:green": {
      "img": "countersunk-iso10642-m3x16--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
+   "id": "countersunk-iso10642-m3x18",
+   "std": "iso10642",
+   "family": "screw",
+   "head": "countersunk",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 18.0,
+   "extent": "full",
+   "extentRule": "ISO 10642:2004",
+   "img": "countersunk-iso10642-m3x18",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Countersunk screw ISO 10642 M3 x 18 (stocked length, not in ISO 10642)",
+   "geometry": "simplified model",
+   "verification": "3/3 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 10642:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 10642 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso10642 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "countersunk-iso10642-m3x18--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "countersunk-iso10642-m3x18--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "countersunk-iso10642-m3x18--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "countersunk-iso10642-m3x18--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "countersunk-iso10642-m3x18--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "countersunk-iso10642-m3x18--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "countersunk-iso10642-m3x18--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "countersunk-iso10642-m3x18--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "countersunk-iso10642-m3x18--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "countersunk-iso10642-m3x18--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "countersunk-iso10642-m3x18--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "countersunk-iso10642-m3x18--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "countersunk-iso10642-m3x18--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "countersunk-iso10642-m3x18--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "countersunk-iso10642-m3x18--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "countersunk-iso10642-m3x18--anodized-green",
      "label": "Anodized aluminium, green",
      "hasHead": true
     }
@@ -90738,6 +91707,116 @@
    }
   },
   {
+   "id": "socket-cap-iso4762-m2x14",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 2.0,
+   "L": 14.0,
+   "extent": "full",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m2x14",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M2 x 14 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m2x14--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m2x14--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m2x14--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m2x14--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m2x14--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m2x14--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m2x14--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m2x14--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m2x14--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m2x14--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m2x14--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m2x14--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m2x14--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m2x14--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m2x14--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m2x14--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "socket-cap-iso4762-m2x16",
    "std": "iso4762",
    "family": "screw",
@@ -91906,6 +92985,116 @@
    }
   },
   {
+   "id": "socket-cap-iso4762-m3x4",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 4.0,
+   "extent": "full",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m3x4",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M3 x 4 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 6,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 6 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m3x4--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m3x4--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m3x4--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m3x4--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m3x4--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m3x4--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m3x4--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m3x4--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m3x4--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m3x4--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m3x4--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m3x4--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m3x4--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m3x4--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m3x4--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m3x4--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "socket-cap-iso4762-m3x5",
    "std": "iso4762",
    "family": "screw",
@@ -92436,6 +93625,116 @@
    }
   },
   {
+   "id": "socket-cap-iso4762-m3x14",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 14.0,
+   "extent": "full",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m3x14",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M3 x 14 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m3x14--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m3x14--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m3x14--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m3x14--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m3x14--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m3x14--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m3x14--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m3x14--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m3x14--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m3x14--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m3x14--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m3x14--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m3x14--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m3x14--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m3x14--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m3x14--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "socket-cap-iso4762-m3x16",
    "std": "iso4762",
    "family": "screw",
@@ -92542,6 +93841,116 @@
    }
   },
   {
+   "id": "socket-cap-iso4762-m3x18",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 18.0,
+   "extent": "full",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m3x18",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M3 x 18 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m3x18--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m3x18--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m3x18--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m3x18--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m3x18--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m3x18--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m3x18--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m3x18--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m3x18--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m3x18--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m3x18--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m3x18--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m3x18--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m3x18--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m3x18--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m3x18--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "socket-cap-iso4762-m3x20",
    "std": "iso4762",
    "family": "screw",
@@ -92642,6 +94051,117 @@
     },
     "anodized:green": {
      "img": "socket-cap-iso4762-m3x20--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
+   "id": "socket-cap-iso4762-m3x22",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 22.0,
+   "extent": "partial",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m3x22",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M3 x 22 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Reference model part-threaded by the ISO 4762:2004 rule applied to this unlisted length: full thread b from the tip, plain shank above; the 5P runout between ls and lg is drawn as a short fade.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 4,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 4 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m3x22--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m3x22--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m3x22--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m3x22--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m3x22--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m3x22--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m3x22--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m3x22--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m3x22--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m3x22--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m3x22--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m3x22--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m3x22--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m3x22--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m3x22--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m3x22--anodized-green",
      "label": "Anodized aluminium, green",
      "hasHead": true
     }
@@ -92856,6 +94376,228 @@
     },
     "anodized:green": {
      "img": "socket-cap-iso4762-m3x30--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
+   "id": "socket-cap-iso4762-m3x35",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 35.0,
+   "extent": "partial",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m3x35",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M3 x 35 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Reference model part-threaded by the ISO 4762:2004 rule applied to this unlisted length: full thread b from the tip, plain shank above; the 5P runout between ls and lg is drawn as a short fade.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 6,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 6 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m3x35--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m3x35--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m3x35--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m3x35--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m3x35--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m3x35--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m3x35--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m3x35--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m3x35--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m3x35--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m3x35--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m3x35--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m3x35--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m3x35--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m3x35--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m3x35--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
+   "id": "socket-cap-iso4762-m3x40",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 3.0,
+   "L": 40.0,
+   "extent": "partial",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m3x40",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M3 x 40 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Reference model part-threaded by the ISO 4762:2004 rule applied to this unlisted length: full thread b from the tip, plain shank above; the 5P runout between ls and lg is drawn as a short fade.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 6,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 6 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m3x40--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m3x40--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m3x40--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m3x40--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m3x40--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m3x40--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m3x40--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m3x40--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m3x40--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m3x40--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m3x40--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m3x40--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m3x40--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m3x40--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m3x40--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m3x40--anodized-green",
      "label": "Anodized aluminium, green",
      "hasHead": true
     }
@@ -93286,6 +95028,116 @@
    }
   },
   {
+   "id": "socket-cap-iso4762-m4x14",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 4.0,
+   "L": 14.0,
+   "extent": "full",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m4x14",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M4 x 14 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 5,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 5 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m4x14--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m4x14--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m4x14--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m4x14--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m4x14--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m4x14--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m4x14--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m4x14--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m4x14--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m4x14--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m4x14--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m4x14--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m4x14--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m4x14--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m4x14--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m4x14--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
    "id": "socket-cap-iso4762-m4x16",
    "std": "iso4762",
    "family": "screw",
@@ -93386,6 +95238,116 @@
     },
     "anodized:green": {
      "img": "socket-cap-iso4762-m4x16--anodized-green",
+     "label": "Anodized aluminium, green",
+     "hasHead": true
+    }
+   }
+  },
+  {
+   "id": "socket-cap-iso4762-m4x18",
+   "std": "iso4762",
+   "family": "screw",
+   "head": "socket-cap",
+   "drive": "hex-socket",
+   "point": null,
+   "d": 4.0,
+   "L": 18.0,
+   "extent": "full",
+   "extentRule": "ISO 4762:2004",
+   "img": "socket-cap-iso4762-m4x18",
+   "hasHead": true,
+   "status": "rendered",
+   "fallbackFor": null,
+   "rep": false,
+   "title": "Socket head cap screw ISO 4762 M4 x 18 (stocked length, not in ISO 4762)",
+   "geometry": "simplified model",
+   "verification": "4/4 agree with the build values (internal); no independent check",
+   "deviations": [
+    "A supplier-stocked length that the ISO 4762:2004 length table does not list (Part Picker stock research 2026-10-17); head, drive and thread are the table values of this size.",
+    "Thread root cut deeper than the ISO basic profile (library).",
+    "Head diameter is the library table value, the KNURLED-head maximum (plain heads are slightly smaller)."
+   ],
+   "lengthBasis": "supplier-stocked",
+   "stockSuppliers": 6,
+   "source": "Supplier-stocked length, not in the ISO 4762 length table: Part Picker supplier stock research 2026-10-17 (docs/research/metric-stock-2026-10-17.json, tools/build_data.py METRIC_STOCK; \"core\" = listed by two or more independent suppliers), 6 suppliers. Head, drive and thread from bd_warehouse 0.3.0, iso4762 table",
+   "finishes": {
+    "zinc-clear": {
+     "img": "socket-cap-iso4762-m4x18--zinc-clear",
+     "label": "Zinc plated, clear",
+     "hasHead": true
+    },
+    "stainless": {
+     "img": "socket-cap-iso4762-m4x18--stainless",
+     "label": "Stainless steel",
+     "hasHead": true
+    },
+    "brass": {
+     "img": "socket-cap-iso4762-m4x18--brass",
+     "label": "Brass",
+     "hasHead": true
+    },
+    "black-oxide": {
+     "img": "socket-cap-iso4762-m4x18--black-oxide",
+     "label": "Black oxide",
+     "hasHead": true
+    },
+    "copper": {
+     "img": "socket-cap-iso4762-m4x18--copper",
+     "label": "Copper",
+     "hasHead": true
+    },
+    "steel-plain": {
+     "img": "socket-cap-iso4762-m4x18--steel-plain",
+     "label": "Steel, plain (self-colour)",
+     "hasHead": true
+    },
+    "aluminium": {
+     "img": "socket-cap-iso4762-m4x18--aluminium",
+     "label": "Aluminium, natural",
+     "hasHead": true
+    },
+    "nylon-black": {
+     "img": "socket-cap-iso4762-m4x18--nylon-black",
+     "label": "Nylon, black",
+     "hasHead": true
+    },
+    "nylon-natural": {
+     "img": "socket-cap-iso4762-m4x18--nylon-natural",
+     "label": "Nylon (PA66), natural",
+     "hasHead": true
+    },
+    "nickel": {
+     "img": "socket-cap-iso4762-m4x18--nickel",
+     "label": "Nickel plate",
+     "hasHead": true
+    },
+    "anodized:black": {
+     "img": "socket-cap-iso4762-m4x18--anodized-black",
+     "label": "Anodized aluminium, black",
+     "hasHead": true
+    },
+    "anodized:blue": {
+     "img": "socket-cap-iso4762-m4x18--anodized-blue",
+     "label": "Anodized aluminium, blue",
+     "hasHead": true
+    },
+    "anodized:red": {
+     "img": "socket-cap-iso4762-m4x18--anodized-red",
+     "label": "Anodized aluminium, red",
+     "hasHead": true
+    },
+    "anodized:gold": {
+     "img": "socket-cap-iso4762-m4x18--anodized-gold",
+     "label": "Anodized aluminium, gold",
+     "hasHead": true
+    },
+    "anodized:purple": {
+     "img": "socket-cap-iso4762-m4x18--anodized-purple",
+     "label": "Anodized aluminium, purple",
+     "hasHead": true
+    },
+    "anodized:green": {
+     "img": "socket-cap-iso4762-m4x18--anodized-green",
      "label": "Anodized aluminium, green",
      "hasHead": true
     }
