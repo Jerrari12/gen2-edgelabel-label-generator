@@ -35,6 +35,14 @@ export const TYPE_SHORT = {
     chamfered: 'WASHER', small: 'SM WASHER', 'tooth-internal': 'TOOTH LW' },
   setscrew: { 'hex-socket-set': 'SET SCREW' },
   insert: { 'heat-set': 'INSERT', 'press-in': 'INSERT', 'self-tapping': 'INSERT' },
+  // Extrusion T-nuts (2026-10-24, Joey: an M4 drop-in T-nut's label read only "M4" - the family had no type word). The
+  // insertion type prints as ONE word so the slot width (below) prints beside it: measured with the Label Studio's own
+  // layout engine (hardware-layout.js, the EdgeLabel face) pinned beside STEEL at M3-M8, HAMMER T-NUT, DROP-IN T-NUT,
+  // ROLL-IN T-NUT, SLIDING T-NUT, 2-HOLE T-NUT and HAMMER NUT fit at none of them; DROP-IN NUT, ROLL-IN NUT and SLIDING NUT
+  // fit but shrink the value to 6.1-7.2 mm caps and push the slot off the label; DROP-IN, ROLL-IN, SLIDING and T-PLATE fit
+  // WITH the slot at 8.9-9.9 mm caps (Terra 01a1703c preferred these: the slot is the interface distinction). T-PLATE is
+  // the picker's own name for the two-hole type. The editor shows each word's full meaning ('Drop-in, hammer head').
+  tnut: { 'drop-in-hammer': 'DROP-IN', 'roll-in': 'ROLL-IN', 'sliding-t': 'SLIDING', 'two-hole': 'T-PLATE' },
 };
 // Every short form is a proposal (decisions.md, "What a hardware label prints"). These carry a stronger note, shown beside
 // the printed form in the label words so the wording is never quietly made permanent (design review 2026-10-06):
@@ -53,15 +61,18 @@ const BASE_SHORT = { steel: 'STEEL', stainless: 'SS', brass: 'BRASS', copper: 'C
 const FINISH_SHORT = { plain: null, zinc: 'ZINC', 'zinc flake': 'ZN FLAKE', 'black oxide': 'BLK OX', 'hot-dip galvanized': 'HDG',
   nickel: 'NICKEL', passivated: 'PASSIVATED', anodized: 'ANODIZED' };
 const POINT_SHORT = { flat: 'FLAT PT', cup: 'CUP PT', cone: 'CONE PT', dog: 'DOG PT' };
+// a T-nut's slot width prints as its own attribute: 5 MM SLOT (what tells a 2020 drawer from a 3030 one at the same thread)
+const slotText = (v) => `${fmtNum(v)} MM SLOT`;
 
 // READING order: where the attributes read on the label, left to right, top to bottom
-export const ATTRIBUTE_ORDER = ['head', 'material.base', 'material.property_class', 'material.finish', 'material.colour',
-  'thread.series', 'specific.point_type'];
+export const ATTRIBUTE_ORDER = ['head', 'specific.tnut.slot', 'material.base', 'material.property_class', 'material.finish',
+  'material.colour', 'thread.series', 'specific.point_type'];
 // KEEP priority, apart from the reading order (design review 2026-10-05): the optional attributes are offered to the engine in
 // this order and it drops from the END - so the grade and the finish outrank the broad base material (STEEL), which a
 // grade already implies. Pins always win: a pinned field prints or the label is a non-fit.
-export const KEEP_PRIORITY = ['head', 'material.property_class', 'material.finish', 'material.base', 'material.colour',
-  'thread.series', 'specific.point_type'];
+// A T-nut's slot outranks its material: the slot is what its drawer is for (2026-10-24).
+export const KEEP_PRIORITY = ['head', 'specific.tnut.slot', 'material.property_class', 'material.finish', 'material.base',
+  'material.colour', 'thread.series', 'specific.point_type'];
 
 const known = (f) => f && f.status !== 'unknown' && f.value !== null && f.value !== undefined && f.value !== '';
 const get = (rec, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), rec);
@@ -93,6 +104,7 @@ export function standardText(rec, path) {
     case 'material.colour': return v === 'natural' ? null : String(v).toUpperCase();
     case 'thread.series': return String(v).toUpperCase();
     case 'specific.point_type': return POINT_SHORT[v] || null;
+    case 'specific.tnut.slot': return Number.isFinite(Number(v)) ? slotText(Number(v)) : null;
     default: return null;
   }
 }

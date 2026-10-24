@@ -38,6 +38,7 @@ function describeValue(path, value, rec = T()) {
     const dh = df && df.heads.find((x) => x[0] === value);
     if (dh) return dh[1];
   }
+  if (path === 'specific.tnut.slot') return `${value} mm slot`;
   return String(value);
 }
 
