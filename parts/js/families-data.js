@@ -124,7 +124,8 @@ export const DATA_FAMILIES = [
         hint: 'a rod: its cut length; a DIN 6334 coupling nut: 3 d (18 / 24 / 30 / 36 for M6-M12)' }),
     ],
     picture: { d: 'thread.diameter', L: null, prefix: 'M' },
-    labelRule: { big: (g) => g('thread'), small: (g, head) => [head, g('length') ? `${g('length')} mm` : null] },
+    // the length is in the big text when recorded (M8 × 1000; 2026-10-24 audit: a 30 mm and a 1 m rod labelled alike)
+    labelRule: { big: (g, head, h, rv) => `${g('thread')}${rv('length') !== null ? ` × ${g('length')}` : ''}`, small: (g, head) => [head] },
   },
   {
     id: 'thumb', label: 'Thumb screws', short: 'Thumb screws', ns: 'thumb', glyph: 'thumb-high', thread: 'pitch', headTitle: 'Head',

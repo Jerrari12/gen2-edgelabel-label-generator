@@ -39,6 +39,7 @@ function describeValue(path, value, rec = T()) {
     if (dh) return dh[1];
   }
   if (path === 'specific.tnut.slot') return `${value} mm slot`;
+  if (path === 'thread.diameter') return threadText(rec);
   return String(value);
 }
 

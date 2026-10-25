@@ -34,7 +34,9 @@ export const TYPE_SHORT = {
   washer: { plain: 'WASHER', large: 'LG WASHER', 'extra-large': 'XL WASHER', spring: 'SPLIT LW', 'plain-c': 'WASHER',
     chamfered: 'WASHER', small: 'SM WASHER', 'tooth-internal': 'TOOTH LW' },
   setscrew: { 'hex-socket-set': 'SET SCREW' },
-  insert: { 'heat-set': 'INSERT', 'press-in': 'INSERT', 'self-tapping': 'INSERT' },
+  // 2026-10-24 audit: the three insert types all printed INSERT, so a heat-set and a press-in drawer read alike. These fit beside
+  // STEEL and BRASS at M2 x 3 to M6 x 12.7 (value 8.3-9.8 mm caps); HEAT INSERT, PRESS INSERT and HEATSET INSERT fit at none.
+  insert: { 'heat-set': 'HEAT-SET', 'press-in': 'PRESS-IN', 'self-tapping': 'SELF-TAP' },
   // Extrusion T-nuts (2026-10-24, Joey: an M4 drop-in T-nut's label read only "M4" - the family had no type word). The
   // insertion type prints as ONE word so the slot width (below) prints beside it: measured with the Label Studio's own
   // layout engine (hardware-layout.js, the EdgeLabel face) pinned beside STEEL at M3-M8, HAMMER T-NUT, DROP-IN T-NUT,
@@ -85,14 +87,17 @@ const POINT_SHORT = { flat: 'FLAT PT', cup: 'CUP PT', cone: 'CONE PT', dog: 'DOG
 const slotText = (v) => `${fmtNum(v)} MM SLOT`;
 
 // READING order: where the attributes read on the label, left to right, top to bottom
-export const ATTRIBUTE_ORDER = ['head', 'specific.tnut.slot', 'material.base', 'material.property_class', 'material.finish',
-  'material.colour', 'thread.series', 'specific.point_type'];
+// The family identifiers read right after the type (2026-10-24 audit of fields that never reached the label): a T-nut's slot,
+// a fitting's thread (M5, G1/8 - what a male fitting is for), a shoulder screw's thread (its value is the shoulder, ⌀6 × 20);
+// a rivet's body material is its material (the family has no material.base).
+export const ATTRIBUTE_ORDER = ['head', 'specific.tnut.slot', 'specific.fitting.thread', 'thread.diameter', 'material.base',
+  'specific.rivet.body_material', 'material.property_class', 'material.finish', 'material.colour', 'thread.series', 'specific.point_type'];
 // KEEP priority, apart from the reading order (design review 2026-10-05): the optional attributes are offered to the engine in
 // this order and it drops from the END - so the grade and the finish outrank the broad base material (STEEL), which a
 // grade already implies. Pins always win: a pinned field prints or the label is a non-fit.
 // A T-nut's slot outranks its material: the slot is what its drawer is for (2026-10-24).
-export const KEEP_PRIORITY = ['head', 'specific.tnut.slot', 'material.property_class', 'material.finish', 'material.base',
-  'material.colour', 'thread.series', 'specific.point_type'];
+export const KEEP_PRIORITY = ['head', 'specific.tnut.slot', 'specific.fitting.thread', 'thread.diameter', 'material.property_class',
+  'material.finish', 'material.base', 'specific.rivet.body_material', 'material.colour', 'thread.series', 'specific.point_type'];
 
 const known = (f) => f && f.status !== 'unknown' && f.value !== null && f.value !== undefined && f.value !== '';
 const get = (rec, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), rec);
@@ -125,6 +130,10 @@ export function standardText(rec, path) {
     case 'thread.series': return String(v).toUpperCase();
     case 'specific.point_type': return POINT_SHORT[v] || null;
     case 'specific.tnut.slot': return Number.isFinite(Number(v)) ? slotText(Number(v)) : null;
+    case 'specific.fitting.thread': return String(v).toUpperCase();          // M5, G1/8, 1/4 NPT - as the picker lists them
+    case 'specific.rivet.body_material': return BASE_SHORT[v] || String(v).toUpperCase();
+    // a shoulder screw's thread is an attribute (its value is the shoulder); for every other family the thread IS the value
+    case 'thread.diameter': return rec.family === 'shoulder' ? threadText(rec) : null;
     default: return null;
   }
 }
@@ -157,7 +166,8 @@ function familyFields(rec) {
   if (DATA_FAMILY.has(rec.family)) return splitBig(labelText(rec).big);
   if (rec.family === 'fitting') {
     const a = get(rec, 'specific.fitting.tube_a'); const b = get(rec, 'specific.fitting.tube_b');
-    return [`${fmtNum(a.value)}${known(b) ? '/' + fmtNum(b.value) : ''} mm`];
+    // two equal tubes are one size (a 6 mm union), not "6/6 mm" (2026-10-24 audit)
+    return [`${fmtNum(a.value)}${known(b) && +b.value !== +a.value ? '/' + fmtNum(b.value) : ''} mm`];
   }
   return [fmtNum(get(rec, 'specific.rivet.diameter').value), `× ${fmtNum(get(rec, 'specific.rivet.length').value)}`];
 }
@@ -172,6 +182,9 @@ export function valueFields(rec) {
   if (th && isUnified(rec) && th.tpi && !known(th.tpi)) t = String(th.diameter.value);   // '1/4', not '1/4-?'
   const out = [t];      // an inch washer reads as its designation: 1/4" or #10 (units.threadText)
   if (rec.length && known(rec.length.value)) out.push(`× ${lengthText(rec, rec.length.value.value)}`);
+  // an insert's length is its own field (an M3 insert comes 4 and 5.7 mm long - 2026-10-24 audit); optional, never a placeholder
+  const il = rec.family === 'insert' ? get(rec, 'specific.insert.length') : null;
+  if (known(il) && Number.isFinite(Number(il.value))) out.push(`× ${fmtNum(Number(il.value))}`);
   return out;
 }
 

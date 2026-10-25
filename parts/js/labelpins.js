@@ -24,8 +24,17 @@ export function defaultMaterialPin(rec) {
   return 'material.base';
 }
 
+// The second default pin is the field that tells two drawers of this family apart (2026-10-24 audit): a rivet has no
+// material.base - its body material (ALU, STEEL, SS) is the material; a fitting that records a thread (a male type: M5, G1/8)
+// is told apart by the thread, not by its brass. Every other family: the material, as above.
+export function defaultSecondPin(rec) {
+  if (rec && rec.family === 'rivet') return 'specific.rivet.body_material';
+  if (rec && rec.family === 'fitting' && rec.specific && rec.specific.fitting && known(rec.specific.fitting.thread)) return 'specific.fitting.thread';
+  return defaultMaterialPin(rec);
+}
+
 export function pinsOf(rec) {
-  return rec && Array.isArray(rec.label_pins) ? rec.label_pins.slice() : ['head', defaultMaterialPin(rec)];
+  return rec && Array.isArray(rec.label_pins) ? rec.label_pins.slice() : ['head', defaultSecondPin(rec)];
 }
 
 export const isPinned = (rec, path) => pinsOf(rec).includes(path);
