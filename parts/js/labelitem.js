@@ -43,6 +43,26 @@ export const TYPE_SHORT = {
   // WITH the slot at 8.9-9.9 mm caps (Terra 01a1703c preferred these: the slot is the interface distinction). T-PLATE is
   // the picker's own name for the two-hole type. The editor shows each word's full meaning ('Drop-in, hammer head').
   tnut: { 'drop-in-hammer': 'DROP-IN', 'roll-in': 'ROLL-IN', 'sliding-t': 'SLIDING', 'two-hole': 'T-PLATE' },
+  // The ten families that had NO type word at all (2026-10-24, found while fixing the T-nut: a spring washer labelled
+  // "M5 · STEEL" like a nut, a rod like a washer). Each word was measured with the Label Studio's engine pinned beside STEEL
+  // (the rivet alone - it records no base material) at three or four typical values; the forms NOT taken did not fit:
+  // F-F / M-F / M-M / HEX / RND STANDOFF, SHOULDER SCR / BOLT, SLOTTED PIN, COTTER PIN, RET RING EXT / INT, WAVE WASHER,
+  // THREADED ROD, COUPLING NUT, THUMB / WING / KNOB SCREW, CRIMP HOUSING, PCB HEADER, CRIMP CONTACT, STRAIGHT M,
+  // MALE STRAIGHT / ELBOW, FLANGE RIVET, LG FLG RIVET. So a standoff's gender (F-F, M-F, M-M) and its hex / round shape stay in
+  // the record and the editor's meaning, not on the label: none of the seven forms tried that carry them fit. A thumb screw's
+  // knurl height is a CHOICE: KNURLED HI (7.6 mm value caps) and KNURLED LO (6.3) fit, but drop the word screw and shrink the
+  // value; THUMB SCR (8.1) prints for both heights (Sol 01a1705d caught the first comment saying they did not fit).
+  standoff: { 'hex-ff': 'STANDOFF', 'hex-mf': 'STANDOFF', 'hex-mm': 'STANDOFF', 'round-ff': 'STANDOFF', spacer: 'SPACER' },
+  shoulder: { 'socket-iso7379': 'SHOULDER' },
+  pin: { dowel: 'DOWEL PIN', 'spring-slotted': 'SPRING PIN', 'spring-coiled': 'COILED PIN', clevis: 'CLEVIS PIN', split: 'SPLIT PIN' },
+  ring: { external: 'EXT RING', internal: 'INT RING', 'e-clip': 'E-CLIP' },
+  springwasher: { split: 'SPLIT LW', wave: 'WAVE LW', conical: 'CONICAL LW' },
+  rod: { 'threaded-rod': 'THRD ROD', 'coupling-nut': 'CPLG NUT' },
+  thumb: { 'knurled-high': 'THUMB SCR', 'knurled-low': 'THUMB SCR', wing: 'WING SCR', 'plastic-knob': 'KNOB SCR' },
+  connector: { 'crimp-housing': 'HOUSING', header: 'HEADER', 'crimp-contact': 'CONTACT' },
+  fitting: { 'straight-male': 'STR MALE', 'straight-union': 'UNION', 'reducing-union': 'REDUCER', 'elbow-male': 'ELBOW M', 'elbow-union': 'ELBOW',
+    'tee-union': 'TEE', 'bulkhead-union': 'BULKHEAD', 'push-in-cartridge': 'CARTRIDGE', plug: 'PLUG' },
+  rivet: { dome: 'DOME RIVET', countersunk: 'CSK RIVET', 'large-flange': 'FLG RIVET' },
 };
 // Every short form is a proposal (decisions.md, "What a hardware label prints"). These carry a stronger note, shown beside
 // the printed form in the label words so the wording is never quietly made permanent (design review 2026-10-06):
