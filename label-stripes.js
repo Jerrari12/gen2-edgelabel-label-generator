@@ -24,10 +24,19 @@
    So an ordinary label always takes the END stripe (ORDINARY_POSITIONS); bottom and wedge stay for part labels, whose layout
    keeps the words clear of the band.
 
+   CLASSIC PRO (chosen 2026-10-28 from three measured placements): every label takes the BOTTOM stripe, along the lower edge
+   between the two slits (label-hardware.js; export_bands.py cut it from the Classic Pro body). Its label core keeps words and
+   icon 2 mm off the face's lower edge and, since the same day, measures a text block by its ink, descenders included - so a
+   typed label's ink stays at least 0.6 mm above the stripe's top (y -11.39; 600 random labels, worst 0.61), more than the
+   0.45 mm EdgeLabel's end stripe keeps. Before that change 31 of the 600 came within 0.45 mm of it, the
+   worst 1.4 mm onto it. A part label's layout leaves the
+   band and its 0.8 mm gap free.
+
    GEN2LabelStripes.COLOURS                 the stripe colours offered: [{ colour, hex, label, name }] (name = the menu word)
    GEN2LabelStripes.stripe(key)              -> { band: {...} } for a colour key, or null
    GEN2LabelStripes.clean(c, { allowNone })  -> cleaned colours | null (allowNone and c === null: "no stripe") | undefined
-   GEN2LabelStripes.positionFor(kind, setting) -> the position a label's stripe takes ('part' | 'ordinary'), null = none
+   GEN2LabelStripes.positionFor(kind, setting, type) -> the position a label's stripe takes ('part' | 'ordinary', on type
+                                               'edgelabel' (the default) | 'classicpro'), null = none
    GEN2LabelStripes.partItem(item, override) -> the part item with the label's own stripe in place of its colours
    GEN2LabelStripes.nameOf(colours)          -> words for the stripe ('Metric', 'SAE / inch', 'Green' ...), '' for none
    GEN2LabelStripes.signature(colours)       -> a string that changes when the stripe does (layout caches) */
@@ -71,8 +80,9 @@ function clean(c, opts) {
   return out;
 }
 
-function positionFor(kind, setting) {
+function positionFor(kind, setting, type) {
   if (!PART_POSITIONS.includes(setting)) return null;           // 'off' (or unknown): no stripes
+  if (type === 'classicpro') return 'bottom';                   // Classic Pro's one place, for every label
   if (kind === 'part') return setting;
   return ORDINARY_POSITIONS.includes(setting) ? setting : ORDINARY_POSITIONS[0];
 }

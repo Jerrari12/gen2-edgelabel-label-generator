@@ -15,8 +15,8 @@ const THREE = require('../vendor/three.min.js');
 globalThis.THREE = THREE;
 require('../vendor/SVGLoader.js');
 const ot = require('../vendor/opentype.min.js');
-require('../label-core.js'); require('../label-icon-art.js'); require('../label-icons.js');
-require('../hardware-data.js'); require('../hardware-v5-data.js'); require('../hardware-band-data.js'); require('../hardware-layout.js');
+require('../label-core.js'); require('../label-core-classicpro.js'); require('../label-icon-art.js'); require('../label-icons.js');
+require('../hardware-data.js'); require('../hardware-data-classicpro.js'); require('../hardware-v5-data.js'); require('../hardware-band-data.js'); require('../hardware-layout.js');
 require('../label-hardware.js'); require('../label-stripes.js');
 const G = globalThis, S = G.GEN2LabelStripes, B = G.GEN2HardwareBandData;
 const HTML = readFileSync(new URL('../index.html', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
@@ -65,6 +65,10 @@ test('positionFor: a part label takes the setting, a typed label the end stripe;
   assert.equal(S.positionFor('ordinary', 'off'), null);
   assert.equal(S.positionFor('ordinary', 'sideways'), null);
   assert.deepEqual([...S.PART_POSITIONS].sort(), Object.keys(B.treatments).sort(), 'every position the band data cuts');
+  // Classic Pro (2026-10-28): one place, the bottom edge between the slits, for both kinds; Off is still off
+  for (const set of ['bottom', 'end', 'wedge']) for (const kind of ['part', 'ordinary']) assert.equal(S.positionFor(kind, set, 'classicpro'), 'bottom');
+  assert.equal(S.positionFor('ordinary', 'off', 'classicpro'), null);
+  assert.equal(S.positionFor('part', 'end', 'edgelabel'), 'end');
 });
 
 test('partItem: a part label\'s own stripe replaces its Part Picker colours; null takes them off; undefined keeps them', () => {
@@ -172,8 +176,10 @@ test('a typed label\'s stripe is the whole label body cut in three, the band and
 
 test('the page: typed stripes go to the end, both kinds feed one filament plan, the stripe rides the label everywhere', () => {
   assert.match(HTML, /<script src="label-stripes\.js\?v=[0-9a-f]{8}"><\/script>/);
-  assert.match(HTML, /const position = LS\.positionFor\('ordinary', hwBandSetting\(\)\);\n\s+if \(position\) d\.stripe = \{ position, colours: LH\.colours\(row\._stripe\) \};/);
-  assert.match(HTML, /if \(data\.stripe\) m\.baseParts = LH\.bandParts\(data\.stripe\.position, data\.stripe\.colours\);/);
+  assert.match(HTML, /const position = LS\.positionFor\('ordinary', hwBandSetting\(\), labelType\.id\);\n\s+if \(position\) d\.stripe = \{ position, colours: LH\.colours\(row\._stripe\), type: labelType\.id \};/);
+  assert.match(HTML, /if \(data\.stripe\) m\.baseParts = LH\.bandParts\(data\.stripe\.position, data\.stripe\.colours, data\.stripe\.type\);/);
+  // stripes print wherever the type has band data: EdgeLabel, and Classic Pro since 2026-10-28
+  assert.match(HTML, /const stripesOn = \(\) => !!\(LS && LH && LH\.treatmentsFor\(labelType\.id\)\.length\);/);
   const plan = HTML.slice(HTML.indexOf('function filamentPlan('), HTML.indexOf('function partExtruder('));
   assert.match(plan, /const bd = bandOf\(d\);/);
   assert.doesNotMatch(plan, /d\.hardware\.band/, 'no part-label-only check left in the plan');
@@ -186,4 +192,72 @@ test('the page: typed stripes go to the end, both kinds feed one filament plan, 
   assert.match(HTML, /'\|' \+ \(LS \? LS\.signature\(row\._stripe\) : ''\);/);
   // a linked tab says, beside Send, that stripes stay here
   assert.match(HTML, /Send to planner does not carry stripes yet/);
+});
+
+// ---- Classic Pro (2026-10-28) ---------------------------------------------------------------------------------------------
+// Its one stripe runs along the bottom edge between the two springy slits (export_bands.py cp_section, a 0.5 mm inlay in the
+// Classic Pro body). Measured here like EdgeLabel's: a typed label's ink, built by the Classic Pro core itself, against the
+// stripe's top face (z 1.5) - and against the slits, which the face's 1.8 mm margin keeps clear (Jerrari 2026-10-09).
+const CPC = G.GEN2ClassicProCore.create({ THREE });
+CPC.setFont(FONT);
+const CPD = G.GEN2HardwareDataClassicPro;
+const LHC = G.GEN2LabelHardware.create({ THREE, data: G.GEN2HardwareData, v5: G.GEN2HardwareV5Data, classicpro: CPD, bands: B, mergeGeoms: (g) => C.mergeGeoms(g) });
+LHC.setFont(FONT);
+const cpStripeTop = () => LHC.bandParts('bottom', { band: S.stripe('red').band }, 'classicpro').filter(p => p.piece !== 'base').flatMap(p => capTris(p.geo, 1.5));
+function cpInk(c) {
+  const d = CPC.prepareLabel(c.text, LI.resolveBadge(c.badge || { type: 'none' }, c.bsize || 14), c.caps !== false);
+  const m = CPC.buildLabelMeshes(d, c.cap || 5, 0.6, c.bsize || 14, !!c.bold);
+  return { tris: [...(m.textGeo ? capTris(m.textGeo, 0.6) : []), ...(m.badgeGeo ? capTris(m.badgeGeo, 0.6) : [])], fits: m.textFits };
+}
+const CP_BUILT = LABELS.map(c => ({ c, ...cpInk(c) }));
+const SLIT_X = 21.0121;   // the slits' inner edges (CP_BASE_VERTS)
+
+test('Classic Pro: the band data cuts its own body - three pieces that are the label, the band between the slits', () => {
+  const T = B.classicpro.treatments.bottom;
+  assert.deepEqual(LHC.treatmentsFor('classicpro'), ['bottom']);
+  assert.deepEqual(LH.treatmentsFor('classicpro'), [], 'no Classic Pro face given: no Classic Pro stripe');
+  for (const kind of ['solid', 'dashed']) {
+    const v = ['base', 'band', 'accent'].reduce((s, k) => s + T[kind][k].volume, 0);
+    assert.ok(Math.abs(v - B.classicpro.labelVolume) < 1e-3, `${kind}: the pieces add up to the label`);
+  }
+  const [x0, y0, x1, y1] = T.band;
+  assert.ok(x1 <= SLIT_X - 0.5 + 1e-9 && -x0 <= SLIT_X - 0.5 + 1e-9, 'the band stops 0.5 mm short of each slit');
+  assert.ok(Math.abs(y1 - y0 - B.width) < 1e-9 && Math.abs(y0 - Math.min(...CPD.face.map(p => p[1]))) < 1e-9, 'along the lower edge, the band width');
+  assert.equal(T.z0, 1, 'a 0.5 mm inlay in the 1.5 mm body');
+  // the part layout's face: Classic Pro's less the band and its gap
+  assert.ok(Math.min(...T.usable.map(p => p[1])) >= y1 + B.gap - 1e-9);
+  const top = cpStripeTop();
+  assert.ok(top.length > 0);
+  const xs = top.flat().map(p => p[0]);
+  assert.ok(Math.max(...xs.map(Math.abs)) <= SLIT_X - 0.5 + 1e-4, 'its top face too');
+});
+
+test('Classic Pro: a typed label never puts ink on the stripe, nor within 1.8 mm of a slit', () => {
+  const top = cpStripeTop();
+  for (const b of CP_BUILT) {
+    if (!b.fits) continue;   // a label that does not fit is held at the 3 mm floor and flagged on its row
+    const d = minDist(b.tris, top);
+    assert.ok(d >= 0.6, `${JSON.stringify(b.c)}: ${d.toFixed(3)} mm from the stripe`);
+    const xMax = Math.max(...b.tris.flat().map(p => Math.abs(p[0])));
+    assert.ok(xMax <= SLIT_X - 1.8 + 1e-3, `${JSON.stringify(b.c)}: ink to |x| ${xMax.toFixed(3)}, the slits at ${SLIT_X}`);
+  }
+  assert.ok(CP_BUILT.filter(b => b.fits).length >= 8, 'most of the set fits');
+  assert.equal(CPC.AREA_RIGHT, SLIT_X - 1.8);
+  assert.equal(CPC.AREA_LEFT, -(SLIT_X - 1.8));
+});
+
+test('Classic Pro: a part label takes the bottom band, laid out clear of it; Off gives the whole face', () => {
+  const item = { ...JSON.parse(readFileSync(new URL('./fixtures/hardware-bands-ref.json', import.meta.url), 'utf8')).items.find(x => x.item.colours && x.item.colours.band_accent && x.item.colours.band_accent.colour).item };
+  for (const set of ['bottom', 'end', 'wedge']) {
+    const r = LHC.layOut(item, { type: 'classicpro', profile: true, band: set });
+    assert.ok(r.elements, set);
+    assert.equal(r.band, 'bottom'); assert.equal(r.type, 'classicpro'); assert.equal(r.typeSkips, undefined);
+    const ys = Object.values(r.elements).flat(2).flatMap(ring => ring.filter((_, i) => i % 2 === 1));
+    assert.ok(Math.min(...ys) >= B.classicpro.treatments.bottom.band[3] + B.gap - 1e-6, `${set}: the ink stays 0.8 mm above the band`);
+    const parts = LHC.meshes(r, r.inkDepth).baseParts;
+    assert.deepEqual(parts.map(p => [p.piece, p.colour && p.colour.colour]), [['base', null], ['band', item.colours.band.colour], ['accent', item.colours.band_accent.colour]]);
+  }
+  const off = LHC.layOut(item, { type: 'classicpro', profile: true, band: 'off' });
+  assert.equal(off.band, undefined);
+  assert.deepEqual(off.elements, LHC.layouts.classicpro.layOut(item, { profile: true }).elements);
 });

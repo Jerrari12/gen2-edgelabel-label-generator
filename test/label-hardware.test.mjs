@@ -53,6 +53,8 @@ const REF = {
 for (const tr of Object.keys(G.GEN2HardwareBandData.treatments)) {
   REF[tr] = G.GEN2HardwareLayout.create({ data: { ...G.GEN2HardwareData, usable: G.GEN2HardwareBandData.treatments[tr].usable }, v5: G.GEN2HardwareV5Data });
 }
+// Classic Pro's one band position (2026-10-28): its face less the bottom band and the gap
+REF.cpBottom = G.GEN2HardwareLayout.create({ data: { ...G.GEN2HardwareDataClassicPro, usable: G.GEN2HardwareBandData.classicpro.treatments.bottom.usable }, v5: G.GEN2HardwareV5Data });
 Object.values(REF).forEach((h) => h.setFont(FONT));
 
 const vol = (v, t) => { let s = 0; for (let i = 0; i < t.length; i += 3) { const a = t[i] * 3, b = t[i + 1] * 3, c = t[i + 2] * 3;
@@ -73,6 +75,9 @@ test('LH-1 a classic script that reads no page: it loads under node, and its cod
   assert.equal(LH.bandNames.end, 'End stripe');
   assert.equal(LH.inkDepth, 0.45);
   assert.ok(LH.layouts.edgelabel && LH.layouts.classicpro && LH.layouts.bands.bottom && LH.layouts.bands.wedge);
+  assert.ok(LH.layouts.classicproBands.bottom);
+  assert.deepEqual(LH.treatmentsFor('edgelabel'), ['bottom', 'end', 'wedge']);
+  assert.deepEqual(LH.treatmentsFor('classicpro'), ['bottom']);
 });
 
 test('LH-2 layOut gives exactly what the hardware-layout instance for the type, the drawing switch and the band position gives', () => {
@@ -91,11 +96,18 @@ test('LH-2 layOut gives exactly what the hardware-layout instance for the type, 
     const off = LH.layOut(item, { type: 'edgelabel', profile, band: 'off' });
     assert.deepEqual(off.elements, REF.edgelabel.layOut(item, { profile }).elements, 'band off: the whole face');
     assert.equal(off.band, undefined);
-    const cp = LH.layOut(item, { type: 'classicpro', profile, band: 'bottom' });
-    assert.deepEqual(cp.elements, REF.classicpro.layOut(item, { profile }).elements, 'Classic Pro: its own face, never a band');
-    assert.equal(cp.band, undefined);
-    assert.equal(cp.inkDepth, G.GEN2HardwareDataClassicPro.rules.inkDepth);
-    assert.deepEqual(cp.typeSkips, ['colour band'], 'Classic Pro skips the band only: its drawing prints (2026-10-27)');
+    // Classic Pro: its own face less its one band, the bottom one, whichever position is set (2026-10-28); off: the whole face
+    for (const tr of ['bottom', 'end', 'wedge']) {
+      const cp = LH.layOut(item, { type: 'classicpro', profile, band: tr }), ref = REF.cpBottom.layOut(item, { profile });
+      assert.deepEqual(cp.elements, ref.elements, `Classic Pro ${tr}: its face less the bottom band`);
+      assert.equal(cp.band, ref.elements ? 'bottom' : undefined);
+      assert.equal(cp.type, ref.elements ? 'classicpro' : undefined);
+      assert.equal(cp.inkDepth, G.GEN2HardwareDataClassicPro.rules.inkDepth);
+      assert.equal(cp.typeSkips, undefined, 'Classic Pro prints the band too');
+    }
+    const cpOff = LH.layOut(item, { type: 'classicpro', profile, band: 'off' });
+    assert.deepEqual(cpOff.elements, REF.classicpro.layOut(item, { profile }).elements, 'Classic Pro, off: the whole face');
+    assert.equal(cpOff.band, undefined);
   }
   // an item with no colours gets no band, whatever the setting
   const plain = { ...SAMPLE[0] }; delete plain.colours;
@@ -185,7 +197,14 @@ test('LH-6 the row note: the band named, Classic Pro\'s skips named, a part that
   assert.equal(LH.bandNote(LH.layOut(item, { type: 'edgelabel', profile: true, band: 'off' })), '');
   assert.match(LH.noteDetail(r), /^Main value [\d.]+ mm tall/);
   const cp = LH.layOut(item, { type: 'classicpro', profile: true, band: 'bottom' });
-  assert.match(LH.noteText(cp, true), / on EdgeLabel only, for now\./);
+  assert.ok(LH.noteText(cp, true).includes(LH.bandNote(cp)) && LH.bandNote(cp), 'Classic Pro names its band too (2026-10-28)');
+  assert.doesNotMatch(LH.noteText(cp, true), / on EdgeLabel only/);
+  // a Label Studio without Classic Pro band data still says what it leaves off
+  const noCpBands = G.GEN2LabelHardware.create({ ...ALL, bands: { ...G.GEN2HardwareBandData, classicpro: undefined } });
+  noCpBands.setFont(FONT);
+  const old = noCpBands.layOut(item, { type: 'classicpro', profile: true, band: 'bottom' });
+  assert.deepEqual(old.typeSkips, ['colour band']);
+  assert.match(noCpBands.noteText(old, true), / on EdgeLabel only, for now\./);
   const nr = LH.layOut({ ...item, fields: [], value_missing: [{ why: 'size not recorded' }] }, { type: 'edgelabel', profile: true, band: 'bottom' });
   assert.equal(LH.noteText(nr, true), 'Not ready: size not recorded. Nothing is printed - complete the part record first.');
   assert.equal(LH.noteDetail(nr), '');

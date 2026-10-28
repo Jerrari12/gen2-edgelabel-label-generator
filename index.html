@@ -779,7 +779,7 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
   <h4 id="help-two-color">Two-color printing</h4>
   <p>Choose the 3MF for your slicer (PrusaSlicer, or Bambu Studio / OrcaSlicer). The base and the text are already set to filaments 1 and 2. If your slicer does not pick them up, set each part's filament yourself: base light, text dark. 0.2 mm layers work well; leave the purge area free for the wipe tower.</p>
   <h4 id="help-stripes">A stripe on any label</h4>
-  <p>Any label can have a coloured stripe: press the narrow swatch beside a row's icon, or select labels and use <b>Set stripe…</b>. Metric (blue) and SAE / inch (red) match the Part Picker's colours; yellow, white, green and purple are there too. A typed label's stripe runs along its left end, where its words never reach; a part label's goes where <b>Stripe position</b> says, and the stripe button on a part's row can change its colour or take it off. Each stripe colour prints from its own filament: the 3MF names which filament carries which colour. Classic Pro labels have no stripes yet; they are kept for EdgeLabel.</p>
+  <p>Any label can have a coloured stripe: press the narrow swatch beside a row's icon, or select labels and use <b>Set stripe…</b>. Metric (blue) and SAE / inch (red) match the Part Picker's colours; yellow, white, green and purple are there too. A typed label's stripe runs along its left end, where its words never reach; a part label's goes where <b>Stripe position</b> says, and the stripe button on a part's row can change its colour or take it off. Each stripe colour prints from its own filament: the 3MF names which filament carries which colour. Classic Pro labels take their stripe along the bottom edge, between the two springy slits, whatever <b>Stripe position</b> says (Off still turns stripes off).</p>
   <h4>Saving your work</h4>
   <p>Your labels and settings are kept in this browser as you go. <b>Save set file</b> saves a copy on your computer; <b>Open set file</b> opens it again, here or on another computer.</p>
 </dialog>
@@ -813,7 +813,7 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
 <script src="vendor/jszip.min.js?v=acc7e414"></script>
 <script src="vendor/SVGLoader.js?v=cfa44661"></script>
 <script src="label-core.js?v=c5e7fb96"></script>
-<script src="label-core-classicpro.js?v=bbb53c7c"></script>
+<script src="label-core-classicpro.js?v=072dcada"></script>
 <!-- the label icon catalog: groups, the MODULITH icon family's drawings and the wider word -> icon guess, built on
      label-core.js's own 23 icons and rules (label-icons.js says how; both are shared with the 3D Build Studio) -->
 <script src="label-icon-art.js?v=d24118c3"></script>
@@ -821,12 +821,12 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
 <script src="hardware-data.js?v=b97c422e"></script>
 <script src="hardware-data-classicpro.js?v=6a5c2431"></script>
 <script src="hardware-v5-data.js?v=73b3895d"></script>
-<script src="hardware-band-data.js?v=865744a3"></script>
+<script src="hardware-band-data.js?v=b15db389"></script>
 <script src="hardware-layout.js?v=0c416fc5"></script>
-<script src="label-hardware.js?v=9bd3a241"></script>
+<script src="label-hardware.js?v=4fe8c8ef"></script>
 <!-- Feedback & support: the shared MODULITH dialog, the planner's js/modulith-feedback.js byte for byte (test/feedback-vendor.test.mjs) -->
 <script src="modulith-feedback.js?v=c90fd913"></script>
-<script src="label-stripes.js?v=4b6e5cc5"></script>
+<script src="label-stripes.js?v=c84a3948"></script>
 <script src="label-link.js?v=39375dab"></script>
 <script src="part-picker-link.js?v=a60e0dce"></script>
 <!-- the shared label-list format (the planner's vendored copy is this file): the plate's snapshot is read through it -->
@@ -1279,9 +1279,10 @@ function hwBandSetting() { const el = document.getElementById('hw-band'); return
 // an object = that stripe, null = a part label told to print none. The stripe is label-hardware.js's band: the label body cut
 // into base / band / accent pieces. A typed label takes the END stripe whatever "Stripe position" says - measured, its words
 // can reach the bottom and the 45 degree stripes but never the end one (label-stripes.js says how) - and a part label takes the
-// position the setting picks, its words laid out clear of it. Classic Pro has no stripes yet: kept, not printed.
+// position the setting picks, its words laid out clear of it. Classic Pro (2026-10-28): every label takes the bottom stripe,
+// between its slits - the one place its face has (label-stripes.js says why typed words clear it).
 const LS = window.GEN2LabelStripes || null;
-const stripesOn = () => !!(LS && LH && labelType.id === 'edgelabel');
+const stripesOn = () => !!(LS && LH && LH.treatmentsFor(labelType.id).length);   // EdgeLabel; Classic Pro once its band data loaded
 // what a row's stripe is: its own, else (a part row) the Part Picker's colours; null when none
 function rowStripe(row) {
   if (row._stripe !== undefined) return row._stripe;
@@ -1293,7 +1294,7 @@ function rowStripe(row) {
 // from the two slits that make its lower corners springy too - Jerrari: "avoid the compliant mechanisms at all cost"), every row
 // centred, as its plain labels are (Jerrari 2026-10-09). It prints the words and the family icon, and since 2026-10-27 the screw
 // and nut drawings too, under the size with every row centred (Jerrari chose it from three measured layouts; hardware-layout.js
-// arrange5), where they fit; the colour band is EdgeLabel-only for now and stays saved, named in the row's note. Its
+// arrange5), where they fit; and its colour band since 2026-10-28, along the bottom edge between the slits. Its
 // text sizes are EdgeLabel's until a design review decides whether the 45 degree face (it reads at 71% from in front) needs larger ones.
 const HW_CP = LH ? LH.layouts.classicpro : null;
 if (!HW_CP) LABEL_TYPES.classicpro.hardware = false;     // its rows are then kept, dimmed and named (updateTypeUI)
@@ -1785,7 +1786,7 @@ function meshesFor(data, capH, depth, badgeSize, bold) {
   if (data.hardware) return LH.meshes(data.hardware, data.hardware.inkDepth || HW_INK_DEPTH);
   const m = buildLabelMeshes(data, capH, depth, badgeSize, bold);
   if (meshWatch && !m.textFits && data.row && !meshWatch.includes(data.row)) meshWatch.push(data.row);
-  if (data.stripe) m.baseParts = LH.bandParts(data.stripe.position, data.stripe.colours);
+  if (data.stripe) m.baseParts = LH.bandParts(data.stripe.position, data.stripe.colours, data.stripe.type);
   return m;
 }
 // the stripe a built label carries, whichever kind it is: { position, colours } or null
@@ -1816,8 +1817,8 @@ function getLabelData() {
     }
     const d = prepareLabel(text, LabelIcons ? LabelIcons.resolveBadge(badge, getBadgeSize()) : badge, capsOn());
     if (d && row._stripe && stripesOn()) {
-      const position = LS.positionFor('ordinary', hwBandSetting());
-      if (position) d.stripe = { position, colours: LH.colours(row._stripe) };
+      const position = LS.positionFor('ordinary', hwBandSetting(), labelType.id);
+      if (position) d.stripe = { position, colours: LH.colours(row._stripe), type: labelType.id };
     }
     // its row rides along, unlisted (never in a file): rebuild() puts a label's warning under the row it came from
     if (d) { Object.defineProperty(d, 'row', { value: row }); out.push(d); }
@@ -2837,6 +2838,7 @@ function updateStripeButtons() {
     const any = typed || rows.some(r => r.dataset.hw && (rowStripe(r) || {}).band);
     const set = hwBandSetting();
     const text = !stripesOn() || !any ? '' : set === 'off' ? 'Stripes are off: no label prints one until you pick a position.'
+      : labelType.id === 'classicpro' ? (set !== 'bottom' ? 'Classic Pro labels take the bottom stripe, between the springy slits, whichever position is picked.' : '')
       : typed && set !== 'end' ? `Typed labels take the end stripe: at the ${set === 'bottom' ? 'bottom edge' : '45° end'} their words could run onto it.` : '';
     note.hidden = !text;
     note.textContent = text;
@@ -3473,18 +3475,18 @@ function updateTypeUI() {
   const vn = document.getElementById('type-version'); if (vn) vn.textContent = 'MODULITH LABEL STUDIO · ' + labelType.version;
   document.body.classList.toggle('type-no-hw', !labelType.hardware);
   const cp = labelType.id === 'classicpro';
-  ['hw-band'].forEach(id => {      // bands are EdgeLabel's for now: the setting is kept, not used (drawings print on both since 2026-10-27)
+  ['hw-band'].forEach(id => {      // stripes print on both types since 2026-10-28: on Classic Pro the setting is on (any position) or off
     const el = document.getElementById(id); if (!el) return;
-    el.disabled = cp;
-    const s = el.closest('.setting'); if (s) s.classList.toggle('type-off', cp);
+    el.disabled = !stripesOn();
+    const s = el.closest('.setting'); if (s) s.classList.toggle('type-off', !stripesOn());
   });
   const note = document.getElementById('type-note');
   if (note) {
     const rows = [...document.querySelectorAll('#labels .row[data-hw]')];
     const n = labelType.hardware ? 0 : rows.length;
     const k = labelType.hardware ? rows.filter(r => hwTypeSkips(r._hwItem).length).length : 0;
-    // typed labels with a stripe: Classic Pro has no stripes yet (label-stripes.js); kept for EdgeLabel
-    const st = labelType.id !== 'edgelabel' ? [...document.querySelectorAll('#labels .row:not([data-hw])')].filter(r => r._stripe).length : 0;
+    // typed labels with a stripe on a type that cannot print one (Classic Pro without its band data): kept for EdgeLabel
+    const st = !stripesOn() ? [...document.querySelectorAll('#labels .row:not([data-hw])')].filter(r => r._stripe).length : 0;
     note.hidden = !n && !k && !st;
     note.textContent = (n ? `${n} part label${n === 1 ? ' is' : 's are'} EdgeLabel-only for now: kept here, not printed on ${labelType.name}. Switch back to EdgeLabel to print ${n === 1 ? 'it' : 'them'}.`
       : k ? `${k} part label${k === 1 ? ' has a colour band' : 's have colour bands'}: ${labelType.name} prints the words and the drawing, and the band stays saved for EdgeLabel.` : '') +
@@ -3948,7 +3950,7 @@ function plannerLabelList() {
     // "none"), and `bandPosition` says where it printed here (a typed label: always 'end'), so the 3D Build Studio can match
     const stripe = (l) => {
       if (row._stripe !== undefined) l.colours = row._stripe;
-      const pos = !stripesOn() ? null : row.dataset.hw ? (row._hw && row._hw.band) || null : row._stripe ? LS.positionFor('ordinary', hwBandSetting()) : null;
+      const pos = !stripesOn() ? null : row.dataset.hw ? (row._hw && row._hw.band) || null : row._stripe ? LS.positionFor('ordinary', hwBandSetting(), labelType.id) : null;
       if (pos) l.bandPosition = pos;
       return l;
     };

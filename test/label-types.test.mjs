@@ -54,13 +54,24 @@ test('the Classic Pro body in the page is the Classic Pro generator\'s, unchange
   assert.deepEqual(tr, JSON.parse(cp.match(/const BASE_TRIS = (\[.*?\]);/)[1]));
 });
 
-test('label-core-classicpro.js is the Classic Pro branch core, byte for byte (when its checkout is here)', (t) => {
+// The Classic Pro branch core (classicpro-label-core f0ef3c6) with two changes made HERE on 2026-10-28, and nothing else:
+// the text area kept 1.8 mm off the two slits (the face's margin rule), and a block measured by its ink, descenders included.
+const CP_CORE_CHANGES = [
+  ["const AREA_LEFT  = -TOP_X + AREA_MARGIN;   // usable rectangle: left\nconst AREA_RIGHT =  TOP_X - AREA_MARGIN;   // usable rectangle: right\n",
+   /\/\/ The two slits that make[\s\S]*?const AREA_RIGHT =  AREA_HALF_W;           \/\/ usable rectangle: right\n/],
+  ['    let overflow = false, blockW = 0;\n', /    let overflow = false, blockW = 0, inkH = 0;\n/],
+  ['', /      \/\/ the block's height is its INK[\s\S]*?inkH = Math\.max\(inkH, i \* w\.pitch \+ \(bb\.max\.y - bb\.min\.y\)\);\n/],
+  ['    const visualH = (w.lines.length - 1) * w.pitch + cap;\n', /    const visualH = Math\.max\(\(w\.lines\.length - 1\) \* w\.pitch \+ cap, inkH\);\n/],
+];
+test('label-core-classicpro.js is the Classic Pro branch core and the 2026-10-28 changes, nothing else (when its checkout is here)', (t) => {
   const mine = readFileSync(new URL('../label-core-classicpro.js', import.meta.url));
   // pinned: a change to this file is a change to how every Classic Pro label is built - re-run the export check first
-  assert.equal(createHash('sha256').update(mine).digest('hex').slice(0, 16), 'bbb53c7c46054428');
+  assert.equal(createHash('sha256').update(mine).digest('hex').slice(0, 16), '072dcada70d1e7c0');
   if (!existsSync(new URL('index.html', CP_REPO))) { t.skip('no Classic Pro checkout beside this one'); return; }
-  const theirs = execFileSync('git', ['show', 'f0ef3c6:label-core.js'], { cwd: CP_REPO });
-  assert.ok(Buffer.compare(mine, theirs) === 0, 'differs from classicpro-label-core f0ef3c6');
+  const theirs = execFileSync('git', ['show', 'f0ef3c6:label-core.js'], { cwd: CP_REPO }).toString();
+  let back = mine.toString();
+  for (const [old, now] of CP_CORE_CHANGES) { assert.match(back, now); back = back.replace(now, old); }
+  assert.equal(back, theirs, 'differs from classicpro-label-core f0ef3c6 by more than the 2026-10-28 changes');
 });
 
 test('the type registry: every type names a body, a core and its own file names; per-type settings are form settings', () => {
