@@ -48,7 +48,7 @@ LH.setFont(FONT);
 // the instances the page used to make itself, to compare against
 const REF = {
   edgelabel: G.GEN2HardwareLayout.create({ data: G.GEN2HardwareData, v5: G.GEN2HardwareV5Data }),
-  classicpro: G.GEN2HardwareLayout.create({ data: G.GEN2HardwareDataClassicPro }),
+  classicpro: G.GEN2HardwareLayout.create({ data: G.GEN2HardwareDataClassicPro, v5: G.GEN2HardwareV5Data }),   // drawings since 2026-10-27
 };
 for (const tr of Object.keys(G.GEN2HardwareBandData.treatments)) {
   REF[tr] = G.GEN2HardwareLayout.create({ data: { ...G.GEN2HardwareData, usable: G.GEN2HardwareBandData.treatments[tr].usable }, v5: G.GEN2HardwareV5Data });
@@ -95,7 +95,7 @@ test('LH-2 layOut gives exactly what the hardware-layout instance for the type, 
     assert.deepEqual(cp.elements, REF.classicpro.layOut(item, { profile }).elements, 'Classic Pro: its own face, never a band');
     assert.equal(cp.band, undefined);
     assert.equal(cp.inkDepth, G.GEN2HardwareDataClassicPro.rules.inkDepth);
-    assert.deepEqual(cp.typeSkips, [...(REF.edgelabel.profileCovered(item) ? ['drawing'] : []), 'colour band']);
+    assert.deepEqual(cp.typeSkips, ['colour band'], 'Classic Pro skips the band only: its drawing prints (2026-10-27)');
   }
   // an item with no colours gets no band, whatever the setting
   const plain = { ...SAMPLE[0] }; delete plain.colours;

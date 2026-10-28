@@ -224,3 +224,46 @@ test('the slits change real labels: without the cutouts some lay out differently
   const differ = FX.items.filter((x, i) => JSON.stringify(summary(free.layOut(x.item))) !== JSON.stringify(summary(LAID[i]))).length;
   assert.ok(differ >= 3, `${differ} labels differ`);
 });
+
+/* THE SCREW AND NUT DRAWINGS ON CLASSIC PRO (2026-10-27; Jerrari: Classic Pro part labels were "missing the icons and
+   everything like what we have on the edgelabel labels", and of three measured layouts chose the drawing under the size). The
+   v5 profile label is built as on EdgeLabel, then its three rows - the size (and a nut's word), the drawings, the attributes -
+   are each centred across the area (arrange5) and the label moved down towards the middle as far as it fits. Held here, on
+   the 54 items of hardware-v5-ref.json: most take the drawing; every outline point is inside the usable hull and outside both
+   cutouts; each row is centred; asking for the text layout gives exactly the text layout as before. */
+test('Classic Pro takes the profile drawings: centred rows, inside the area and clear of the slits, the text layout unchanged', () => {
+  require('../hardware-v5-data.js');
+  const CP5 = globalThis.GEN2HardwareLayout.create({ data: D, v5: globalThis.GEN2HardwareV5Data }); CP5.setFont(FONT);
+  const V5FX = JSON.parse(readFileSync(new URL('./fixtures/hardware-v5-ref.json', import.meta.url), 'utf8')).items;
+  const xs = D.usable.map(p => p[0]), XC = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const ROW = { 'main spec': 'main', 'family word': 'main', 'head-on view': 'drawing', 'side profile': 'drawing', secondary: 'secondary' };
+  let drawn = 0;
+  for (const { item } of V5FX) {
+    const r = CP5.layOut(item), text = CP.layOut(item);
+    // a label wherever the text layout made one (two long inch items fit neither, as before)
+    assert.ok(r.elements || !text.elements, `${item.id}: a label (${JSON.stringify(r.record).slice(0, 120)})`);
+    assert.deepEqual(CP5.layOut(item, { profile: false }).elements, text.elements, `${item.id}: the text layout as before`);
+    if (!r.elements) continue;
+    if (r.record.layout !== 'v5') continue;
+    drawn++;
+    assert.ok(r.elements['head-on view'] && r.elements['side profile'], `${item.id}: both drawings`);
+    const rows = {};
+    for (const [k, parts] of Object.entries(r.elements)) {
+      (rows[ROW[k]] = rows[ROW[k]] || []).push(...parts);
+      for (const rings of parts) for (const ring of rings) for (let i = 0; i < ring.length; i += 2) {
+        assert.ok(side(D.usable, ring[i], ring[i + 1]) > -0.05, `${item.id} ${k}: a point off the usable area`);
+        for (const c of D.cutouts) assert.ok(side(c, ring[i], ring[i + 1]) < 0.05, `${item.id} ${k}: a point inside a slit cutout`);
+      }
+    }
+    for (const [row, parts] of Object.entries(rows)) {
+      const [x0, , x1] = boxOf(parts);
+      assert.ok(Math.abs((x0 + x1) / 2 - XC) < 0.01, `${item.id}: the ${row} row centred (${((x0 + x1) / 2).toFixed(3)} vs ${XC.toFixed(3)})`);
+    }
+    // the rows stay stacked, each clear of the next (measured here, not by the layout's own fits5: Sol 01a18014): the size
+    // over the drawings by the v5 group gap, the drawings over the attributes by the v5 line gap, less a hair
+    const [, my0] = boxOf(rows.main), [, dy0, , dy1] = boxOf(rows.drawing);
+    assert.ok(my0 - dy1 >= 1.44, `${item.id}: the size ${(my0 - dy1).toFixed(2)} mm over the drawings`);
+    if (rows.secondary) { const [, , , sy1] = boxOf(rows.secondary); assert.ok(dy0 - sy1 >= 1.24, `${item.id}: the drawings ${(dy0 - sy1).toFixed(2)} mm over the attributes`); }
+  }
+  assert.ok(drawn >= 49, `${drawn} of ${V5FX.length} take the drawing (49 when it was written)`);
+});

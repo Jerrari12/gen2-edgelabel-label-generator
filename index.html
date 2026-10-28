@@ -822,8 +822,8 @@ if (/[?&]embed=planner(?:&|$)/.test(location.search) && window.parent !== window
 <script src="hardware-data-classicpro.js?v=6a5c2431"></script>
 <script src="hardware-v5-data.js?v=73b3895d"></script>
 <script src="hardware-band-data.js?v=865744a3"></script>
-<script src="hardware-layout.js?v=d807991c"></script>
-<script src="label-hardware.js?v=d1c0eb6b"></script>
+<script src="hardware-layout.js?v=0c416fc5"></script>
+<script src="label-hardware.js?v=9bd3a241"></script>
 <!-- Feedback & support: the shared MODULITH dialog, the planner's js/modulith-feedback.js byte for byte (test/feedback-vendor.test.mjs) -->
 <script src="modulith-feedback.js?v=c90fd913"></script>
 <script src="label-stripes.js?v=4b6e5cc5"></script>
@@ -1291,8 +1291,9 @@ function rowStripe(row) {
 // CLASSIC PRO PART LABELS (label types step 3, 2026-10-09). The same layout on Classic Pro's own face (hardware-data-classicpro.js,
 // made by export_hw_data_classicpro.py from this page's Classic Pro label body: the printing face less a 1.8 mm margin, kept
 // from the two slits that make its lower corners springy too - Jerrari: "avoid the compliant mechanisms at all cost"), every row
-// centred, as its plain labels are (Jerrari 2026-10-09). It prints the words and the family icon; the screw and nut drawings and
-// the colour band are EdgeLabel-only for now (design review: optional, after measuring) and stay saved, named in the row's note. Its
+// centred, as its plain labels are (Jerrari 2026-10-09). It prints the words and the family icon, and since 2026-10-27 the screw
+// and nut drawings too, under the size with every row centred (Jerrari chose it from three measured layouts; hardware-layout.js
+// arrange5), where they fit; the colour band is EdgeLabel-only for now and stays saved, named in the row's note. Its
 // text sizes are EdgeLabel's until a design review decides whether the 45 degree face (it reads at 71% from in front) needs larger ones.
 const HW_CP = LH ? LH.layouts.classicpro : null;
 if (!HW_CP) LABEL_TYPES.classicpro.hardware = false;     // its rows are then kept, dimmed and named (updateTypeUI)
@@ -3472,7 +3473,7 @@ function updateTypeUI() {
   const vn = document.getElementById('type-version'); if (vn) vn.textContent = 'MODULITH LABEL STUDIO · ' + labelType.version;
   document.body.classList.toggle('type-no-hw', !labelType.hardware);
   const cp = labelType.id === 'classicpro';
-  ['hw-profile', 'hw-band'].forEach(id => {      // drawings and bands are EdgeLabel's for now: the setting is kept, not used
+  ['hw-band'].forEach(id => {      // bands are EdgeLabel's for now: the setting is kept, not used (drawings print on both since 2026-10-27)
     const el = document.getElementById(id); if (!el) return;
     el.disabled = cp;
     const s = el.closest('.setting'); if (s) s.classList.toggle('type-off', cp);
@@ -3486,7 +3487,7 @@ function updateTypeUI() {
     const st = labelType.id !== 'edgelabel' ? [...document.querySelectorAll('#labels .row:not([data-hw])')].filter(r => r._stripe).length : 0;
     note.hidden = !n && !k && !st;
     note.textContent = (n ? `${n} part label${n === 1 ? ' is' : 's are'} EdgeLabel-only for now: kept here, not printed on ${labelType.name}. Switch back to EdgeLabel to print ${n === 1 ? 'it' : 'them'}.`
-      : k ? `${k} part label${k === 1 ? ' has a drawing or colour band' : 's have drawings or colour bands'}: ${labelType.name} prints the words and the family icon, and the rest stays saved for EdgeLabel.` : '') +
+      : k ? `${k} part label${k === 1 ? ' has a colour band' : 's have colour bands'}: ${labelType.name} prints the words and the drawing, and the band stays saved for EdgeLabel.` : '') +
       (st ? `${n || k ? ' ' : ''}${st} label${st === 1 ? ' has a stripe' : 's have stripes'}: ${labelType.name} labels have no stripes yet, so ${st === 1 ? 'it is' : 'they are'} kept for EdgeLabel.` : '');
   }
   updateStripeButtons();
